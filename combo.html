@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chọn Bắp Nước & Combo - Beta Cinemas (Thiết Kế Mới 2026)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  <style>
+    /* Stepper */
+    .booking-stepper {
+      background: white;
+      border-bottom: 1px solid var(--slate-200);
+      padding: 16px 0;
+    }
+    .stepper-list {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .step-item.active { color: var(--beta-navy); }
+    .step-item.completed { color: var(--color-success); }
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .step-item.active .step-number { background: var(--beta-orange); color: white; }
+    .step-item.completed .step-number { background: var(--color-success); color: white; }
+
+    /* Combo Item Card */
+    .combo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+      margin: 30px 0 80px;
+    }
+    .combo-card {
+      background: white;
+      border-radius: 18px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+    }
+    .combo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+    .combo-img-wrap {
+      height: 180px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .combo-img-wrap img {
+      max-height: 150px;
+      object-fit: contain;
+      transition: transform 0.3s;
+    }
+    .combo-card:hover .combo-img-wrap img {
+      transform: scale(1.08);
+    }
+    .combo-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--beta-orange);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+    }
+    .combo-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .combo-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .combo-desc {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .combo-footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .combo-price {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--beta-orange);
+    }
+
+    /* Counter Control */
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      background: #f1f5f9;
+      border-radius: var(--radius-full);
+      padding: 4px;
+      gap: 8px;
+    }
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: white;
+      color: var(--beta-navy);
+      font-weight: 900;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.15s;
+    }
+    .qty-btn:hover {
+      background: var(--beta-navy);
+      color: white;
+    }
+    .qty-value {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* Sticky Bottom Bar */
+    .sticky-booking-bar {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      border-top: 2px solid var(--slate-200);
+      box-shadow: 0 -10px 25px rgba(0,0,0,0.06);
+      padding: 16px 0;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" 
+             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+          <option selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option>Beta Trần Quang Khải</option>
+          <option>Beta Giải Phóng (Hà Nội)</option>
+          <option>Beta Mỹ Đình (Hà Nội)</option>
+          <option>Beta Quang Trung (TP.HCM)</option>
+          <option>Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option>Beta Thái Nguyên</option>
+          <option>Beta Bắc Giang</option>
+          <option>Beta Nha Trang</option>
+        </select>
+        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Combo Selection Area -->
+  <main class="container" style="padding-top: 40px;">
+    
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <div class="section-subtitle">Ẩm Thực Điện Ảnh</div>
+        <h1 class="section-title">Chọn Combo Bắp Nước Ưu Đãi</h1>
+      </div>
+      <div style="font-size: 13.5px; color: #64748b;">
+        Nhận bắp nước tại quầy Concession trước giờ chiếu
+      </div>
+    </div>
+
+    <!-- Tóm tắt ghế đã chọn -->
+    <div style="background: var(--beta-blue-soft); border-radius: 12px; padding: 14px 20px; border: 1.5px solid #bfdbfe; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <span style="font-size: 13px; color: var(--beta-navy); font-weight: 700;">Vé đang giữ chỗ:</span>
+        <strong style="color: #0f172a; margin-left: 6px;">2 Ghế VIP (F07, F08)</strong> • Phòng 01 (18:30)
+      </div>
+      <div style="font-family: var(--font-display); font-weight: 800; color: var(--beta-navy);">
+        Tiền vé: 130.000 đ
+      </div>
+    </div>
+
+    <!-- Combo Grid -->
+    <div class="combo-grid">
+      <!-- Combo 1: Solo -->
+      <div class="combo-card">
+        <div class="combo-img-wrap">
+          <img src="images/combo.png" alt="Combo Solo">
+          <span class="combo-badge">Tiết Kiệm</span>
+        </div>
+        <div class="combo-body">
+          <h3 class="combo-title">Combo Solo Tiêu Chuẩn</h3>
+          <p class="combo-desc">Gồm 01 Bắp ngọt lớn 64oz + 01 Nước ngọt lớn 32oz (Coca / Sprite / Fanta tùy chọn).</p>
+          <div class="combo-footer">
+            <div class="combo-price">69.000 đ</div>
+            <div class="quantity-control">
+              <button class="qty-btn" onclick="updateQty('solo', -1)">−</button>
+              <span class="qty-value" id="qty-solo">1</span>
+              <button class="qty-btn" onclick="updateQty('solo', 1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Combo 2: Couple Hot -->
+      <div class="combo-card" style="border: 2px solid var(--beta-orange);">
+        <div class="combo-img-wrap">
+          <img src="images/combosieucu-1702x621-115549-081026-63.png" alt="Combo Couple">
+          <span class="combo-badge" style="background: var(--beta-orange);">Bán Chạy Nhất</span>
+        </div>
+        <div class="combo-body">
+          <h3 class="combo-title">Beta Couple Vui Vẻ</h3>
+          <p class="combo-desc">Gồm 01 Bắp rang bơ phô mai/caramel lớn + 02 Nước ngọt lớn mát lạnh. Thích hợp cho 2 người.</p>
+          <div class="combo-footer">
+            <div class="combo-price">89.000 đ</div>
+            <div class="quantity-control">
+              <button class="qty-btn" onclick="updateQty('couple', -1)">−</button>
+              <span class="qty-value" id="qty-couple">0</span>
+              <button class="qty-btn" onclick="updateQty('couple', 1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Combo 3: Family Party -->
+      <div class="combo-card">
+        <div class="combo-img-wrap">
+          <img src="images/combo.png" alt="Combo Family">
+        </div>
+        <div class="combo-body">
+          <h3 class="combo-title">Combo Siêu Nhóm Bạn (Family)</h3>
+          <p class="combo-desc">Gồm 02 Bắp lớn 64oz + 03 Nước ngọt lớn + 01 Snack khoai tây Lays thơm ngon.</p>
+          <div class="combo-footer">
+            <div class="combo-price">139.000 đ</div>
+            <div class="quantity-control">
+              <button class="qty-btn" onclick="updateQty('family', -1)">−</button>
+              <span class="qty-value" id="qty-family">0</span>
+              <button class="qty-btn" onclick="updateQty('family', 1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Combo 4: Snack xúc xích -->
+      <div class="combo-card">
+        <div class="combo-img-wrap">
+          <img src="images/combosieucu-1702x621-115549-081026-63.png" alt="Xúc Xích Nướng">
+        </div>
+        <div class="combo-body">
+          <h3 class="combo-title">Xúc Xích Nướng Phô Mai</h3>
+          <p class="combo-desc">01 Que xúc xích nướng sốt tương cà / mù tạt mật ong thơm lừng giòn sần sật.</p>
+          <div class="combo-footer">
+            <div class="combo-price">25.000 đ</div>
+            <div class="quantity-control">
+              <button class="qty-btn" onclick="updateQty('sausage', -1)">−</button>
+              <span class="qty-value" id="qty-sausage">0</span>
+              <button class="qty-btn" onclick="updateQty('sausage', 1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sticky Bottom Summary Bar -->
+  <div class="sticky-booking-bar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div style="font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Chi Tiết Đơn Hàng:</div>
+        <div style="font-size: 14.5px; font-weight: 700; color: #1e293b;" id="order-summary-detail">
+          2 Vé VIP (130.000 đ) + 1 Combo Solo (69.000 đ)
+        </div>
+      </div>
+
+      <div style="text-align: right; margin-right: 20px;">
+        <div style="font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Tổng Thanh Toán:</div>
+        <div style="font-family: var(--font-display); font-size: 24px; font-weight: 900; color: var(--beta-orange);" id="total-amount-display">
+          199.000 đ
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <a href="seats.html" class="btn btn-outline">
+          ← Quay Lại Ghế
+        </a>
+        <a href="checkout.html" class="btn btn-primary btn-lg">
+          Tiếp Tục Thanh Toán →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROTOTYPE SWITCHER DOCK -->
+  <nav class="prototype-dock">
+    <span class="dock-label">Giao diện:</span>
+    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
+    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
+    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
+    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
+    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
+    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
+    <a href="combo.html" class="dock-item active">🍿 Bắp Nước</a>
+    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
+    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
+    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
+    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
+    <a href="account.html" class="dock-item">👤 Thành Viên</a>
+    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
+      <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
+  </nav>
+
+  <script>
+    const ticketTotal = 130000;
+    const items = {
+      solo: { name: 'Combo Solo', price: 69000, qty: 1 },
+      couple: { name: 'Combo Couple', price: 89000, qty: 0 },
+      family: { name: 'Combo Family', price: 139000, qty: 0 },
+      sausage: { name: 'Xúc xích', price: 25000, qty: 0 }
+    };
+
+    function updateQty(key, delta) {
+      const item = items[key];
+      const newQty = item.qty + delta;
+      if (newQty >= 0 && newQty <= 10) {
+        item.qty = newQty;
+        document.getElementById(`qty-${key}`).innerText = item.qty;
+        recalcTotal();
+      }
+    }
+
+    function recalcTotal() {
+      let comboTotal = 0;
+      let comboSummary = [];
+
+      for (const k in items) {
+        if (items[k].qty > 0) {
+          comboTotal += items[k].price * items[k].qty;
+          comboSummary.push(`${items[k].qty} ${items[k].name}`);
+        }
+      }
+
+      const grandTotal = ticketTotal + comboTotal;
+      const detailStr = `2 Vé VIP (130.000 đ)` + (comboSummary.length > 0 ? ` + ${comboSummary.join(', ')}` : '');
+
+      document.getElementById('order-summary-detail').innerText = detailStr;
+      document.getElementById('total-amount-display').innerText = new Intl.NumberFormat('vi-VN').format(grandTotal) + ' đ';
+    }
+  </script>
+</body>
+</html>

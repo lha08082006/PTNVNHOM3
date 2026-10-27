@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beta Cinemas - Bộ Prototype Giao Diện Mới 2026 (Showcase Hub)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  <style>
+    .hub-hero {
+      background: linear-gradient(135deg, #002547 0%, #005198 60%, #0284c7 100%);
+      color: white;
+      padding: 60px 0 50px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hub-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 84, 0, 0.25);
+      border: 1px solid var(--beta-orange);
+      color: #ffaa80;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hub-title {
+      font-family: var(--font-display);
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hub-subtitle {
+      font-size: 16px;
+      color: #bfdbfe;
+      max-width: 750px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+
+    /* Showcase Category Section */
+    .showcase-category {
+      margin-bottom: 45px;
+    }
+    .category-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--beta-navy);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* Showcase Card */
+    .showcase-card {
+      background: white;
+      border-radius: 18px;
+      border: 1.5px solid #e2e8f0;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .showcase-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--beta-navy);
+      box-shadow: 0 16px 30px rgba(0, 81, 152, 0.12);
+    }
+    .card-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--beta-blue-soft);
+      color: var(--beta-navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-size: 13.5px;
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+    .card-badge-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tag-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .tag-pill.highlight {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    /* Live Preview Modal / Embed Section */
+    .preview-box-container {
+      background: white;
+      border-radius: 20px;
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 20px 40px rgba(0, 81, 152, 0.08);
+      overflow: hidden;
+      margin: 40px 0;
+    }
+    .preview-toolbar {
+      background: #0f172a;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preview-iframe {
+      width: 100%;
+      height: 750px;
+      border: none;
+      display: block;
+      background: #f8fafc;
+    }
+
+    @media (max-width: 768px) {
+      .hub-title { font-size: 28px; }
+      .preview-iframe { height: 500px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" 
+             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+          <option selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option>Beta Trần Quang Khải</option>
+          <option>Beta Giải Phóng (Hà Nội)</option>
+          <option>Beta Mỹ Đình (Hà Nội)</option>
+          <option>Beta Quang Trung (TP.HCM)</option>
+          <option>Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option>Beta Thái Nguyên</option>
+          <option>Beta Bắc Giang</option>
+          <option>Beta Nha Trang</option>
+        </select>
+        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Header -->
+  <section class="hub-hero">
+    <div class="container">
+      <div class="hub-badge">🚀 Thiết Kế Mới 2026 • Chuẩn Modern Beta Brand</div>
+      <h1 class="hub-title">Bộ Giao Diện Mới Web Beta Cinemas</h1>
+      <p class="hub-subtitle">
+        Tái thiết kế toàn diện 100% các màn hình trong website đặt vé xem phim Beta Cinemas: từ Trang chủ, Lịch chiếu, Chi tiết phim, Sơ đồ ghế 3D, Combo bắp nước, Cổng thanh toán VietQR / VNPay cho đến Vé điện tử E-Ticket và Trang thành viên.
+      </p>
+
+      <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+        <a href="home.html" class="btn btn-primary btn-lg">
+          🏠 Trải Nghiệm Trang Chủ Mới →
+        </a>
+        <a href="seats.html" class="btn btn-outline btn-lg" style="color: white; border-color: rgba(255,255,255,0.4);">
+          💺 Thử Sơ Đồ Đặt Ghế 3D
+        </a>
+        <a href="checkout.html" class="btn btn-outline btn-lg" style="color: white; border-color: rgba(255,255,255,0.4);">
+          💳 Khám Phá Cổng Thanh Toán
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase Cards Grid Container -->
+  <main class="container" style="padding-top: 50px;">
+    
+    <!-- NHÓM 1: KHÁM PHÁ & LỊCH CHIẾU -->
+    <div class="showcase-category">
+      <div class="category-title">
+        <span>🎬</span> Nhóm 1: Khám Phá Điện Ảnh & Lịch Chiếu
+      </div>
+
+      <div class="grid-3">
+        <!-- Card 1: Home -->
+        <div class="showcase-card">
+          <div class="card-icon-box">🏠</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Quick Booking</span>
+            <span class="tag-pill">Carousel Hero</span>
+            <span class="tag-pill">Promos</span>
+          </div>
+          <h3 class="card-title">1. Trang Chủ (Home)</h3>
+          <p class="card-desc">
+            Banner slider bom tấn, thanh đặt vé nhanh 4 bước (Rạp → Phim → Ngày → Suất), danh mục Phim Đang Chiếu / Sắp Chiếu với poster chuẩn 2:3, các chương trình Thứ 3 Beta Day và HSSV.
+          </p>
+          <a href="home.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+
+        <!-- Card 2: Schedule -->
+        <div class="showcase-card">
+          <div class="card-icon-box">📅</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Date Strip Carousel</span>
+            <span class="tag-pill">Time Pills</span>
+            <span class="tag-pill">Filter Rạp</span>
+          </div>
+          <h3 class="card-title">2. Lịch Chiếu (Schedule)</h3>
+          <p class="card-desc">
+            Bộ lọc đa tầng theo Tỉnh thành & Cụm rạp (Thanh Xuân, Giải Phóng...), dải chọn ngày cuộn ngang 7 ngày tới, danh sách suất chiếu trực quan phân loại còn nhiều ghế hay sắp kín chỗ.
+          </p>
+          <a href="schedule.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+
+        <!-- Card 3: Movie Detail -->
+        <div class="showcase-card">
+          <div class="card-icon-box">🎞️</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Backdrop Cinematic</span>
+            <span class="tag-pill">Trailer Popup</span>
+            <span class="tag-pill">Cast & Crew</span>
+          </div>
+          <h3 class="card-title">3. Chi Tiết Phim (Movie Detail)</h3>
+          <p class="card-desc">
+            Backdrop mờ tương phản cao, poster 3D, tóm tắt nội dung phim, đạo diễn, diễn viên, thời lượng, tag phân loại độ tuổi T18, cùng khối chọn suất chiếu riêng cho từng rạp.
+          </p>
+          <a href="movie-detail.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- NHÓM 2: ĐẶT VÉ & CHỌN GHẾ -->
+    <div class="showcase-category">
+      <div class="category-title">
+        <span>💺</span> Nhóm 2: Trải Nghiệm Đặt Suất, Phòng Chiếu & Đặt Ghế
+      </div>
+
+      <div class="grid-2">
+        <!-- Card Mới: Real-time Booking -->
+        <div class="showcase-card" style="border: 1.5px solid rgba(255, 90, 60, 0.4);">
+          <div class="card-icon-box" style="background: rgba(255, 90, 60, 0.15); color: #FF5A3C;">🎟️</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight" style="background: #FF5A3C; color: #12141C; font-weight: 800;">Màn Hình Mới</span>
+            <span class="tag-pill">Dark Luxury UI</span>
+            <span class="tag-pill">Real-time Progress</span>
+            <span class="tag-pill">Live Viewers</span>
+          </div>
+          <h3 class="card-title">Chọn Suất &amp; Vé Thời Gian Thực (Booking)</h3>
+          <p class="card-desc">
+            Giao diện mở ra khi bấm vào tên phim ở Trang Chủ: hiển thị thông tin phim đã chọn, thanh chọn 7 ngày chiếu, các khung giờ 2D / 3D IMAX với thanh hiển thị ghế trống trực tiếp (Hết vé, Còn ghế, Sắp hết) và cột Tóm tắt đơn hàng.
+          </p>
+          <a href="booking.html" class="btn btn-primary btn-sm" style="background: #FF5A3C; border-color: #FF5A3C; color: #12141C; font-weight: 800;">Mở Giao Diện →</a>
+        </div>
+        <!-- Card 4: Seats -->
+        <div class="showcase-card">
+          <div class="card-icon-box">💺</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">3D Curve Screen</span>
+            <span class="tag-pill">VIP / Sweetbox</span>
+            <span class="tag-pill">Timer 10:00</span>
+            <span class="tag-pill">Live Seat State</span>
+          </div>
+          <h3 class="card-title">4. Chọn Ghế Ngồi (Seats Selection)</h3>
+          <p class="card-desc">
+            Màn hình Screen 3D cong tỏa ánh sáng xuống khán phòng, sơ đồ ghế phân biệt rõ ràng: Ghế Standard, Ghế VIP tầm nhìn vàng, Ghế Đôi Sweetbox, Ghế đã bán. Tương tác chọn ghế & cập nhật tổng tiền tức thì kèm đồng hồ giữ chỗ 10 phút.
+          </p>
+          <a href="seats.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+
+        <!-- Card 5: Combo -->
+        <div class="showcase-card">
+          <div class="card-icon-box">🍿</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Concession Menu</span>
+            <span class="tag-pill">Combo Solo / Couple</span>
+            <span class="tag-pill">Counter (+ / -)</span>
+          </div>
+          <h3 class="card-title">5. Combo Bắp Nước (F&B Concession)</h3>
+          <p class="card-desc">
+            Thực đơn món ăn & thức uống hấp dẫn (Combo Solo, Combo Beta Couple, Combo Gia đình, xúc xích nướng), bộ nút tăng giảm số lượng mượt mà, thanh tính tổng chi phí tự động.
+          </p>
+          <a href="combo.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- NHÓM 3: THANH TOÁN & VÉ ĐIỆN TỬ -->
+    <div class="showcase-category">
+      <div class="category-title">
+        <span>💳</span> Nhóm 3: Thanh Toán Trực Tuyến & Vé Điện Tử
+      </div>
+
+      <div class="grid-3">
+        <!-- Card 6: Checkout -->
+        <div class="showcase-card">
+          <div class="card-icon-box">💳</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">SePay VietQR</span>
+            <span class="tag-pill">VNPay-QR</span>
+            <span class="tag-pill">MoMo</span>
+            <span class="tag-pill">Voucher Coupon</span>
+          </div>
+          <h3 class="card-title">6. Trang Thanh Toán (Checkout)</h3>
+          <p class="card-desc">
+            Tóm tắt chi tiết đơn hàng (Phim, Suất, Ghế, Combo), nhập mã voucher giảm giá, form thông tin khách hàng và lựa chọn 4 cổng thanh toán hàng đầu Việt Nam.
+          </p>
+          <a href="checkout.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+
+        <!-- Card 7: Gateway -->
+        <div class="showcase-card">
+          <div class="card-icon-box">📱</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Mã VietQR Động</span>
+            <span class="tag-pill">1-Click Copy</span>
+            <span class="tag-pill">Live Radar Polling</span>
+          </div>
+          <h3 class="card-title">7. Cổng Quét Mã QR (Payment Gateway)</h3>
+          <p class="card-desc">
+            Màn hình quét mã QR chuyển khoản tự động VietQR / SePay, hiển thị số tiền 179.000đ, nội dung mã đơn BC... kèm nút copy 1-click và mô phỏng phản hồi webhook thành công.
+          </p>
+          <a href="gateway.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+
+        <!-- Card 8: Ticket -->
+        <div class="showcase-card">
+          <div class="card-icon-box">🎟️</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Cinema Boarding Pass</span>
+            <span class="tag-pill">QR Soát Vé</span>
+            <span class="tag-pill">Tải / In Vé</span>
+          </div>
+          <h3 class="card-title">8. Vé Xem Phim E-Ticket (Result)</h3>
+          <p class="card-desc">
+            Thiết kế vé Boarding Pass xem phim đẳng cấp với đường cắt vé lượn sóng, mã QR/Barcode soát vé vào cửa, chi tiết ghế, combo nhận tại quầy và các nút tải vé về điện thoại / in vé.
+          </p>
+          <a href="ticket.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- NHÓM 4: THÀNH VIÊN & HẬU MÃI -->
+    <div class="showcase-category">
+      <div class="category-title">
+        <span>👤</span> Nhóm 4: Tài Khoản Thành Viên & CSKH
+      </div>
+
+      <div class="grid-3">
+        <!-- Card 9: Auth -->
+        <div class="showcase-card">
+          <div class="card-icon-box">🔐</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Split Screen</span>
+            <span class="tag-pill">Đăng Nhập / Ký</span>
+            <span class="tag-pill">Social Login</span>
+          </div>
+          <h3 class="card-title">9. Đăng Nhập & Đăng Ký (Auth)</h3>
+          <p class="card-desc">
+            Giao diện chia đôi hiện đại, cột bên minh họa các đặc quyền thành viên Beta Member (vé sinh nhật, tích điểm 10%), tab chuyển đổi mượt mà giữa Đăng nhập và Đăng ký.
+          </p>
+          <a href="auth.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+
+        <!-- Card 10: Account -->
+        <div class="showcase-card">
+          <div class="card-icon-box">👑</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Virtual Member Card</span>
+            <span class="tag-pill">Beta Points</span>
+            <span class="tag-pill">Lịch Sử Vé</span>
+          </div>
+          <h3 class="card-title">10. Quản Lý Thành Viên (Account)</h3>
+          <p class="card-desc">
+            Thẻ thành viên ảo Gold Member với mã Barcode tích điểm, quản lý điểm thưởng khả dụng (450 Points), danh sách vé đã mua, đổi mật khẩu và thông tin cá nhân.
+          </p>
+          <a href="account.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+
+        <!-- Card 11: Support -->
+        <div class="showcase-card">
+          <div class="card-icon-box">💬</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight">Tra Cứu Vé Nhanh</span>
+            <span class="tag-pill">Khiếu Nại CSKH</span>
+            <span class="tag-pill">FAQ Accordion</span>
+          </div>
+          <h3 class="card-title">11. Hỗ Trợ & Khiếu Nại (Support)</h3>
+          <p class="card-desc">
+            Thanh tra cứu đơn hàng theo mã `BC...` hoặc số điện thoại, form gửi khiếu nại chuyển khoản treo, và bộ câu hỏi thường gặp FAQ giải đáp mọi thắc mắc của khán giả.
+          </p>
+          <a href="support.html" class="btn btn-primary btn-sm">Mở Giao Diện →</a>
+        </div>
+
+        <!-- Card 12: BetaBot AI -->
+        <div class="showcase-card" style="border: 1.5px solid rgba(255, 90, 60, 0.4);">
+          <div class="card-icon-box" style="background: rgba(255, 90, 60, 0.15); color: #FF5A3C;">🤖</div>
+          <div class="card-badge-row">
+            <span class="tag-pill highlight" style="background: #FF5A3C; color: #12141C; font-weight: 800;">Màn Hình Mới</span>
+            <span class="tag-pill">Đối Soát 24/7</span>
+            <span class="tag-pill">Hoàn Tiền 15p</span>
+            <span class="tag-pill">Light/Dark Mode</span>
+          </div>
+          <h3 class="card-title">12. BetaBot AI (Trợ Lý Đối Soát)</h3>
+          <p class="card-desc">
+            Trợ lý AI chuyên trách đối soát chuyển khoản ngân hàng (VietQR / VNPay), tự động cấp lại vé điện tử khi gặp sự cố, theo dõi tiến trình hoàn tiền 3 bước và gửi khiếu nại 24h.
+          </p>
+          <a href="betabot.html" class="btn btn-primary btn-sm" style="background: #FF5A3C; border-color: #FF5A3C; color: #12141C; font-weight: 800;">Mở Giao Diện →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE INTERACTIVE EMBEDDED PREVIEW -->
+    <div class="preview-box-container">
+      <div class="preview-toolbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 14px; font-weight: 800; font-family: var(--font-display);">🖥️ KHUNG XEM TRỰC TIẾP (LIVE PREVIEW)</span>
+          <span style="font-size: 12px; color: #94a3b8;">— Bạn có thể duyệt trực tiếp màn hình bên dưới:</span>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" onclick="setPreviewUrl('home.html')">Trang Chủ</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #FF5A3C; color: #ffaa80;" onclick="setPreviewUrl('booking.html')">🎟️ Đặt Suất/Vé (Mới)</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" onclick="setPreviewUrl('seats.html')">Chọn Ghế</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" onclick="setPreviewUrl('checkout.html')">Thanh Toán</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" onclick="setPreviewUrl('ticket.html')">Vé E-Ticket</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #FF5A3C; color: #ffaa80;" onclick="setPreviewUrl('betabot.html')">🤖 BetaBot AI</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #ef4444; color: #fca5a5;" onclick="setPreviewUrl('ticket-cancelled.html')">❌ Đơn Hủy</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #0284c7; color: #93c5fd;" onclick="setPreviewUrl('refund-track.html')">📈 Theo Dõi Hoàn Tiền</button>
+        </div>
+      </div>
+      <iframe src="home.html" id="preview-frame" class="preview-iframe"></iframe>
+    </div>
+
+  </main>
+
+  <!-- CHÂN TRANG FOOTER CHÍNH THỨC -->
+  <footer class="footer-official">
+    <div class="container">
+      <div class="footer-official-grid">
+        
+        <!-- Cột 1: Giới Thiệu Doanh Nghiệp & Logo Trắng -->
+        <div>
+          <div style="margin-bottom: 18px;">
+            <a href="home.html">
+              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png" 
+                   onerror="this.onerror=null; this.src='images/logo-white-official.png';" 
+                   alt="Beta Cinemas" 
+                   style="height: 48px;">
+            </a>
+          </div>
+          <p style="font-size: 13px; color: #e0f2fe; line-height: 1.8; margin-bottom: 16px;">
+            <strong>CÔNG TY CỔ PHẦN BETA MEDIA</strong><br>
+            Tầng 3, số 59 phố Xuân Diệu, Phường Quảng An, Quận Tây Hồ, Thành phố Hà Nội.<br>
+            Mã số doanh nghiệp: 0106633482 do Sở KH&ĐT TP. Hà Nội cấp.<br>
+            Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
+          </p>
+          <div>
+            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+          </div>
+        </div>
+
+        <!-- Cột 2: Cụm Rạp Beta -->
+        <div>
+          <h4 class="footer-official-title">CỤM RẠP BETA CINEMAS</h4>
+          <ul class="footer-official-links">
+            <li><a href="schedule.html">Beta Thanh Xuân (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Giải Phóng (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Mỹ Đình (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Quang Trung (TP.HCM)</a></li>
+            <li><a href="schedule.html">Beta Ung Văn Khiêm (TP.HCM)</a></li>
+            <li><a href="schedule.html">Beta Thái Nguyên</a></li>
+            <li><a href="schedule.html">Beta Bắc Giang</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 3: Quy Định & Điều Khoản -->
+        <div>
+          <h4 class="footer-official-title">CHÍNH SÁCH & QUY ĐỊNH</h4>
+          <ul class="footer-official-links">
+            <li><a href="support.html">Điều khoản sử dụng</a></li>
+            <li><a href="support.html">Chính sách bảo mật thông tin</a></li>
+            <li><a href="support.html">Chính sách đổi trả & hoàn tiền</a></li>
+            <li><a href="support.html">Quy định độ tuổi xem phim</a></li>
+            <li><a href="support.html">Hướng dẫn thanh toán trực tuyến</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 4: Kết Nối & Thanh Toán -->
+        <div>
+          <h4 class="footer-official-title">KẾT NỐI VỚI CHÚNG TÔI</h4>
+          <p style="font-size: 13px; color: #e0f2fe; margin-bottom: 14px;">Theo dõi Fanpage Beta Cinemas để nhận ưu đãi vé 0đ sớm nhất:</p>
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Facebook</span>
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">TikTok</span>
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Youtube</span>
+          </div>
+
+          <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VNPAY-QR</span>
+            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MoMo</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-official-bottom">
+        <div>© 2026 Beta Cinemas. Bản quyền thuộc về Công ty Cổ phần Beta Media.</div>
+        <div>
+          <a href="support.html" style="color: #ffd166; font-weight: 600;">Trung tâm trợ giúp 24/7</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PROTOTYPE SWITCHER DOCK -->
+  <nav class="prototype-dock">
+    <span class="dock-label">Giao diện:</span>
+    <a href="index.html" class="dock-item active">🧭 Showcase Hub</a>
+    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
+    <a href="booking.html" class="dock-item">🎟️ Đặt Suất/Vé</a>
+    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
+    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
+    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
+    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
+    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
+    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
+    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
+    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
+    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
+    <a href="account.html" class="dock-item">👤 Thành Viên</a>
+    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
+    <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
+  </nav>
+
+  <script>
+    function setPreviewUrl(url) {
+      document.getElementById('preview-frame').src = url;
+    }
+  </script>
+</body>
+</html>

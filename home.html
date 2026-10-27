@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Beta Cinemas - Hệ thống rạp chiếu phim hàng đầu Việt Nam</title>
+  
+  <!-- Google Fonts: Montserrat & Be Vietnam Pro chuẩn nhận diện Beta Cinemas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/prototype-theme.css">
+
+  <style>
+    .movie-title-official a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .movie-title-official a:hover {
+      color: #ff5400;
+      text-decoration: underline;
+    }
+    .top-header-official {
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 6px 0;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .top-header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .top-auth-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+    }
+    .top-auth-links a {
+      color: #334155;
+    }
+    .top-auth-links a:hover {
+      color: #005198;
+    }
+
+    /* Main Navigation chuẩn Beta Cinemas */
+    .header-main-official {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 75px;
+      gap: 20px;
+    }
+    .official-logo {
+      height: 52px;
+      display: block;
+      transition: transform 0.2s;
+    }
+    .official-logo:hover {
+      transform: scale(1.02);
+    }
+    
+    /* Selector Rạp chuẩn Beta */
+    .cinema-select-official {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 30px;
+      padding: 9px 40px 9px 20px;
+      font-family: 'Be Vietnam Pro', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #005198;
+      background: #f8fafc;
+      cursor: pointer;
+      outline: none;
+      min-width: 230px;
+      transition: all 0.2s;
+    }
+    .cinema-select-official:hover, .cinema-select-official:focus {
+      border-color: #005198;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(0, 81, 152, 0.1);
+    }
+
+    .main-menu-official {
+      display: flex;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 24px;
+    }
+    .menu-link-official {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      color: #03599d;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .menu-link-official:hover, .menu-link-official.active {
+      color: #ff5400;
+    }
+
+    /* Carousel Banner Slider lớn chuẩn 1702x621 hiển thị trọn vẹn 100% không bị cắt */
+    .slider-official-wrap {
+      position: relative;
+      width: 100%;
+      background: #000;
+      overflow: hidden;
+      aspect-ratio: 1702 / 621;
+    }
+    @supports not (aspect-ratio: 1702 / 621) {
+      .slider-official-wrap {
+        height: 0;
+        padding-bottom: 36.486%; /* Tỷ lệ 621 / 1702 * 100% */
+      }
+    }
+    .slider-item {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.6s ease-in-out, visibility 0.6s;
+    }
+    .slider-item.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .slider-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      background: rgba(0, 0, 0, 0.35);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      z-index: 10;
+    }
+    .slider-btn:hover {
+      background: rgba(0, 0, 0, 0.75);
+    }
+    .slider-btn.prev { left: 20px; }
+    .slider-btn.next { right: 20px; }
+    .slider-dots {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+    }
+    .slider-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .slider-dot.active {
+      background: #ff5400;
+      width: 28px;
+      border-radius: 6px;
+    }
+
+    /* Tabs Phim chuẩn Beta Cinemas */
+    .movie-tabs-official {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 35px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .movie-tab-btn {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: #94a3b8;
+      background: none;
+      border: none;
+      padding: 12px 10px 16px;
+      cursor: pointer;
+      position: relative;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .movie-tab-btn:hover {
+      color: #005198;
+    }
+    .movie-tab-btn.active {
+      color: #005198;
+    }
+    .movie-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #005198;
+      border-radius: 2px;
+    }
+
+    /* Movie Age Badges */
+    .movie-age-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 4;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .movie-age-tag img {
+      height: 24px;
+      display: block;
+    }
+    /* Đảm bảo nút trailer dạng button hoạt động mượt mà */
+    button.btn-overlay-trailer {
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ========================================================================= */
+    /* CSS MODAL TRAILER YOUTUBE POPUP */
+    /* ========================================================================= */
+    .trailer-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(10, 15, 29, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.28s ease, visibility 0.28s ease;
+    }
+    .trailer-modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .trailer-modal-dialog {
+      background: #090d16;
+      width: min(820px, 92vw);
+      max-height: 90vh;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 25px 65px rgba(0, 0, 0, 0.95), 0 0 45px rgba(0, 81, 152, 0.35);
+      transform: scale(0.94);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .trailer-modal-backdrop.open .trailer-modal-dialog {
+      transform: scale(1);
+    }
+    .trailer-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px;
+      background: #0f172a;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .trailer-modal-title-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .trailer-badge {
+      background: #ff5400;
+      color: white;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .trailer-hd-badge {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      flex-shrink: 0;
+      letter-spacing: 0.5px;
+    }
+    .trailer-modal-title {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f8fafc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .trailer-modal-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .trailer-modal-close:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: white;
+      transform: rotate(90deg);
+    }
+    .trailer-modal-body {
+      background: #000;
+      position: relative;
+      width: 100%;
+      flex-shrink: 0;
+    }
+    .trailer-video-responsive {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000000;
+      overflow: hidden;
+      display: block;
+    }
+    .trailer-video-responsive iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .trailer-modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 18px;
+      background: #0f172a;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+      color: #94a3b8;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .trailer-footer-note strong {
+      color: #f1f5f9;
+    }
+    .trailer-btn-ytb-external {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #f87171;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(248, 113, 113, 0.1);
+      transition: all 0.2s ease;
+    }
+    .trailer-btn-ytb-external:hover {
+      color: white;
+      background: #dc2626;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" 
+             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+          <option selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option>Beta Trần Quang Khải</option>
+          <option>Beta Giải Phóng (Hà Nội)</option>
+          <option>Beta Mỹ Đình (Hà Nội)</option>
+          <option>Beta Quang Trung (TP.HCM)</option>
+          <option>Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option>Beta Thái Nguyên</option>
+          <option>Beta Bắc Giang</option>
+          <option>Beta Nha Trang</option>
+        </select>
+        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official active">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Banner Slider Carousel lớn (Tỉ lệ 1702x621 chuẩn Beta Cinemas) -->
+  <section class="slider-official-wrap">
+    <div class="slider-item active">
+      <img src="images/phimhayt10-1702x621-1-135337-300926-58.png" alt="Tháng Phim Bom Tấn Beta">
+    </div>
+    <div class="slider-item">
+      <img src="images/uudaitv-1702x621-144325-140926-19.png" alt="Ưu Đãi Thành Viên Beta">
+    </div>
+    <div class="slider-item">
+      <img src="images/khai-truong-1702x621-111037-290926-41.png" alt="Khai Trương Cụm Rạp Mới">
+    </div>
+
+    <!-- Nút điều hướng -->
+    <button class="slider-btn prev" onclick="changeSlide(-1)">❮</button>
+    <button class="slider-btn next" onclick="changeSlide(1)">❯</button>
+
+    <!-- Dots -->
+    <div class="slider-dots">
+      <span class="slider-dot active" onclick="setSlide(0)"></span>
+      <span class="slider-dot" onclick="setSlide(1)"></span>
+      <span class="slider-dot" onclick="setSlide(2)"></span>
+    </div>
+  </section>
+
+  <!-- Danh Sách Phim (Chuẩn Tab & Movie Card có Hover Overlay của Beta Cinemas) -->
+  <main class="container" style="padding: 50px 20px 40px;">
+    
+    <!-- Tab Phim chuẩn Beta -->
+    <div class="movie-tabs-official">
+      <button class="movie-tab-btn active" id="tab-now" onclick="switchMovieTab('now')">PHIM ĐANG CHIẾU</button>
+      <button class="movie-tab-btn" id="tab-soon" onclick="switchMovieTab('soon')">PHIM SẮP CHIẾU</button>
+      <button class="movie-tab-btn" id="tab-special" onclick="switchMovieTab('special')">SUẤT CHIẾU ĐẶC BIỆT</button>
+    </div>
+
+    <!-- Grid Phim -->
+    <div class="grid-4" id="movie-grid">
+      
+      <!-- Phim 1: Linh Giới Đại Chiến -->
+      <div class="movie-card" data-tab="now special">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/400x633-145627-230926-40.jpg" alt="Linh Giới Đại Chiến">
+          <div class="movie-age-tag">
+            <img src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
+          </div>
+          <!-- Hover Overlay chuẩn web chính thức Beta Cinemas -->
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=linh-gioi-dai-chien" class="btn-overlay-buy">🎟️ MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('linh-gioi-dai-chien', 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ', this)" data-trailer="https://www.youtube.com/watch?v=mJ2pu6FazEA">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=linh-gioi-dai-chien">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Thể loại:</strong> Hành động, Giả tưởng, Thần thoại</span>
+            <span><strong>Thời lượng:</strong> 128 phút</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phim 2: Quỷ Ăn Tạng 4 -->
+      <div class="movie-card" data-tab="now">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg" alt="Quỷ Ăn Tạng 4">
+          <div class="movie-age-tag">
+            <img src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=quy-an-tang-4" class="btn-overlay-buy">🎟️ MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('quy-an-tang-4', 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI', this)" data-trailer="https://www.youtube.com/watch?v=7eRbgbj_AfM">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=quy-an-tang-4">QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Thể loại:</strong> Kinh dị, Bí ẩn, Giật gân</span>
+            <span><strong>Thời lượng:</strong> 115 phút</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phim 3: Trại Buôn Người -->
+      <div class="movie-card" data-tab="now">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.jpg" alt="Trại Buôn Người">
+          <div class="movie-age-tag">
+            <img src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=trai-buon-nguoi" class="btn-overlay-buy">🎟️ MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('trai-buon-nguoi', 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI', this)" data-trailer="https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=trai-buon-nguoi">TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Thể loại:</strong> Tâm lý, Tội phạm, Gay cấn</span>
+            <span><strong>Thời lượng:</strong> 118 phút</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phim 4: Blue Lock -->
+      <div class="movie-card" data-tab="now">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.jpg" alt="Blue Lock">
+          <div class="movie-age-tag">
+            <img src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=blue-lock" class="btn-overlay-buy">🎟️ MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('blue-lock', 'BLUE LOCK: THE MOVIE - EPISODE NAGI', this)" data-trailer="https://www.youtube.com/watch?v=8VMMDfAYi34">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=blue-lock">BLUE LOCK: THE MOVIE - EPISODE NAGI</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Thể loại:</strong> Hoạt hình, Thể thao, Anime</span>
+            <span><strong>Thời lượng:</strong> 95 phút</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Phim 5: Án Mạng Karaoke -->
+      <div class="movie-card" data-tab="now">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg" alt="Án Mạng Karaoke">
+          <div class="movie-age-tag">
+            <img src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=an-mang-karaoke" class="btn-overlay-buy">🎟️ MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('an-mang-karaoke', 'ÁN MẠNG KARAOKE', this)" data-trailer="https://www.youtube.com/watch?v=aV4qtcKmkQo">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=an-mang-karaoke">ÁN MẠNG KARAOKE</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Thể loại:</strong> Trinh thám, Hài hước, Bí ẩn</span>
+            <span><strong>Thời lượng:</strong> 96 phút</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phim 6: Út Lan 2 -->
+      <div class="movie-card" data-tab="now">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/ul2-main-dam-hoi-digital-094550-140926-42.jpg" alt="Út Lan 2">
+          <div class="movie-age-tag">
+            <img src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=ut-lan-2" class="btn-overlay-buy">🎟️ MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('ut-lan-2', 'ÚT LAN 2', this)" data-trailer="https://www.youtube.com/watch?v=TpwGd81RSKk">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=ut-lan-2">ÚT LAN 2</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Thể loại:</strong> Tâm lý, Tình cảm, Hài kịch</span>
+            <span><strong>Thời lượng:</strong> 114 phút</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phim 7: Khóa Chặt Cửa Nào Suzume -->
+      <div class="movie-card" data-tab="now special">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.jpg" alt="Khóa Chặt Cửa Nào Suzume">
+          <div class="movie-age-tag">
+            <img src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=suzume" class="btn-overlay-buy">🎟️ MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('suzume', 'KHÓA CHẶT CỬA NÀO SUZUME', this)" data-trailer="https://www.youtube.com/watch?v=EWLo2IF_NPU">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=suzume">KHÓA CHẶT CỬA NÀO SUZUME</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Thể loại:</strong> Hoạt hình, Giả tưởng, Anime</span>
+            <span><strong>Thời lượng:</strong> 121 phút</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phim 8: Cá Voi Nuốt Chửng -->
+      <div class="movie-card" data-tab="now">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.jpg" alt="Cá Voi Nuốt Chửng">
+          <div class="movie-age-tag">
+            <img src="images/c-13.png" alt="C13" onerror="this.outerHTML='<span class=\'badge badge-age-13\'>C13</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=ca-voi-nuot-chung" class="btn-overlay-buy">🎟️ MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('ca-voi-nuot-chung', 'CÁ VOI NUỐT CHỬNG', this)" data-trailer="https://www.youtube.com/watch?v=ZyGPPlhPI8M">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=ca-voi-nuot-chung">CÁ VOI NUỐT CHỬNG</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Thể loại:</strong> Sinh tồn, Hành động, Viễn tưởng</span>
+            <span><strong>Thời lượng:</strong> 98 phút</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phim 9: Mẹ Mìn (Sắp Chiếu) -->
+      <div class="movie-card" data-tab="soon" style="display: none;">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.jpg" alt="Mẹ Mìn">
+          <div class="movie-age-tag">
+            <img src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=me-min" class="btn-overlay-buy">🎟️ ĐẶT TRƯỚC</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('me-min', 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI', this)" data-trailer="https://www.youtube.com/watch?v=mTylSVV6zSo">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=me-min">MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Khởi chiếu:</strong> 31/10/2026</span>
+            <span><strong>Thể loại:</strong> Kinh dị, Tâm lý, Giật gân</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phim 10: Shaun The Sheep (Sắp Chiếu) -->
+      <div class="movie-card" data-tab="soon" style="display: none;">
+        <div class="movie-poster-wrap">
+          <img class="movie-poster-img" src="images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.jpg" alt="Shaun The Sheep">
+          <div class="movie-age-tag">
+            <img src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
+          </div>
+          <div class="movie-poster-overlay">
+            <a href="booking.html?movie=shaun-the-sheep" class="btn-overlay-buy">🎟️ ĐẶT TRƯỚC</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('shaun-the-sheep', 'SHAUN THE SHEEP: CHUYẾN PHIÊU LƯU NGOÀI HÀNH TINH', this)" data-trailer="">▶ XEM TRAILER</button>
+          </div>
+        </div>
+        <div class="movie-info-official">
+          <h3 class="movie-title-official"><a href="booking.html?movie=shaun-the-sheep">SHAUN THE SHEEP: PHIÊU LƯU NGOÀI HÀNH TINH</a></h3>
+          <div class="movie-meta-official">
+            <span><strong>Khởi chiếu:</strong> 15/11/2026</span>
+            <span><strong>Thể loại:</strong> Hoạt hình, Hài hước</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Khối Tin Mới & Ưu Đãi (Khuyến Mãi) -->
+  <section id="promos" style="background: #f8fafc; padding: 50px 0 60px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 35px;">
+        <h2 style="font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 900; color: #005198; text-transform: uppercase;">
+          TIN MỚI & ƯU ĐÃI
+        </h2>
+        <div style="width: 50px; height: 3px; background: #ff5400; margin: 8px auto 0;"></div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card" style="border-radius: 12px;">
+          <img src="images/t3.png" alt="Thứ 3 Beta's Day" style="width: 100%; height: 210px; object-fit: cover;">
+          <div style="padding: 18px;">
+            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #005198; margin-bottom: 6px;">
+              THỨ 3 BETA'S DAY - ĐỒNG GIÁ 45K
+            </h4>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5;">Áp dụng cho mọi suất chiếu thứ 3 hàng tuần đối với tất cả thành viên Beta Member.</p>
+          </div>
+        </div>
+
+        <div class="card" style="border-radius: 12px;">
+          <img src="images/hssv.png" alt="Ưu Đãi HSSV" style="width: 100%; height: 210px; object-fit: cover;">
+          <div style="padding: 18px;">
+            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #005198; margin-bottom: 6px;">
+              ƯU ĐÃI HỌC SINH & SINH VIÊN 45K
+            </h4>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5;">Đồng giá vé 45.000đ từ thứ 2 đến thứ 6 cho các bạn học sinh, sinh viên trên toàn quốc.</p>
+          </div>
+        </div>
+
+        <div class="card" style="border-radius: 12px;">
+          <img src="images/combosieucu-1702x621-115549-081026-63.png" alt="Combo Siêu Cú" style="width: 100%; height: 210px; object-fit: cover;">
+          <div style="padding: 18px;">
+            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #005198; margin-bottom: 6px;">
+              COMBO BẮP NƯỚC SIÊU CÚ ĐÊM
+            </h4>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5;">Giảm ngay 30% combo bắp nước cho các suất chiếu sau 21h30 mỗi tối tại rạp Beta.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHÂN TRANG FOOTER CHÍNH THỨC (Logo cuối trang: https://betacinemas.vn/Assets/Common/logo/logo-white.png) -->
+  <footer class="footer-official">
+    <div class="container">
+      <div class="footer-official-grid">
+        
+        <!-- Cột 1: Giới Thiệu Doanh Nghiệp & Logo Trắng -->
+        <div>
+          <div style="margin-bottom: 18px;">
+            <a href="home.html">
+              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png" 
+                   onerror="this.onerror=null; this.src='images/logo-white-official.png';" 
+                   alt="Beta Cinemas" 
+                   style="height: 48px;">
+            </a>
+          </div>
+          <p style="font-size: 13px; color: #e0f2fe; line-height: 1.8; margin-bottom: 16px;">
+            <strong>CÔNG TY CỔ PHẦN BETA MEDIA</strong><br>
+            Tầng 3, số 59 phố Xuân Diệu, Phường Quảng An, Quận Tây Hồ, Thành phố Hà Nội.<br>
+            Mã số doanh nghiệp: 0106633482 do Sở KH&ĐT TP. Hà Nội cấp.<br>
+            Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
+          </p>
+          <div>
+            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+          </div>
+        </div>
+
+        <!-- Cột 2: Cụm Rạp Beta -->
+        <div>
+          <h4 class="footer-official-title">CỤM RẠP BETA CINEMAS</h4>
+          <ul class="footer-official-links">
+            <li><a href="schedule.html">Beta Thanh Xuân (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Giải Phóng (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Mỹ Đình (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Quang Trung (TP.HCM)</a></li>
+            <li><a href="schedule.html">Beta Ung Văn Khiêm (TP.HCM)</a></li>
+            <li><a href="schedule.html">Beta Thái Nguyên</a></li>
+            <li><a href="schedule.html">Beta Bắc Giang</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 3: Quy Định & Điều Khoản -->
+        <div>
+          <h4 class="footer-official-title">CHÍNH SÁCH & QUY ĐỊNH</h4>
+          <ul class="footer-official-links">
+            <li><a href="support.html">Điều khoản sử dụng</a></li>
+            <li><a href="support.html">Chính sách bảo mật thông tin</a></li>
+            <li><a href="support.html">Chính sách đổi trả & hoàn tiền</a></li>
+            <li><a href="support.html">Quy định độ tuổi xem phim</a></li>
+            <li><a href="support.html">Hướng dẫn thanh toán trực tuyến</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 4: Kết Nối & Thanh Toán -->
+        <div>
+          <h4 class="footer-official-title">KẾT NỐI VỚI CHÚNG TÔI</h4>
+          <p style="font-size: 13px; color: #e0f2fe; margin-bottom: 14px;">Theo dõi Fanpage Beta Cinemas để nhận ưu đãi vé 0đ sớm nhất:</p>
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Facebook</span>
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">TikTok</span>
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Youtube</span>
+          </div>
+
+          <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VNPAY-QR</span>
+            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MoMo</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-official-bottom">
+        <div>© 2026 Beta Cinemas. Bản quyền thuộc về Công ty Cổ phần Beta Media.</div>
+        <div>
+          <a href="support.html" style="color: #ffd166; font-weight: 600;">Trung tâm trợ giúp 24/7</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ========================================================================= -->
+  <!-- MODAL XEM TRAILER YOUTUBE TRÊN MÀN HÌNH CHÍNH -->
+  <!-- ========================================================================= -->
+  <div id="trailer-modal" class="trailer-modal-backdrop" onclick="handleTrailerBackdropClick(event)">
+    <div class="trailer-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="trailer-modal-title">
+      <!-- Modal Header -->
+      <div class="trailer-modal-header">
+        <div class="trailer-modal-title-box">
+          <span class="trailer-badge">OFFICIAL TRAILER</span>
+          <span class="trailer-hd-badge">FULL HD 1080p</span>
+          <h3 id="trailer-modal-title" class="trailer-modal-title">Đang tải trailer...</h3>
+        </div>
+        <button type="button" class="trailer-modal-close" onclick="closeTrailerModal()" aria-label="Đóng trailer" title="Đóng trailer (Esc)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Video Player Frame (Tỷ lệ 16:9 chuẩn màn chiếu rạp phim) -->
+      <div class="trailer-modal-body">
+        <div class="trailer-video-responsive">
+          <!-- Khi trên localhost hoặc Vercel online: iframe phát trực tiếp trong modal -->
+          <iframe id="trailer-iframe" 
+                  src="" 
+                  title="YouTube video player" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allowfullscreen
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;">
+          </iframe>
+
+          <!-- Khi mở trực tiếp qua file://: Giao diện Thumbnail Player 1-Click thông minh không bao giờ bị Lỗi 153 -->
+          <div id="trailer-file-fallback" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; cursor: pointer; overflow: hidden; z-index: 10;" onclick="openExternalYouTube()">
+            <img id="trailer-fallback-thumb" src="" alt="Thumbnail" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.72; filter: brightness(0.85); transition: transform 0.4s ease;">
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.92) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px;">
+              <div style="width: 76px; height: 52px; background: #ff0000; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.55); margin-bottom: 14px; transition: transform 0.25s ease;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+              <h4 id="trailer-fallback-title" style="color: #ffffff; font-size: 18px; font-weight: 800; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.85); font-family: 'Montserrat', sans-serif;"></h4>
+              <p style="color: #cbd5e1; font-size: 13.5px; max-width: 520px; margin-bottom: 18px; line-height: 1.5;">
+                Bạn đang mở web trực tiếp từ ổ cứng (<code style="background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; color: #fde047;">file://</code>). YouTube chặn nhúng nếu không qua web server.<br>
+                <strong>Bấm vào đây để mở xem ngay trên YouTube</strong> hoặc chuyển sang Localhost để phát trong ô popup này!
+              </p>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <span class="btn btn-primary" style="background: #ff0000; border: none; padding: 10px 22px; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  Xem Trailer Trên YouTube
+                </span>
+                <button type="button" class="btn btn-outline" onclick="event.stopPropagation(); switchToLocalhost();" style="background: rgba(255,255,255,0.12); color: white; border: 1.5px solid rgba(255,255,255,0.35); padding: 10px 20px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                  🌐 Mở Qua Localhost (Phát trong Popup)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<!-- Modal Footer (Ghi chú & Nút mở ngoài YouTube) -->
+      <div class="trailer-modal-footer">
+        <div class="trailer-footer-note">
+          <span>💡 Bạn có thể nhấn phím <strong>ESC</strong> hoặc bấm ra ngoài màn hình để tắt trailer</span>
+        </div>
+        <a id="trailer-modal-ytb-link" href="#" target="_blank" rel="noopener noreferrer" class="trailer-btn-ytb-external">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+          <span>Xem trên YouTube</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+
+        <!-- Ghi chú tự động hiển thị nếu người dùng mở qua giao thức file:// -->
+        <div id="trailer-file-protocol-warning" style="display: none; width: 100%; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-size: 12px; color: #fbbf24; line-height: 1.5;">
+          ⚠️ <strong>Ghi chú:</strong> Bạn đang mở tệp trực tiếp dạng <code>file://</code> (ổ đĩa). YouTube hiện có cơ chế bảo mật chặn nhúng nếu không qua web server (gây ra <em>"Lỗi 153"</em>).<br>
+          👉 Bạn có thể bấm nút đỏ <strong>"Xem trên YouTube"</strong> ở trên để xem ngay, hoặc nhấp đúp tệp <strong>Chay_Web_Localhost.bat</strong> trong thư mục để phát trực tiếp trong popup mượt mà 100%!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating BetaBot Chat Launcher Button -->
+  <a href="betabot.html" style="position: fixed; bottom: 84px; right: 24px; z-index: 9998; display: flex; align-items: center; gap: 10px; background: #FF5A3C; color: white; padding: 10px 18px; border-radius: 999px; box-shadow: 0 8px 24px rgba(255, 90, 60, 0.45); text-decoration: none; font-weight: 800; font-size: 13.5px; transition: all 0.25s;">
+    <img src="images/betabot-avatar.png" alt="BetaBot" style="width: 28px; height: 28px; border-radius: 50%; background: #0f172a; border: 1.5px solid white;" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+    <span>Hỗ trợ đối soát • BetaBot 24/7</span>
+    <span style="width: 8px; height: 8px; background: #3ddc97; border-radius: 50%;"></span>
+  </a>
+
+  <!-- PROTOTYPE SWITCHER DOCK (TIỆN ÍCH CHUYỂN NHANH TẤT CẢ GIAO DIỆN) -->
+  <nav class="prototype-dock">
+    <span class="dock-label">Giao diện:</span>
+    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
+    <a href="home.html" class="dock-item active">🏠 Trang Chủ</a>
+    <a href="booking.html" class="dock-item">🎟️ Đặt Suất/Vé</a>
+    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
+    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
+    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
+    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
+    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
+    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
+    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
+    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
+    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
+    <a href="account.html" class="dock-item">👤 Thành Viên</a>
+    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
+      <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
+  </nav>
+
+  <!-- Slider Carousel Script -->
+  <script>
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.slider-item');
+    const dots = document.querySelectorAll('.slider-dot');
+    let autoSlideTimer = null;
+
+    function showSlide(n) {
+      if (n >= slides.length) currentSlideIndex = 0;
+      else if (n < 0) currentSlideIndex = slides.length - 1;
+      else currentSlideIndex = n;
+
+      slides.forEach(s => s.classList.remove('active'));
+      dots.forEach(d => d.classList.remove('active'));
+
+      slides[currentSlideIndex].classList.add('active');
+      dots[currentSlideIndex].classList.add('active');
+    }
+
+    function changeSlide(step) {
+      clearInterval(autoSlideTimer);
+      showSlide(currentSlideIndex + step);
+      startAutoSlide();
+    }
+
+    function setSlide(n) {
+      clearInterval(autoSlideTimer);
+      showSlide(n);
+      startAutoSlide();
+    }
+
+    function startAutoSlide() {
+      autoSlideTimer = setInterval(() => {
+        showSlide(currentSlideIndex + 1);
+      }, 4000);
+    }
+
+    startAutoSlide();
+
+    function switchMovieTab(tab) {
+      document.querySelectorAll('.movie-tab-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('tab-' + tab);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const cards = document.querySelectorAll('#movie-grid .movie-card');
+      cards.forEach(card => {
+        const cardTab = card.getAttribute('data-tab') || 'now';
+        const tabList = cardTab.split(' ');
+        if (tabList.includes(tab) || tabList.includes('all')) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  
+    // ====================================================================================
+    // 🎬 CẤU HÌNH LINK YOUTUBE TRAILER CÁC PHIM (BẠN TỰ THAY LINK CỦA BẠN TẠI ĐÂY)
+    // ====================================================================================
+    // Bạn có thể dán link trực tiếp vào đây hoặc vào thuộc tính data-trailer trong thẻ <button>
+    // Hỗ trợ tất cả dạng link:
+    //   - https://www.youtube.com/watch?v=...
+    //   - https://youtu.be/...
+    //   - https://www.youtube.com/embed/...
+    //   - hoặc chỉ cần mã ID video YouTube (ví dụ: 'yY13kvdVpvg')
+    // ====================================================================================
+    const MOVIE_TRAILERS = {
+      // 1. Phim: LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ
+      'linh-gioi-dai-chien': 'https://www.youtube.com/watch?v=mJ2pu6FazEA',
+      'dia-dao': 'https://www.youtube.com/watch?v=mJ2pu6FazEA', // alias dự phòng
+
+      // 2. Phim: QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI
+      'quy-an-tang-4': 'https://www.youtube.com/watch?v=7eRbgbj_AfM',
+
+      // 3. Phim: TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI
+      'trai-buon-nguoi': 'https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s',
+
+      // 4. Phim: BLUE LOCK: THE MOVIE - EPISODE NAGI
+      'blue-lock': 'https://www.youtube.com/watch?v=8VMMDfAYi34',
+
+      // 5. Phim: ÁN MẠNG KARAOKE
+      'an-mang-karaoke': 'https://www.youtube.com/watch?v=aV4qtcKmkQo',
+
+      // 6. Phim: ÚT LAN 2 (CÔ DÂU HÀO MÔN)
+      'ut-lan-2': 'https://www.youtube.com/watch?v=TpwGd81RSKk',
+      'co-dau-hao-mon': 'https://www.youtube.com/watch?v=TpwGd81RSKk', // alias dự phòng
+
+      // 7. Phim: KHÓA CHẶT CỬA NÀO SUZUME
+      'suzume': 'https://www.youtube.com/watch?v=EWLo2IF_NPU',
+
+      // 8. Phim: CÁ VOI NUỐT CHỬNG
+      'ca-voi-nuot-chung': 'https://www.youtube.com/watch?v=ZyGPPlhPI8M',
+
+      // 9. Phim: MẸ MÌN
+      'me-min': 'https://www.youtube.com/watch?v=mTylSVV6zSo',
+
+      // 10. Phim: SHAUN THE SHEEP
+      'shaun-the-sheep': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+    };
+
+    /**
+     * Tự động trích xuất YouTube Video ID từ link bất kỳ
+     */
+    function extractYouTubeVideoId(input) {
+      if (!input) return '';
+      input = input.trim();
+      // Nếu là mã Video ID 11 ký tự
+      if (/^[a-zA-Z0-9_-]{11}$/.test(input)) {
+        return input;
+      }
+      // Trích xuất ID từ mọi dạng link YouTube thông dụng
+      const match = input.match(/(?:youtu\.be\/|(?:[a-zA-Z0-9-]+\.)?youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      return match ? match[1] : '';
+    }
+
+    /**
+     * Mở popup phát Trailer YouTube
+     * @param {string} movieId Mã định danh phim (key trong MOVIE_TRAILERS)
+     * @param {string} movieTitle Tên phim hiển thị trên tiêu đề modal
+     * @param {HTMLElement} [triggerEl] Nút bấm kích hoạt (để đọc data-trailer nếu có)
+     */
+    
+    let currentActiveWatchUrl = '';
+
+    function openExternalYouTube() {
+      if (currentActiveWatchUrl) {
+        window.open(currentActiveWatchUrl, '_blank');
+      }
+    }
+
+    function switchToLocalhost() {
+      const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+      window.location.href = `http://localhost:8000/${currentPage}`;
+    }
+
+    function openTrailerModal(movieId, movieTitle, triggerEl) {
+      const modal = document.getElementById('trailer-modal');
+      const iframe = document.getElementById('trailer-iframe');
+      const titleEl = document.getElementById('trailer-modal-title');
+      const ytbLinkEl = document.getElementById('trailer-modal-ytb-link');
+
+      // 1. Lấy link YouTube: ưu tiên thuộc tính data-trailer của nút, sau đó đến MOVIE_TRAILERS
+      let rawUrl = '';
+      if (triggerEl && triggerEl.getAttribute('data-trailer')) {
+        rawUrl = triggerEl.getAttribute('data-trailer').trim();
+      }
+      if (!rawUrl && MOVIE_TRAILERS[movieId]) {
+        rawUrl = MOVIE_TRAILERS[movieId].trim();
+      }
+      if (!rawUrl) {
+        rawUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'; // Fallback link mặc định
+      }
+
+      // 2. Trích xuất ID và cấu hình Embed URL
+      const videoId = extractYouTubeVideoId(rawUrl);
+      // Cấu hình URL nhúng chuẩn YouTube với origin và playsinline
+      let embedUrl = rawUrl;
+      if (videoId) {
+        const originParam = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+          ? `&origin=${encodeURIComponent(window.location.origin)}`
+          : '';
+        embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&vq=hd1080&hd=1${originParam}`;
+      }
+      const watchUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : rawUrl;
+
+      // 3. Gán dữ liệu vào modal
+      if (titleEl) titleEl.textContent = movieTitle || 'Trailer phim';
+      if (ytbLinkEl) ytbLinkEl.href = watchUrl;
+      currentActiveWatchUrl = watchUrl;
+
+      const fallback = document.getElementById('trailer-file-fallback');
+      const fallbackThumb = document.getElementById('trailer-fallback-thumb');
+      const fallbackTitle = document.getElementById('trailer-fallback-title');
+      const warn = document.getElementById('trailer-file-protocol-warning');
+
+      if (window.location.protocol === 'file:') {
+        // Giao thức file://: YouTube chặn nhúng gây lỗi 153 -> Hiển thị thumbnail preview 1-click thông minh
+        if (iframe) {
+          iframe.style.display = 'none';
+          iframe.src = '';
+        }
+        if (fallback) {
+          fallback.style.display = 'block';
+          if (fallbackThumb && videoId) {
+            fallbackThumb.src = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+          }
+          if (fallbackTitle) {
+            fallbackTitle.textContent = movieTitle || 'Trailer Phim';
+          }
+        }
+        if (warn) warn.style.display = 'block';
+      } else {
+        // Giao thức http:// hoặc https:// (Localhost / Vercel): Phát trực tiếp qua iframe
+        if (fallback) fallback.style.display = 'none';
+        if (iframe) {
+          iframe.style.display = 'block';
+          iframe.src = embedUrl;
+        }
+        if (warn) warn.style.display = 'none';
+      }
+
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Đóng popup trailer và NGẮT TIẾNG / NGỪNG PHÁT video ngay lập tức
+     */
+    function closeTrailerModal() {
+      const modal = document.getElementById('trailer-modal');
+      const iframe = document.getElementById('trailer-iframe');
+
+      if (modal) {
+        modal.classList.remove('open');
+      }
+      // Quan trọng: xóa src của iframe để lập tức ngắt tiếng và dừng phát
+      if (iframe) {
+        iframe.src = '';
+      }
+      // Khôi phục thanh cuộn cho trang web
+      document.body.style.overflow = '';
+    }
+
+    /**
+     * Bấm ra vùng backdrop bên ngoài để đóng modal
+     */
+    function handleTrailerBackdropClick(event) {
+      if (event.target.id === 'trailer-modal') {
+        closeTrailerModal();
+      }
+    }
+
+    // Đóng trailer khi người dùng nhấn phím ESC
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' || event.key === 'Esc') {
+        const modal = document.getElementById('trailer-modal');
+        if (modal && modal.classList.contains('open')) {
+          closeTrailerModal();
+        }
+      }
+    });
+
+  </script>
+
+</body>
+</html>

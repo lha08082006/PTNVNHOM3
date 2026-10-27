@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BetaBot AI - Trợ Lý Đối Soát Giao Dịch & CSKH 24/7 | Beta Cinemas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  <style>
+    /* Page Layout */
+    .betabot-page {
+      background: #f8fafc;
+      min-height: calc(100vh - 140px);
+      padding: 30px 0 60px;
+    }
+
+    .betabot-header-strip {
+      background: linear-gradient(135deg, #002e5b 0%, #005198 60%, #0284c7 100%);
+      color: white;
+      padding: 24px 0;
+      margin-bottom: 24px;
+    }
+
+    .betabot-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* Left Sidebar */
+    .betabot-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .bot-profile-card {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid #e2e8f0;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .bot-avatar-wrapper {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 14px;
+    }
+
+    .bot-avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #e0f2fe;
+      box-shadow: 0 4px 14px rgba(0, 81, 152, 0.15);
+      background: #0f172a;
+    }
+
+    .bot-online-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      width: 16px;
+      height: 16px;
+      background: #10b981;
+      border: 2.5px solid white;
+      border-radius: 50%;
+    }
+
+    .bot-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--beta-navy);
+      margin-bottom: 4px;
+    }
+
+    .bot-status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    .bot-quick-action-btn {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      margin-bottom: 8px;
+    }
+
+    .bot-quick-action-btn:hover {
+      background: #eff6ff;
+      border-color: var(--beta-navy);
+      color: var(--beta-navy);
+      transform: translateX(3px);
+    }
+
+    /* Chat Application Card */
+    .chat-card {
+      background: white;
+      border-radius: 24px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 30px rgba(0, 81, 152, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 720px;
+      position: relative;
+    }
+
+    /* Dark Mode Variant */
+    .chat-card.dark-theme {
+      background: #12141C;
+      border-color: #2C3040;
+      color: #F3F1EC;
+    }
+
+    .chat-card.dark-theme .chat-header {
+      background: #1C1F2B;
+      border-bottom-color: #2C3040;
+      color: #F3F1EC;
+    }
+
+    .chat-card.dark-theme .bot-bubble {
+      background: #1C1F2B;
+      border-color: #2C3040;
+      color: #F3F1EC;
+    }
+
+    .chat-card.dark-theme .chat-input-bar {
+      background: #1C1F2B;
+      border-top-color: #2C3040;
+    }
+
+    .chat-card.dark-theme .chat-input-field {
+      background: #12141C;
+      border-color: #2C3040;
+      color: #F3F1EC;
+    }
+
+    .chat-card.dark-theme .chat-chip-btn {
+      background: transparent;
+      border-color: #2C3040;
+      color: #F3F1EC;
+    }
+
+    .chat-card.dark-theme .form-subcard {
+      background: #1C1F2B;
+      border-color: #2C3040;
+      color: #F3F1EC;
+    }
+
+    .chat-card.dark-theme input, 
+    .chat-card.dark-theme textarea {
+      background: #12141C;
+      border-color: #2C3040;
+      color: #F3F1EC;
+    }
+
+    /* Chat Header */
+    .chat-header {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .chat-header-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-header-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #0f172a;
+      border: 1.5px solid #cbd5e1;
+    }
+
+    /* Chat Messages Box */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scroll-behavior: smooth;
+    }
+
+    /* Message Bubbles */
+    .msg-row {
+      display: flex;
+      gap: 10px;
+      max-width: 90%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .msg-row.bot {
+      align-self: flex-start;
+    }
+
+    .msg-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      object-fit: cover;
+      margin-top: 2px;
+    }
+
+    .bot-bubble {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px 16px 16px 4px;
+      padding: 14px 18px;
+      color: #0f172a;
+      font-size: 14.5px;
+      line-height: 1.6;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .user-bubble {
+      background: var(--beta-orange);
+      color: white;
+      border-radius: 16px 16px 4px 16px;
+      padding: 12px 18px;
+      font-size: 14.5px;
+      line-height: 1.5;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(255, 84, 0, 0.2);
+    }
+
+    /* Action Chips */
+    .chat-chips-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chat-chip-btn {
+      background: white;
+      border: 1.5px solid #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #005198;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .chat-chip-btn:hover {
+      background: #eff6ff;
+      border-color: #005198;
+      transform: translateY(-1px);
+    }
+
+    /* Embedded Forms & Cards Inside Chat */
+    .form-subcard {
+      background: white;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chat-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .chat-input-text {
+      width: 100%;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      padding: 0 12px;
+      font-size: 13.5px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .chat-input-text:focus {
+      border-color: #005198;
+    }
+
+    /* Stepper in Chat */
+    .chat-stepper {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chat-step-item {
+      flex: 1;
+      text-align: center;
+    }
+
+    .chat-step-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: #e2e8f0;
+      margin-bottom: 4px;
+    }
+
+    .chat-step-bar.active {
+      background: #FF5A3C;
+    }
+
+    .chat-step-bar.done {
+      background: #10b981;
+    }
+
+    /* Input Bar */
+    .chat-input-bar {
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      padding: 14px 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input-field {
+      flex: 1;
+      height: 46px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      padding: 0 16px;
+      font-size: 14.5px;
+      outline: none;
+      font-family: inherit;
+      background: #f8fafc;
+    }
+
+    .chat-input-field:focus {
+      border-color: #005198;
+      background: white;
+    }
+
+    .chat-send-btn {
+      height: 46px;
+      padding: 0 20px;
+      background: #FF5A3C;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .chat-send-btn:hover {
+      background: #e04a00;
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      .betabot-grid {
+        grid-template-columns: 1fr;
+      }
+      .chat-card {
+        height: 600px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" 
+             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+          <option selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option>Beta Trần Quang Khải</option>
+          <option>Beta Giải Phóng (Hà Nội)</option>
+          <option>Beta Mỹ Đình (Hà Nội)</option>
+          <option>Beta Quang Trung (TP.HCM)</option>
+          <option>Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option>Beta Thái Nguyên</option>
+          <option>Beta Bắc Giang</option>
+          <option>Beta Nha Trang</option>
+        </select>
+        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">HỖ TRỢ & KHIẾU NẠI</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Banner Tiêu Đề -->
+  <section class="betabot-header-strip">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span style="background: rgba(255, 90, 60, 0.25); border: 1px solid #FF5A3C; color: #ffaa80; padding: 2px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800;">
+            🤖 AI SUPPORT 24/7
+          </span>
+          <span style="font-size: 13px; color: #bfdbfe;">• Đối soát & Xử lý sự cố giao dịch tức thì</span>
+        </div>
+        <h1 style="font-family: var(--font-display); font-size: 26px; font-weight: 900; margin: 0;">
+          BetaBot — Trợ Lý Hỗ Trợ Khách Hàng Thông Minh
+        </h1>
+      </div>
+      <div>
+        <a href="support.html" class="btn btn-outline btn-sm" style="color: white; border-color: rgba(255,255,255,0.4);">
+          ← Về Trung Tâm Hỗ Trợ
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Khung Thân Chính -->
+  <main class="betabot-page">
+    <div class="container">
+      <div class="betabot-grid">
+        
+        <!-- CỘT TRÁI: THÔNG TIN BOT & TÁC VỤ NHANH -->
+        <aside class="betabot-sidebar">
+          
+          <div class="bot-profile-card">
+            <div class="bot-avatar-wrapper">
+              <img src="images/betabot-avatar.png" alt="BetaBot Avatar" class="bot-avatar-img" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+              <span class="bot-online-badge"></span>
+            </div>
+            <h2 class="bot-name">BetaBot AI</h2>
+            <div class="bot-status-tag">
+              <span style="color: #10b981;">●</span> Trực tuyến 24/7
+            </div>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 16px;">
+              Hệ thống AI chuyên trách tiếp nhận khiếu nại, đối soát giao dịch chuyển khoản VietQR / VNPay và theo dõi hoàn tiền tự động.
+            </p>
+
+            <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; text-align: left;">
+              <div style="font-size: 11.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px;">
+                Tác vụ nhanh thường gặp:
+              </div>
+
+              <button class="bot-quick-action-btn" onclick="triggerQuickAction('reconcile')">
+                <span>⚡ Đã thanh toán nhưng chưa có vé</span>
+                <span style="color: #94a3b8;">→</span>
+              </button>
+
+              <button class="bot-quick-action-btn" onclick="triggerQuickAction('refund')">
+                <span>🔍 Kiểm tra tiến độ hoàn tiền</span>
+                <span style="color: #94a3b8;">→</span>
+              </button>
+
+              <button class="bot-quick-action-btn" onclick="triggerQuickAction('complaint')">
+                <span>📝 Khiếu nại giao dịch 24h</span>
+                <span style="color: #94a3b8;">→</span>
+              </button>
+
+              <button class="bot-quick-action-btn" onclick="triggerQuickAction('find_ticket')">
+                <span>🎟️ Tra cứu vé đã mua</span>
+                <span style="color: #94a3b8;">→</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Thông tin hỗ trợ khẩn cấp -->
+          <div style="background: white; border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 13px; font-weight: 800; color: var(--beta-navy); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+              <span>📞</span> Cần Gặp Nhân Viên Trực Tiếp?
+            </div>
+            <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin-bottom: 10px;">
+              Tổng đài viên Beta Cinemas làm việc từ 08:00 - 22:00 tất cả các ngày trong tuần.
+            </p>
+            <a href="tel:1900636807" style="display: block; text-align: center; background: #eff6ff; color: #005198; font-weight: 800; padding: 8px 12px; border-radius: 8px; font-size: 14px; text-decoration: none;">
+              Hotline: 1900 636 807
+            </a>
+          </div>
+
+          <!-- Link sang Artboard gốc -->
+          <div style="background: #f1f5f9; border-radius: 12px; padding: 12px 16px; font-size: 12px; color: #475569;">
+            🎨 <strong>Thiết kế gốc Artboard:</strong><br>
+            <a href="Chatbot.dc.html" style="color: #005198; font-weight: 700; text-decoration: underline;" target="_blank">
+              Mở file Chatbot.dc.html (Design Component) ↗
+            </a>
+          </div>
+
+        </aside>
+
+        <!-- CỘT PHẢI: KHUNG CHAT TƯƠNG TÁC THỜI GIAN THỰC -->
+        <section>
+          <div class="chat-card" id="chat-card-container">
+            
+            <!-- Chat Header -->
+            <div class="chat-header">
+              <div class="chat-header-user">
+                <img src="images/betabot-avatar.png" alt="BetaBot" class="chat-header-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+                <div>
+                  <div style="font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                    <span>BetaBot</span>
+                    <span style="font-size: 10px; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: 800;">AI BOT</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: #10b981; font-weight: 600;">
+                    ● Hỗ trợ đối soát & hoàn tiền 24/7
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button onclick="toggleChatTheme()" class="btn btn-outline btn-sm" id="btn-theme-toggle" style="padding: 4px 10px; font-size: 12px; height: 32px;" title="Chuyển đổi giao diện Sáng / Tối">
+                  🌙 Giao diện Tối
+                </button>
+                <button onclick="resetConversation()" class="btn btn-outline btn-sm" style="padding: 4px 10px; font-size: 12px; height: 32px;" title="Bắt đầu lại cuộc trò chuyện">
+                  🔄 Làm mới
+                </button>
+              </div>
+            </div>
+
+            <!-- Chat Message Stream -->
+            <div class="chat-messages" id="chat-messages-box">
+              
+              <!-- Tin nhắn 1: Bot Chào Mừng -->
+              <div class="msg-row bot">
+                <img src="images/betabot-avatar.png" alt="Bot" class="msg-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+                <div class="bot-bubble">
+                  <p style="margin-bottom: 8px;">
+                    Xin chào! Mình là <strong>BetaBot</strong> — Trợ lý AI hỗ trợ đối soát & giải quyết sự cố thanh toán tự động của Beta Cinemas.
+                  </p>
+                  <p style="margin-bottom: 8px;">
+                    Bạn đang gặp tình huống nào cần xử lý ngay?
+                  </p>
+                  
+                  <div class="chat-chips-group">
+                    <button class="chat-chip-btn" onclick="triggerQuickAction('reconcile')">
+                      ⚡ Đã thanh toán nhưng không xuất được vé
+                    </button>
+                    <button class="chat-chip-btn" onclick="triggerQuickAction('refund')">
+                      🔍 Kiểm tra trạng thái hoàn tiền
+                    </button>
+                    <button class="chat-chip-btn" onclick="triggerQuickAction('complaint')">
+                      📝 Khiếu nại chuyển khoản khác
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Chat Input Footer -->
+            <div class="chat-input-bar">
+              <input type="text" 
+                     id="user-input-box" 
+                     class="chat-input-field" 
+                     placeholder="Nhập tin nhắn hoặc câu hỏi cho BetaBot (Ví dụ: kiểm tra vé, hoàn tiền...)" 
+                     onkeydown="handleInputKey(event)">
+              <button class="chat-send-btn" onclick="sendMessage()">
+                <span>Gửi</span>
+                <span>➤</span>
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- CHÂN TRANG FOOTER CHÍNH THỨC -->
+  <footer class="footer-official">
+    <div class="container">
+      <div class="footer-official-grid">
+        
+        <!-- Cột 1: Giới Thiệu Doanh Nghiệp & Logo Trắng -->
+        <div>
+          <div style="margin-bottom: 18px;">
+            <a href="home.html">
+              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png" 
+                   onerror="this.onerror=null; this.src='images/logo-white-official.png';" 
+                   alt="Beta Cinemas" 
+                   style="height: 48px;">
+            </a>
+          </div>
+          <p style="font-size: 13px; color: #e0f2fe; line-height: 1.8; margin-bottom: 16px;">
+            <strong>CÔNG TY CỔ PHẦN BETA MEDIA</strong><br>
+            Tầng 3, số 59 phố Xuân Diệu, Phường Quảng An, Quận Tây Hồ, Thành phố Hà Nội.<br>
+            Mã số doanh nghiệp: 0106633482 do Sở KH&ĐT TP. Hà Nội cấp.<br>
+            Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
+          </p>
+          <div>
+            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+          </div>
+        </div>
+
+        <!-- Cột 2: Cụm Rạp Beta -->
+        <div>
+          <h4 class="footer-official-title">CỤM RẠP BETA CINEMAS</h4>
+          <ul class="footer-official-links">
+            <li><a href="schedule.html">Beta Thanh Xuân (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Giải Phóng (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Mỹ Đình (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Quang Trung (TP.HCM)</a></li>
+            <li><a href="schedule.html">Beta Ung Văn Khiêm (TP.HCM)</a></li>
+            <li><a href="schedule.html">Beta Thái Nguyên</a></li>
+            <li><a href="schedule.html">Beta Bắc Giang</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 3: Quy Định & Điều Khoản -->
+        <div>
+          <h4 class="footer-official-title">CHÍNH SÁCH & QUY ĐỊNH</h4>
+          <ul class="footer-official-links">
+            <li><a href="support.html">Điều khoản sử dụng</a></li>
+            <li><a href="support.html">Chính sách bảo mật thông tin</a></li>
+            <li><a href="support.html">Chính sách đổi trả & hoàn tiền</a></li>
+            <li><a href="support.html">Quy định độ tuổi xem phim</a></li>
+            <li><a href="support.html">Hướng dẫn thanh toán trực tuyến</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 4: Kết Nối & Thanh Toán -->
+        <div>
+          <h4 class="footer-official-title">KẾT NỐI VỚI CHÚNG TÔI</h4>
+          <p style="font-size: 13px; color: #e0f2fe; margin-bottom: 14px;">Theo dõi Fanpage Beta Cinemas để nhận ưu đãi vé 0đ sớm nhất:</p>
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Facebook</span>
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">TikTok</span>
+            <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Youtube</span>
+          </div>
+
+          <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VNPAY-QR</span>
+            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MoMo</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-official-bottom">
+        <div>© 2026 Beta Cinemas. Bản quyền thuộc về Công ty Cổ phần Beta Media.</div>
+        <div>
+          <a href="support.html" style="color: #ffd166; font-weight: 600;">Trung tâm trợ giúp 24/7</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PROTOTYPE SWITCHER DOCK -->
+  <nav class="prototype-dock">
+    <span class="dock-label">Giao diện:</span>
+    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
+    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
+    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
+    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
+    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
+    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
+    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
+    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
+    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
+    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
+    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
+    <a href="account.html" class="dock-item">👤 Thành Viên</a>
+    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
+    <a href="betabot.html" class="dock-item active">🤖 BetaBot AI</a>
+  </nav>
+
+  <!-- Interactive Chat Logic Script -->
+  <script>
+    const chatBox = document.getElementById('chat-messages-box');
+    const inputField = document.getElementById('user-input-box');
+    let isDarkMode = false;
+
+    // Chuyển đổi giao diện Sáng / Tối
+    function toggleChatTheme() {
+      isDarkMode = !isDarkMode;
+      const card = document.getElementById('chat-card-container');
+      const btn = document.getElementById('btn-theme-toggle');
+      if (isDarkMode) {
+        card.classList.add('dark-theme');
+        btn.textContent = '☀️ Giao diện Sáng';
+      } else {
+        card.classList.remove('dark-theme');
+        btn.textContent = '🌙 Giao diện Tối';
+      }
+    }
+
+    // Scroll to bottom
+    function scrollToBottom() {
+      setTimeout(() => {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 50);
+    }
+
+    // Handle enter key
+    function handleInputKey(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    // User sends a message
+    function sendMessage() {
+      const text = inputField.value.trim();
+      if (!text) return;
+
+      appendUserMessage(text);
+      inputField.value = '';
+
+      // Tự động phân tích câu hỏi
+      simulateBotResponse(text);
+    }
+
+    function appendUserMessage(text) {
+      const row = document.createElement('div');
+      row.className = 'msg-row user';
+      row.innerHTML = `<div class="user-bubble">${escapeHtml(text)}</div>`;
+      chatBox.appendChild(row);
+      scrollToBottom();
+    }
+
+    function appendBotMessage(htmlContent) {
+      const row = document.createElement('div');
+      row.className = 'msg-row bot';
+      row.innerHTML = `
+        <img src="images/betabot-avatar.png" alt="Bot" class="msg-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+        <div class="bot-bubble">${htmlContent}</div>
+      `;
+      chatBox.appendChild(row);
+      scrollToBottom();
+    }
+
+    // Phân tích tin nhắn gửi từ người dùng
+    function simulateBotResponse(text) {
+      const lower = text.toLowerCase();
+      
+      // Hiệu ứng đang gõ
+      const typingId = 'typing-' + Date.now();
+      const typingRow = document.createElement('div');
+      typingRow.id = typingId;
+      typingRow.className = 'msg-row bot';
+      typingRow.innerHTML = `
+        <img src="images/betabot-avatar.png" alt="Bot" class="msg-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+        <div class="bot-bubble" style="font-style: italic; color: #64748b;">
+          BetaBot đang xử lý dữ liệu...
+        </div>
+      `;
+      chatBox.appendChild(typingRow);
+      scrollToBottom();
+
+      setTimeout(() => {
+        const el = document.getElementById(typingId);
+        if (el) el.remove();
+
+        if (lower.includes('thanh toán') || lower.includes('chưa có vé') || lower.includes('không có vé') || lower.includes('đối soát') || lower.includes('trừ tiền')) {
+          renderReconcileFlow();
+        } else if (lower.includes('hoàn tiền') || lower.includes('refund') || lower.includes('tiến độ')) {
+          renderRefundTracker();
+        } else if (lower.includes('khiếu nại') || lower.includes('sự cố')) {
+          renderComplaintFlow();
+        } else if (lower.includes('vé') || lower.includes('tra cứu')) {
+          appendBotMessage(`
+            <p>Để tra cứu vé nhanh, bạn có thể nhập Mã đơn hàng (BC...) hoặc Số điện thoại mua vé vào ô tra cứu tại trang Hỗ Trợ, hoặc nhấn nút bên dưới:</p>
+            <div style="margin-top: 10px;">
+              <a href="support.html" class="btn btn-primary btn-sm" style="display:inline-block; font-size:12.5px;">Tra Cứu Vé Tại Support Hub →</a>
+            </div>
+          `);
+        } else {
+          appendBotMessage(`
+            <p>BetaBot đã nhận thông tin: <em>"${escapeHtml(text)}"</em>.</p>
+            <p style="margin-top: 6px;">Tôi có thể giúp bạn giải quyết các vấn đề sau ngay lập tức:</p>
+            <div class="chat-chips-group">
+              <button class="chat-chip-btn" onclick="triggerQuickAction('reconcile')">⚡ Đối soát chuyển khoản VietQR</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('refund')">🔍 Kiểm tra hoàn tiền</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('complaint')">📝 Khiếu nại sự cố</button>
+            </div>
+          `);
+        }
+      }, 700);
+    }
+
+    // Trigger action from chips or sidebar
+    function triggerQuickAction(action) {
+      if (action === 'reconcile') {
+        appendUserMessage('Đã thanh toán nhưng không xuất được vé');
+        setTimeout(renderReconcileFlow, 400);
+      } else if (action === 'refund') {
+        appendUserMessage('Kiểm tra trạng thái hoàn tiền');
+        setTimeout(renderRefundTracker, 400);
+      } else if (action === 'complaint') {
+        appendUserMessage('Khiếu nại sự cố chuyển khoản');
+        setTimeout(renderComplaintFlow, 400);
+      } else if (action === 'find_ticket') {
+        appendUserMessage('Tra cứu vé xem phim');
+        setTimeout(() => {
+          appendBotMessage(`
+            <p>Thông tin vé xem phim gần nhất của bạn:</p>
+            <div class="form-subcard" style="border-left: 4px solid #10b981;">
+              <div style="font-weight: 800; color: #005198;">ĐƠN HÀNG #BC2610279854</div>
+              <div style="font-size: 13px;">Phim: <strong>Linh Giới Đại Chiến: Thần Sư Chung Quỳ</strong></div>
+              <div style="font-size: 13px;">Ghế: <strong>F07, F08 (VIP)</strong> • Suất: <strong>18:30 (Hôm nay)</strong></div>
+              <div style="font-size: 13px; color: #ff5400; font-weight: 800;">Tổng tiền: 180.000 đ (Đã thanh toán)</div>
+              <a href="ticket.html?movie=linh-gioi-dai-chien&seats=F07,F08&total=180000" class="btn btn-primary btn-sm" style="text-align:center; margin-top: 6px;">Xem Vé Điện Tử (Barcode) →</a>
+            </div>
+          `);
+        }, 400);
+      }
+    }
+
+    // Flow 1: Form Đối Soát Giao Dịch
+    function renderReconcileFlow() {
+      appendBotMessage(`
+        <p><strong>Nhập thông tin chuyển khoản để mình đối soát tự động:</strong></p>
+        <div class="form-subcard" id="form-reconcile-box">
+          <label class="chat-field">
+            Mã giao dịch ngân hàng (FT... / Mã tham chiếu)
+            <input type="text" class="chat-input-text" id="recon-txid" value="FT2610279854" placeholder="VD: FT2610279854">
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <label class="chat-field">
+              Số tiền đã trừ (VNĐ)
+              <input type="text" class="chat-input-text" id="recon-amount" value="180.000" placeholder="180.000">
+            </label>
+            <label class="chat-field">
+              Ngày giao dịch
+              <input type="text" class="chat-input-text" id="recon-date" value="27/10/2026">
+            </label>
+          </div>
+          <label class="chat-field">
+            Mã đặt vé hoặc Số điện thoại mua vé
+            <input type="text" class="chat-input-text" id="recon-phone" value="0987654321" placeholder="VD: 0987654321">
+          </label>
+          <button class="btn btn-primary btn-sm" onclick="submitReconcile()" style="background:#FF5A3C; border:none; padding: 10px; font-weight: 800; border-radius: 8px;">
+            Kiểm Tra Đối Soát Ngay
+          </button>
+        </div>
+      `);
+    }
+
+    // Submit Đối Soát -> Hiển thị Kết quả đối soát
+    function submitReconcile() {
+      const txid = document.getElementById('recon-txid').value || 'FT2610279854';
+      const amount = document.getElementById('recon-amount').value || '180.000 đ';
+
+      appendUserMessage(`Kiểm tra giao dịch: ${txid} - ${amount}`);
+
+      setTimeout(() => {
+        appendBotMessage(`
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+            <span style="color: #10b981; font-size: 18px;">✓</span>
+            <strong style="font-size: 15px; color: #005198;">KẾT QUẢ ĐỐI SOÁT HỆ THỐNG</strong>
+          </div>
+          <div class="form-subcard">
+            <div style="display:flex; justify-content:space-between; font-size:13px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+              <span style="color:#64748b;">Mã giao dịch ngân hàng:</span>
+              <strong style="font-family:monospace; font-size:13.5px;">${escapeHtml(txid)}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+              <span style="color:#64748b;">Số tiền ghi nhận:</span>
+              <strong style="color:#ff5400;">${escapeHtml(amount)}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+              <span style="color:#64748b;">Trạng thái ngân hàng:</span>
+              <span style="background:#d1fae5; color:#065f46; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:4px;">
+                Đã trừ tiền thành công
+              </span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; padding-bottom:4px;">
+              <span style="color:#64748b;">Hệ thống rạp Beta:</span>
+              <span style="background:#fef3c7; color:#b45309; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:4px;">
+                Lỗi xuất vé · Đủ điều kiện hoàn / cấp vé
+              </span>
+            </div>
+
+            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <a href="ticket.html?movie=linh-gioi-dai-chien&cinema=Beta%20Thanh%20Xu%C3%A2n%20(H%C3%A0%20N%E1%BB%99i)&seats=F07,%20F08&total=180000" class="btn btn-primary btn-sm" style="background:#FF5A3C; border:none; flex:1; text-align:center;">
+                🎟️ Cấp Lại Mã Vé Ngay
+              </a>
+              <button class="btn btn-outline btn-sm" onclick="triggerQuickAction('refund')" style="flex:1;">
+                💸 Xác Nhận Hoàn Tiền
+              </button>
+            </div>
+          </div>
+        `);
+      }, 700);
+    }
+
+    // Flow 2: Theo Dõi Hoàn Tiền
+    function renderRefundTracker() {
+      appendBotMessage(`
+        <strong style="font-size: 15px; color: #005198;">THEO DÕI TIẾN ĐỘ HOÀN TIỀN</strong>
+        <p style="font-size: 13px; color: #64748b; margin: 4px 0 10px;">
+          Yêu cầu hoàn tiền tự động về tài khoản ngân hàng gốc đang được xử lý:
+        </p>
+        <div class="form-subcard">
+          <div style="display:flex; justify-content:space-between; font-size:13px;">
+            <span style="color:#64748b;">Số tiền hoàn:</span>
+            <strong style="color:#ff5400; font-size:15px;">180.000 đ</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px;">
+            <span style="color:#64748b;">Nhận lại về:</span>
+            <strong>Tài khoản ngân hàng gốc (VietQR)</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px;">
+            <span style="color:#64748b;">Mã tham chiếu:</span>
+            <strong style="font-family:monospace;">REF-2610-889</strong>
+          </div>
+
+          <div style="margin-top: 10px;">
+            <div class="chat-stepper">
+              <div class="chat-step-item">
+                <div class="chat-step-bar done"></div>
+                <div style="font-size: 11px; font-weight: 700; color: #10b981;">Đã tiếp nhận</div>
+              </div>
+              <div class="chat-step-item">
+                <div class="chat-step-bar active"></div>
+                <div style="font-size: 11px; font-weight: 700; color: #FF5A3C;">Đang đối soát</div>
+              </div>
+              <div class="chat-step-item">
+                <div class="chat-step-bar"></div>
+                <div style="font-size: 11px; font-weight: 600; color: #94a3b8;">Đã hoàn tiền</div>
+              </div>
+            </div>
+            <p style="font-size: 12px; color: #64748b; margin-top: 8px; text-align: center;">
+              ⏱️ Dự kiến hoàn tất và tiền về tài khoản trong <strong>5 - 15 phút</strong>.
+            </p>
+          </div>
+        </div>
+      `);
+    }
+
+    // Flow 3: Form Khiếu Nại 24h
+    function renderComplaintFlow() {
+      appendBotMessage(`
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+          <span style="color: #f59e0b; font-size: 16px;">⚠️</span>
+          <strong style="font-size: 14.5px;">KHIẾU NẠI SỰ CỐ THANH TOÁN 24H</strong>
+        </div>
+        <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
+          Hạn khiếu nại trong vòng 24 giờ kể từ lúc chuyển khoản · <strong>Còn 14 giờ 25 phút</strong>
+        </p>
+        <div class="form-subcard" role="form">
+          <label class="chat-field">
+            Mã đặt vé hoặc mã đơn
+            <input type="text" class="chat-input-text" value="BC2610279854">
+          </label>
+          <label class="chat-field">
+            Số điện thoại liên hệ
+            <input type="text" class="chat-input-text" value="0987654321">
+          </label>
+          <label class="chat-field">
+            Mã giao dịch ngân hàng
+            <input type="text" class="chat-input-text" value="FT2610279854">
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <label class="chat-field">
+              Số tiền đã chuyển
+              <input type="text" class="chat-input-text" value="180.000 đ">
+            </label>
+            <label class="chat-field">
+              Giờ chuyển
+              <input type="text" class="chat-input-text" value="16:45">
+            </label>
+          </div>
+          <label class="chat-field">
+            Mô tả sự cố chi tiết
+            <textarea style="min-height:70px; border-radius:8px; border:1px solid #cbd5e1; padding:8px 12px; font-family:inherit; font-size:13px;" placeholder="Ví dụ: Đã trừ tiền trên app ngân hàng nhưng trang web bị tải lại...">Tôi chuyển khoản VietQR thành công nhưng ứng dụng ngân hàng báo đã trừ tiền 180.000đ mà website không chuyển hướng xuất vé.</textarea>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer;">
+            <input type="checkbox" checked style="width:16px; height:16px;"> Tôi xác nhận các thông tin trên là chính xác
+          </label>
+          <button class="btn btn-primary btn-sm" onclick="submitComplaint()" style="background:#FF5A3C; border:none; padding:10px; font-weight:800; border-radius:8px;">
+            Gửi Khiếu Nại CSKH Ngay
+          </button>
+        </div>
+      `);
+    }
+
+    function submitComplaint() {
+      appendUserMessage('Đã gửi thông tin khiếu nại sự cố chuyển khoản.');
+      setTimeout(() => {
+        appendBotMessage(`
+          <div style="text-align: center; padding: 10px 0;">
+            <div style="font-size: 28px; margin-bottom: 6px;">🎉</div>
+            <strong style="color: #059669; font-size: 15px;">ĐÃ TIẾP NHẬN KHIẾU NẠI THÀNH CÔNG!</strong>
+            <p style="font-size: 13px; color: #475569; margin: 6px 0 10px;">
+              Mã hồ sơ: <strong>#CS-2610-889</strong>.<br>
+              Hệ thống đối soát tự động đang làm việc với cổng thanh toán. Nhân viên hỗ trợ sẽ gọi đến số <strong>0987654321</strong> trong vòng 15 phút nếu cần thêm thông tin xác minh.
+            </p>
+            <div style="display:flex; justify-content:center; gap:10px;">
+              <button class="btn btn-outline btn-sm" onclick="triggerQuickAction('refund')">Theo Dõi Tiến Độ</button>
+              <a href="home.html" class="btn btn-primary btn-sm">Về Trang Chủ</a>
+            </div>
+          </div>
+        `);
+      }, 700);
+    }
+
+    function resetConversation() {
+      chatBox.innerHTML = `
+        <div class="msg-row bot">
+          <img src="images/betabot-avatar.png" alt="Bot" class="msg-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+          <div class="bot-bubble">
+            <p style="margin-bottom: 8px;">
+              Xin chào! Mình là <strong>BetaBot</strong> — Trợ lý AI hỗ trợ đối soát & giải quyết sự cố thanh toán tự động của Beta Cinemas.
+            </p>
+            <p style="margin-bottom: 8px;">
+              Bạn đang gặp tình huống nào cần xử lý ngay?
+            </p>
+            <div class="chat-chips-group">
+              <button class="chat-chip-btn" onclick="triggerQuickAction('reconcile')">⚡ Đã thanh toán nhưng không xuất được vé</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('refund')">🔍 Kiểm tra trạng thái hoàn tiền</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('complaint')">📝 Khiếu nại chuyển khoản khác</button>
+            </div>
+          </div>
+        </div>
+      `;
+      scrollToBottom();
+    }
+
+    function escapeHtml(string) {
+      return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+          '/': '&#x2F;',
+          '`': '&#x60;',
+          '=': '&#x3D;'
+        }[s];
+      });
+    }
+  </script>
+
+</body>
+</html>

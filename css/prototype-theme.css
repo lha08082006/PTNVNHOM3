@@ -1,0 +1,1089 @@
+/* ==========================================================================
+   BETA CINEMAS - MODERN BRAND DESIGN SYSTEM 2026
+   Theme: Modern Beta Brand (Navy #005198 + Fresh Orange #FF5400 + Clean Slate)
+   ========================================================================== */
+
+:root {
+  /* Brand Primary Colors */
+  --beta-navy: #005198;
+  --beta-navy-dark: #003768;
+  --beta-navy-light: #0284c7;
+  --beta-blue-soft: #f0f7ff;
+  --beta-blue-50: #eff6ff;
+
+  /* Brand Accents */
+  --beta-orange: #ff5400;
+  --beta-orange-hover: #e04a00;
+  --beta-orange-soft: #fff4ed;
+  --beta-yellow: #f59e0b;
+  --beta-yellow-soft: #fef3c7;
+
+  /* Neutrals & Dark Slate */
+  --slate-950: #020617;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --white: #ffffff;
+
+  /* Functional Status */
+  --color-success: #10b981;
+  --color-success-soft: #d1fae5;
+  --color-danger: #ef4444;
+  --color-danger-soft: #fee2e2;
+  --color-warning: #f59e0b;
+
+  /* Seat Status Colors */
+  --seat-standard: #e2e8f0;
+  --seat-vip: #005198;
+  --seat-sweetbox: #ec4899;
+  --seat-selected: #ff5400;
+  --seat-occupied: #94a3b8;
+
+  /* Typography */
+  --font-main: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Montserrat', sans-serif;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(0, 81, 152, 0.25);
+  --shadow-orange-glow: 0 0 20px rgba(255, 84, 0, 0.35);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Reset & Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--slate-50);
+  color: var(--slate-700);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-bottom: 70px; /* Room for prototype switcher */
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Prototype Switcher Dock (Fixed at bottom for easy testing between all views) */
+.prototype-dock {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full);
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 99999;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  overflow-x: auto;
+  max-width: 95vw;
+}
+
+.prototype-dock::-webkit-scrollbar {
+  display: none;
+}
+
+.dock-label {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+.dock-item {
+  color: #cbd5e1;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: var(--transition-fast);
+}
+
+.dock-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.dock-item.active {
+  background: var(--beta-orange);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(255, 84, 0, 0.4);
+}
+
+/* Top Notification Banner (Standard Official) */
+.top-header-official {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 6px 0;
+  font-size: 13px;
+  color: #64748b !important;
+  line-height: 1.5;
+}
+
+.top-header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-auth-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: #94a3b8 !important;
+}
+
+.top-auth-links a {
+  color: #334155 !important;
+  transition: color 0.2s;
+  text-decoration: none !important;
+}
+
+.top-auth-links a:hover {
+  color: #005198 !important;
+}
+
+/* ==========================================================================
+   ALPHA CINEMA UNIFIED HEADER (CHUẨN DUY NHẤT TOÀN BỘ WEB THEO YÊU CẦU)
+   ========================================================================== */
+.alpha-unified-header {
+  background: #12141C;
+  border-bottom: 1px solid #2C3040;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.alpha-header-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 16px 32px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alpha-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.alpha-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.alpha-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #F3F1EC;
+  transition: opacity 0.2s;
+}
+.alpha-logo-link:hover {
+  opacity: 0.9;
+}
+
+.alpha-logo-img {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+.alpha-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.alpha-brand-name {
+  font-family: 'Montserrat', 'Be Vietnam Pro', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: .14em;
+  color: #F3F1EC;
+}
+
+.alpha-brand-sub {
+  font-family: 'Montserrat', 'Be Vietnam Pro', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: .42em;
+  color: #F2B84B;
+  margin-top: 4px;
+}
+
+.alpha-select-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.alpha-cinema-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #1C1F2B;
+  border: 1px solid #2C3040;
+  border-radius: 22px;
+  color: #F3F1EC;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  height: 42px;
+  padding: 0 38px 0 18px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.alpha-cinema-select:hover, .alpha-cinema-select:focus {
+  border-color: #FF5A3C;
+  box-shadow: 0 0 0 1px rgba(255, 90, 60, 0.4);
+}
+
+.alpha-select-arrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #A3A7B8;
+  font-size: 11px;
+}
+
+.alpha-nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.alpha-nav-link {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #F3F1EC;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.alpha-nav-link:hover {
+  color: #F2B84B;
+}
+
+.alpha-nav-link.active {
+  color: #F2B84B;
+}
+
+.alpha-header-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.alpha-search-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.alpha-search-input {
+  width: 240px;
+  height: 40px;
+  border-radius: 22px;
+  background: #1C1F2B;
+  border: 1px solid #2C3040;
+  color: #F3F1EC;
+  padding: 0 18px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.alpha-search-input::placeholder {
+  color: #6B7280;
+}
+
+.alpha-search-input:focus {
+  border-color: #FF5A3C;
+  box-shadow: 0 0 0 2px rgba(255, 90, 60, 0.2);
+}
+
+.alpha-btn-login {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 8px;
+  border: 1px solid #2C3040;
+  background: #1C1F2B;
+  color: #F3F1EC;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.alpha-btn-login:hover {
+  border-color: #A3A7B8;
+  background: #25293a;
+  color: white;
+}
+
+.alpha-btn-register {
+  min-height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: none;
+  background: #FF5A3C;
+  color: #12141C;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.alpha-btn-register:hover {
+  background: #ff6f54;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .alpha-header-container {
+    padding: 14px 16px 12px;
+  }
+  .alpha-nav-menu {
+    gap: 16px;
+    font-size: 14px;
+  }
+  .alpha-search-input {
+    width: 180px;
+  }
+}
+
+/* Main Site Header (Standard Official Beta Cinemas) */
+.header-main-official {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 75px;
+  gap: 20px;
+}
+
+.official-logo {
+  height: 52px;
+  display: block;
+  transition: transform 0.2s;
+}
+
+.official-logo:hover {
+  transform: scale(1.02);
+}
+
+/* Selector Rạp chuẩn Beta */
+.cinema-select-official {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 30px;
+  padding: 9px 40px 9px 20px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #005198 !important;
+  background: #f8fafc !important;
+  cursor: pointer;
+  outline: none;
+  min-width: 230px;
+  transition: all 0.2s;
+}
+
+.cinema-select-official:hover, .cinema-select-official:focus {
+  border-color: #005198 !important;
+  background: white !important;
+  box-shadow: 0 0 0 3px rgba(0, 81, 152, 0.1) !important;
+}
+
+.main-menu-official {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 24px;
+}
+
+.menu-link-official {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: #03599d !important;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  white-space: nowrap;
+  position: relative;
+  padding: 8px 0;
+  text-decoration: none !important;
+}
+
+.menu-link-official:hover {
+  color: #ff5400 !important;
+}
+
+.menu-link-official.active {
+  color: #ff5400 !important;
+}
+
+.menu-link-official.active::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #ff5400;
+}
+
+/* Top Notification Banner */
+.top-notice-bar {
+  background: linear-gradient(90deg, #003768 0%, #005198 100%);
+  color: #e0f2fe;
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.top-notice-bar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-notice-bar a {
+  color: #ffd166;
+  font-weight: 600;
+}
+
+.top-notice-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12.5px;
+}
+
+/* Main Site Header */
+.site-header {
+  background: var(--white);
+  box-shadow: 0 4px 20px rgba(0, 81, 152, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all var(--transition-normal);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  gap: 24px;
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 24px;
+  color: var(--beta-navy);
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+.site-logo img {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo-tag {
+  background: var(--beta-orange);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* Cinema Location Selector Pill */
+.cinema-pill-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--beta-blue-soft);
+  border: 1.5px solid #bfdbfe;
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--beta-navy);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.cinema-pill-select:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+/* Main Nav Navigation */
+.main-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  list-style: none;
+}
+
+.nav-link {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--slate-700);
+  letter-spacing: 0.3px;
+  position: relative;
+  padding: 6px 0;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--beta-navy);
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--beta-orange);
+  border-radius: var(--radius-full);
+}
+
+/* User Auth Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--beta-orange);
+  color: var(--white);
+  box-shadow: 0 4px 14px rgba(255, 84, 0, 0.35);
+}
+
+.btn-primary:hover {
+  background: var(--beta-orange-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 84, 0, 0.45);
+}
+
+.btn-secondary {
+  background: var(--beta-navy);
+  color: var(--white);
+}
+
+.btn-secondary:hover {
+  background: var(--beta-navy-dark);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--slate-300);
+  color: var(--slate-700);
+}
+
+.btn-outline:hover {
+  border-color: var(--beta-navy);
+  color: var(--beta-navy);
+  background: var(--beta-blue-50);
+}
+
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 12.5px;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 15.5px;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-age-18 {
+  background: #dc2626;
+  color: white;
+}
+
+.badge-age-16 {
+  background: #f97316;
+  color: white;
+}
+
+.badge-age-13 {
+  background: #eab308;
+  color: #78350f;
+}
+
+.badge-age-p {
+  background: #10b981;
+  color: white;
+}
+
+.badge-format {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.badge-vip {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+/* Movie Card - Official Beta Cinemas Style */
+.movie-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.movie-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 81, 152, 0.15);
+}
+
+.movie-poster-wrap {
+  position: relative;
+  aspect-ratio: 2/3;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.movie-poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+/* Hover Overlay chuẩn web chính thức Beta Cinemas */
+.movie-poster-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 37, 71, 0.75);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 5;
+  padding: 20px;
+}
+
+.movie-card:hover .movie-poster-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.movie-card:hover .movie-poster-img {
+  transform: scale(1.06);
+}
+
+.btn-overlay-buy {
+  background: var(--beta-orange);
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 13.5px;
+  padding: 10px 22px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  box-shadow: 0 4px 15px rgba(255, 84, 0, 0.4);
+  transition: transform 0.2s, background 0.2s;
+  width: 80%;
+  justify-content: center;
+}
+
+.btn-overlay-buy:hover {
+  background: var(--beta-orange-hover);
+  transform: scale(1.05);
+  color: white;
+}
+
+.btn-overlay-trailer {
+  background: transparent;
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid white;
+  transition: all 0.2s;
+  width: 80%;
+  justify-content: center;
+}
+
+.btn-overlay-trailer:hover {
+  background: white;
+  color: var(--beta-navy);
+}
+
+.movie-info-official {
+  padding: 14px 12px 18px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.movie-title-official {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  line-height: 1.35;
+  height: 40px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.movie-meta-official {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.movie-meta-official span {
+  display: block;
+}
+
+/* Official Footer Styling */
+.footer-official {
+  background: #005198;
+  color: #ffffff;
+  padding: 50px 0 25px;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.footer-official-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr 1.2fr 1.2fr;
+  gap: 40px;
+  margin-bottom: 35px;
+}
+
+.footer-official-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ffd166;
+  margin-bottom: 16px;
+}
+
+.footer-official-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-official-links a {
+  color: #e0f2fe;
+  transition: all 0.2s;
+}
+
+.footer-official-links a:hover {
+  color: #ffffff;
+  padding-left: 4px;
+}
+
+.footer-official-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  color: #bfdbfe;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 28px;
+}
+
+.section-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--beta-orange);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--beta-navy);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title::before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 24px;
+  background: var(--beta-orange);
+  border-radius: var(--radius-full);
+}
+
+/* Footer */
+.site-footer {
+  background: var(--slate-900);
+  color: #94a3b8;
+  padding: 60px 0 30px;
+  margin-top: 60px;
+  font-size: 13.5px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-col-title {
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+  padding-left: 4px;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+}
+
+/* Responsive Grid Helper */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+@media (max-width: 1024px) {
+  .header-row {
+    height: auto;
+    padding: 10px 0;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .main-menu-official {
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 8px;
+    gap: 18px;
+  }
+  .footer-official-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+  }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .main-nav-links { display: none; }
+}
+
+@media (max-width: 640px) {
+  .footer-official-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-grid { grid-template-columns: 1fr; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .header-inner { height: 68px; }
+  .section-title { font-size: 20px; }
+}

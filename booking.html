@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chọn Suất & Vé Xem Phim - Alpha / Beta Cinemas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+
+  <style>
+    :root {
+      --a: #FF5A3C;
+      --bg-dark: #f8fafc;
+      --card-dark: #ffffff;
+      --border-dark: #e2e8f0;
+      --text-light: #0f172a;
+      --text-muted: #64748b;
+      --status-live: #10b981;
+      --status-warning: #d97706;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      padding-bottom: 70px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .b,
+    .o,
+    input,
+    select {
+      font: inherit;
+      min-height: 44px;
+      border-radius: 8px;
+      padding: 0 16px;
+    }
+
+    .b {
+      border: 0;
+      background: var(--a);
+      color: #ffffff;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .b:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255, 90, 60, 0.35);
+    }
+
+    .o {
+      border: 1.5px solid var(--border-dark);
+      background: #ffffff;
+      color: var(--text-light);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .o:hover {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+    }
+
+    input,
+    select {
+      border: 1.5px solid var(--border-dark);
+      background: #ffffff;
+      color: var(--text-light);
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--a);
+      box-shadow: 0 0 0 3px rgba(255, 90, 60, 0.15);
+    }
+
+    input[type=radio],
+    input[type=checkbox] {
+      min-height: 0;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+    }
+
+    .c {
+      background: var(--card-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 81, 152, 0.05);
+    }
+
+    .m {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .f {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .g {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .sl {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 130px;
+      padding: 12px;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 10px;
+      background: #ffffff;
+      color: var(--text-light);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sl:hover:not([disabled]) {
+      border-color: var(--a);
+      background: #fff5f3;
+    }
+
+    .sl.on {
+      border-color: var(--a);
+      box-shadow: 0 0 0 1.5px var(--a);
+      background: #fff5f3;
+    }
+
+    .sl[disabled] {
+      background: #f1f5f9;
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .bar {
+      display: block;
+      height: 6px;
+      border-radius: 3px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+
+    .bar i {
+      display: block;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--status-live);
+    }
+
+    .lo .bar i {
+      background: var(--status-warning);
+    }
+
+    .ln {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .st {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .st.active {
+      color: #005198;
+    }
+
+    .st b {
+      display: flex;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .st.active b {
+      background: var(--a);
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    /* Live pulse animation */
+    @keyframes live-pulse {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(1.2);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .live-dot {
+      color: var(--status-live);
+      display: inline-block;
+      animation: live-pulse 1.8s infinite ease-in-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .booking-main-container {
+        padding: 20px 16px !important;
+      }
+
+      .booking-header-bar {
+        padding-bottom: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" src="https://betacinemas.vn/Assets/Common/logo/logo.png"
+          onerror="this.onerror=null; this.src='images/logo-official.png';" alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select id="cinema-select" class="cinema-select-official">
+          <option value="Beta Thanh Xuân" selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option value="Beta Trần Quang Khải">Beta Trần Quang Khải (Hà Nội)</option>
+          <option value="Beta Giải Phóng">Beta Giải Phóng (Hà Nội)</option>
+          <option value="Beta Mỹ Đình">Beta Mỹ Đình (Hà Nội)</option>
+          <option value="Beta Quang Trung">Beta Quang Trung (TP.HCM)</option>
+          <option value="Beta Ung Văn Khiêm">Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option value="Beta Thái Nguyên">Beta Thái Nguyên</option>
+          <option value="Beta Bắc Giang">Beta Bắc Giang</option>
+          <option value="Beta Nha Trang">Beta Nha Trang</option>
+        </select>
+        <span
+          style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="booking-main-container"
+    style="max-width: 1360px; margin: 0 auto; padding: 32px 48px; display: flex; flex-direction: column; gap: 24px;">
+
+    <!-- Các bước đặt vé Stepper -->
+    <ol aria-label="Các bước đặt vé"
+      style="display: flex; gap: 24px; flex-wrap: wrap; list-style: none; padding: 0; margin: 0;">
+      <li class="st active">
+        <b>1</b> Chọn suất &amp; vé
+      </li>
+      <li class="st">
+        <a href="seats.html" style="display: flex; align-items: center; gap: 8px;">
+          <b>2</b> Chọn ghế
+        </a>
+      </li>
+      <li class="st">
+        <a href="checkout.html" style="display: flex; align-items: center; gap: 8px;">
+          <b>3</b> Thanh toán
+        </a>
+      </li>
+    </ol>
+
+    <!-- Bố cục 2 cột chính -->
+    <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+
+      <!-- Cột trái: Thông tin phim, Ngày chiếu & Suất chiếu -->
+      <div style="flex: 1 1 560px; display: flex; flex-direction: column; gap: 16px;">
+
+        <!-- Card Thông Tin Phim Được Chọn -->
+        <div class="c" style="display: flex; gap: 16px; align-items: center;">
+          <div role="img" aria-label="Poster phim"
+            style="flex: none; width: 76px; height: 112px; border-radius: 8px; overflow: hidden; background: linear-gradient(160deg, #FF5A3C, #7A2E8E); box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+            <img id="detail-movie-poster" src="images/400x633-145627-230926-40.jpg" alt="Poster"
+              style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h2
+              style="font-size: 24px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span id="detail-movie-title">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</span>
+              <span id="detail-movie-age"
+                style="background: var(--a); color: #ffffff; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 6px;">T18</span>
+            </h2>
+            <p class="m" id="detail-movie-meta" style="margin-bottom: 4px;">Hành động, Giả tưởng, Thần thoại · 128 phút ·
+              Tiếng Trung - Phụ đề Tiếng Việt</p>
+            <p class="m" id="detail-cinema-current">Rạp đang chọn: <strong id="cinema-name-tag"
+                style="color: var(--status-warning);">Beta Thanh Xuân</strong> (đổi ở thanh công cụ trên)</p>
+          </div>
+        </div>
+
+        <!-- Thanh Chọn Ngày Chiếu (7 ngày trong tuần) -->
+        <div class="g" id="date-selector" style="gap: 8px;">
+          <button class="b date-btn" data-date="CN 25/10"
+            style="min-width: 76px; text-align: center; line-height: 1.3;">CN<br>25/10</button>
+          <button class="o date-btn" data-date="T2 26/10"
+            style="min-width: 76px; text-align: center; line-height: 1.3;">T2<br>26/10</button>
+          <button class="o date-btn" data-date="T3 27/10"
+            style="min-width: 76px; text-align: center; line-height: 1.3;">T3<br>27/10</button>
+          <button class="o date-btn" data-date="T4 28/10"
+            style="min-width: 76px; text-align: center; line-height: 1.3;">T4<br>28/10</button>
+          <button class="o date-btn" data-date="T5 29/10"
+            style="min-width: 76px; text-align: center; line-height: 1.3;">T5<br>29/10</button>
+          <button class="o date-btn" data-date="T6 30/10"
+            style="min-width: 76px; text-align: center; line-height: 1.3;">T6<br>30/10</button>
+          <button class="o date-btn" data-date="T7 31/10"
+            style="min-width: 76px; text-align: center; line-height: 1.3;">T7<br>31/10</button>
+        </div>
+
+        <!-- Khối Chọn Suất Chiếu (Thời Gian Thực) -->
+        <section class="c" style="display: flex; flex-direction: column; gap: 14px;">
+          <h3 style="font-size: 18px; font-weight: 800;">Chọn suất chiếu</h3>
+          <p class="m" style="display: flex; align-items: center; gap: 6px;">
+            <span class="live-dot">●</span> Trực tiếp · cập nhật 2 giây trước · <span id="live-viewer-count"
+              style="color: var(--text-light); font-weight: 700;">14</span> người đang xem suất này
+          </p>
+
+          <!-- Nhóm 1: 2D Phụ đề -->
+          <div style="margin-top: 4px;">
+            <p style="font-weight: 700; margin-bottom: 10px; font-size: 14.5px; color: var(--text-light);">2D Phụ đề</p>
+            <div class="g" id="showtime-group-1">
+              <!-- Suất 1: Hết vé -->
+              <button class="sl" disabled>
+                <b>09:30</b>
+                <span class="bar"><i style="width: 100%; background: #64748b;"></i></span>
+                <span class="m" style="font-size: 12px; color: #ef4444;">Hết vé</span>
+              </button>
+
+              <!-- Suất 2: Đang chọn mặc định -->
+              <button class="sl on" data-time="12:15" data-format="2D Phụ đề" data-available="85" data-total="120"
+                onclick="handleShowtimeClick(this)">
+                <b>12:15</b>
+                <span class="bar"><i style="width: 29%;"></i></span>
+                <span class="m" style="font-size: 12px;">85/120 ghế</span>
+              </button>
+
+              <!-- Suất 3: Sắp hết -->
+              <button class="sl lo" data-time="19:45" data-format="2D Phụ đề" data-available="12" data-total="120"
+                onclick="handleShowtimeClick(this)">
+                <b>19:45</b>
+                <span class="bar"><i style="width: 90%;"></i></span>
+                <span class="m" style="font-size: 12px; color: var(--status-warning);">Sắp hết · 12/120 ghế</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Nhóm 2: 3D IMAX -->
+          <div style="margin-top: 10px;">
+            <p style="font-weight: 700; margin-bottom: 10px; font-size: 14.5px; color: var(--text-light);">3D IMAX</p>
+            <div class="g" id="showtime-group-2">
+              <button class="sl" data-time="20:30" data-format="3D IMAX" data-available="96" data-total="120"
+                onclick="handleShowtimeClick(this)">
+                <b>20:30</b>
+                <span class="bar"><i style="width: 20%;"></i></span>
+                <span class="m" style="font-size: 12px;">96/120 ghế</span>
+              </button>
+
+              <button class="sl" data-time="22:15" data-format="3D IMAX" data-available="110" data-total="120"
+                onclick="handleShowtimeClick(this)">
+                <b>22:15</b>
+                <span class="bar"><i style="width: 8%;"></i></span>
+                <span class="m" style="font-size: 12px;">110/120 ghế</span>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- Cột phải: Khối Tóm Tắt (Sticky Sidebar) -->
+      <aside class="c"
+        style="flex: 0 1 360px; width: 100%; position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px;">
+        <h3
+          style="font-size: 18px; font-weight: 800; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px;">
+          Tóm tắt</h3>
+
+        <p class="ln">
+          <span class="m">Phim</span>
+          <span id="summary-movie" style="font-weight: 700; text-align: right; max-width: 220px;">LINH GIỚI ĐẠI CHIẾN</span>
+        </p>
+
+        <p class="ln">
+          <span class="m">Rạp</span>
+          <span id="summary-cinema" style="font-weight: 700;">Beta Thanh Xuân</span>
+        </p>
+
+        <p class="ln">
+          <span class="m">Suất chiếu</span>
+          <span id="summary-showtime" style="font-weight: 700; color: var(--status-warning);">CN 25/10 · 12:15</span>
+        </p>
+
+        <p class="ln">
+          <span class="m">Định dạng</span>
+          <span id="summary-format" style="font-weight: 700;">2D Phụ đề</span>
+        </p>
+
+        <p class="m"
+          style="border-top: 1px solid var(--border-dark); padding-top: 12px; line-height: 1.5; font-size: 13px;">
+          Giá vé tính theo loại ghế (Ghế Thường / VIP / Ghế Đôi Sweetbox) ở bước tiếp theo.
+        </p>
+
+        <p class="m"
+          style="background: #f1f5f9; border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.5; border: 1px solid var(--border-dark);">
+          <span class="live-dot">●</span> Còn <strong id="summary-available-count"
+            style="color: var(--status-live);">85</strong> ghế trống, cập nhật trực tiếp. Ghế được giữ 10 phút khi bạn
+          bấm Tiếp tục thanh toán.
+        </p>
+
+        <!-- Nút Tiến Tới Chọn Ghế -->
+        <a id="btn-submit-seats" href="seats.html" class="b"
+          style="min-height: 48px; font-size: 15px; border-radius: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          Chọn ghế →
+        </a>
+      </aside>
+
+    </div>
+
+  </div>
+
+  <!-- PROTOTYPE SWITCHER DOCK -->
+  <nav class="prototype-dock">
+    <span class="dock-label">Giao diện:</span>
+    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
+    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
+    <a href="booking.html" class="dock-item active">🎟️ Đặt Suất/Vé</a>
+    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
+    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
+    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
+    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
+    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
+    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
+    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
+    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
+    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
+    <a href="account.html" class="dock-item">👤 Thành Viên</a>
+    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
+    <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
+  </nav>
+
+  <!-- Script xử lý dữ liệu động & tương tác thời gian thực -->
+  <script>
+    // Dữ liệu các phim trong hệ thống
+    const MOVIE_DATA = {
+      'linh-gioi-dai-chien': {
+        title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
+        shortTitle: 'LINH GIỚI ĐẠI CHIẾN',
+        age: 'T18',
+        meta: 'Hành động, Giả tưởng, Thần thoại · 128 phút · Tiếng Trung - Phụ đề Tiếng Việt',
+        poster: 'images/400x633-145627-230926-40.jpg'
+      },
+      'dia-dao': {
+        title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
+        shortTitle: 'LINH GIỚI ĐẠI CHIẾN',
+        age: 'T18',
+        meta: 'Hành động, Giả tưởng, Thần thoại · 128 phút · Tiếng Trung - Phụ đề Tiếng Việt',
+        poster: 'images/400x633-145627-230926-40.jpg'
+      },
+      'quy-an-tang-4': {
+        title: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
+        shortTitle: 'QUỶ ĂN TẠNG 4',
+        age: 'T18',
+        meta: 'Kinh dị, Bí ẩn, Giật gân · 115 phút · Tiếng Thái - Phụ đề Tiếng Việt',
+        poster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg'
+      },
+      'trai-buon-nguoi': {
+        title: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
+        shortTitle: 'TRẠI BUÔN NGƯỜI',
+        age: 'T16',
+        meta: 'Tâm lý, Tội phạm, Gay cấn · 118 phút · Tiếng Việt - Phụ đề Tiếng Anh',
+        poster: 'images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.jpg'
+      },
+      'blue-lock': {
+        title: 'BLUE LOCK: THE MOVIE - EPISODE NAGI',
+        shortTitle: 'BLUE LOCK: EPISODE NAGI',
+        age: 'P',
+        meta: 'Hoạt hình, Thể thao, Anime · 95 phút · Tiếng Nhật - Phụ đề Tiếng Việt',
+        poster: 'images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.jpg'
+      },
+      'an-mang-karaoke': {
+        title: 'ÁN MẠNG KARAOKE',
+        shortTitle: 'ÁN MẠNG KARAOKE',
+        age: 'T16',
+        meta: 'Trinh thám, Hài hước, Bí ẩn · 96 phút · Tiếng Việt - Phụ đề Tiếng Anh',
+        poster: 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg'
+      },
+      'ut-lan-2': {
+        title: 'ÚT LAN 2',
+        shortTitle: 'ÚT LAN 2',
+        age: 'T16',
+        meta: 'Tâm lý, Tình cảm, Hài kịch · 114 phút · Tiếng Việt - Phụ đề Tiếng Anh',
+        poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg'
+      },
+      'co-dau-hao-mon': {
+        title: 'ÚT LAN 2',
+        shortTitle: 'ÚT LAN 2',
+        age: 'T16',
+        meta: 'Tâm lý, Tình cảm, Hài kịch · 114 phút · Tiếng Việt - Phụ đề Tiếng Anh',
+        poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg'
+      },
+      'suzume': {
+        title: 'KHÓA CHẶT CỬA NÀO SUZUME',
+        shortTitle: 'SUZUME NO TOJIMARI',
+        age: 'P',
+        meta: 'Hoạt hình, Giả tưởng, Anime · 121 phút · Tiếng Nhật - Phụ đề Tiếng Việt',
+        poster: 'images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.jpg'
+      },
+      'ca-voi-nuot-chung': {
+        title: 'CÁ VOI NUỐT CHỬNG',
+        shortTitle: 'CÁ VOI NUỐT CHỬNG',
+        age: 'T13',
+        meta: 'Sinh tồn, Hành động, Viễn tưởng · 98 phút · Tiếng Anh - Phụ đề Tiếng Việt',
+        poster: 'images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.jpg'
+      },
+      'me-min': {
+        title: 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI',
+        shortTitle: 'MẸ MÌN',
+        age: 'T18',
+        meta: 'Kinh dị, Tâm lý, Giật gân · 105 phút · Tiếng Việt - Phụ đề Tiếng Anh',
+        poster: 'images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.jpg'
+      },
+      'shaun-the-sheep': {
+        title: 'SHAUN THE SHEEP: CHUYẾN PHIÊU LƯU NGOÀI HÀNH TINH',
+        shortTitle: 'SHAUN THE SHEEP',
+        age: 'P',
+        meta: 'Hoạt hình, Phiêu lưu, Hài hước · 86 phút · Không thoại - Bản quyền Aardman',
+        poster: 'images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.jpg'
+      }
+    };
+
+    let selectedMovieKey = 'linh-gioi-dai-chien';
+    let selectedDate = 'CN 25/10';
+    let selectedTime = '12:15';
+    let selectedFormat = '2D Phụ đề';
+    let selectedCinema = 'Beta Thanh Xuân';
+
+    // Đọc URL param
+    function initFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const movieParam = params.get('movie');
+      if (movieParam && MOVIE_DATA[movieParam]) {
+        selectedMovieKey = movieParam;
+      }
+
+      const movie = MOVIE_DATA[selectedMovieKey];
+      document.getElementById('detail-movie-title').textContent = movie.title;
+      document.getElementById('detail-movie-age').textContent = movie.age;
+      document.getElementById('detail-movie-meta').textContent = movie.meta;
+      document.getElementById('detail-movie-poster').src = movie.poster;
+      document.getElementById('summary-movie').textContent = movie.shortTitle;
+
+      updateSummary();
+    }
+
+    // Chọn rạp
+    document.getElementById('cinema-select').addEventListener('change', function (e) {
+      selectedCinema = e.target.value;
+      document.getElementById('cinema-name-tag').textContent = selectedCinema;
+      document.getElementById('summary-cinema').textContent = selectedCinema;
+      updateSeatLink();
+    });
+
+    // Chọn ngày chiếu
+    document.querySelectorAll('.date-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.date-btn').forEach(b => {
+          b.className = 'o date-btn';
+        });
+        this.className = 'b date-btn';
+        selectedDate = this.dataset.date;
+        updateSummary();
+      });
+    });
+
+    // Chọn suất chiếu
+    function handleShowtimeClick(btn) {
+      if (btn.hasAttribute('disabled')) return;
+      document.querySelectorAll('.sl').forEach(s => s.classList.remove('on'));
+      btn.classList.add('on');
+
+      selectedTime = btn.dataset.time;
+      selectedFormat = btn.dataset.format;
+      const available = btn.dataset.available || '85';
+
+      document.getElementById('summary-available-count').textContent = available;
+      updateSummary();
+    }
+
+    function updateSummary() {
+      document.getElementById('summary-showtime').textContent = `${selectedDate} · ${selectedTime}`;
+      document.getElementById('summary-format').textContent = selectedFormat;
+      document.getElementById('summary-cinema').textContent = selectedCinema;
+      updateSeatLink();
+    }
+
+    function updateSeatLink() {
+      const btnSeats = document.getElementById('btn-submit-seats');
+      btnSeats.href = `seats.html?movie=${encodeURIComponent(selectedMovieKey)}&cinema=${encodeURIComponent(selectedCinema)}&time=${encodeURIComponent(selectedTime)}&date=${encodeURIComponent(selectedDate)}`;
+    }
+
+    // Tăng giảm ngẫu nhiên nhẹ số người đang xem tạo hiệu ứng thời gian thực
+    setInterval(() => {
+      const viewerEl = document.getElementById('live-viewer-count');
+      if (viewerEl) {
+        let count = parseInt(viewerEl.textContent) || 14;
+        let delta = Math.floor(Math.random() * 3) - 1; // -1, 0, +1
+        let newCount = Math.max(8, Math.min(32, count + delta));
+        viewerEl.textContent = newCount;
+      }
+    }, 4000);
+
+    initFromUrl();
+  </script>
+</body>
+
+</html>

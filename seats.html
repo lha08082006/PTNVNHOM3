@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đặt Ghế Xem Phim - Alpha / Beta Cinemas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  
+  <style>
+    :root {
+      --a: #FF5A3C;
+      --bg-dark: #f8fafc;
+      --card-dark: #ffffff;
+      --border-dark: #e2e8f0;
+      --text-light: #0f172a;
+      --text-muted: #64748b;
+      --status-warning: #d97706;
+      --status-live: #10b981;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      padding-bottom: 70px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    .b, .o, input, select {
+      font: inherit;
+      min-height: 44px;
+      border-radius: 8px;
+      padding: 0 16px;
+    }
+
+    .b {
+      border: 0;
+      background: var(--a);
+      color: #ffffff;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .b:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255, 90, 60, 0.35);
+    }
+    .b.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .o {
+      border: 1.5px solid var(--border-dark);
+      background: #ffffff;
+      color: var(--text-light);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .o:hover {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+    }
+
+    input, select {
+      border: 1.5px solid var(--border-dark);
+      background: #ffffff;
+      color: var(--text-light);
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--a);
+      box-shadow: 0 0 0 3px rgba(255, 90, 60, 0.15);
+    }
+
+    .c {
+      background: var(--card-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 81, 152, 0.05);
+    }
+
+    .m {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .g {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Seat Row System */
+    .r {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .r u {
+      width: 24px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .r i {
+      width: 30px;
+      height: 28px;
+      border-radius: 7px 7px 3px 3px;
+      background: #94a3b8;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-style: normal;
+      font-size: 10px;
+      color: #ffffff;
+      user-select: none;
+    }
+    .r i:hover:not(.x):not(.h):not(.k) {
+      transform: scale(1.18);
+      z-index: 10;
+      background: #64748b;
+    }
+
+    /* VIP row outline */
+    .r.v i {
+      box-shadow: 0 0 0 2px #f59e0b;
+      background: #fef3c7;
+      color: #b45309;
+      font-weight: 700;
+    }
+    .r.v i:hover:not(.x):not(.h):not(.k) {
+      background: #fde68a;
+    }
+
+    /* Sweetbox double seat row */
+    .r.d i {
+      width: 68px;
+      background: #fce7f3;
+      color: #db2777;
+      box-shadow: 0 0 0 1.5px #f472b6;
+      font-weight: 700;
+    }
+
+    /* Seat States */
+    i.s {
+      background: var(--a) !important;
+      color: #ffffff !important;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(255, 90, 60, 0.45) !important;
+    }
+    i.x {
+      background: #e2e8f0 !important;
+      color: #94a3b8 !important;
+      box-shadow: none !important;
+      cursor: not-allowed !important;
+      opacity: 0.65;
+    }
+    i.h {
+      background: repeating-linear-gradient(45deg, #fef3c7 0 3px, #e2e8f0 3px 6px) !important;
+      color: #d97706 !important;
+      cursor: not-allowed !important;
+    }
+    i.k {
+      background: transparent !important;
+      opacity: 0 !important;
+      cursor: default !important;
+      pointer-events: none;
+    }
+
+    .q {
+      display: block;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .st {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .st.active {
+      color: #005198;
+    }
+    .st b {
+      display: flex;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .st.active b {
+      background: var(--a);
+      color: #ffffff;
+      font-weight: 800;
+    }
+    .st.completed b {
+      background: var(--status-live);
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    /* Screen Curve */
+    .screen-curve {
+      width: 560px;
+      max-width: 90%;
+      height: 14px;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+      background: linear-gradient(#005198, #cbd5e1);
+      box-shadow: 0 8px 24px rgba(0, 81, 152, 0.15);
+    }
+
+    @media (max-width: 768px) {
+      .seats-main-wrap {
+        padding: 20px 16px !important;
+      }
+      .seat-plan-scroll {
+        padding: 20px 10px !important;
+      }
+      .r i {
+        width: 24px;
+        height: 24px;
+        font-size: 9px;
+      }
+      .r.d i {
+        width: 52px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" 
+             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select id="cinema-select" class="cinema-select-official">
+          <option value="Beta Thanh Xuân" selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option value="Beta Trần Quang Khải">Beta Trần Quang Khải (Hà Nội)</option>
+          <option value="Beta Giải Phóng">Beta Giải Phóng (Hà Nội)</option>
+          <option value="Beta Mỹ Đình">Beta Mỹ Đình (Hà Nội)</option>
+          <option value="Beta Quang Trung">Beta Quang Trung (TP.HCM)</option>
+          <option value="Beta Ung Văn Khiêm">Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option value="Beta Thái Nguyên">Beta Thái Nguyên</option>
+          <option value="Beta Bắc Giang">Beta Bắc Giang</option>
+          <option value="Beta Nha Trang">Beta Nha Trang</option>
+        </select>
+        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="seats-main-wrap" style="max-width: 1360px; margin: 0 auto; padding: 32px 48px; display: flex; flex-direction: column; gap: 24px;">
+
+    <!-- Thanh Sub-bar: Nút Quay lại & Thông tin suất chiếu -->
+    <div class="c" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px 20px;">
+      <a href="booking.html" id="btn-back-link" class="o" style="height: 38px; min-height: 38px; padding: 0 18px; border-radius: 8px; font-size: 14px; gap: 6px;">
+        ← Quay lại
+      </a>
+      <p id="subbar-info" style="font-weight: 600; font-size: 15px; color: var(--text-light);">
+        <span id="subbar-cinema">Beta Thanh Xuân</span> · <span id="subbar-date">CN 25/10</span> · <span id="subbar-time" style="color: var(--status-warning);">12:15</span>
+      </p>
+      <div style="font-size: 13px; color: var(--status-warning); display: flex; align-items: center; gap: 6px;">
+        <span>⏳</span> Giữ ghế: <strong id="countdown-timer" style="font-family: monospace; font-size: 15px; color: var(--text-light);">09:58</strong>
+      </div>
+    </div>
+
+    <!-- Sơ Đồ Khán Phòng & Ghế Ngồi (Auditorium Seat Map) -->
+    <div class="seat-plan-scroll" role="img" aria-label="Sơ đồ ghế, hàng A đến H" style="display: flex; flex-direction: column; gap: 8px; align-items: center; background: #ffffff; padding: 36px 24px 28px; border-radius: 16px; border: 1px solid var(--border-dark); overflow-x: auto; width: 100%; box-shadow: 0 4px 20px rgba(0, 81, 152, 0.05);">
+      
+      <!-- Màn hình chiếu cong -->
+      <div class="screen-curve"></div>
+      <p class="m" style="margin-bottom: 20px; font-size: 12px; letter-spacing: 3px; font-weight: 800; color: #005198;">MÀN HÌNH</p>
+
+      <!-- Hàng A (Standard) -->
+      <div class="r" data-row="A">
+        <u>A</u>
+        <i data-id="A1" data-type="standard" data-price="45000">1</i>
+        <i data-id="A2" data-type="standard" data-price="45000">2</i>
+        <i data-id="A3" data-type="standard" data-price="45000">3</i>
+        <i data-id="A4" data-type="standard" data-price="45000">4</i>
+        <i data-id="A5" data-type="standard" data-price="45000">5</i>
+        <b style="width: 24px;"></b>
+        <i data-id="A6" data-type="standard" data-price="45000">6</i>
+        <i data-id="A7" data-type="standard" data-price="45000">7</i>
+        <i data-id="A8" data-type="standard" data-price="45000">8</i>
+        <i data-id="A9" data-type="standard" data-price="45000">9</i>
+        <i data-id="A10" data-type="standard" data-price="45000">10</i>
+        <u>A</u>
+      </div>
+
+      <!-- Hàng B (Standard - B3, B4 đã bán) -->
+      <div class="r" data-row="B">
+        <u>B</u>
+        <i data-id="B1" data-type="standard" data-price="45000">1</i>
+        <i data-id="B2" data-type="standard" data-price="45000">2</i>
+        <i class="x" data-id="B3" data-type="sold" title="Đã bán">✕</i>
+        <i class="x" data-id="B4" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="B5" data-type="standard" data-price="45000">5</i>
+        <b style="width: 24px;"></b>
+        <i data-id="B6" data-type="standard" data-price="45000">6</i>
+        <i data-id="B7" data-type="standard" data-price="45000">7</i>
+        <i data-id="B8" data-type="standard" data-price="45000">8</i>
+        <i data-id="B9" data-type="standard" data-price="45000">9</i>
+        <i data-id="B10" data-type="standard" data-price="45000">10</i>
+        <u>B</u>
+      </div>
+
+      <!-- Hàng C (Standard - C7 đã bán) -->
+      <div class="r" data-row="C">
+        <u>C</u>
+        <i data-id="C1" data-type="standard" data-price="45000">1</i>
+        <i data-id="C2" data-type="standard" data-price="45000">2</i>
+        <i data-id="C3" data-type="standard" data-price="45000">3</i>
+        <i data-id="C4" data-type="standard" data-price="45000">4</i>
+        <i data-id="C5" data-type="standard" data-price="45000">5</i>
+        <b style="width: 24px;"></b>
+        <i data-id="C6" data-type="standard" data-price="45000">6</i>
+        <i class="x" data-id="C7" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="C8" data-type="standard" data-price="45000">8</i>
+        <i data-id="C9" data-type="standard" data-price="45000">9</i>
+        <i data-id="C10" data-type="standard" data-price="45000">10</i>
+        <u>C</u>
+      </div>
+
+      <!-- Hàng D (Standard - Mặc định D5, D6 đang chọn) -->
+      <div class="r" data-row="D">
+        <u>D</u>
+        <i data-id="D1" data-type="standard" data-price="45000">1</i>
+        <i data-id="D2" data-type="standard" data-price="45000">2</i>
+        <i data-id="D3" data-type="standard" data-price="45000">3</i>
+        <i data-id="D4" data-type="standard" data-price="45000">4</i>
+        <i class="s" data-id="D5" data-type="standard" data-price="45000" title="Đang chọn D5">5</i>
+        <b style="width: 24px;"></b>
+        <i class="s" data-id="D6" data-type="standard" data-price="45000" title="Đang chọn D6">6</i>
+        <i data-id="D7" data-type="standard" data-price="45000">7</i>
+        <i data-id="D8" data-type="standard" data-price="45000">8</i>
+        <i data-id="D9" data-type="standard" data-price="45000">9</i>
+        <i data-id="D10" data-type="standard" data-price="45000">10</i>
+        <u>D</u>
+      </div>
+
+      <!-- Hàng E (Standard - E1 đang giữ, E7 khóa) -->
+      <div class="r" data-row="E">
+        <u>E</u>
+        <i class="h" data-id="E1" data-type="held" title="Đang được giữ">⏳</i>
+        <i data-id="E2" data-type="standard" data-price="45000">2</i>
+        <i data-id="E3" data-type="standard" data-price="45000">3</i>
+        <i data-id="E4" data-type="standard" data-price="45000">4</i>
+        <i data-id="E5" data-type="standard" data-price="45000">5</i>
+        <b style="width: 24px;"></b>
+        <i data-id="E6" data-type="standard" data-price="45000">6</i>
+        <i class="k" data-id="E7" data-type="blocked" title="Tạm khóa">⛔</i>
+        <i data-id="E8" data-type="standard" data-price="45000">8</i>
+        <i data-id="E9" data-type="standard" data-price="45000">9</i>
+        <i data-id="E10" data-type="standard" data-price="45000">10</i>
+        <u>E</u>
+      </div>
+
+      <!-- Hàng F (VIP - viền vàng, F8, F9 đã bán) -->
+      <div class="r v" data-row="F">
+        <u>F</u>
+        <i data-id="F1" data-type="vip" data-price="50000">1</i>
+        <i data-id="F2" data-type="vip" data-price="50000">2</i>
+        <i data-id="F3" data-type="vip" data-price="50000">3</i>
+        <i data-id="F4" data-type="vip" data-price="50000">4</i>
+        <i data-id="F5" data-type="vip" data-price="50000">5</i>
+        <b style="width: 24px;"></b>
+        <i data-id="F6" data-type="vip" data-price="50000">6</i>
+        <i data-id="F7" data-type="vip" data-price="50000">7</i>
+        <i class="x" data-id="F8" data-type="sold" title="Đã bán">✕</i>
+        <i class="x" data-id="F9" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="F10" data-type="vip" data-price="50000">10</i>
+        <u>F</u>
+      </div>
+
+      <!-- Hàng G (VIP - viền vàng) -->
+      <div class="r v" data-row="G">
+        <u>G</u>
+        <i data-id="G1" data-type="vip" data-price="50000">1</i>
+        <i data-id="G2" data-type="vip" data-price="50000">2</i>
+        <i data-id="G3" data-type="vip" data-price="50000">3</i>
+        <i data-id="G4" data-type="vip" data-price="50000">4</i>
+        <i data-id="G5" data-type="vip" data-price="50000">5</i>
+        <b style="width: 24px;"></b>
+        <i data-id="G6" data-type="vip" data-price="50000">6</i>
+        <i data-id="G7" data-type="vip" data-price="50000">7</i>
+        <i data-id="G8" data-type="vip" data-price="50000">8</i>
+        <i data-id="G9" data-type="vip" data-price="50000">9</i>
+        <i data-id="G10" data-type="vip" data-price="50000">10</i>
+        <u>G</u>
+      </div>
+
+      <!-- Hàng H (Sweetbox Đôi - H5-H6 đã bán) -->
+      <div class="r d" data-row="H">
+        <u>H</u>
+        <i data-id="H1-H2" data-type="sweetbox" data-price="100000">H1-H2</i>
+        <i data-id="H3-H4" data-type="sweetbox" data-price="100000">H3-H4</i>
+        <b style="width: 24px;"></b>
+        <i class="x" data-id="H5-H6" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="H7-H8" data-type="sweetbox" data-price="100000">H7-H8</i>
+        <u>H</u>
+      </div>
+
+    </div>
+
+    <!-- Chú Giải Trạng Thái Ghế -->
+    <div class="g m" style="justify-content: center; gap: 24px; font-weight: 600;">
+      <span style="display: flex; gap: 8px; align-items: center;">
+        <b class="q" style="background: var(--a);"></b> Đang chọn
+      </span>
+      <span style="display: flex; gap: 8px; align-items: center;">
+        <b class="q" style="background: #e2e8f0; border: 1px solid #cbd5e1;"></b> Đã bán
+      </span>
+      <span style="display: flex; gap: 8px; align-items: center;">
+        <b class="q" style="background: repeating-linear-gradient(45deg, #fef3c7 0 3px, #e2e8f0 3px 6px);"></b> Đang được giữ
+      </span>
+    </div>
+
+    <!-- Chú Giải Phân Loại Ghế & Giá -->
+    <div class="g m" style="justify-content: center; gap: 24px; font-weight: 600;">
+      <span style="display: flex; gap: 8px; align-items: center;">
+        <b class="q" style="background: #94a3b8;"></b> Thường [45,000đ]
+      </span>
+      <span style="display: flex; gap: 8px; align-items: center;">
+        <b class="q" style="background: #fef3c7; box-shadow: 0 0 0 1.5px var(--status-warning);"></b> VIP [50,000đ]
+      </span>
+      <span style="display: flex; gap: 8px; align-items: center;">
+        <b class="q" style="background: #fce7f3; box-shadow: 0 0 0 1.5px #f472b6; width: 32px;"></b> Sweetbox đôi [100,000đ]
+      </span>
+    </div>
+
+    <!-- Khối Tóm Tắt & Tiếp Tục Thanh Toán (Sticky Bottom Bar) -->
+    <div class="c" style="position: sticky; bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; z-index: 1000; box-shadow: 0 10px 30px rgba(0, 81, 152, 0.12); border: 1.5px solid #cbd5e1; background: #ffffff;">
+      <div>
+        <p style="font-size: 15px; margin-bottom: 2px;">
+          <b id="checkout-movie-title" style="color: var(--text-light); font-size: 16px;">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</b> · Ghế: <span id="checkout-selected-seats" style="color: var(--a); font-weight: 800;">D5, D6</span> · Tạm tính: <strong id="checkout-total-price" style="color: var(--status-warning); font-size: 18px;">90,000đ</strong>
+        </p>
+        <p class="m" id="checkout-meta-detail" style="font-size: 12.5px;">
+          Phòng 01 (Dolby Atmos) · 2 Vé thường
+        </p>
+      </div>
+
+      <div style="text-align: right;">
+        <a id="btn-next-checkout" href="checkout.html" class="b" style="min-height: 46px; padding: 0 28px; border-radius: 8px; font-size: 15px; text-decoration: none; gap: 6px;">
+          Tiếp tục thanh toán →
+        </a>
+        <p class="m" style="font-size: 12px; margin-top: 4px; color: var(--text-muted);">
+          Bấm để giữ ghế trong 10 phút
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PROTOTYPE SWITCHER DOCK -->
+  <nav class="prototype-dock">
+    <span class="dock-label">Giao diện:</span>
+    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
+    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
+    <a href="booking.html" class="dock-item">🎟️ Đặt Suất/Vé</a>
+    <a href="seats.html" class="dock-item active">💺 Chọn Ghế</a>
+    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
+    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
+    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
+    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
+    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
+    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
+    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
+    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
+    <a href="account.html" class="dock-item">👤 Thành Viên</a>
+    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
+      <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
+  </nav>
+
+  <!-- Script xử lý chọn ghế & tính tiền tương tác thời gian thực -->
+  <script>
+    // Danh mục tên phim
+    const MOVIE_NAMES = {
+      'linh-gioi-dai-chien': 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
+      'dia-dao': 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
+      'quy-an-tang-4': 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
+      'trai-buon-nguoi': 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
+      'blue-lock': 'BLUE LOCK: THE MOVIE - EPISODE NAGI',
+      'an-mang-karaoke': 'ÁN MẠNG KARAOKE',
+      'ut-lan-2': 'ÚT LAN 2',
+      'co-dau-hao-mon': 'ÚT LAN 2',
+      'suzume': 'KHÓA CHẶT CỬA NÀO SUZUME',
+      'ca-voi-nuot-chung': 'CÁ VOI NUỐT CHỬNG',
+      'me-min': 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI',
+      'shaun-the-sheep': 'SHAUN THE SHEEP: PHIÊU LƯU NGOÀI HÀNH TINH'
+    };
+
+    // Danh sách ghế đang được chọn (Khởi tạo D5, D6 theo đúng mockup)
+    let selectedSeats = [
+      { id: 'D5', type: 'standard', price: 45000 },
+      { id: 'D6', type: 'standard', price: 45000 }
+    ];
+
+    let currentMovieKey = 'linh-gioi-dai-chien';
+    let currentCinema = 'Beta Thanh Xuân';
+    let currentDate = 'CN 25/10';
+    let currentTime = '12:15';
+
+    // Đọc URL query params
+    function initParams() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('movie')) currentMovieKey = params.get('movie');
+      if (params.get('cinema')) currentCinema = params.get('cinema');
+      if (params.get('date')) currentDate = params.get('date');
+      if (params.get('time')) currentTime = params.get('time');
+
+      const movieTitle = MOVIE_NAMES[currentMovieKey] || 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ';
+      document.getElementById('checkout-movie-title').textContent = movieTitle;
+      document.getElementById('subbar-cinema').textContent = currentCinema;
+      document.getElementById('subbar-date').textContent = currentDate;
+      document.getElementById('subbar-time').textContent = currentTime;
+
+      // Cập nhật link quay lại trang đặt suất
+      const backUrl = `booking.html?movie=${encodeURIComponent(currentMovieKey)}`;
+      document.getElementById('btn-back-link').href = backUrl;
+
+      // Cập nhật select rạp nếu khớp
+      const selectEl = document.getElementById('cinema-select');
+      for (let opt of selectEl.options) {
+        if (opt.value.includes(currentCinema) || currentCinema.includes(opt.value)) {
+          opt.selected = true;
+          break;
+        }
+      }
+
+      updateSummary();
+    }
+
+    // Gắn sự kiện click chọn ghế
+    document.querySelectorAll('.r i').forEach(seat => {
+      seat.addEventListener('click', function() {
+        // Bỏ qua ghế đã bán, đang giữ hoặc khóa
+        if (this.classList.contains('x') || this.classList.contains('h') || this.classList.contains('k')) {
+          return;
+        }
+
+        const id = this.dataset.id;
+        const type = this.dataset.type;
+        const price = parseInt(this.dataset.price) || 45000;
+
+        const existsIndex = selectedSeats.findIndex(s => s.id === id);
+        if (existsIndex > -1) {
+          // Bỏ chọn
+          selectedSeats.splice(existsIndex, 1);
+          this.classList.remove('s');
+        } else {
+          // Chọn ghế
+          selectedSeats.push({ id, type, price });
+          this.classList.add('s');
+        }
+
+        updateSummary();
+      });
+    });
+
+    // Cập nhật thanh tóm tắt & tính tổng tiền
+    function updateSummary() {
+      const seatsDisplay = document.getElementById('checkout-selected-seats');
+      const totalDisplay = document.getElementById('checkout-total-price');
+      const metaDisplay = document.getElementById('checkout-meta-detail');
+      const btnNext = document.getElementById('btn-next-step') || document.getElementById('btn-next-checkout');
+
+      if (selectedSeats.length === 0) {
+        seatsDisplay.textContent = 'Chưa chọn ghế';
+        totalDisplay.textContent = '0đ';
+        metaDisplay.textContent = 'Vui lòng chọn ghế trên sơ đồ khán phòng';
+        btnNext.classList.add('disabled');
+      } else {
+        const seatIds = selectedSeats.map(s => s.id).join(', ');
+        const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+        seatsDisplay.textContent = seatIds;
+        totalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(total) + 'đ';
+        
+        const count = selectedSeats.length;
+        metaDisplay.textContent = `Phòng 01 (Dolby Atmos) · ${count} Ghế (${new Intl.NumberFormat('vi-VN').format(total)}đ)`;
+        btnNext.classList.remove('disabled');
+
+        // Gắn query parameters cho trang thanh toán tiếp theo (gộp bắp nước & thanh toán)
+        const checkoutUrl = `checkout.html?movie=${encodeURIComponent(currentMovieKey)}&cinema=${encodeURIComponent(currentCinema)}&date=${encodeURIComponent(currentDate)}&time=${encodeURIComponent(currentTime)}&seats=${encodeURIComponent(seatIds)}&total=${total}`;
+        btnNext.href = checkoutUrl;
+      }
+    }
+
+    // Đếm ngược 10:00 phút giữ chỗ
+    let secondsLeft = 598; // 09:58
+    setInterval(() => {
+      if (secondsLeft > 0) {
+        secondsLeft--;
+        const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+        const s = (secondsLeft % 60).toString().padStart(2, '0');
+        document.getElementById('countdown-timer').textContent = `${m}:${s}`;
+      }
+    }, 1000);
+
+    initParams();
+  </script>
+</body>
+</html>

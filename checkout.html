@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thanh Toán Đặt Vé - Alpha / Beta Cinemas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+
+  <style>
+    :root {
+      --a: #FF5A3C;
+      --bg-dark: #f8fafc;
+      --card-dark: #ffffff;
+      --border-dark: #e2e8f0;
+      --text-light: #0f172a;
+      --text-muted: #64748b;
+      --status-warning: #d97706;
+      --status-live: #10b981;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      padding-bottom: 70px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    .b, .o, input, select {
+      font: inherit;
+      min-height: 44px;
+      border-radius: 8px;
+      padding: 0 16px;
+    }
+
+    .b {
+      border: 0;
+      background: var(--a);
+      color: #ffffff;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .b:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255, 90, 60, 0.35);
+    }
+    .b.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .o {
+      border: 1.5px solid var(--border-dark);
+      background: #ffffff;
+      color: var(--text-light);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .o:hover {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+    }
+
+    input, select {
+      border: 1.5px solid var(--border-dark);
+      background: #ffffff;
+      color: var(--text-light);
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--a);
+      box-shadow: 0 0 0 3px rgba(255, 90, 60, 0.15);
+    }
+
+    input[type=radio], input[type=checkbox] {
+      min-height: 0;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      accent-color: var(--a);
+    }
+
+    .c {
+      background: var(--card-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 81, 152, 0.05);
+    }
+
+    .m {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .f {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .g {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pm {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 10px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pm:has(input:checked) {
+      border-color: var(--a);
+      background: #fff5f3;
+      box-shadow: 0 0 0 1.5px var(--a);
+    }
+    .pm input {
+      margin-top: 3px;
+    }
+
+    .ln {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* Combo Item Compact Row */
+    .combo-item-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .combo-item-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .combo-thumb {
+      flex: none;
+      width: 58px;
+      height: 58px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .combo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .qty-btn-sm {
+      min-height: 32px;
+      height: 32px;
+      width: 32px;
+      padding: 0;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .checkout-main-container {
+        padding: 20px 16px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" 
+             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+          <option selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option>Beta Trần Quang Khải</option>
+          <option>Beta Giải Phóng (Hà Nội)</option>
+          <option>Beta Mỹ Đình (Hà Nội)</option>
+          <option>Beta Quang Trung (TP.HCM)</option>
+          <option>Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option>Beta Thái Nguyên</option>
+          <option>Beta Bắc Giang</option>
+          <option>Beta Nha Trang</option>
+        </select>
+        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="checkout-main-container" style="max-width: 1360px; margin: 0 auto; padding: 32px 48px; display: flex; flex-direction: column; gap: 24px;">
+    
+    <!-- Thanh Header Thông Báo Giữ Ghế -->
+    <div class="c" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      <div>
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 4px;">Thanh toán</h2>
+        <p class="m">Ghế được giữ đúng 10 phút, không gia hạn. Hết giờ ghế sẽ được nhả.</p>
+      </div>
+      <p role="timer" style="font-size: 28px; font-weight: 800; color: var(--status-warning); display: flex; align-items: baseline; gap: 8px;">
+        <span id="countdown-timer">09:58</span>
+        <span class="m" style="font-weight: 400; font-size: 14px;">giữ ghế còn lại</span>
+      </p>
+    </div>
+
+    <!-- Bố Cục 2 Cột: Bắp Nước & Thanh Toán Gộp Chung (Bên Trái) | Tóm Tắt (Bên Phải) -->
+    <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+      
+      <!-- CỘT TRÁI: BẮP NƯỚC (GỘP) + KHUYẾN MÃI + PHƯƠNG THỨC THANH TOÁN -->
+      <div style="flex: 1 1 520px; display: flex; flex-direction: column; gap: 18px;">
+        
+        <!-- KHỐI 1: BẮP NƯỚC (TÙY CHỌN) - GIỮ NGUYÊN CHI TIẾT & BỐ CỤC, THU NHỎ VỪA VẶN -->
+        <section class="c" style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 18px; font-weight: 800;">🍿 Bắp nước (tùy chọn)</h3>
+            <span class="m" style="font-size: 13px;">Nhận tại quầy Concession</span>
+          </div>
+
+          <!-- Combo 1: Combo Solo -->
+          <div class="combo-item-row">
+            <div class="combo-thumb">
+              <img src="images/combo.png" alt="Combo Solo" onerror="this.src='images/phimhayt10-1702x621-1-135337-300926-58.png'">
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; font-size: 15px;">Combo Solo</div>
+              <div class="m" style="font-size: 12.5px; line-height: 1.4;">
+                1 bắp ngọt 60oz + 1 nước ngọt 32oz · <strong style="color: var(--status-warning);">69.000 đ</strong>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="o qty-btn-sm" onclick="changeQty('solo', -1)">−</button>
+              <b id="qty-solo" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
+              <button class="o qty-btn-sm" onclick="changeQty('solo', 1)">+</button>
+            </div>
+          </div>
+
+          <!-- Combo 2: Combo Couple -->
+          <div class="combo-item-row">
+            <div class="combo-thumb">
+              <img src="images/combosieucu-1702x621-115549-081026-63.png" alt="Combo Couple" onerror="this.src='images/phimhayt10-1702x621-1-135337-300926-58.png'">
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; font-size: 15px;">Combo Couple</div>
+              <div class="m" style="font-size: 12.5px; line-height: 1.4;">
+                1 bắp lớn 60oz + 2 nước ngọt 32oz · <strong style="color: var(--status-warning);">89.000 đ</strong>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="o qty-btn-sm" onclick="changeQty('couple', -1)">−</button>
+              <b id="qty-couple" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
+              <button class="o qty-btn-sm" onclick="changeQty('couple', 1)">+</button>
+            </div>
+          </div>
+
+          <!-- Combo 3: Combo Party Gold -->
+          <div class="combo-item-row">
+            <div class="combo-thumb">
+              <img src="images/combo.png" alt="Combo Gold" onerror="this.src='images/phimhayt10-1702x621-1-135337-300926-58.png'">
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; font-size: 15px;">Combo Party Gold</div>
+              <div class="m" style="font-size: 12.5px; line-height: 1.4;">
+                2 bắp lớn + 3 nước 32oz + snack · <strong style="color: var(--status-warning);">129.000 đ</strong>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="o qty-btn-sm" onclick="changeQty('party', -1)">−</button>
+              <b id="qty-party" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
+              <button class="o qty-btn-sm" onclick="changeQty('party', 1)">+</button>
+            </div>
+          </div>
+
+          <!-- Combo 4: Xúc Xích Nướng Phô Mai -->
+          <div class="combo-item-row">
+            <div class="combo-thumb">
+              <img src="images/combosieucu-1702x621-115549-081026-63.png" alt="Xúc Xích Nướng" onerror="this.src='images/phimhayt10-1702x621-1-135337-300926-58.png'">
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; font-size: 15px;">Xúc Xích Nướng Phô Mai</div>
+              <div class="m" style="font-size: 12.5px; line-height: 1.4;">
+                01 Que xúc xích nướng sốt mù tạt mật ong · <strong style="color: var(--status-warning);">25.000 đ</strong>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="o qty-btn-sm" onclick="changeQty('sausage', -1)">−</button>
+              <b id="qty-sausage" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
+              <button class="o qty-btn-sm" onclick="changeQty('sausage', 1)">+</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- KHỐI 2: KHUYẾN MÃI (VOUCHER) -->
+        <section class="c" style="display: flex; flex-direction: column; gap: 12px;">
+          <h3 style="font-size: 17px; font-weight: 800;">🎟️ Khuyến mãi</h3>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="voucher-input" placeholder="Nhập mã voucher (Thử: BETAVIP)" style="flex: 1; height: 42px; border-radius: 8px; padding: 0 14px; background: #ffffff; border: 1.5px solid var(--border-dark); color: var(--text-light); font-size: 14px;">
+            <button class="b" onclick="applyVoucher()" style="min-height: 42px; height: 42px; padding: 0 20px; border-radius: 8px; font-size: 14px;">
+              Áp dụng
+            </button>
+          </div>
+          <p id="voucher-msg" class="m" style="font-size: 13px;">Nhập voucher thành viên để nhận ưu đãi giảm giá đơn hàng.</p>
+        </section>
+
+        <!-- KHỐI 3: PHƯƠNG THỨC THANH TOÁN (THEO MOCKUP MỚI) -->
+        <section class="c" style="display: flex; flex-direction: column; gap: 14px;">
+          <h3 style="font-size: 17px; font-weight: 800;">💳 Phương thức thanh toán</h3>
+
+          <!-- Phương thức chính: Chuyển khoản VietQR -->
+          <label class="pm">
+            <input type="radio" name="payment_method" value="vietqr" checked>
+            <span>
+              <b style="font-size: 15px; color: var(--text-light);">Chuyển khoản VietQR</b>
+              <br>
+              <span class="m">Quét mã bằng app ngân hàng bất kỳ hỗ trợ VietQR (Vietcombank, MB, Techcombank, BIDV, VPBank...)</span>
+            </span>
+          </label>
+
+          <p class="m" style="font-weight: 700; margin-top: 6px;">Phương thức khác</p>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+            <label class="pm" style="opacity: .5; cursor: not-allowed;">
+              <input type="radio" name="payment_method" disabled>
+              <span>
+                <b>MoMo</b> 
+                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+              </span>
+            </label>
+
+            <label class="pm" style="opacity: .5; cursor: not-allowed;">
+              <input type="radio" name="payment_method" disabled>
+              <span>
+                <b>ZaloPay</b> 
+                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+              </span>
+            </label>
+
+            <label class="pm" style="opacity: .5; cursor: not-allowed;">
+              <input type="radio" name="payment_method" disabled>
+              <span>
+                <b>VNPay</b> 
+                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+              </span>
+            </label>
+
+            <label class="pm" style="opacity: .5; cursor: not-allowed;">
+              <input type="radio" name="payment_method" disabled>
+              <span>
+                <b>Thẻ ATM (NAPAS)</b> 
+                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+              </span>
+            </label>
+
+            <label class="pm" style="opacity: .5; cursor: not-allowed;">
+              <input type="radio" name="payment_method" disabled>
+              <span>
+                <b>Thẻ Visa / Master</b> 
+                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- CỘT PHẢI: TÓM TẮT ĐƠN HÀNG (STICKY SIDEBAR CHUẨN MOCKUP) -->
+      <aside class="c" style="flex: 0 1 380px; width: 100%; position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px;">
+        <h3 style="font-size: 18px; font-weight: 800; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px;">
+          Tóm tắt đơn hàng
+        </h3>
+
+        <!-- Movie Header Info -->
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div role="img" aria-label="Poster phim" style="flex: none; width: 64px; height: 96px; border-radius: 8px; overflow: hidden; background: linear-gradient(160deg, #FF5A3C, #7A2E8E); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+            <img id="summary-movie-poster" src="images/400x633-145627-230926-40.jpg" alt="Poster" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <div>
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span id="summary-movie-title">LINH GIỚI ĐẠI CHIẾN</span>
+              <span id="summary-movie-age" style="background: var(--a); color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">T18</span>
+            </h3>
+            <p class="m" id="summary-format" style="font-size: 13px;">2D Phụ đề</p>
+            <p class="m" id="summary-cinema-hall" style="font-size: 13px;">Beta Thanh Xuân · Phòng 01</p>
+            <p class="m" id="summary-showtime" style="font-size: 13px; color: var(--status-warning);">CN 25/10 · 12:15</p>
+          </div>
+        </div>
+
+        <!-- Chi tiết các khoản thanh toán -->
+        <div style="border-top: 1px solid var(--border-dark); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+          <p class="ln">
+            <span class="m" id="summary-seat-label">Ghế thường D5, D6 × 2</span>
+            <span id="summary-seat-amount" style="font-weight: 700;">90.000 đ</span>
+          </p>
+
+          <!-- Danh sách combo đã chọn động -->
+          <div id="summary-combos-box" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Render động khi bấm tăng giảm combo -->
+          </div>
+
+          <p class="ln" id="summary-discount-row" style="display: none; color: var(--status-live);">
+            <span>Giảm giá Voucher</span>
+            <span id="summary-discount-amount" style="font-weight: 700;">-20.000 đ</span>
+          </p>
+
+          <p class="ln">
+            <span class="m">Phí tiện ích</span>
+            <span style="color: var(--status-live); font-weight: 700;">Miễn phí</span>
+          </p>
+        </div>
+
+        <!-- Tổng Cộng -->
+        <p class="ln" style="border-top: 1px solid var(--border-dark); padding-top: 12px; font-weight: 900; font-size: 22px; margin: 0;">
+          <span>Tổng cộng</span>
+          <span id="summary-total-amount" style="color: var(--status-warning);">90.000 đ</span>
+        </p>
+        <p class="m" style="font-size: 12px; margin-top: -6px;">Đã gồm VAT</p>
+
+        <!-- Đồng ý điều khoản -->
+        <label style="display: flex; gap: 10px; font-size: 13px; align-items: flex-start; cursor: pointer; margin-top: 4px; line-height: 1.4;">
+          <input type="checkbox" id="terms-checkbox" checked style="margin-top: 2px;">
+          <span>Tôi đồng ý điều khoản mua vé và xác nhận đủ độ tuổi xem phim</span>
+        </label>
+
+        <!-- Nút Thanh Toán Ngay -->
+        <button id="btn-submit-pay" class="b" onclick="doCheckout()" style="min-height: 48px; font-size: 16px; border-radius: 10px; width: 100%;">
+          Thanh toán ngay
+        </button>
+
+        <!-- Nút Quay Lại -->
+        <a href="seats.html" id="btn-back-seats" class="o" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 8px; font-size: 14px;">
+          ← Quay lại chọn ghế
+        </a>
+
+        <!-- Ghi chú chính sách vé -->
+        <p class="m" style="font-size: 12px; line-height: 1.5; margin-top: 4px; border-top: 1px solid var(--border-dark); padding-top: 10px;">
+          Vé đã thanh toán không đổi/hoàn, trừ khi hệ thống lỗi. Bị trừ tiền mà chưa có vé? Chat với BetaBot để đối soát và hoàn tiền.
+        </p>
+      </aside>
+
+    </div>
+
+  </div>
+
+  <!-- PROTOTYPE SWITCHER DOCK -->
+  <nav class="prototype-dock">
+    <span class="dock-label">Giao diện:</span>
+    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
+    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
+    <a href="booking.html" class="dock-item">🎟️ Đặt Suất/Vé</a>
+    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
+    <a href="checkout.html" class="dock-item active">💳 Thanh Toán & Combo</a>
+    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
+    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
+    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
+    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
+    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
+    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
+    <a href="account.html" class="dock-item">👤 Thành Viên</a>
+    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
+      <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
+  </nav>
+
+  <!-- Script quản lý giỏ hàng bắp nước, voucher, URL params và thanh toán -->
+  <script>
+    const MOVIE_DETAILS = {
+      'linh-gioi-dai-chien': {
+        title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
+        shortTitle: 'LINH GIỚI ĐẠI CHIẾN',
+        age: 'T18',
+        poster: 'images/400x633-145627-230926-40.jpg'
+      },
+      'dia-dao': {
+        title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
+        shortTitle: 'LINH GIỚI ĐẠI CHIẾN',
+        age: 'T18',
+        poster: 'images/400x633-145627-230926-40.jpg'
+      },
+      'quy-an-tang-4': {
+        title: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
+        shortTitle: 'QUỶ ĂN TẠNG 4',
+        age: 'T18',
+        poster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg'
+      },
+      'trai-buon-nguoi': {
+        title: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
+        shortTitle: 'TRẠI BUÔN NGƯỜI',
+        age: 'T16',
+        poster: 'images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.jpg'
+      },
+      'blue-lock': {
+        title: 'BLUE LOCK: THE MOVIE - EPISODE NAGI',
+        shortTitle: 'BLUE LOCK',
+        age: 'P',
+        poster: 'images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.jpg'
+      },
+      'ut-lan-2': {
+        title: 'ÚT LAN 2',
+        shortTitle: 'ÚT LAN 2',
+        age: 'T16',
+        poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg'
+      },
+      'co-dau-hao-mon': {
+        title: 'ÚT LAN 2',
+        shortTitle: 'ÚT LAN 2',
+        age: 'T16',
+        poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg'
+      }
+    };
+
+    const COMBOS = {
+      solo: { name: 'Combo Solo', price: 69000, qty: 0 },
+      couple: { name: 'Combo Couple', price: 89000, qty: 0 },
+      party: { name: 'Combo Party Gold', price: 129000, qty: 0 },
+      sausage: { name: 'Xúc Xích Nướng Phô Mai', price: 25000, qty: 0 }
+    };
+
+    let baseSeatPrice = 90000;
+    let discountAmount = 0;
+    let selectedSeatsStr = 'D5, D6';
+    let currentMovie = 'linh-gioi-dai-chien';
+    let currentCinema = 'Beta Thanh Xuân';
+    let currentDate = 'CN 25/10';
+    let currentTime = '12:15';
+
+    // Đọc query parameters
+    function parseParams() {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('movie')) currentMovie = p.get('movie');
+      if (p.get('cinema')) currentCinema = p.get('cinema');
+      if (p.get('date')) currentDate = p.get('date');
+      if (p.get('time')) currentTime = p.get('time');
+      if (p.get('seats')) selectedSeatsStr = p.get('seats');
+      if (p.get('total')) baseSeatPrice = parseInt(p.get('total')) || 90000;
+
+      const movieObj = MOVIE_DETAILS[currentMovie] || MOVIE_DETAILS['linh-gioi-dai-chien'];
+      document.getElementById('summary-movie-title').textContent = movieObj.shortTitle;
+      document.getElementById('summary-movie-age').textContent = movieObj.age;
+      document.getElementById('summary-movie-poster').src = movieObj.poster;
+
+      document.getElementById('summary-cinema-hall').textContent = `${currentCinema} · Phòng 01`;
+      document.getElementById('summary-showtime').textContent = `${currentDate} · ${currentTime}`;
+
+      // Ghế
+      const seatCount = selectedSeatsStr.split(',').length;
+      document.getElementById('summary-seat-label').textContent = `Ghế ${selectedSeatsStr} × ${seatCount}`;
+      document.getElementById('summary-seat-amount').textContent = new Intl.NumberFormat('vi-VN').format(baseSeatPrice) + ' đ';
+
+      // Nút back
+      const backUrl = `seats.html?movie=${encodeURIComponent(currentMovie)}&cinema=${encodeURIComponent(currentCinema)}&date=${encodeURIComponent(currentDate)}&time=${encodeURIComponent(currentTime)}`;
+      document.getElementById('btn-back-seats').href = backUrl;
+
+      calcTotal();
+    }
+
+    // Tăng giảm số lượng bắp nước
+    function changeQty(key, delta) {
+      if (!COMBOS[key]) return;
+      COMBOS[key].qty = Math.max(0, COMBOS[key].qty + delta);
+      document.getElementById(`qty-${key}`).textContent = COMBOS[key].qty;
+      calcTotal();
+    }
+
+    // Áp dụng voucher
+    function applyVoucher() {
+      const code = document.getElementById('voucher-input').value.trim().toUpperCase();
+      const msgEl = document.getElementById('voucher-msg');
+      if (!code) {
+        msgEl.textContent = 'Vui lòng nhập mã giảm giá!';
+        msgEl.style.color = '#ef4444';
+        return;
+      }
+      if (code === 'BETAVIP' || code === 'ALPHA' || code === 'CINEMA') {
+        discountAmount = 20000;
+        msgEl.textContent = `✓ Áp dụng thành công mã ${code}: Giảm 20.000 đ!`;
+        msgEl.style.color = 'var(--status-live)';
+        document.getElementById('summary-discount-row').style.display = 'flex';
+      } else {
+        msgEl.textContent = 'Mã giảm giá không hợp lệ hoặc đã hết lượt dùng.';
+        msgEl.style.color = '#ef4444';
+      }
+      calcTotal();
+    }
+
+    // Tính toán tổng đơn hàng
+    function calcTotal() {
+      let comboTotal = 0;
+      const combosBox = document.getElementById('summary-combos-box');
+      combosBox.innerHTML = '';
+
+      for (let k in COMBOS) {
+        if (COMBOS[k].qty > 0) {
+          const itemTotal = COMBOS[k].qty * COMBOS[k].price;
+          comboTotal += itemTotal;
+
+          const row = document.createElement('p');
+          row.className = 'ln';
+          row.innerHTML = `<span class="m">${COMBOS[k].name} × ${COMBOS[k].qty}</span><span style="font-weight:600;">${new Intl.NumberFormat('vi-VN').format(itemTotal)} đ</span>`;
+          combosBox.appendChild(row);
+        }
+      }
+
+      const finalTotal = Math.max(0, baseSeatPrice + comboTotal - discountAmount);
+      document.getElementById('summary-total-amount').textContent = new Intl.NumberFormat('vi-VN').format(finalTotal) + ' đ';
+      return finalTotal;
+    }
+
+    // Xử lý nút Thanh toán ngay
+    function doCheckout() {
+      const agreed = document.getElementById('terms-checkbox').checked;
+      if (!agreed) {
+        alert('Vui lòng tích chọn đồng ý với điều khoản mua vé và xác nhận đủ độ tuổi xem phim!');
+        return;
+      }
+
+      const finalTotal = calcTotal();
+      // Điều hướng đến cổng quét QR thanh toán VietQR
+      window.location.href = `gateway.html?movie=${encodeURIComponent(currentMovie)}&cinema=${encodeURIComponent(currentCinema)}&seats=${encodeURIComponent(selectedSeatsStr)}&total=${finalTotal}&date=${encodeURIComponent(currentDate)}&time=${encodeURIComponent(currentTime)}&format=${encodeURIComponent('2D Phụ đề Tiếng Anh')}`;
+    }
+
+    // Đếm ngược 10 phút giữ ghế
+    let timeLeft = 598; // 09:58
+    setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        document.getElementById('countdown-timer').textContent = `${m}:${s}`;
+      }
+    }, 1000);
+
+    parseParams();
+  </script>
+</body>
+</html>
