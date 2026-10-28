@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chuyển Thừa Tiền (Vé Đã Được Cấp) - Beta Cinemas</title>
+  
+  <!-- Google Fonts: Montserrat & Be Vietnam Pro chuẩn nhận diện Beta Cinemas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/prototype-theme.css">
+
+  <style>
+    body {
+      background: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Be Vietnam Pro', sans-serif;
+    }
+
+    /* Thanh Header chính thức chuẩn Beta Cinemas (từ home.html) */
+    .top-header-official {
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 6px 0;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .top-header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .top-auth-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+    }
+    .top-auth-links a {
+      color: #334155;
+    }
+    .top-auth-links a:hover {
+      color: #005198;
+    }
+
+    .header-main-official {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 75px;
+      gap: 20px;
+    }
+    .official-logo {
+      height: 52px;
+      display: block;
+    }
+    .cinema-select-official {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 30px;
+      padding: 9px 40px 9px 20px;
+      font-family: 'Be Vietnam Pro', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #005198;
+      background: #f8fafc;
+      cursor: pointer;
+      outline: none;
+      min-width: 230px;
+    }
+    .main-menu-official {
+      display: flex;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 24px;
+    }
+    .menu-link-official {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      color: #03599d;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .menu-link-official:hover, .menu-link-official.active {
+      color: #ff5400;
+    }
+
+    /* Stepper */
+    .st-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #64748b;
+    }
+    .st-step.active {
+      color: #059669;
+      font-weight: 700;
+    }
+    .st-badge {
+      display: flex;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .st-badge.done {
+      background: #10b981;
+      color: white;
+    }
+
+    /* Bố cục 2 Cột */
+    .overpay-container {
+      max-width: 1080px;
+      margin: 28px auto 60px;
+      padding: 0 16px;
+      width: 100%;
+    }
+    .overpay-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .overpay-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Panels */
+    .c-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 4px 15px rgba(0, 81, 152, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .line-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #0f172a;
+    }
+    .label-muted {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .value-bold {
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Form Fields */
+    .f-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .f-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .f-input, .f-select {
+      width: 100%;
+      height: 44px;
+      border-radius: 10px;
+      border: 1.5px solid #cbd5e1;
+      padding: 0 14px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+    .f-input:focus, .f-select:focus {
+      border-color: #005198;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(0, 81, 152, 0.1);
+    }
+
+    /* Success Result Box */
+    .success-refund-box {
+      background: #ecfdf5;
+      border: 1.5px solid #a7f3d0;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas (Chuẩn từ home.html) -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn từ home.html) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" 
+             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+          <option selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option>Beta Trần Quang Khải</option>
+          <option>Beta Giải Phóng (Hà Nội)</option>
+          <option>Beta Mỹ Đình (Hà Nội)</option>
+          <option>Beta Quang Trung (TP.HCM)</option>
+          <option>Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option>Beta Thái Nguyên</option>
+          <option>Beta Bắc Giang</option>
+          <option>Beta Nha Trang</option>
+        </select>
+        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Stepper Các Bước Đặt Vé -->
+  <div style="background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 0;">
+    <div class="container">
+      <ol style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; list-style: none; padding: 0; margin: 0;">
+        <li class="st-step"><b class="st-badge done">✓</b> Chọn suất &amp; vé</li>
+        <li class="st-step"><b class="st-badge done">✓</b> Chọn ghế</li>
+        <li class="st-step active"><b class="st-badge done">✓</b> Thanh toán (Vé đã cấp · Có tiền hoàn thừa)</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- NỘI DUNG CHÍNH (THEO GIAO DIỆN OVERPAY ĐƯỢC CUNG CẤP) -->
+  <main class="overpay-container">
+    <div class="overpay-grid">
+      
+      <!-- CỘT TRÁI: THÔNG BÁO VÉ ĐÃ ĐƯỢC CẤP & HÓA ĐƠN -->
+      <div>
+        
+        <!-- CARD 1: VÉ ĐÃ ĐƯỢC CẤP (CÓ TIỀN DƯ) -->
+        <section class="c-card" style="border-left: 5px solid #10b981;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <svg width="36" height="36" viewBox="0 0 64 64" role="img" aria-label="Thành công">
+              <circle cx="32" cy="32" r="30" fill="#10b981"></circle>
+              <path d="M19 33l9 9 17-19" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <div>
+              <h1 style="font-family: var(--font-display); font-size: 24px; font-weight: 900; color: #065f46; margin: 0;">
+                Vé Đã Được Cấp
+              </h1>
+              <p style="font-size: 13.5px; color: #64748b; margin-top: 2px;">
+                Bạn đã chuyển nhiều hơn giá trị đơn hàng <strong id="overpay-order-code" style="color: #005198; font-family: monospace;">BC2610279854</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid #f1f5f9; padding-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+            <div class="line-row">
+              <span class="label-muted">Số tiền đã nhận:</span>
+              <span id="overpay-paid-amount" class="value-bold">200.000 đ</span>
+            </div>
+            <div class="line-row">
+              <span class="label-muted">Giá trị đơn hàng:</span>
+              <span id="overpay-total-amount" class="value-bold">179.000 đ</span>
+            </div>
+            <div class="line-row" style="background: #ecfdf5; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #a7f3d0;">
+              <span style="color: #065f46; font-weight: 700; font-size: 15px;">Phần dư cần hoàn lại:</span>
+              <strong id="overpay-excess-amount" style="color: #059669; font-weight: 900; font-size: 22px;">21.000 đ</strong>
+            </div>
+          </div>
+
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; font-weight: 700; color: #166534; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
+            <span>🛡️</span>
+            <span>Phần tiền thừa sẽ được hoàn lại đầy đủ 100% về tài khoản ngân hàng của bạn.</span>
+          </div>
+
+          <div style="margin-top: 4px;">
+            <a id="btn-view-ticket" href="ticket.html" class="btn btn-primary" style="background: #005198; border-color: #005198; font-weight: 800; border-radius: 10px; width: 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; min-height: 44px;">
+              <span>🎟️</span> Xem Vé Điện Tử (E-Ticket) Ngay →
+            </a>
+          </div>
+        </section>
+
+        <!-- CARD 2: THÔNG TIN HÓA ĐƠN VÉ -->
+        <section class="c-card">
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800; color: #005198; margin: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+            📋 Thông Tin Hóa Đơn Vé
+          </h3>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="line-row">
+              <span class="label-muted">Mã đơn:</span>
+              <span id="invoice-order-code" class="value-bold" style="font-family: monospace; color: #005198;">BC2610279854</span>
+            </div>
+            <div class="line-row">
+              <span class="label-muted">Phim:</span>
+              <span id="invoice-movie-title" class="value-bold">Linh Giới Đại Chiến: Thần Sư Chung Quỳ · T18</span>
+            </div>
+            <div class="line-row">
+              <span class="label-muted">Rạp · Phòng:</span>
+              <span id="invoice-cinema" class="value-bold">Beta Thanh Xuân · Phòng 01</span>
+            </div>
+            <div class="line-row">
+              <span class="label-muted">Suất chiếu:</span>
+              <span id="invoice-showtime" class="value-bold" style="color: #ff5400;">18:30 · Hôm nay (27/10/2026)</span>
+            </div>
+            <div class="line-row">
+              <span class="label-muted">Ghế ngồi:</span>
+              <span id="invoice-seats" class="value-bold" style="color: #005198;">D5, D6 (2 Ghế VIP)</span>
+            </div>
+            <div class="line-row">
+              <span class="label-muted">Hình thức thanh toán:</span>
+              <span class="value-bold">Chuyển khoản VietQR</span>
+            </div>
+            <div class="line-row">
+              <span class="label-muted">Trạng thái:</span>
+              <span style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 12px; padding: 3px 10px; border-radius: 6px;">
+                Đang xem xét
+              </span>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid #f1f5f9; padding-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+            <div class="line-row">
+              <span class="label-muted">Vé xem phim:</span>
+              <span class="value-bold" id="invoice-seat-total">90.000 đ</span>
+            </div>
+            <div class="line-row">
+              <span class="label-muted">Combo bắp nước:</span>
+              <span class="value-bold" id="invoice-combo-total">89.000 đ</span>
+            </div>
+          </div>
+
+          <div class="line-row" style="border-top: 1px solid #e2e8f0; padding-top: 12px; font-weight: 800; font-size: 17px;">
+            <span>Tổng cộng giá trị vé:</span>
+            <span id="invoice-final-total" style="color: #ff5400;">179.000 đ</span>
+          </div>
+
+          <div style="border-top: 1px solid #f1f5f9; padding-top: 10px; font-size: 13px; color: #64748b;">
+            Người mua: <strong>Nguyễn Hoàng Nam</strong> · nam.nguyen@gmail.com · <strong>0987654321</strong>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- CỘT PHẢI: FORM THÔNG TIN NHẬN HOÀN TIỀN DƯ -->
+      <div>
+        <section class="c-card" id="overpay-form-card">
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: #005198; margin: 0;">
+            🏦 Thông Tin Nhận Hoàn Tiền
+          </h3>
+          <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">
+            Vui lòng điền thông tin tài khoản ngân hàng để Beta Cinemas hoàn lại số tiền thừa:
+          </p>
+
+          <!-- Success Alert sau khi gửi -->
+          <div id="refund-success-alert" class="success-refund-box">
+            <div style="width: 48px; height: 48px; background: #d1fae5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 10px;">
+              ✓
+            </div>
+            <h4 style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: #065f46; margin: 0 0 6px;">
+              ĐÃ TIẾP NHẬN YÊU CẦU HOÀN TIỀN THỪA!
+            </h4>
+            <p style="font-size: 13.5px; color: #334155; margin: 0 0 14px; line-height: 1.5;">
+              Hồ sơ hoàn tiền số <strong style="font-family: monospace; color: #005198;" id="res-refund-code">REF-2610-889</strong> đã được ghi nhận. Số tiền thừa sẽ được chuyển về tài khoản của bạn.
+            </p>
+            <a id="btn-track-refund" href="refund-track.html" class="btn btn-primary" style="background: #005198; border-color: #005198; font-weight: 800; width: 100%; justify-content: center;">
+              Xem Tiến Trình Hoàn Tiền →
+            </a>
+          </div>
+
+          <!-- Form Điền STK -->
+          <form id="overpay-refund-form" onsubmit="handleOverpaySubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
+            
+            <div class="f-group">
+              <label class="f-label" for="bank-select">
+                Ngân hàng thụ hưởng <span style="color: #ef4444;">*</span>
+              </label>
+              <select class="f-select" id="bank-select" required>
+                <option value="" disabled>-- Chọn ngân hàng thụ hưởng --</option>
+                <option value="MB Bank (Ngân hàng Quân Đội)" selected>MB Bank (Ngân hàng Quân Đội)</option>
+                <option value="Vietcombank (Ngoại Thương Việt Nam)">Vietcombank (Ngoại Thương Việt Nam)</option>
+                <option value="Techcombank (Kỹ Thương Việt Nam)">Techcombank (Kỹ Thương Việt Nam)</option>
+                <option value="VietinBank (Công Thương Việt Nam)">VietinBank (Công Thương Việt Nam)</option>
+                <option value="BIDV (Đầu Tư & Phát Triển)">BIDV (Đầu Tư & Phát Triển)</option>
+                <option value="VPBank (Việt Nam Thịnh Vượng)">VPBank (Việt Nam Thịnh Vượng)</option>
+                <option value="ACB (Á Châu)">ACB (Á Châu)</option>
+                <option value="TPBank (Tiên Phong)">TPBank (Tiên Phong)</option>
+              </select>
+            </div>
+
+            <div class="f-group">
+              <label class="f-label" for="acc-number">
+                Số tài khoản thụ hưởng <span style="color: #ef4444;">*</span>
+              </label>
+              <input type="text" class="f-input" id="acc-number" placeholder="Ví dụ: 0987654321..." value="0987654321" required>
+            </div>
+
+            <div class="f-group">
+              <label class="f-label" for="acc-name">
+                Tên chủ tài khoản (in hoa không dấu) <span style="color: #ef4444;">*</span>
+              </label>
+              <input type="text" class="f-input" id="acc-name" placeholder="NGUYEN HOANG NAM" value="NGUYEN HOANG NAM" style="text-transform: uppercase;" required>
+            </div>
+
+            <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #475569; cursor: pointer; line-height: 1.4;">
+              <input type="checkbox" id="confirm-agree" checked required style="width: 18px; height: 18px; margin-top: 2px;">
+              <span>Tôi xác nhận thông tin tài khoản chính xác và đồng ý để Beta Cinemas hoàn tiền về tài khoản này.</span>
+            </label>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: #b45309; line-height: 1.5;">
+              ● <strong>Dự kiến giải ngân:</strong> Trong vòng <strong>15 - 30 phút</strong> qua VietQR tự động hoặc 3–7 ngày làm việc liên ngân hàng.
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="background: #10b981; border: none; font-weight: 800; min-height: 48px; border-radius: 10px; font-size: 15px;">
+              Gửi Yêu Cầu Hoàn Tiền Thừa
+            </button>
+
+          </form>
+
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- CHÂN TRANG FOOTER CHÍNH THỨC -->
+  <footer class="footer-official" style="margin-top: auto;">
+    <div class="container">
+      <div class="footer-official-grid">
+        <div>
+          <div style="margin-bottom: 18px;">
+            <a href="home.html">
+              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png" 
+                   onerror="this.onerror=null; this.src='images/logo-white-official.png';" 
+                   alt="Beta Cinemas" style="height: 48px;">
+            </a>
+          </div>
+          <p style="font-size: 13px; color: #e0f2fe; line-height: 1.8; margin-bottom: 16px;">
+            <strong>CÔNG TY CỔ PHẦN BETA MEDIA</strong><br>
+            Tầng 3, số 59 phố Xuân Diệu, Phường Quảng An, Quận Tây Hồ, TP. Hà Nội.<br>
+            Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
+          </p>
+        </div>
+        <div>
+          <h4 class="footer-official-title">CỤM RẠP BETA CINEMAS</h4>
+          <ul class="footer-official-links">
+            <li><a href="schedule.html">Beta Thanh Xuân (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Giải Phóng (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Mỹ Đình (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Quang Trung (TP.HCM)</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-official-title">CHÍNH SÁCH & QUY ĐỊNH</h4>
+          <ul class="footer-official-links">
+            <li><a href="support.html">Điều khoản sử dụng</a></li>
+            <li><a href="support.html">Chính sách đổi trả & hoàn tiền</a></li>
+            <li><a href="support.html">Quy định độ tuổi xem phim</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-official-title">ĐỐI TÁC THANH TOÁN</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MB Bank</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-official-bottom">
+        <div>© 2026 Beta Cinemas. Bản quyền thuộc về Công ty Cổ phần Beta Media.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PROTOTYPE SWITCHER DOCK -->
+  <nav class="prototype-dock">
+    <span class="dock-label">Giao diện:</span>
+    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
+    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
+    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
+    <a href="underpay.html" class="dock-item">⚠️ Chuyển Thiếu</a>
+    <a href="overpay.html" class="dock-item active">💰 Chuyển Thừa</a>
+    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
+    <a href="refund.html" class="dock-item">💸 Hoàn Tiền</a>
+    <a href="refund-track.html" class="dock-item">📈 Tiến Trình</a>
+    <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
+  </nav>
+
+  <script src="pay-client.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    let orderCode = params.get('order') || 'BC2610279854';
+    let total = Number(params.get('total') || 179000);
+    let excessAmount = Number(params.get('excess') || 21000);
+    let paidAmount = Number(params.get('paid') || (total + excessAmount));
+    const movie = params.get('movie') || '';
+    const cinema = params.get('cinema') || '';
+    const seats = params.get('seats') || '';
+    const date = params.get('date') || '';
+    const time = params.get('time') || '';
+    const combos = params.get('combos') || '';
+
+    const fullQueryParams = new URLSearchParams({
+      order: orderCode,
+      movie: movie,
+      cinema: cinema,
+      seats: seats,
+      total: total,
+      date: date,
+      time: time
+    });
+
+    // Cập nhật link xem vé
+    const ticketBtn = document.getElementById('btn-view-ticket');
+    if (ticketBtn) ticketBtn.href = `ticket.html?${fullQueryParams.toString()}`;
+
+    function renderOverpayData(ord) {
+      if (!ord) return;
+      orderCode = ord.code || orderCode;
+      total = ord.total || total;
+      excessAmount = ord.excess_amount || (ord.paid_amount ? ord.paid_amount - total : excessAmount);
+      if (excessAmount <= 0) excessAmount = 21000;
+      paidAmount = ord.paid_amount || (total + excessAmount);
+
+      document.getElementById('overpay-order-code').textContent = orderCode;
+      document.getElementById('overpay-paid-amount').textContent = Pay.vnd(paidAmount);
+      document.getElementById('overpay-total-amount').textContent = Pay.vnd(total);
+      document.getElementById('overpay-excess-amount').textContent = Pay.vnd(excessAmount);
+
+      // Đồng bộ hóa đơn chi tiết phim & bắp nước động
+      if (window.Pay && Pay.renderInvoice) {
+        Pay.renderInvoice({
+          ...ord,
+          movie_key: ord.movie_key || movie,
+          cinema: ord.cinema || cinema,
+          show_date: ord.show_date || date,
+          show_time: ord.show_time || time,
+          seats: ord.seats || seats
+        });
+      }
+    }
+
+    // Hiển thị ngay tức thì từ URL params
+    renderOverpayData({
+      code: orderCode,
+      total: total,
+      paid_amount: paidAmount,
+      excess_amount: excessAmount,
+      movie_key: movie,
+      cinema: cinema,
+      show_date: date,
+      show_time: time,
+      seats: seats
+    });
+
+    // Tự động load dữ liệu từ API nếu có
+    if (window.Pay && orderCode) {
+      Pay.getOrder(orderCode).then(ord => {
+        if (ord) renderOverpayData(ord);
+      }).catch(err => console.log('Fetch error:', err.message));
+    }
+
+    // Xử lý gửi form hoàn tiền thừa
+    async function handleOverpaySubmit(e) {
+      e.preventDefault();
+
+      const bank = document.getElementById('bank-select').value;
+      const acc = document.getElementById('acc-number').value.trim();
+      const owner = document.getElementById('acc-name').value.trim();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang gửi yêu cầu...';
+      }
+
+      let resCode = 'REF-2610-889';
+
+      try {
+        const res = await Pay.submitRefund({
+          order: orderCode,
+          bank,
+          acc,
+          owner
+        });
+        if (res && res.refund_code) resCode = res.refund_code;
+      } catch (err) {
+        console.warn('Lỗi gọi API refund:', err.message);
+      }
+
+      document.getElementById('res-refund-code').textContent = resCode;
+      const trackBtn = document.getElementById('btn-track-refund');
+      if (trackBtn) trackBtn.href = `refund-track.html?code=${resCode}&order=${orderCode}`;
+
+      // Ẩn form và hiện alert thành công
+      document.getElementById('overpay-refund-form').style.display = 'none';
+      document.getElementById('refund-success-alert').style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>

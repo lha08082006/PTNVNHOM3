@@ -254,13 +254,18 @@
     </div>
 
     <!-- Tóm tắt ghế đã chọn -->
-    <div style="background: var(--beta-blue-soft); border-radius: 12px; padding: 14px 20px; border: 1.5px solid #bfdbfe; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: var(--beta-blue-soft); border-radius: 12px; padding: 14px 20px; border: 1.5px solid #bfdbfe; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
       <div>
-        <span style="font-size: 13px; color: var(--beta-navy); font-weight: 700;">Vé đang giữ chỗ:</span>
-        <strong style="color: #0f172a; margin-left: 6px;">2 Ghế VIP (F07, F08)</strong> • Phòng 01 (18:30)
+        <div style="font-size: 14px; font-weight: 800; color: #005198; margin-bottom: 3px;" id="combo-movie-display">
+          LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ · T18
+        </div>
+        <div style="font-size: 13px; color: #334155;">
+          <span style="color: var(--beta-navy); font-weight: 700;">Ghế giữ chỗ:</span>
+          <strong id="combo-seat-summary" style="color: #0f172a; margin-left: 4px;">D5, D6 (2 Ghế VIP)</strong> • <span id="combo-cinema-showtime">Beta Thanh Xuân · 12:15</span>
+        </div>
       </div>
-      <div style="font-family: var(--font-display); font-weight: 800; color: var(--beta-navy);">
-        Tiền vé: 130.000 đ
+      <div id="combo-ticket-total-display" style="font-family: var(--font-display); font-weight: 800; color: var(--beta-navy); font-size: 16px;">
+        Tiền vé: 90.000 đ
       </div>
     </div>
 
@@ -279,7 +284,7 @@
             <div class="combo-price">69.000 đ</div>
             <div class="quantity-control">
               <button class="qty-btn" onclick="updateQty('solo', -1)">−</button>
-              <span class="qty-value" id="qty-solo">1</span>
+              <span class="qty-value" id="qty-solo">0</span>
               <button class="qty-btn" onclick="updateQty('solo', 1)">+</button>
             </div>
           </div>
@@ -364,10 +369,10 @@
       </div>
 
       <div style="display: flex; gap: 12px;">
-        <a href="seats.html" class="btn btn-outline">
+        <a id="btn-back-seats" href="seats.html" class="btn btn-outline">
           ← Quay Lại Ghế
         </a>
-        <a href="checkout.html" class="btn btn-primary btn-lg">
+        <a id="btn-next-checkout" href="checkout.html" class="btn btn-primary btn-lg">
           Tiếp Tục Thanh Toán →
         </a>
       </div>
@@ -393,21 +398,59 @@
       <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
   </nav>
 
+  <script src="pay-client.js"></script>
   <script>
-    const ticketTotal = 130000;
-    const items = {
-      solo: { name: 'Combo Solo', price: 69000, qty: 1 },
-      couple: { name: 'Combo Couple', price: 89000, qty: 0 },
-      family: { name: 'Combo Family', price: 139000, qty: 0 },
-      sausage: { name: 'Xúc xích', price: 25000, qty: 0 }
+    const params = new URLSearchParams(window.location.search);
+    const currentMovieKey = params.get('movie') || 'linh-gioi-dai-chien';
+    const currentCinema = params.get('cinema') || 'Beta Thanh Xuân';
+    const currentDate = params.get('date') || 'CN 25/10';
+    const currentTime = params.get('time') || '12:15';
+    const selectedSeatsStr = params.get('seats') || 'D5, D6';
+    let ticketTotal = parseInt(params.get('total')) || 90000;
+
+    const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(currentMovieKey) : {
+      title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
+      age: 'T18'
     };
 
+    const seatCount = selectedSeatsStr ? selectedSeatsStr.split(',').length : 2;
+
+    // Hiển thị thông tin suất chiếu & ghế
+    document.getElementById('combo-movie-display').textContent = movieObj.title + ' · ' + movieObj.age;
+    document.getElementById('combo-seat-summary').textContent = selectedSeatsStr + ' (' + seatCount + ' Ghế VIP)';
+    document.getElementById('combo-cinema-showtime').textContent = currentCinema + ' · ' + currentTime + ' (' + currentDate + ')';
+    document.getElementById('combo-ticket-total-display').textContent = 'Tiền vé: ' + (window.Pay ? Pay.vnd(ticketTotal) : new Intl.NumberFormat('vi-VN').format(ticketTotal) + ' đ');
+
+    const items = {
+      solo: { name: 'Combo Solo', price: 69000, qty: 0 },
+      couple: { name: 'Combo Couple', price: 89000, qty: 0 },
+      party: { name: 'Combo Party Gold', price: 129000, qty: 0 },
+      family: { name: 'Combo Siêu Nhóm (Family)', price: 129000, qty: 0 },
+      sausage: { name: 'Xúc Xích Nướng', price: 25000, qty: 0 }
+    };
+
+    // Khôi phục combo nếu có tham số URL
+    const combosParam = params.get('combos');
+    if (combosParam) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(combosParam));
+        for (let k in parsed) {
+          if (items[k]) {
+            items[k].qty = Number(parsed[k]) || 0;
+            const el = document.getElementById('qty-' + k);
+            if (el) el.innerText = items[k].qty;
+          }
+        }
+      } catch (e) {}
+    }
+
     function updateQty(key, delta) {
-      const item = items[key];
-      const newQty = item.qty + delta;
+      if (!items[key]) return;
+      const newQty = items[key].qty + delta;
       if (newQty >= 0 && newQty <= 10) {
-        item.qty = newQty;
-        document.getElementById(`qty-${key}`).innerText = item.qty;
+        items[key].qty = newQty;
+        const qtyEl = document.getElementById('qty-' + key);
+        if (qtyEl) qtyEl.innerText = items[key].qty;
         recalcTotal();
       }
     }
@@ -415,20 +458,44 @@
     function recalcTotal() {
       let comboTotal = 0;
       let comboSummary = [];
+      const combosPayload = {};
 
       for (const k in items) {
         if (items[k].qty > 0) {
           comboTotal += items[k].price * items[k].qty;
-          comboSummary.push(`${items[k].qty} ${items[k].name}`);
+          comboSummary.push(items[k].qty + ' ' + items[k].name);
+          combosPayload[k] = items[k].qty;
         }
       }
 
       const grandTotal = ticketTotal + comboTotal;
-      const detailStr = `2 Vé VIP (130.000 đ)` + (comboSummary.length > 0 ? ` + ${comboSummary.join(', ')}` : '');
+      const detailStr = seatCount + ' Vé (' + (window.Pay ? Pay.vnd(ticketTotal) : ticketTotal + 'đ') + ')' + (comboSummary.length > 0 ? ' + ' + comboSummary.join(', ') : '');
 
       document.getElementById('order-summary-detail').innerText = detailStr;
-      document.getElementById('total-amount-display').innerText = new Intl.NumberFormat('vi-VN').format(grandTotal) + ' đ';
+      document.getElementById('total-amount-display').innerText = window.Pay ? Pay.vnd(grandTotal) : new Intl.NumberFormat('vi-VN').format(grandTotal) + ' đ';
+
+      // Cập nhật link điều hướng chuyển tiếp & quay lại
+      const checkoutUrl = 'checkout.html?movie=' + encodeURIComponent(currentMovieKey) + 
+                          '&cinema=' + encodeURIComponent(currentCinema) + 
+                          '&date=' + encodeURIComponent(currentDate) + 
+                          '&time=' + encodeURIComponent(currentTime) + 
+                          '&seats=' + encodeURIComponent(selectedSeatsStr) + 
+                          '&seatsTotal=' + ticketTotal + 
+                          '&combos=' + encodeURIComponent(JSON.stringify(combosPayload)) + 
+                          '&total=' + grandTotal;
+      document.getElementById('btn-next-checkout').href = checkoutUrl;
+
+      const backSeatsUrl = 'seats.html?movie=' + encodeURIComponent(currentMovieKey) + 
+                           '&cinema=' + encodeURIComponent(currentCinema) + 
+                           '&date=' + encodeURIComponent(currentDate) + 
+                           '&time=' + encodeURIComponent(currentTime) + 
+                           '&seats=' + encodeURIComponent(selectedSeatsStr) + 
+                           '&total=' + ticketTotal;
+      document.getElementById('btn-back-seats').href = backSeatsUrl;
     }
+
+    recalcTotal();
   </script>
+  
 </body>
 </html>

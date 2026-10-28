@@ -550,6 +550,7 @@
   </nav>
 
   <!-- Script xử lý chọn ghế & tính tiền tương tác thời gian thực -->
+  <script src="pay-client.js"></script>
   <script>
     // Danh mục tên phim
     const MOVIE_NAMES = {
@@ -567,7 +568,7 @@
       'shaun-the-sheep': 'SHAUN THE SHEEP: PHIÊU LƯU NGOÀI HÀNH TINH'
     };
 
-    // Danh sách ghế đang được chọn (Khởi tạo D5, D6 theo đúng mockup)
+    // Danh sách ghế đang được chọn
     let selectedSeats = [
       { id: 'D5', type: 'standard', price: 45000 },
       { id: 'D6', type: 'standard', price: 45000 }
@@ -586,17 +587,16 @@
       if (params.get('date')) currentDate = params.get('date');
       if (params.get('time')) currentTime = params.get('time');
 
-      const movieTitle = MOVIE_NAMES[currentMovieKey] || 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ';
+      const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(currentMovieKey) : null;
+      const movieTitle = movieObj ? (movieObj.shortTitle || movieObj.title) : (MOVIE_NAMES[currentMovieKey] || 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ');
       document.getElementById('checkout-movie-title').textContent = movieTitle;
       document.getElementById('subbar-cinema').textContent = currentCinema;
       document.getElementById('subbar-date').textContent = currentDate;
       document.getElementById('subbar-time').textContent = currentTime;
 
-      // Cập nhật link quay lại trang đặt suất
-      const backUrl = `booking.html?movie=${encodeURIComponent(currentMovieKey)}`;
+      const backUrl = 'booking.html?movie=' + encodeURIComponent(currentMovieKey);
       document.getElementById('btn-back-link').href = backUrl;
 
-      // Cập nhật select rạp nếu khớp
       const selectEl = document.getElementById('cinema-select');
       for (let opt of selectEl.options) {
         if (opt.value.includes(currentCinema) || currentCinema.includes(opt.value)) {
@@ -611,7 +611,6 @@
     // Gắn sự kiện click chọn ghế
     document.querySelectorAll('.r i').forEach(seat => {
       seat.addEventListener('click', function() {
-        // Bỏ qua ghế đã bán, đang giữ hoặc khóa
         if (this.classList.contains('x') || this.classList.contains('h') || this.classList.contains('k')) {
           return;
         }
@@ -622,11 +621,9 @@
 
         const existsIndex = selectedSeats.findIndex(s => s.id === id);
         if (existsIndex > -1) {
-          // Bỏ chọn
           selectedSeats.splice(existsIndex, 1);
           this.classList.remove('s');
         } else {
-          // Chọn ghế
           selectedSeats.push({ id, type, price });
           this.classList.add('s');
         }
@@ -647,6 +644,7 @@
         totalDisplay.textContent = '0đ';
         metaDisplay.textContent = 'Vui lòng chọn ghế trên sơ đồ khán phòng';
         btnNext.classList.add('disabled');
+        btnNext.removeAttribute('href');
       } else {
         const seatIds = selectedSeats.map(s => s.id).join(', ');
         const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
@@ -654,12 +652,12 @@
         totalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(total) + 'đ';
         
         const count = selectedSeats.length;
-        metaDisplay.textContent = `Phòng 01 (Dolby Atmos) · ${count} Ghế (${new Intl.NumberFormat('vi-VN').format(total)}đ)`;
+        metaDisplay.textContent = 'Phòng 01 (Dolby Atmos) · ' + count + ' Ghế (' + new Intl.NumberFormat('vi-VN').format(total) + 'đ)';
         btnNext.classList.remove('disabled');
 
-        // Gắn query parameters cho trang thanh toán tiếp theo (gộp bắp nước & thanh toán)
-        const checkoutUrl = `checkout.html?movie=${encodeURIComponent(currentMovieKey)}&cinema=${encodeURIComponent(currentCinema)}&date=${encodeURIComponent(currentDate)}&time=${encodeURIComponent(currentTime)}&seats=${encodeURIComponent(seatIds)}&total=${total}`;
-        btnNext.href = checkoutUrl;
+        // Chuyển tiếp mượt mà sang bước 3: Chọn bắp nước (combo.html)
+        const comboUrl = 'combo.html?movie=' + encodeURIComponent(currentMovieKey) + '&cinema=' + encodeURIComponent(currentCinema) + '&date=' + encodeURIComponent(currentDate) + '&time=' + encodeURIComponent(currentTime) + '&seats=' + encodeURIComponent(seatIds) + '&total=' + total;
+        btnNext.href = comboUrl;
       }
     }
 

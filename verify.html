@@ -359,22 +359,35 @@
 
     <!-- BẢNG ĐIỀU KHIỂN MÔ PHỎNG WEBHOOK SANDBOX -->
     <div class="simulation-panel-verify">
-      <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 12px;">
-        ⚙️ Bảng Điều Khiển Mô Phỏng Webhook Sandbox
+      <div style="font-size: 13px; font-weight: 800; color: #005198; text-transform: uppercase; margin-bottom: 8px;">
+        ⚙️ BẢNG ĐIỀU KHIỂN MÔ PHỎNG WEBHOOK SEPAY
       </div>
-      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <a href="ticket.html" id="btn-verify-success" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 800; padding: 10px 18px;">
-          ⚡ [Demo] Giả lập Webhook Thành Công → Xuất Vé
-        </a>
-        <a href="gateway.html" id="btn-verify-back-qr" class="btn btn-outline btn-sm" style="color: #005198; border-color: #cbd5e1; background: white; font-weight: 600;">
+      <p style="font-size: 12px; color: #64748b; margin-top: 0; margin-bottom: 12px;">
+        Kích hoạt thử các kịch bản để xem trang xác minh tự động chuyển hướng:
+      </p>
+      <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+        <button type="button" onclick="triggerSim('OK')" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 800;">
+          ⚡ [Demo] Chuyển ĐỦ → Xuất Vé
+        </button>
+        <button type="button" onclick="triggerSim('SHORT')" class="btn btn-outline btn-sm" style="color: #b45309; border-color: #f59e0b; background: #fffbeb; font-weight: 800;">
+          ⚠️ [Lỗi 1] Khách Trả Thiếu Tiền
+        </button>
+        <button type="button" onclick="triggerSim('EXCESS')" class="btn btn-outline btn-sm" style="color: #0369a1; border-color: #0284c7; background: #f0f9ff; font-weight: 800;">
+          💰 [Lỗi 2] Khách Trả Thừa Tiền
+        </button>
+        <button type="button" onclick="triggerSim('LATE')" class="btn btn-outline btn-sm" style="color: #b91c1c; border-color: #ef4444; background: #fef2f2; font-weight: 800;">
+          ⏳ [Lỗi 3a] Chuyển Quá Hạn Giữ Ghế
+        </button>
+      </div>
+      <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px;">
+        <a href="gateway.html" id="btn-verify-back-qr" class="btn btn-outline btn-sm" style="color: #005198;">
           📱 Quay Lại Cổng QR
         </a>
-        <a href="refund.html" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #fca5a5; background: white; font-weight: 600;">
-          ⚠️ Giả Lập Lỗi Thanh Toán
+        <a href="betabot.html" class="btn btn-outline btn-sm" style="color: #64748b;">
+          🤖 Chat BetaBot Đối Soát
         </a>
       </div>
     </div>
-
   </main>
 
   <!-- PROTOTYPE SWITCHER DOCK -->
@@ -391,67 +404,127 @@
     <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
     <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
     <a href="verify.html" class="dock-item active">⏳ Xác Minh GD</a>
+    <a href="underpay.html" class="dock-item">⚠️ Chuyển Thiếu</a>
+    <a href="overpay.html" class="dock-item">💰 Chuyển Thừa</a>
     <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
     <a href="account.html" class="dock-item">👤 Thành Viên</a>
     <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
     <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
   </nav>
 
+  <script src="pay-client.js"></script>
   <script>
-    // Đọc URL query parameters
     const params = new URLSearchParams(window.location.search);
-    const total = params.get('total');
-    const movie = params.get('movie');
-    const cinema = params.get('cinema');
-    const seats = params.get('seats');
-    const date = params.get('date');
-    const time = params.get('time');
-    const format = params.get('format');
+    const total = params.get('total') || 179000;
+    const movie = params.get('movie') || '';
+    const cinema = params.get('cinema') || '';
+    const seats = params.get('seats') || '';
+    const date = params.get('date') || '';
+    const time = params.get('time') || '';
+    const format = params.get('format') || '';
     const order = params.get('order') || 'BC2610279854';
+    const combos = params.get('combos') || '';
 
     if (total) {
-      const formatted = new Intl.NumberFormat('vi-VN').format(total) + ' đ';
-      document.getElementById('verify-amount').textContent = formatted;
+      document.getElementById('verify-amount').textContent = Pay.vnd(total);
     }
     if (order) {
       document.getElementById('verify-order-code').textContent = order;
       document.getElementById('verify-content').textContent = order;
     }
 
-    // Cập nhật link xuất vé thành công
-    const btnSuccess = document.getElementById('btn-verify-success');
-    if (btnSuccess) {
-      btnSuccess.href = `ticket.html?movie=${encodeURIComponent(movie || '')}&cinema=${encodeURIComponent(cinema || '')}&seats=${encodeURIComponent(seats || '')}&total=${encodeURIComponent(total || '')}&date=${encodeURIComponent(date || '')}&time=${encodeURIComponent(time || '')}&format=${encodeURIComponent(format || '')}&order=${encodeURIComponent(order)}`;
-    }
-
-    // Cập nhật link quay lại cổng QR
     const btnBackQr = document.getElementById('btn-verify-back-qr');
     if (btnBackQr) {
-      btnBackQr.href = `gateway.html?movie=${encodeURIComponent(movie || '')}&cinema=${encodeURIComponent(cinema || '')}&seats=${encodeURIComponent(seats || '')}&total=${encodeURIComponent(total || '')}&date=${encodeURIComponent(date || '')}&time=${encodeURIComponent(time || '')}&format=${encodeURIComponent(format || '')}`;
+      btnBackQr.href = `gateway.html?order=${order}&total=${total}&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
     }
 
-    // Đếm ngược giây kiểm tra ngân hàng (3, 2, 1, 3, 2, 1...)
+    // Đếm ngược 3 giây kiểm tra đối soát
     let secLeft = 3;
     setInterval(() => {
       secLeft--;
-      if (secLeft <= 0) {
-        secLeft = 3;
-      }
+      if (secLeft <= 0) secLeft = 3;
       const el = document.getElementById('sec-counter');
       if (el) el.textContent = secLeft;
     }, 1000);
 
-    // Đếm ngược thời gian giữ ghế (06:12 -> 06:11 -> ...)
-    let totalSeconds = 372; // 6 phút 12 giây
-    const countdownEl = document.getElementById('verify-countdown');
-    setInterval(() => {
-      if (totalSeconds > 0) {
-        totalSeconds--;
-        const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-        const s = (totalSeconds % 60).toString().padStart(2, '0');
-        if (countdownEl) countdownEl.textContent = `${m}:${s}`;
+    // Lắng nghe Realtime bằng Pay.watch
+    Pay.watch(order, (data) => {
+      console.log('[Verify Status]:', data.status, data);
+
+      if (data.status === 'PAID') {
+        location.href = `ticket.html?order=${data.code}&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&combos=${encodeURIComponent(combos)}&total=${data.total}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
       }
-    }, 1000);
+
+      if (data.status === 'PARTIAL') {
+        alert(`Hệ thống ghi nhận bạn đã chuyển ${Pay.vnd(data.paid_amount)}. Còn thiếu ${Pay.vnd(data.remaining_amount)}. Đang chuyển sang trang chuyển bù số tiền thiếu!`);
+        location.href = `underpay.html?order=${data.code}&total=${data.total}&paid=${data.paid_amount}&remaining=${data.remaining_amount}&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&combos=${encodeURIComponent(combos)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
+      }
+
+      if (data.status === 'EXPIRED') {
+        location.href = `refund.html?order=${data.code}&reason=LATE&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&total=${total}`;
+      }
+    });
+
+    async function triggerSim(sc) {
+      const baseQuery = new URLSearchParams({
+        order: order,
+        movie: movie,
+        cinema: cinema,
+        seats: seats,
+        total: total,
+        date: date,
+        time: time
+      });
+
+      try {
+        const res = await Pay.simulate(sc, order, null, { total, movie, cinema, date, time, seats, combos });
+
+        // 1. THANH TOÁN THÀNH CÔNG 100% (OK)
+        if (sc === 'OK') {
+          location.href = `ticket.html?${baseQuery.toString()}`;
+          return;
+        }
+
+        // 2. KHÁCH TRẢ THIẾU TIỀN (SHORT)
+        if (sc === 'SHORT') {
+          const shortPaid = Math.max(50000, Number(total) - 79000);
+          baseQuery.set('paid', shortPaid);
+          baseQuery.set('remaining', Number(total) - shortPaid);
+          location.href = `underpay.html?${baseQuery.toString()}`;
+          return;
+        }
+
+        // 3. KHÁCH TRẢ THỪA TIỀN (EXCESS)
+        if (sc === 'EXCESS') {
+          baseQuery.set('paid', Number(total) + 21000);
+          baseQuery.set('excess', 21000);
+          location.href = `overpay.html?${baseQuery.toString()}`;
+          return;
+        }
+
+        // 4. QUÁ HẠN GIỮ GHẾ 10 PHÚT (LATE)
+        if (sc === 'LATE') {
+          baseQuery.set('reason', 'LATE');
+          location.href = `refund.html?${baseQuery.toString()}`;
+          return;
+        }
+
+        // 5. MẠNG NGHẼN / TREO CHỜ BETABOT (NETWORK_LAG)
+        if (sc === 'NETWORK_LAG') {
+          const ref = (res && res.reference_code) ? res.reference_code : ('FT' + Math.floor(10000000 + Math.random() * 90000000));
+          alert(`[MÔ PHỎNG LỖI 3B THÀNH CÔNG]\n\nTiền đã trừ tại ngân hàng (Mã GD: ${ref}), nhưng website chưa nhận được do sự cố mạng.\n\nHãy nhấn OK để chuyển sang BetaBot AI và nhập mã ${ref} đối soát!`);
+          baseQuery.set('ref', ref);
+          location.href = `betabot.html?${baseQuery.toString()}`;
+          return;
+        }
+      } catch (err) {
+        console.warn('Lỗi Sandbox:', err);
+        if (sc === 'SHORT') location.href = `underpay.html?${baseQuery.toString()}&paid=${Math.max(50000, Number(total) - 79000)}&remaining=79000`;
+        else if (sc === 'EXCESS') location.href = `overpay.html?${baseQuery.toString()}&paid=${Number(total) + 21000}&excess=21000`;
+        else if (sc === 'LATE') location.href = `refund.html?${baseQuery.toString()}&reason=LATE`;
+        else location.href = `ticket.html?${baseQuery.toString()}`;
+      }
+    }
   </script>
 </body>
 

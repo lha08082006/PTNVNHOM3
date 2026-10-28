@@ -201,6 +201,24 @@
       </div>
 
       <!-- BOARDING PASS CINEMA TICKET -->
+      <!-- BANNER CẢNH BÁO HOÀN TIỀN THỪA (TÌNH HUỐNG LỖI 2) -->
+      <div id="excess-refund-banner" style="display: none; background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 18px 24px; margin-bottom: 24px; box-shadow: 0 4px 15px rgba(16,185,129,0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 26px;">💰</div>
+            <div>
+              <div style="font-weight: 800; font-size: 15px; color: #065f46;">BẠN ĐÃ CHUYỂN THỪA TIỀN VÉ</div>
+              <div style="font-size: 13px; color: #047857; margin-top: 2px;">
+                Đơn hàng đã được xuất vé thành công. Số tiền thừa <strong id="excess-amount-val" style="color: #ff5400;">0 đ</strong> sẽ được hoàn trả lại cho bạn.
+              </div>
+            </div>
+          </div>
+          <a id="btn-claim-excess" href="refund.html" class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 800; border-radius: 8px;">
+            Nhận Tiền Thừa Ngay →
+          </a>
+        </div>
+      </div>
+
       <div class="cinema-ticket-card" id="printable-ticket">
         
         <!-- THÂN VÉ CHÍNH -->
@@ -266,7 +284,7 @@
           <div style="background: #f8fafc; border-radius: 12px; padding: 14px 18px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;" id="ticket-combo-row">
             <div>
               <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase;">Combo Bắp Nước Nhận Tại Quầy:</div>
-              <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;" id="ticket-combo-detail">01x Combo Solo (Bắp lớn + Nước lớn)</div>
+              <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;" id="ticket-combo-detail">Đang tải thông tin combo...</div>
             </div>
             <span style="font-size: 12px; background: #e0f2fe; color: #0284c7; padding: 5px 12px; border-radius: 6px; font-weight: 800; flex-shrink: 0;">Chưa nhận</span>
           </div>
@@ -474,32 +492,61 @@
       <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
   </nav>
 
+  <script src="pay-client.js"></script>
   <script>
-    const MOVIE_DETAILS = {
-      'linh-gioi-dai-chien': {
-        title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
-        format: '2D Phụ đề Tiếng Việt',
+    const CINEMA_ADDRESSES = {
+      'Beta Thanh Xuân (Hà Nội)': 'Tầng B1, Golden West, Lê Văn Thiêm, Q. Thanh Xuân',
+      'Beta Thanh Xuân': 'Tầng B1, Golden West, Lê Văn Thiêm, Q. Thanh Xuân',
+      'Beta Giải Phóng (Hà Nội)': 'Tầng 3, Imperial Plaza, 360 Giải Phóng, Q. Hoàng Mai',
+      'Beta Giải Phóng': 'Tầng 3, Imperial Plaza, 360 Giải Phóng, Q. Hoàng Mai',
+      'Beta Mỹ Đình (Hà Nội)': 'Tầng hầm B1, Tòa nhà Golden Palace, Mễ Trì',
+      'Beta Mỹ Đình': 'Tầng hầm B1, Tòa nhà Golden Palace, Mễ Trì',
+      'Beta Trần Quang Khải': 'Tầng 2, 130 Trần Quang Khải, Q.1, TP.HCM',
+      'Beta Quang Trung (TP.HCM)': '645 Quang Trung, P.11, Q. Gò Vấp, TP.HCM',
+      'Beta Quang Trung': '645 Quang Trung, P.11, Q. Gò Vấp, TP.HCM',
+      'Beta Ung Văn Khiêm (TP.HCM)': 'Tòa nhà D2, 60 Ung Văn Khiêm, P.25, Q. Bình Thạnh',
+      'Beta Ung Văn Khiêm': 'Tòa nhà D2, 60 Ung Văn Khiêm, P.25, Q. Bình Thạnh',
+      'Beta Thái Nguyên': 'Tầng 4, TTTM Phổ Yên Plaza, Thái Nguyên',
+      'Beta Bắc Giang': 'Tầng 4, Tòa nhà Hapro, Quảng Trường 3/2, Bắc Giang',
+      'Beta Nha Trang': 'Tầng 4, TTTM Nha Trang Center, 20 Trần Phú'
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const orderParam = params.get('order');
+    const movieParam = params.get('movie');
+    const cinemaParam = params.get('cinema');
+    const dateParam = params.get('date');
+    const timeParam = params.get('time');
+    const seatsParam = params.get('seats');
+    const formatParam = params.get('format');
+    const totalParam = params.get('total');
+    const combosParam = params.get('combos');
+
+    const MOVIE_CATALOG_FALLBACK = {
+      'trai-buon-nguoi': {
+        title: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
+        format: '2D Phụ đề Tiếng Anh',
         badge: '2D PHỤ ĐỀ'
       },
-      'dia-dao': {
+      'an-mang-karaoke': {
+        title: 'ÁN MẠNG KARAOKE',
+        format: '2D Phụ đề Tiếng Anh',
+        badge: '2D PHỤ ĐỀ'
+      },
+      'linh-gioi-dai-chien': {
         title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
         format: '2D Phụ đề Tiếng Việt',
         badge: '2D PHỤ ĐỀ'
       },
       'quy-an-tang-4': {
         title: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
-        format: '2D Lồng tiếng',
-        badge: '2D LỒNG TIẾNG'
-      },
-      'trai-buon-nguoi': {
-        title: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
-        format: '2D Phụ đề Tiếng Anh',
+        format: '2D Phụ đề Tiếng Việt',
         badge: '2D PHỤ ĐỀ'
       },
       'blue-lock': {
         title: 'BLUE LOCK: THE MOVIE - EPISODE NAGI',
-        format: '2D IMAX Phụ đề',
-        badge: 'IMAX 2D'
+        format: '2D Phụ đề Tiếng Việt',
+        badge: '2D PHỤ ĐỀ'
       },
       'ut-lan-2': {
         title: 'ÚT LAN 2',
@@ -510,80 +557,180 @@
         title: 'ÚT LAN 2',
         format: '2D Phụ đề Tiếng Anh',
         badge: '2D PHỤ ĐỀ'
+      },
+      'suzume': {
+        title: 'KHÓA CHẶT CỬA NÀO SUZUME',
+        format: '2D Phụ đề Tiếng Việt',
+        badge: '2D PHỤ ĐỀ'
+      },
+      'ca-voi-nuot-chung': {
+        title: 'CÁ VOI NUỐT CHỬNG',
+        format: '2D Phụ đề Tiếng Việt',
+        badge: '2D PHỤ ĐỀ'
+      },
+      'me-min': {
+        title: 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI',
+        format: '2D Phụ đề Tiếng Anh',
+        badge: '2D PHỤ ĐỀ'
+      },
+      'shaun-the-sheep': {
+        title: 'SHAUN THE SHEEP: CHUYẾN PHIÊU LƯU NGOÀI HÀNH TINH',
+        format: '2D Lồng Tiếng',
+        badge: '2D LỒNG TIẾNG'
       }
     };
 
-    const CINEMA_ADDRESSES = {
-      'Beta Thanh Xuân (Hà Nội)': 'Tầng B1, Golden West, Lê Văn Thiêm, Q. Thanh Xuân',
-      'Beta Giải Phóng (Hà Nội)': 'Tầng 3, Imperial Plaza, 360 Giải Phóng, Q. Hoàng Mai',
-      'Beta Mỹ Đình (Hà Nội)': 'Tầng hầm B1, Tòa nhà Golden Palace, Mễ Trì',
-      'Beta Quang Trung (TP.HCM)': '645 Quang Trung, P.11, Q. Gò Vấp, TP.HCM',
-      'Beta Ung Văn Khiêm (TP.HCM)': 'Tòa nhà D2, 60 Ung Văn Khiêm, P.25, Q. Bình Thạnh',
-      'Beta Thái Nguyên': 'Tầng 4, TTTM Phổ Yên Plaza, Thái Nguyên',
-      'Beta Bắc Giang': 'Tầng 4, Tòa nhà Hapro, Quảng Trường 3/2, Bắc Giang',
-      'Beta Nha Trang': 'Tầng 4, TTTM Nha Trang Center, 20 Trần Phú'
-    };
+    function resolveMovie(key) {
+      if (window.Pay && Pay.getMovie) return Pay.getMovie(key);
+      const clean = String(key || '').trim().toLowerCase();
+      return MOVIE_CATALOG_FALLBACK[clean] || MOVIE_CATALOG_FALLBACK['trai-buon-nguoi'] || {
+        title: String(key).toUpperCase(),
+        format: '2D Phụ đề',
+        badge: '2D PHỤ ĐỀ'
+      };
+    }
 
-    // Đọc URL parameters
-    const params = new URLSearchParams(window.location.search);
-    const movieParam = params.get('movie');
-    const cinemaParam = params.get('cinema');
-    const dateParam = params.get('date');
-    const timeParam = params.get('time');
-    const seatsParam = params.get('seats');
-    const formatParam = params.get('format');
-    const totalParam = params.get('total');
-
-    if (movieParam) {
-      if (MOVIE_DETAILS[movieParam]) {
-        document.getElementById('ticket-movie-title').textContent = MOVIE_DETAILS[movieParam].title;
-        if (!formatParam) {
-          document.getElementById('ticket-movie-format').textContent = MOVIE_DETAILS[movieParam].format;
-          document.getElementById('ticket-badge-format').textContent = MOVIE_DETAILS[movieParam].badge;
+    // Hiển thị danh sách Combo bắp nước động chuẩn xác
+    function renderTicketCombos(combosData) {
+      let parsed = {};
+      if (typeof combosData === 'string' && combosData.trim()) {
+        try {
+          parsed = JSON.parse(decodeURIComponent(combosData));
+        } catch (e) {
+          try { parsed = JSON.parse(combosData); } catch (e2) {}
         }
+      } else if (typeof combosData === 'object' && combosData !== null) {
+        parsed = combosData;
+      }
+
+      const COMBO_MAP = {
+        solo: { name: 'Combo Solo', desc: '1 Bắp lớn + 1 Nước lớn' },
+        couple: { name: 'Beta Couple', desc: '1 Bắp caramel/phô mai lớn + 2 Nước lớn' },
+        party: { name: 'Combo Party Gold', desc: '2 Bắp lớn + 3 Nước lớn + 1 Snack' },
+        family: { name: 'Combo Siêu Nhóm (Family)', desc: '2 Bắp lớn + 3 Nước lớn + 1 Snack' },
+        sausage: { name: 'Xúc Xích Nướng Phô Mai', desc: '1 Que xúc xích nướng' }
+      };
+
+      const items = [];
+      for (const key in parsed) {
+        const qty = Number(parsed[key]) || 0;
+        if (qty > 0) {
+          const info = COMBO_MAP[key] || { name: key, desc: '' };
+          const qtyStr = qty < 10 ? '0' + qty : qty;
+          const descStr = info.desc ? ' (' + info.desc + ')' : '';
+          items.push(qtyStr + 'x ' + info.name + descStr);
+        }
+      }
+
+      const rowEl = document.getElementById('ticket-combo-row');
+      const detailEl = document.getElementById('ticket-combo-detail');
+
+      if (items.length > 0) {
+        if (rowEl) rowEl.style.display = 'flex';
+        if (detailEl) detailEl.textContent = items.join(' + ');
+        const badge = rowEl ? rowEl.querySelector('span') : null;
+        if (badge) badge.style.display = '';
       } else {
-        document.getElementById('ticket-movie-title').textContent = decodeURIComponent(movieParam);
+        if (detailEl) detailEl.textContent = 'Không kèm combo bắp nước';
+        const badge = rowEl ? rowEl.querySelector('span') : null;
+        if (badge) badge.style.display = 'none';
       }
     }
 
-    if (formatParam) {
-      const fmt = decodeURIComponent(formatParam);
-      document.getElementById('ticket-movie-format').textContent = fmt;
-      let shortBadge = '2D PHỤ ĐỀ';
-      if (fmt.toUpperCase().includes('IMAX')) shortBadge = 'IMAX 2D';
-      else if (fmt.toUpperCase().includes('LỒNG TIẾNG') || fmt.toUpperCase().includes('LONG TIENG')) shortBadge = '2D LỒNG TIẾNG';
-      else if (fmt.toUpperCase().includes('3D')) shortBadge = '3D PHỤ ĐỀ';
-      document.getElementById('ticket-badge-format').textContent = shortBadge;
+    function applyOrderToTicket(ord) {
+      if (!ord) return;
+      const movieObj = resolveMovie(ord.movie_key);
+      if (movieObj) {
+        document.getElementById('ticket-movie-title').textContent = movieObj.title;
+        document.getElementById('ticket-movie-format').textContent = movieObj.format;
+        document.getElementById('ticket-badge-format').textContent = movieObj.badge;
+      }
+
+      if (ord.cinema) {
+        document.getElementById('ticket-cinema-name').textContent = ord.cinema;
+        if (CINEMA_ADDRESSES[ord.cinema]) {
+          document.getElementById('ticket-cinema-address').textContent = CINEMA_ADDRESSES[ord.cinema];
+        }
+      }
+
+      if (ord.show_time || ord.show_date) {
+        document.getElementById('ticket-showtime').textContent = (ord.show_time || '18:30') + ' • ' + (ord.show_date || '27/10/2026');
+      }
+
+      if (ord.seats && ord.seats.length > 0) {
+        const s = Array.isArray(ord.seats) ? ord.seats.join(', ') : ord.seats;
+        const count = Array.isArray(ord.seats) ? ord.seats.length : ord.seats.split(',').length;
+        document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' Ghế VIP)';
+      }
+
+      if (ord.total) {
+        document.getElementById('ticket-total-price').textContent = window.Pay ? Pay.vnd(ord.total) : new Intl.NumberFormat('vi-VN').format(ord.total) + ' đ';
+      }
+
+      if (ord.combos) {
+        renderTicketCombos(ord.combos);
+      }
+
+      if (ord.code) {
+        const codeClean = ord.code.replace(/\s/g, '');
+        const parts = codeClean.match(/.{1,4}/g);
+        if (parts) {
+          document.getElementById('ticket-barcode-num').textContent = parts.join(' ');
+        }
+      }
+    }
+
+    // 1. Áp dụng ngay từ URL parameters nếu có
+    if (movieParam) {
+      const movieObj = resolveMovie(movieParam);
+      document.getElementById('ticket-movie-title').textContent = movieObj.title;
+      document.getElementById('ticket-movie-format').textContent = movieObj.format;
+      document.getElementById('ticket-badge-format').textContent = movieObj.badge;
     }
 
     if (cinemaParam) {
-      const cinemaName = decodeURIComponent(cinemaParam);
-      document.getElementById('ticket-cinema-name').textContent = cinemaName;
-      if (CINEMA_ADDRESSES[cinemaName]) {
-        document.getElementById('ticket-cinema-address').textContent = CINEMA_ADDRESSES[cinemaName];
-      }
+      const c = decodeURIComponent(cinemaParam);
+      document.getElementById('ticket-cinema-name').textContent = c;
+      if (CINEMA_ADDRESSES[c]) document.getElementById('ticket-cinema-address').textContent = CINEMA_ADDRESSES[c];
     }
 
     if (timeParam || dateParam) {
-      const showTime = timeParam || '18:30';
-      const showDate = dateParam || '27/10/2026';
-      document.getElementById('ticket-showtime').textContent = `${showTime} • ${showDate}`;
+      document.getElementById('ticket-showtime').textContent = (timeParam || '18:30') + ' • ' + (dateParam || '27/10/2026');
     }
 
     if (seatsParam) {
       const s = decodeURIComponent(seatsParam);
-      const seatCount = s.split(',').length;
-      document.getElementById('ticket-seats-list').textContent = `${s} (${seatCount} Ghế VIP)`;
+      const count = s.split(',').length;
+      document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' Ghế VIP)';
     }
 
     if (totalParam) {
-      const numTotal = parseInt(totalParam.replace(/\D/g, '')) || 0;
+      const numTotal = parseInt(String(totalParam).replace(/\D/g, '')) || 0;
       if (numTotal > 0) {
         document.getElementById('ticket-total-price').textContent = new Intl.NumberFormat('vi-VN').format(numTotal) + ' đ';
-      } else {
-        document.getElementById('ticket-total-price').textContent = decodeURIComponent(totalParam);
       }
     }
+
+    // Render combo từ query params ngay khi vào trang
+    if (combosParam) {
+      renderTicketCombos(combosParam);
+    } else {
+      // Đọc từ LocalStorage nếu có đơn lưu trước đó
+      if (window.Pay && orderParam) {
+        const local = Pay.getLocalOrder ? Pay.getLocalOrder(orderParam) : null;
+        if (local && local.combos) {
+          renderTicketCombos(local.combos);
+        }
+      }
+    }
+
+    // 2. Tra cứu chi tiết đơn hàng từ API hoặc Storage
+    if (orderParam && window.Pay && Pay.getOrder) {
+      Pay.getOrder(orderParam).then(ord => {
+        if (ord) applyOrderToTicket(ord);
+      }).catch(e => console.warn('Lỗi lấy đơn hàng ticket:', e.message));
+    }
   </script>
+
 </body>
 </html>

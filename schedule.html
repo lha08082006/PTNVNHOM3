@@ -760,18 +760,55 @@
       <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
   </nav>
 
-  <!-- Script chọn ngày & rạp tương tác -->
+  <!-- Script chọn ngày & rạp tương tác & đồng bộ hóa suất chiếu -->
   <script>
+    let currentCinema = 'Beta Trần Quang Khải';
+    let currentDate = '27/10';
+
+    function updateSlotLinks() {
+      const selectEl = document.getElementById('schedule-cinema-select');
+      if (selectEl) currentCinema = selectEl.value;
+
+      document.querySelectorAll('.sch-movie-row').forEach(row => {
+        let movieKey = 'an-mang-karaoke';
+        const img = row.querySelector('img');
+        const imgSrc = img ? img.src.toLowerCase() : '';
+        const titleEl = row.querySelector('.sch-movie-title');
+        const titleText = titleEl ? titleEl.textContent.toLowerCase() : '';
+
+        if (imgSrc.includes('linh-gioi') || imgSrc.includes('400x633') || titleText.includes('linh giới')) {
+          movieKey = 'linh-gioi-dai-chien';
+        } else if (imgSrc.includes('quy-an-tang') || titleText.includes('quỷ ăn tạng')) {
+          movieKey = 'quy-an-tang-4';
+        } else if (imgSrc.includes('an-mang-karaoke') || titleText.includes('án mạng')) {
+          movieKey = 'an-mang-karaoke';
+        }
+
+        row.querySelectorAll('.sch-slot-card').forEach(slot => {
+          const timeEl = slot.querySelector('.sch-slot-time');
+          const time = timeEl ? timeEl.textContent.trim() : '18:30';
+          slot.href = 'seats.html?movie=' + encodeURIComponent(movieKey) + '&cinema=' + encodeURIComponent(currentCinema) + '&date=' + encodeURIComponent(currentDate) + '&time=' + encodeURIComponent(time);
+        });
+      });
+    }
+
     function selectDate(el, dateText) {
       document.querySelectorAll('.date-item-official').forEach(item => {
         item.classList.remove('active');
       });
       el.classList.add('active');
+      currentDate = dateText || '27/10';
+      updateSlotLinks();
     }
 
     function changeCinema(cinemaName) {
+      currentCinema = cinemaName;
       console.log('Đã chọn rạp: ' + cinemaName);
+      updateSlotLinks();
     }
+
+    document.addEventListener('DOMContentLoaded', updateSlotLinks);
+    setTimeout(updateSlotLinks, 100);
   </script>
 
 </body>

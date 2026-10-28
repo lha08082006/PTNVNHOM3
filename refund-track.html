@@ -505,5 +505,63 @@
     <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
   </nav>
 
+  <script src="pay-client.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code') || 'REF-2610-889';
+    const orderParam = urlParams.get('order') || 'BC2610208819';
+
+    // Cập nhật mã hiển thị
+    const codeHeaders = document.querySelectorAll('.track-container div[style*="font-family: monospace"], .line-row strong[style*="font-family: monospace"]');
+    codeHeaders.forEach(el => {
+      if (el.textContent.includes('REF-')) el.textContent = codeParam;
+    });
+
+    if (window.Pay) {
+      Pay.getRefunds({ code: codeParam, order: orderParam }).then(data => {
+        if (!data || !data.refund) return;
+        const rf = data.refund;
+        console.log('[Refund Track Loaded]:', rf);
+
+        // Cập nhật số tiền
+        const amountEl = document.querySelector('.line-row strong[style*="font-size: 20px"]');
+        if (amountEl) amountEl.textContent = Pay.vnd(rf.amount);
+
+        // Cập nhật tài khoản nhận
+        if (rf.bank_name && rf.acc_number) {
+          const accEl = document.querySelector('.line-row span.value-bold');
+          if (accEl) accEl.textContent = `${rf.bank_name} ${rf.acc_number} (${rf.acc_name || ''})`;
+        }
+
+        // Cập nhật các bước trên timeline
+        const dots = document.querySelectorAll('.timeline-list .timeline-dot');
+        if (dots.length >= 4) {
+          // Reset
+          dots.forEach(d => { d.className = 'timeline-dot pending'; });
+
+          if (rf.status === 'WAITING_INFO') {
+            dots[0].className = 'timeline-dot active';
+          } else if (rf.status === 'RECEIVED') {
+            dots[0].className = 'timeline-dot done';
+            dots[1].className = 'timeline-dot active';
+          } else if (rf.status === 'RECONCILING') {
+            dots[0].className = 'timeline-dot done';
+            dots[1].className = 'timeline-dot done';
+            dots[2].className = 'timeline-dot active';
+          } else if (rf.status === 'APPROVED') {
+            dots[0].className = 'timeline-dot done';
+            dots[1].className = 'timeline-dot done';
+            dots[2].className = 'timeline-dot done';
+            dots[3].className = 'timeline-dot active';
+          } else if (rf.status === 'DONE') {
+            dots[0].className = 'timeline-dot done';
+            dots[1].className = 'timeline-dot done';
+            dots[2].className = 'timeline-dot done';
+            dots[3].className = 'timeline-dot done';
+          }
+        }
+      }).catch(err => console.log('Không lấy được refund:', err.message));
+    }
+  </script>
 </body>
 </html>

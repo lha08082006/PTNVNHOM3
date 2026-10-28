@@ -790,5 +790,16 @@
       }
     });
   </script>
+  <script>
+    (function syncMovieDetailShowtimes() {
+      const p = new URLSearchParams(window.location.search);
+      const m = p.get("movie") || "linh-gioi-dai-chien";
+      document.querySelectorAll("a[href^='seats.html']").forEach(a => {
+        const timeSpan = a.querySelector("span[style*='font-size: 18px']") || a.querySelector("span");
+        const time = timeSpan ? timeSpan.textContent.trim() : "18:30";
+        a.href = `seats.html?movie=&cinema=Beta%20Thanh%20Xu%C3%A2n&date=27/10&time=`;
+      });
+    })();
+  </script>
 </body>
 </html>

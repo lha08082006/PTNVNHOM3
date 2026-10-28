@@ -926,51 +926,104 @@
     }
 
     // Submit Đối Soát -> Hiển thị Kết quả đối soát
-    function submitReconcile() {
-      const txid = document.getElementById('recon-txid').value || 'FT2610279854';
-      const amount = document.getElementById('recon-amount').value || '180.000 đ';
+    async function submitReconcile() {
+      const txid = (document.getElementById('recon-txid') ? document.getElementById('recon-txid').value : '').trim() || 'FT2610279854';
+      const amountStr = (document.getElementById('recon-amount') ? document.getElementById('recon-amount').value : '').trim() || '180.000';
+      const phone = (document.getElementById('recon-phone') ? document.getElementById('recon-phone').value : '').trim() || '0987654321';
 
-      appendUserMessage(`Kiểm tra giao dịch: ${txid} - ${amount}`);
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderParam = urlParams.get('order') || phone;
 
-      setTimeout(() => {
-        appendBotMessage(`
-          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-            <span style="color: #10b981; font-size: 18px;">✓</span>
-            <strong style="font-size: 15px; color: #005198;">KẾT QUẢ ĐỐI SOÁT HỆ THỐNG</strong>
-          </div>
-          <div class="form-subcard">
-            <div style="display:flex; justify-content:space-between; font-size:13px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
-              <span style="color:#64748b;">Mã giao dịch ngân hàng:</span>
-              <strong style="font-family:monospace; font-size:13.5px;">${escapeHtml(txid)}</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:13px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
-              <span style="color:#64748b;">Số tiền ghi nhận:</span>
-              <strong style="color:#ff5400;">${escapeHtml(amount)}</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:13px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
-              <span style="color:#64748b;">Trạng thái ngân hàng:</span>
-              <span style="background:#d1fae5; color:#065f46; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:4px;">
-                Đã trừ tiền thành công
-              </span>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:13px; padding-bottom:4px;">
-              <span style="color:#64748b;">Hệ thống rạp Beta:</span>
-              <span style="background:#fef3c7; color:#b45309; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:4px;">
-                Lỗi xuất vé · Đủ điều kiện hoàn / cấp vé
-              </span>
-            </div>
+      appendUserMessage(`Kiểm tra đối soát mã GD ngân hàng: ${txid}`);
 
-            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
-              <a href="ticket.html?movie=linh-gioi-dai-chien&cinema=Beta%20Thanh%20Xu%C3%A2n%20(H%C3%A0%20N%E1%BB%99i)&seats=F07,%20F08&total=180000" class="btn btn-primary btn-sm" style="background:#FF5A3C; border:none; flex:1; text-align:center;">
-                🎟️ Cấp Lại Mã Vé Ngay
-              </a>
-              <button class="btn btn-outline btn-sm" onclick="triggerQuickAction('refund')" style="flex:1;">
-                💸 Xác Nhận Hoàn Tiền
-              </button>
+      try {
+        const res = await Pay.reconcile({
+          order_code: orderParam,
+          bank_ref: txid,
+          phone: phone,
+          amount: parseInt(amountStr.replace(/\D/g, '')) || 179000
+        });
+
+        if (res.ok && res.status === 'RECOVERED_PAID') {
+          setTimeout(() => {
+            appendBotMessage(`
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <span style="color: #10b981; font-size: 20px;">✓</span>
+                <strong style="font-size: 15px; color: #005198;">ĐỐI SOÁT THÀNH CÔNG - ĐÃ CẤP VÉ!</strong>
+              </div>
+              <div class="form-subcard" style="border-left: 4px solid #10b981;">
+                <p style="font-size: 13px; color: #334155; margin-bottom: 8px;">
+                  ${res.message}
+                </p>
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom: 4px;">
+                  <span style="color:#64748b;">Mã đơn hàng:</span>
+                  <strong style="color: #005198;">#${res.code}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom: 8px;">
+                  <span style="color:#64748b;">Mã GD ngân hàng:</span>
+                  <strong style="font-family:monospace;">${txid}</strong>
+                </div>
+                <a href="${res.ticket_url || 'ticket.html?order=' + res.code}" class="btn btn-primary btn-sm" style="background:#10b981; border:none; width:100%; text-align:center; font-weight:800; display:block;">
+                  🎟️ Mở Vé Xem Phim Ngay →
+                </a>
+              </div>
+            `);
+          }, 600);
+          return;
+        }
+
+        if (res.ok && res.status === 'RECOVERED_REFUND') {
+          setTimeout(() => {
+            appendBotMessage(`
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <span style="color: #d97706; font-size: 20px;">⚠️</span>
+                <strong style="font-size: 15px; color: #b45309;">GIAO DỊCH QUÁ HẠN GIỮ GHẾ</strong>
+              </div>
+              <div class="form-subcard" style="border-left: 4px solid #f59e0b;">
+                <p style="font-size: 13px; color: #334155; margin-bottom: 8px;">
+                  ${res.message}
+                </p>
+                <a href="${res.refund_url || 'refund.html?order=' + res.code}" class="btn btn-primary btn-sm" style="background:#f59e0b; border:none; width:100%; text-align:center; font-weight:800; display:block;">
+                  💸 Nhận Lại Tiền Hoàn 100% Ngay →
+                </a>
+              </div>
+            `);
+          }, 600);
+          return;
+        }
+
+        // Trường hợp tạo khiếu nại (Complaints)
+        setTimeout(() => {
+          appendBotMessage(`
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+              <span style="color: #4f46e5; font-size: 20px;">📝</span>
+              <strong style="font-size: 15px; color: #4338ca;">ĐÃ TẠO PHIẾU KHIẾU NẠI CSKH</strong>
             </div>
-          </div>
-        `);
-      }, 700);
+            <div class="form-subcard" style="border-left: 4px solid #6366f1;">
+              <p style="font-size: 13px; color: #334155; margin-bottom: 8px;">
+                ${res.message}
+              </p>
+              <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom: 4px;">
+                <span style="color:#64748b;">Mã hồ sơ:</span>
+                <strong style="color: #4338ca;">#${res.complaint_code || 'CS-2610-889'}</strong>
+              </div>
+              <div style="font-size: 12px; color: #64748b; margin-top: 6px;">
+                Bộ phận kiểm soát ngân hàng đang rà soát sao kê. Bạn có thể tra cứu trạng thái bất kỳ lúc nào.
+              </div>
+            </div>
+          `);
+        }, 600);
+
+      } catch (err) {
+        // Fallback UI nếu có sự cố
+        setTimeout(() => {
+          appendBotMessage(`
+            <div style="color: #b91c1c; font-size: 13.5px;">
+              ⚠️ Không thể kết nối cổng đối soát: ${err.message}. Vui lòng thử lại hoặc gọi Hotline 1900 636 807!
+            </div>
+          `);
+        }, 500);
+      }
     }
 
     // Flow 2: Theo Dõi Hoàn Tiền
@@ -1120,7 +1173,28 @@
         }[s];
       });
     }
+  
+    // Đọc URL query để điền sẵn nếu chuyển từ trang thanh toán bị lỗi sang
+    window.addEventListener('DOMContentLoaded', () => {
+      const p = new URLSearchParams(window.location.search);
+      const ref = p.get('ref');
+      const order = p.get('order');
+      if (ref || order) {
+        // Tự động mở form đối soát
+        setTimeout(() => {
+          triggerQuickAction('reconcile');
+          setTimeout(() => {
+            const txEl = document.getElementById('recon-txid');
+            const phoneEl = document.getElementById('recon-phone');
+            if (txEl && ref) txEl.value = ref;
+            if (phoneEl && order) phoneEl.value = order;
+          }, 500);
+        }, 300);
+      }
+    });
+
   </script>
 
+<script src="pay-client.js"></script>
 </body>
 </html>

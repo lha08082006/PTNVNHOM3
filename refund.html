@@ -326,12 +326,12 @@
 
               <div class="line-row">
                 <span class="label-muted">Phim đặt vé:</span>
-                <span class="value-bold">Trại Buôn Người: Vùng Cấm Biên Giới</span>
+                <span class="value-bold" id="refund-movie-title">Trại Buôn Người: Vùng Cấm Biên Giới</span>
               </div>
 
               <div class="line-row">
                 <span class="label-muted">Số tiền đã thanh toán:</span>
-                <strong style="font-family: var(--font-display); font-size: 17px; color: #ff5400;">180.000 đ</strong>
+                <strong id="refund-amount-display" style="font-family: var(--font-display); font-size: 17px; color: #ff5400;">180.000 đ</strong>
               </div>
 
               <div class="line-row">
@@ -554,31 +554,86 @@
     <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
   </nav>
 
+    <script src="pay-client.js"></script>
   <script>
-        // Parse URL params
     const urlParams = new URLSearchParams(window.location.search);
-    const orderParam = urlParams.get('order');
+    const orderParam = urlParams.get('order') || 'BC2610279854';
+    const reasonParam = urlParams.get('reason') || 'LATE';
+    const totalParam = Number(urlParams.get('total') || 179000);
+    const movieParam = urlParams.get('movie') || '';
+
     if (orderParam) {
       const orderEl = document.getElementById('refund-order-code');
       if (orderEl) orderEl.textContent = decodeURIComponent(orderParam);
     }
 
-    function handleRefundSubmit(e) {
+    if (movieParam && window.Pay && Pay.getMovie) {
+      const m = Pay.getMovie(movieParam);
+      const titleEl = document.getElementById('refund-movie-title');
+      if (titleEl) titleEl.textContent = m.shortTitle || m.title;
+    }
+
+    const priceDisplay = document.getElementById('refund-amount-display');
+    if (priceDisplay) priceDisplay.textContent = Pay.vnd(totalParam);
+
+    // Tra cứu thông tin hồ sơ hoàn tiền từ API nếu có
+    if (window.Pay && orderParam) {
+      Pay.getOrder(orderParam).then(ord => {
+        if (!ord) return;
+        const refundAmount = ord.excess_amount > 0 ? ord.excess_amount : (ord.paid_amount || ord.total || totalParam);
+        if (priceDisplay) priceDisplay.textContent = Pay.vnd(refundAmount);
+        if (ord.movie_key && Pay.getMovie) {
+          const m = Pay.getMovie(ord.movie_key);
+          const titleEl = document.getElementById('refund-movie-title');
+          if (titleEl) titleEl.textContent = m.shortTitle || m.title;
+        }
+      }).catch(e => console.log('Refund fetch error:', e.message));
+    }
+
+    async function handleRefundSubmit(e) {
       e.preventDefault();
 
       const bank = document.getElementById('bank-select').value;
       const acc = document.getElementById('acc-number').value.trim();
       const owner = document.getElementById('acc-name').value.trim();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang gửi yêu cầu...';
+      }
+
+      let resRefundCode = 'REF-2610-889';
+
+      try {
+        const res = await Pay.submitRefund({
+          order: orderParam,
+          bank,
+          acc,
+          owner
+        });
+        if (res && res.refund_code) {
+          resRefundCode = res.refund_code;
+        }
+      } catch (err) {
+        console.warn('Lỗi gửi API refund, tiếp tục với mã hồ sơ mô phỏng:', err.message);
+      }
 
       document.getElementById('res-bank-name').textContent = bank;
       document.getElementById('res-bank-acc').textContent = acc;
       document.getElementById('res-bank-owner').textContent = owner;
+      const codeEl = document.getElementById('res-ref-code');
+      if (codeEl) codeEl.textContent = resRefundCode;
 
-      // Hide form grid and show success state
+      // Cập nhật link xem tiến trình
+      const trackLink = document.querySelector('#refund-success-container a[href="refund-track.html"]');
+      if (trackLink) {
+        trackLink.href = `refund-track.html?code=${resRefundCode}&order=${orderParam}`;
+      }
+
+      // Ẩn form và hiện thông báo thành công
       document.getElementById('refund-form-grid').style.display = 'none';
       document.getElementById('refund-success-container').style.display = 'block';
-
-      // Scroll to top of container
       window.scrollTo({ top: 120, behavior: 'smooth' });
     }
   </script>
