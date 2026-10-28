@@ -14,10 +14,10 @@ module.exports = async function handler(req, res) {
     const referenceCode = body.referenceCode || body.reference_code || ('FT' + Date.now());
     const rawContent = (body.content || '') + ' ' + (body.code || '');
 
-    // 1. Tìm mã đơn hàng (Định dạng BC + 10 số, ví dụ BC2610279854)
+    // 1. Tìm mã đơn hàng (Hỗ trợ cả BC... của Beta Cinemas lẫn mã test DH... của SePay)
     let orderCode = body.code;
-    if (!orderCode || !orderCode.startsWith('BC')) {
-      const match = rawContent.match(/BC\d{8,12}/i);
+    if (!orderCode || (!orderCode.startsWith('BC') && !orderCode.startsWith('DH'))) {
+      const match = rawContent.match(/(BC|DH)\d{6,12}/i);
       if (match) orderCode = match[0].toUpperCase();
     }
 
@@ -160,13 +160,16 @@ module.exports = async function handler(req, res) {
       reference_code: referenceCode,
       amount: transferAmount,
       result: result,
-      note: `Xử lý webhook: ${result} | Nhận: ${transferAmount}đ | Tổng đơn: ${orderTotal}đ | Đã trả: ${newPaid}đ`
+      refund_id: refundCreated ? refundCreated.id : null,
+      raw_payload: body
     });
+
+    console.log(`[SePay Webhook Processed]: Đơn #${orderCode} | Đã chuyển: ${transferAmount} | Tổng nhận: ${newPaid}/${orderTotal} | Kết quả: ${result}`);
 
     return res.status(200).json({
       success: true,
+      code: orderCode,
       result: result,
-      order_code: orderCode,
       paid_amount: newPaid,
       total: orderTotal,
       refund: refundCreated || null
