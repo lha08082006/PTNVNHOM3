@@ -1505,7 +1505,192 @@
       }
     });
 
-  </script>
+  
+  // =========================================================================
+  // ĐỒNG BỘ ĐƠN HÀNG THỰC TẾ TỪ SUPABASE & LOCALSTORAGE VÀO LỊCH SỬ
+  // =========================================================================
+  const POSTER_MAP = {
+    'linh-gioi-dai-chien': 'images/400x633-145627-230926-40.jpg',
+    'quy-an-tang-4': 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
+    'trai-buon-nguoi': 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg',
+    'robinson': 'images/robinson-and-the-golden-fish-official-poster-135832-220926-80.jpg',
+    'an-mang-karaoke': 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg',
+    'me-min': 'images/400x633-145627-230926-40.jpg',
+    'shaun-the-sheep': 'images/400x633-145627-230926-40.jpg',
+    'ca-voi-nuot-chung': 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg'
+  };
+
+  async function syncRealOrdersToUI() {
+    if (!window.Pay || !Pay.getOrders) return;
+    try {
+      const realOrders = await Pay.getOrders({ limit: 15 });
+      if (!realOrders || realOrders.length === 0) return;
+
+      const wrapper = document.getElementById('orders-list-wrapper');
+      if (!wrapper) return;
+
+      // Thu thập các mã đơn đã có sẵn trên trang tĩnh để tránh trùng lặp
+      const existingCodes = new Set();
+      document.querySelectorAll('.order-history-item').forEach(el => {
+        const c = el.getAttribute('data-code');
+        if (c) existingCodes.add(c);
+      });
+
+      // Lọc các đơn mới từ Supabase chưa hiển thị trên giao diện
+      const newOrders = realOrders.filter(o => !existingCodes.has(o.code));
+      if (newOrders.length === 0) return;
+
+      // Duyệt qua từng đơn mới và chèn lên đầu danh sách
+      newOrders.reverse().forEach(ord => {
+        const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(ord.movie_key) : { title: (ord.movie_key || 'Phim Mới').toUpperCase() };
+        const poster = POSTER_MAP[ord.movie_key] || 'images/400x633-145627-230926-40.jpg';
+
+        // Xử lý huy hiệu trạng thái
+        let badgeHtml = '';
+        let borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
+        let statusClass = 'upcoming';
+
+        if (ord.status === 'PAID') {
+          badgeHtml = '<span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-size: 11px; font-weight: 800;">✓ ĐÃ THANH TOÁN (SEPAY)</span>';
+          borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
+          statusClass = 'upcoming';
+        } else if (ord.status === 'PARTIAL') {
+          badgeHtml = '<span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-size: 11px; font-weight: 800;">⚠️ CHUYỂN THIẾU TIỀN</span>';
+          borderStyle = 'border-left: 4px solid #f59e0b; background: #fffdf5;';
+          statusClass = 'cancelled';
+        } else if (ord.status === 'EXCESS') {
+          badgeHtml = '<span class="badge" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 11px; font-weight: 800;">💰 CHUYỂN THỪA TIỀN</span>';
+          borderStyle = 'border-left: 4px solid #0284c7; background: #f8fafc;';
+          statusClass = 'upcoming';
+        } else if (ord.status === 'EXPIRED') {
+          badgeHtml = '<span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-size: 11px; font-weight: 800;">❌ ĐÃ HỦY (QUÁ HẠN)</span>';
+          borderStyle = 'border-left: 4px solid #ef4444; background: #fffdfd;';
+          statusClass = 'cancelled';
+        } else {
+          badgeHtml = '<span class="badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 800;">⏳ CHỜ THANH TOÁN</span>';
+          borderStyle = 'border-left: 4px solid #64748b;';
+          statusClass = 'upcoming';
+        }
+
+        const seatsStr = Array.isArray(ord.seats) ? ord.seats.join(', ') : (ord.seats || 'D5, D6');
+        const showTimeStr = (ord.show_time || '18:30') + ' • ' + (ord.show_date || 'Hôm nay');
+        const totalFormatted = (window.Pay ? Pay.vnd(ord.total) : new Intl.NumberFormat('vi-VN').format(ord.total) + ' đ');
+
+        // Tạo thẻ đơn hàng HTML
+        const card = document.createElement('div');
+        card.className = 'order-history-item';
+        card.setAttribute('data-status', statusClass);
+        card.setAttribute('data-title', movieObj.title);
+        card.setAttribute('data-code', ord.code);
+        card.style.cssText = borderStyle;
+        card.title = 'Bấm vào đơn để xem chi tiết hóa đơn';
+        card.onclick = () => openInvoiceModal(ord.code);
+
+        let actionBtns = `
+          <a href="ticket.html?order=${ord.code}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();">
+            <span>🎟️</span> Xem Lại Vé Điện Tử
+          </a>
+          <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ord.code}');" style="border-color: #005198; color: #005198; font-weight: 700;">
+            <span>🧾</span> Chi Tiết Hóa Đơn
+          </button>
+          <a href="betabot.html?order=${ord.code}" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">
+            ⚠️ Báo Lỗi Thanh Toán
+          </a>
+        `;
+
+        if (ord.status === 'PARTIAL') {
+          actionBtns += `
+            <a href="underpay.html?order=${ord.code}&total=${ord.total}&paid=${ord.paid_amount}&remaining=${ord.total - ord.paid_amount}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #f59e0b; border-color: #f59e0b; font-weight: 800;">
+              💳 Chuyển Bù Tiền Thiếu
+            </a>
+          `;
+        }
+
+        card.innerHTML = `
+          <img class="order-item-poster" src="${poster}" alt="${movieObj.title}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <div>
+                ${badgeHtml}
+                <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">
+                  ${movieObj.title}
+                </h4>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
+                <strong style="font-family: monospace; font-size: 14px; color: #005198;">${ord.code}</strong>
+              </div>
+            </div>
+
+            <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
+              📍 Rạp: <strong>${ord.cinema || 'Beta Thanh Xuân'}</strong><br>
+              🕒 Suất: <strong>${showTimeStr}</strong><br>
+              💺 Ghế: <strong>${seatsStr}</strong><br>
+              💳 Thanh toán: <strong>${totalFormatted}</strong> (Qua SePay VietQR - MSB)
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              ${actionBtns}
+            </div>
+          </div>
+        `;
+
+        wrapper.insertBefore(card, wrapper.firstChild);
+
+        // Lưu dữ liệu vào INVOICES_DATA để mở modal hóa đơn
+        if (!INVOICES_DATA[ord.code]) {
+          const subtotal = Math.round(ord.total / 1.08);
+          const vat = ord.total - subtotal;
+          INVOICES_DATA[ord.code] = {
+            code: ord.code,
+            invoiceNumber: 'HD-2026-' + (ord.code || '').slice(-6),
+            symbol: '1C26TBB',
+            createdAt: new Date(ord.created_at || Date.now()).toLocaleString('vi-VN'),
+            movieTitle: movieObj.title,
+            moviePoster: poster,
+            movieAge: 'C16',
+            format: '2D Phụ Đề',
+            cinema: ord.cinema || 'Beta Thanh Xuân (Hà Nội)',
+            room: 'Phòng chiếu 01',
+            showtime: showTimeStr,
+            seats: seatsStr,
+            customerName: 'Lương Hồng Anh',
+            customerPhone: ord.phone || '0987 654 321',
+            customerEmail: 'khachhang@email.com',
+            memberId: 'BM-2026-VIP',
+            paymentMethod: 'VietQR / SePay (Ngân hàng MSB)',
+            bankTransCode: 'MSB-' + (ord.code || '').slice(-8),
+            statusBadge: badgeHtml,
+            statusNote: 'Đơn hàng được đồng bộ tự động từ cơ sở dữ liệu Supabase và cổng thanh toán SePay.',
+            items: [
+              { name: 'Vé xem phim 2D VIP (Ghế ' + seatsStr + ')', qty: Array.isArray(ord.seats) ? ord.seats.length : 2, price: 65000, amount: ord.total }
+            ],
+            subtotal: subtotal,
+            vat: vat,
+            discount: 0,
+            total: ord.total
+          };
+        }
+      });
+
+      // Cập nhật lại số đếm tổng đơn hàng
+      const totalCountEl = document.getElementById('total-orders-count');
+      if (totalCountEl) {
+        const allItems = document.querySelectorAll('.order-history-item');
+        totalCountEl.textContent = allItems.length;
+      }
+    } catch (e) {
+      console.warn('Lỗi đồng bộ đơn hàng Supabase lên giao diện:', e.message);
+    }
+  }
+
+  // Tự động gọi đồng bộ ngay khi trang tải xong
+  window.addEventListener('DOMContentLoaded', () => {
+    syncRealOrdersToUI();
+  });
+
+</script>
+<script src="pay-client.js"></script>
 </body>
 
 </html>

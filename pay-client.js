@@ -149,6 +149,19 @@ const Pay = {
     location.href = 'gateway.html?' + query.toString();
   },
 
+  // account.html: Lấy danh sách toàn bộ đơn hàng từ Server / Supabase
+  async getOrders(query = {}) {
+    try {
+      const q = new URLSearchParams(query).toString();
+      const res = await Pay.call('orders' + (q ? '?' + q : ''));
+      if (res && res.orders) return res.orders;
+    } catch (e) {
+      console.warn('Pay.getOrders error:', e.message);
+    }
+    const localMap = Pay.getLocalOrders ? Pay.getLocalOrders() : {};
+    return Object.values(localMap).sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  },
+
   // gateway.html / verify.html: Lắng nghe trạng thái đơn mỗi 2.5s
   watch(code, onUpdate, ms = 2500) {
     if (!code) return () => {};

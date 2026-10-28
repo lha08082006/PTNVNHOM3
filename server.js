@@ -26,6 +26,7 @@ const MIME_TYPES = {
 
 // Đăng ký các API handler
 const apiRoutes = {
+  '/api/orders': require('./api/orders'),
   '/api/create-order': require('./api/create-order'),
   '/api/order-status': require('./api/order-status'),
   '/api/sepay-webhook': require('./api/sepay-webhook'),
