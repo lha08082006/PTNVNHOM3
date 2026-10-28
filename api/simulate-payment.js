@@ -69,8 +69,8 @@ module.exports = async function handler(req, res) {
       // Giả lập lưu giao dịch vào ngân hàng nhưng chưa khớp đơn (chờ BetaBot đối soát)
       await DB.saveBankTransaction({
         id: txId,
-        gateway: 'MBBank',
-        account_number: '0888999888',
+        gateway: 'MSB',
+        account_number: '4208082006',
         transaction_date: new Date().toISOString(),
         content: `CK TIEN VE ${orderCode} NGUYEN VAN A`,
         code: orderCode,
@@ -113,9 +113,9 @@ module.exports = async function handler(req, res) {
       method: 'POST',
       body: {
         id: txId,
-        gateway: 'MBBank',
+        gateway: 'MSB',
         transactionDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        accountNumber: '0888999888',
+        accountNumber: '4208082006',
         code: orderCode,
         content: `${orderCode} NGUYEN HOANG NAM chuyen tien`,
         transferType: 'in',

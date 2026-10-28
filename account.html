@@ -562,9 +562,7 @@
                 <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610279854');" style="border-color: #005198; color: #005198; font-weight: 700;">
                   <span>🧾</span> Chi Tiết Hóa Đơn
                 </button>
-                <a href="betabot.html" class="btn btn-outline btn-sm" onclick="event.stopPropagation();">
-                  Cần Hỗ Trợ Đơn Này
-                </a>
+                <a href="betabot.html?order=BC2610279854" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Lỗi Thanh Toán</a>
               </div>
             </div>
           </div>
@@ -603,9 +601,8 @@
                 <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610153321');" style="border-color: #005198; color: #005198; font-weight: 700;">
                   <span>🧾</span> Chi Tiết Hóa Đơn
                 </button>
-                <a href="schedule.html" class="btn btn-outline btn-sm" onclick="event.stopPropagation();">
-                  🎟️ Đặt Lại Phim Này
-                </a>
+                <a href="betabot.html?order=BC2610153321" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Lỗi Thanh Toán</a>
+                <a href="schedule.html" class="btn btn-outline btn-sm" onclick="event.stopPropagation();">🎟️ Đặt Lại Phim Này</a>
               </div>
             </div>
           </div>
@@ -649,6 +646,7 @@
 
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610208819');" style="border-color: #005198; color: #005198; font-weight: 700;"><span>🧾</span> Chi Tiết Hóa Đơn</button>
+                <a href="betabot.html?order=BC2610208819" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Lỗi Thanh Toán</a>
                 <a href="ticket-cancelled.html" class="btn btn-primary btn-sm" onclick="event.stopPropagation();"
                   style="background: #005198; border-color: #005198; font-weight: 700;">
                   📄 Xem Chi Tiết Đơn Hủy
@@ -710,6 +708,7 @@
 
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610264412');" style="border-color: #005198; color: #005198; font-weight: 700;"><span>🧾</span> Chi Tiết Hóa Đơn</button>
+                <a href="betabot.html?order=BC2610264412" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Lỗi Thanh Toán</a>
                 <a href="refund.html?order=BC2610264412" class="btn btn-primary btn-sm" onclick="event.stopPropagation();"
                   style="background: #ff5400; border-color: #ff5400; font-weight: 800; box-shadow: 0 2px 8px rgba(255, 84, 0, 0.3);">
                   📝 Báo Lỗi / Yêu Cầu Hoàn Tiền
@@ -767,6 +766,7 @@
 
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610227189');" style="border-color: #005198; color: #005198; font-weight: 700;"><span>🧾</span> Chi Tiết Hóa Đơn</button>
+                <a href="betabot.html?order=BC2610227189" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Lỗi Thanh Toán</a>
                 <a href="refund-track.html" class="btn btn-primary btn-sm" onclick="event.stopPropagation();"
                   style="background: #005198; border-color: #005198; font-weight: 700;">
                   🔍 Theo Dõi Tiến Trình Hoàn Tiền
@@ -1105,7 +1105,8 @@
       <!-- Modal Footer Controls -->
       <div class="invoice-modal-footer">
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button type="button" class="btn btn-primary btn-sm" onclick="printInvoice()" style="background: #005198; border-color: #005198; font-weight: 700;">
+          <a id="inv-report-issue-btn" href="betabot.html" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #fca5a5; font-weight: 700;">⚠️ Báo Lỗi Thanh Toán</a>
+        <button type="button" class="btn btn-primary btn-sm" onclick="printInvoice()" style="background: #005198; border-color: #005198; font-weight: 700;">
             🖨️ In Hóa Đơn
           </button>
           <button type="button" class="btn btn-outline btn-sm" onclick="downloadInvoicePDF()" style="color: #475569;">
@@ -1405,6 +1406,8 @@
 
       // Fill header data
       document.getElementById('inv-order-code').textContent = data.code;
+    const reportBtn = document.getElementById('inv-report-issue-btn');
+    if (reportBtn) reportBtn.href = 'betabot.html?order=' + encodeURIComponent(data.code);
       document.getElementById('inv-number').textContent = data.invoiceNumber;
       document.getElementById('inv-symbol').textContent = data.symbol;
       document.getElementById('inv-created-at').textContent = data.createdAt;

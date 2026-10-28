@@ -434,25 +434,25 @@
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
               <div>
                 <div style="font-size: 12px; color: #64748b;">Ngân hàng thụ hưởng</div>
-                <strong style="font-size: 14px; color: #0f172a;">MB Bank (Quân Đội)</strong>
+                <strong style="font-size: 14px; color: #0f172a;">MSB (Hàng Hải)</strong>
               </div>
-              <button class="copy-pill-btn" onclick="copyText('MB Bank')">Sao chép</button>
+              <button class="copy-pill-btn" onclick="copyText('MSB')">Sao chép</button>
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
               <div>
                 <div style="font-size: 12px; color: #64748b;">Số tài khoản</div>
-                <strong style="font-family: monospace; font-size: 15px; color: #005198;">0888999888</strong>
+                <strong style="font-family: monospace; font-size: 15px; color: #005198;">4208082006</strong>
               </div>
-              <button class="copy-pill-btn" onclick="copyText('0888999888')">Sao chép</button>
+              <button class="copy-pill-btn" onclick="copyText('4208082006')">Sao chép</button>
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
               <div>
                 <div style="font-size: 12px; color: #64748b;">Chủ tài khoản</div>
-                <strong style="font-size: 14px; color: #0f172a;">BETA MEDIA JSC</strong>
+                <strong style="font-size: 14px; color: #0f172a;">LUONG HONG ANH</strong>
               </div>
-              <button class="copy-pill-btn" onclick="copyText('BETA MEDIA JSC')">Sao chép</button>
+              <button class="copy-pill-btn" onclick="copyText('LUONG HONG ANH')">Sao chép</button>
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; background: #fff4ed; padding-left: 10px; padding-right: 10px; border-radius: 8px;">
@@ -540,7 +540,7 @@
           <h4 class="footer-official-title">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
             <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MB Bank</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MSB</span>
           </div>
         </div>
       </div>
@@ -627,7 +627,7 @@
       // Tạo mã VietQR SePay đúng số tiền còn thiếu
       const qrImg = document.getElementById('underpay-qr-img');
       if (qrImg) {
-        qrImg.src = 'https://qr.sepay.vn/img?acc=0888999888&bank=MBBank&amount=' + currentRemaining + '&des=' + encodeURIComponent(ord.code);
+        qrImg.src = 'https://qr.sepay.vn/img?acc=4208082006&bank=MSB&amount=' + currentRemaining + '&des=' + encodeURIComponent(ord.code);
       }
     }
 

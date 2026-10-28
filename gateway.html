@@ -151,6 +151,14 @@
         </div>
       </div>
 
+      <!-- Thanh đếm ngược thời gian thanh toán & giữ vé chuẩn Cinema -->
+      <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+        <div style="display: flex; align-items: center; gap: 6px; color: #475569;">
+          <span style="font-size: 15px;">⏳</span> <span>Thời gian giữ vé:</span>
+        </div>
+        <strong id="gateway-countdown" style="font-family: monospace; font-size: 16px; color: #dc2626; font-weight: 800;">10:00</strong>
+      </div>
+
       <!-- QR Code Box -->
       <div class="qr-box-main">
         <div class="qr-frame">
@@ -174,19 +182,19 @@
       <div class="info-list-box">
         <div class="info-row">
           <span style="color: #64748b;">Ngân hàng thụ hưởng:</span>
-          <strong>MB Bank (Quân Đội)</strong>
+          <strong>MSB (Hàng Hải)</strong>
         </div>
 
         <div class="info-row">
           <span style="color: #64748b;">Chủ tài khoản:</span>
-          <strong>BETA MEDIA JSC</strong>
+          <strong>LUONG HONG ANH</strong>
         </div>
 
         <div class="info-row">
           <span style="color: #64748b;">Số tài khoản:</span>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <strong style="font-family: monospace; font-size: 15px;">0888999888</strong>
-            <button class="copy-pill" onclick="copyText('0888999888')">Copy</button>
+            <strong style="font-family: monospace; font-size: 15px;">4208082006</strong>
+            <button class="copy-pill" onclick="copyText('4208082006')">Copy</button>
           </div>
         </div>
 
@@ -198,6 +206,14 @@
           </div>
         </div>
 
+        <!-- Hỗ trợ khiếu nại chuyển tiền qua Chatbot -->
+        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1; display: flex; justify-content: space-between; align-items: center; font-size: 12.5px;">
+          <span style="color: #64748b;">Đã trừ tiền nhưng chưa thấy vé?</span>
+          <a id="btn-complain-bot" href="betabot.html" style="color: #005198; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+            🤖 Chatbot Đối Soát / Khiếu Nại →
+          </a>
+        </div>
+
         <div style="font-size: 12px; color: #dc2626; margin-top: 12px; line-height: 1.5; font-weight: 600;">
           ⚠️ Lưu ý: Quý khách vui lòng giữ nguyên nội dung <strong>BC2610279854</strong> để hệ thống tự động xuất vé ngay tức thì!
         </div>
@@ -205,7 +221,11 @@
     </div>
 
     <!-- Hộp Mô Phỏng Sandbox (Dành cho Developer & Khách Test) -->
-    <div class="simulation-panel">
+    <details id="sandbox-details" style="margin-top: 24px; text-align: center;">
+      <summary style="font-size: 11.5px; color: #94a3b8; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border-radius: 999px; background: rgba(0,0,0,0.03); border: 1px dashed #cbd5e1; list-style: none;">
+        🛠️ <span>Chế độ kiểm thử (Sandbox dành cho Hội đồng chấm điểm)</span>
+      </summary>
+      <div class="simulation-panel" style="margin-top: 12px;">
       <div style="font-size: 13px; font-weight: 800; color: #005198; text-transform: uppercase; margin-bottom: 8px;">
         ⚙️ BẢNG ĐIỀU KHIỂN MÔ PHỎNG LỖI THANH TOÁN (SEPAY SANDBOX)
       </div>
@@ -238,6 +258,7 @@
         </a>
       </div>
     </div>
+    </details>
   </div>
   </div>
 
@@ -280,67 +301,182 @@
     const format = params.get('format') || '';
     const combos = params.get('combos') || '';
 
+    // Nếu URL có ?sandbox=1 hoặc ?test=1 -> Mở sẵn bảng sandbox
+    if (params.get('sandbox') === '1' || params.get('test') === '1') {
+      const sbEl = document.getElementById('sandbox-details');
+      if (sbEl) sbEl.open = true;
+    }
+
     const transferEl = document.getElementById('transfer-content');
     if (transferEl) transferEl.textContent = orderCode;
     const amountEl = document.getElementById('payment-total-amount');
     if (amountEl) amountEl.textContent = Pay.vnd(total);
 
+    // Cập nhật link khiếu nại Chatbot
+    const complainBtn = document.getElementById('btn-complain-bot');
+    if (complainBtn) {
+      complainBtn.href = 'betabot.html?order=' + encodeURIComponent(orderCode);
+    }
+
     const verifyBtn = document.getElementById('btn-sandbox-verify');
     if (verifyBtn) {
-      verifyBtn.href = `verify.html?order=${orderCode}&total=${total}&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
+      verifyBtn.href = `verify.html?order=${orderCode}&total=${total}&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&combos=${encodeURIComponent(combos)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
     }
 
     function updateQrCode(neededAmount, code) {
       const qrImg = document.querySelector('.qr-frame img');
       if (qrImg) {
-        qrImg.src = `https://qr.sepay.vn/img?acc=0888999888&bank=MBBank&amount=${neededAmount}&des=${encodeURIComponent(code)}`;
+        qrImg.src = `https://qr.sepay.vn/img?acc=4208082006&bank=MSB&amount=${neededAmount}&des=${encodeURIComponent(code)}`;
       }
     }
     updateQrCode(total, orderCode);
 
-    // Lắng nghe cập nhật đơn hàng Realtime
-    Pay.watch(orderCode, (order) => {
-      console.log('[Order Status Update]:', order.status, order);
+    // =========================================================================
+    // 1. ĐẾM NGƯỢC THỜI GIAN GIỮ GHẾ (10 PHÚT)
+    // =========================================================================
+    let timeLeft = 600; // 10 phút = 600 giây
+    let hasRedirected = false;
+    let countdownInterval = null;
+    const countdownEl = document.getElementById('gateway-countdown');
 
-      // TÌNH HUỐNG 1: TRẢ THIẾU TIỀN
-      if (order.status === 'PARTIAL') {
+    function startTimer() {
+      countdownInterval = setInterval(() => {
+        if (hasRedirected) {
+          clearInterval(countdownInterval);
+          return;
+        }
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          if (countdownEl) countdownEl.textContent = '00:00';
+          handleTimeout();
+          return;
+        }
+        const m = Math.floor(timeLeft / 60);
+        const s = timeLeft % 60;
+        if (countdownEl) {
+          countdownEl.textContent = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+        }
+      }, 1000);
+    }
+    startTimer();
+
+    // Hết giờ giữ ghế: Nếu chưa thanh toán -> Về trang chủ
+    async function handleTimeout() {
+      if (hasRedirected) return;
+      hasRedirected = true;
+
+      try {
+        const ord = await Pay.getOrder(orderCode);
+        const paid = Number((ord && ord.paid_amount) || 0);
+
+        if (paid > 0) {
+          // Trường hợp khách chuyển tiền nhưng chuyển trễ sau khi đã hết giờ
+          alert('Đơn hàng đã hết 10 phút giữ ghế nhưng hệ thống ghi nhận bạn đã chuyển ' + Pay.vnd(paid) + '. Đang chuyển sang màn hình tiếp nhận hoàn tiền.');
+          location.href = `refund.html?order=${orderCode}&reason=LATE&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&combos=${encodeURIComponent(combos)}&total=${total}`;
+        } else {
+          // Trường hợp khách chưa thanh toán -> Hủy và trở về trang chủ
+          alert('Đã hết thời gian giữ vé và thanh toán (10 phút). Đơn hàng đã bị hủy tự động. Đang chuyển về trang chủ...');
+          location.href = 'home.html';
+        }
+      } catch (e) {
+        alert('Đã hết thời gian giữ vé và thanh toán (10 phút). Đang chuyển về trang chủ...');
+        location.href = 'home.html';
+      }
+    }
+
+    // =========================================================================
+    // 2. LẮNG NGHE WEBHOOK SEPAY REALTIME (TỰ ĐỘNG 100% NHƯ WEB THẬT)
+    // =========================================================================
+    Pay.watch(orderCode, (order) => {
+      if (!order || hasRedirected) return;
+      console.log('[SePay Webhook Status]:', order.status, order);
+
+      const paidNum = Number(order.paid_amount || 0);
+      const totalNum = Number(order.total || total || 0);
+
+      const baseQuery = new URLSearchParams({
+        order: order.code || orderCode,
+        movie: movie,
+        cinema: cinema,
+        seats: seats,
+        combos: combos,
+        total: totalNum,
+        date: date,
+        time: time
+      });
+
+      // TÌNH HUỐNG 1: KHÁCH TRẢ THIẾU TIỀN (PARTIAL)
+      if (order.status === 'PARTIAL' || (paidNum > 0 && paidNum < totalNum)) {
+        hasRedirected = true;
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        const remain = totalNum - paidNum;
         const radar = document.querySelector('.pulse-radar');
         if (radar) {
           radar.style.background = '#fef3c7';
           radar.style.color = '#b45309';
-          radar.innerHTML = `⚠️ <span>Đã nhận <strong>${Pay.vnd(order.paid_amount)}</strong>. Còn thiếu <strong>${Pay.vnd(order.remaining_amount)}</strong>!</span>`;
+          radar.innerHTML = `⚠️ <span>Phát hiện thanh toán thiếu! Đã nhận <strong>${Pay.vnd(paidNum)}</strong>. Còn thiếu <strong>${Pay.vnd(remain)}</strong>. Đang chuyển sang trang thanh toán bù...</span>`;
         }
-        if (amountEl) amountEl.textContent = Pay.vnd(order.remaining_amount);
-        updateQrCode(order.remaining_amount, order.code);
+
+        setTimeout(() => {
+          baseQuery.set('paid', paidNum);
+          baseQuery.set('remaining', remain);
+          location.href = `underpay.html?${baseQuery.toString()}`;
+        }, 1200);
+        return;
       }
 
-      // THÀNH CÔNG (HOẶC THỪA TIỀN)
+      // TÌNH HUỐNG 2: KHÁCH TRẢ THỪA TIỀN (EXCESS)
+      if (order.status === 'EXCESS' || (order.excess_amount && order.excess_amount > 0) || (paidNum > totalNum)) {
+        hasRedirected = true;
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        const excessAmount = order.excess_amount || (paidNum - totalNum);
+        const radar = document.querySelector('.pulse-radar');
+        if (radar) {
+          radar.style.background = '#e0f2fe';
+          radar.style.color = '#0284c7';
+          radar.innerHTML = `💰 <span>Đã nhận thanh toán thừa (${Pay.vnd(paidNum)})! Đang chuyển hướng xuất vé và hoàn ${Pay.vnd(excessAmount)} tiền thừa...</span>`;
+        }
+
+        setTimeout(() => {
+          baseQuery.set('paid', paidNum);
+          baseQuery.set('excess', excessAmount);
+          location.href = `overpay.html?${baseQuery.toString()}`;
+        }, 1200);
+        return;
+      }
+
+      // TÌNH HUỐNG THÀNH CÔNG: KHÁCH TRẢ ĐỦ TIỀN (PAID)
       if (order.status === 'PAID') {
+        hasRedirected = true;
+        if (countdownInterval) clearInterval(countdownInterval);
+
         const radar = document.querySelector('.pulse-radar');
         if (radar) {
           radar.style.background = '#d1fae5';
           radar.style.color = '#065f46';
-          radar.innerHTML = `✓ <span>Thanh toán thành công! Đang chuyển hướng xuất vé...</span>`;
+          radar.innerHTML = `✓ <span>Thanh toán thành công qua SePay! Đang xuất vé điện tử...</span>`;
         }
+
         setTimeout(() => {
-          location.href = `ticket.html?order=${order.code}&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&combos=${encodeURIComponent(combos)}&total=${order.total}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
+          location.href = `ticket.html?${baseQuery.toString()}`;
         }, 1200);
+        return;
       }
 
-      // TÌNH HUỐNG 3A: QUÁ HẠN GIỮ GHẾ
+      // TÌNH HUỐNG HẾT HẠN GIỮ GHẾ TỪ SERVER
       if (order.status === 'EXPIRED') {
-        const radar = document.querySelector('.pulse-radar');
-        if (radar) {
-          radar.style.background = '#fee2e2';
-          radar.style.color = '#991b1b';
-          radar.innerHTML = `❌ <span>Đơn hàng đã hết hạn giữ ghế (10 phút). Đang chuyển hướng...</span>`;
-        }
-        setTimeout(() => {
-          location.href = `refund.html?order=${order.code}&reason=LATE&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&total=${total}`;
-        }, 1500);
+        if (countdownInterval) clearInterval(countdownInterval);
+        handleTimeout();
+        return;
       }
     });
 
+    // =========================================================================
+    // 3. MÔ PHỎNG SANDBOX DÀNH CHO BÀI TẬP / HỘI ĐỒNG CHẤM ĐIỂM
+    // =========================================================================
     async function triggerSimulation(scenario) {
       const baseQuery = new URLSearchParams({
         order: orderCode,
@@ -356,8 +492,8 @@
       try {
         const res = await Pay.simulate(scenario, orderCode, null, { total, movie, cinema, date, time, seats, combos });
 
-        // 1. THANH TOÁN THÀNH CÔNG 100% (OK)
         if (scenario === 'OK') {
+          hasRedirected = true;
           const radar = document.querySelector('.pulse-radar');
           if (radar) {
             radar.style.background = '#d1fae5';
@@ -370,8 +506,8 @@
           return;
         }
 
-        // 2. KHÁCH TRẢ THIẾU TIỀN (SHORT)
         if (scenario === 'SHORT') {
+          hasRedirected = true;
           const shortPaid = Math.max(50000, Number(total) - 79000);
           const remain = Number(total) - shortPaid;
           baseQuery.set('paid', shortPaid);
@@ -380,8 +516,8 @@
           return;
         }
 
-        // 3. KHÁCH TRẢ THỪA TIỀN (EXCESS)
         if (scenario === 'EXCESS') {
+          hasRedirected = true;
           const excessPaid = Number(total) + 21000;
           baseQuery.set('paid', excessPaid);
           baseQuery.set('excess', 21000);
@@ -389,8 +525,8 @@
           return;
         }
 
-        // 4. QUÁ HẠN GIỮ GHẾ 10 PHÚT (LATE)
         if (scenario === 'LATE') {
+          hasRedirected = true;
           const radar = document.querySelector('.pulse-radar');
           if (radar) {
             radar.style.background = '#fee2e2';
@@ -404,7 +540,6 @@
           return;
         }
 
-        // 5. MẠNG NGHẼN / TREO CHỜ BETABOT (NETWORK_LAG)
         if (scenario === 'NETWORK_LAG') {
           const ref = (res && res.reference_code) ? res.reference_code : ('FT' + Math.floor(10000000 + Math.random() * 90000000));
           alert(`[MÔ PHỎNG LỖI 3B THÀNH CÔNG]\n\nTiền đã trừ tại ngân hàng (Mã GD: ${ref}), nhưng website chưa nhận được do sự cố mạng.\n\nHãy nhấn OK để chuyển sang BetaBot AI và nhập mã ${ref} đối soát!`);
