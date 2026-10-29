@@ -791,15 +791,61 @@
     });
   </script>
   <script>
-    (function syncMovieDetailShowtimes() {
+    // Synced with populateMovieDetailDates
+  </script>
+<script>
+    // Tự động tạo dropdown ngày chiếu thời gian thực cho trang chi tiết phim
+    function populateMovieDetailDates() {
+      const select = document.querySelector('select.qb-select:last-of-type') || document.querySelectorAll('select.qb-select')[1];
+      if (!select) return;
+
+      const fullDaysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+      const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+      const now = new Date();
+      select.innerHTML = '';
+
+      for (let i = 0; i < 5; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() + i);
+        const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+        const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
+        const year = d.getFullYear();
+        const dow = daysOfWeek[d.getDay()];
+        const fullDow = fullDaysOfWeek[d.getDay()];
+        const shortDate = `${dow} ${day}/${month}`;
+
+        const opt = document.createElement('option');
+        opt.value = shortDate;
+        if (i === 0) {
+          opt.textContent = `Hôm nay - ${fullDow}, ${day}/${month}/${year} (Beta's Day)`;
+        } else if (i === 1) {
+          opt.textContent = `Ngày mai - ${fullDow}, ${day}/${month}/${year}`;
+        } else {
+          opt.textContent = `${fullDow}, ${day}/${month}/${year}`;
+        }
+        select.appendChild(opt);
+      }
+
+      select.addEventListener('change', function() {
+        syncMovieDetailShowtimes(this.value);
+      });
+
+      syncMovieDetailShowtimes(select.value);
+    }
+
+    function syncMovieDetailShowtimes(selectedDateStr) {
       const p = new URLSearchParams(window.location.search);
       const m = p.get("movie") || "linh-gioi-dai-chien";
-      document.querySelectorAll("a[href^='seats.html']").forEach(a => {
+      const dateVal = selectedDateStr || "Hôm nay";
+
+      document.querySelectorAll("a[href*='seats.html']").forEach(a => {
         const timeSpan = a.querySelector("span[style*='font-size: 18px']") || a.querySelector("span");
         const time = timeSpan ? timeSpan.textContent.trim() : "18:30";
-        a.href = `seats.html?movie=&cinema=Beta%20Thanh%20Xu%C3%A2n&date=27/10&time=`;
+        a.href = `seats.html?movie=${encodeURIComponent(m)}&cinema=Beta%20Thanh%20Xu%C3%A2n&date=${encodeURIComponent(dateVal)}&time=${encodeURIComponent(time)}`;
       });
-    })();
-  </script>
+    }
+
+    window.addEventListener('DOMContentLoaded', populateMovieDetailDates);
+</script>
 </body>
 </html>

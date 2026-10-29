@@ -403,7 +403,7 @@
     const params = new URLSearchParams(window.location.search);
     const currentMovieKey = params.get('movie') || 'linh-gioi-dai-chien';
     const currentCinema = params.get('cinema') || 'Beta Thanh Xuân';
-    const currentDate = params.get('date') || 'CN 25/10';
+    const currentDate = params.get('date') || ((window.Pay && Pay.getTodayTag) ? Pay.getTodayTag() : 'Hôm nay');
     const currentTime = params.get('time') || '12:15';
     const selectedSeatsStr = params.get('seats') || 'D5, D6';
     let ticketTotal = parseInt(params.get('total')) || 90000;

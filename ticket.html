@@ -252,7 +252,7 @@
 
             <div>
               <div class="ticket-field-label">Thời Gian Chiếu</div>
-              <div class="ticket-field-value" id="ticket-showtime" style="color: var(--beta-orange);">18:30 • Hôm nay (27/10/2026)</div>
+              <div class="ticket-field-value" id="ticket-showtime" style="color: var(--beta-orange);">18:30 • Hôm nay</div>
             </div>
 
             <div>
@@ -367,7 +367,7 @@
             Quét mã vạch này trực tiếp tại máy quét cửa phòng chiếu để vào xem phim, hoặc đưa nhân viên hỗ trợ tại rạp.
           </div>
           <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;">
-            Mã giao dịch: <strong>#TXN-8392019482</strong> • Thời gian tạo: <strong>27/10/2026 16:48</strong>
+            Mã giao dịch: <strong>#TXN-8392019482</strong> • Thời gian tạo: <strong>11:10:56 29/10/2026</strong>
           </div>
         </div>
 
@@ -695,7 +695,7 @@
     }
 
     if (timeParam || dateParam) {
-      document.getElementById('ticket-showtime').textContent = (timeParam || '18:30') + ' • ' + (dateParam || '27/10/2026');
+      document.getElementById('ticket-showtime').textContent = (timeParam || '18:30') + ' • ' + (dateParam || ('Hôm nay (' + new Date().toLocaleDateString('vi-VN') + ')'));
     }
 
     if (seatsParam) {

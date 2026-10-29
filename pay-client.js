@@ -1,5 +1,54 @@
 // pay-client.js - Module gọi API cho hệ thống thanh toán Beta Cinemas
 const Pay = {
+  // =========================================================================
+  // HELPER NGÀY GIỜ THỜI GIAN THỰC (REAL-TIME)
+  // =========================================================================
+  getTodayTag() {
+    const d = new Date();
+    const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    const dow = daysOfWeek[d.getDay()];
+    const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+    const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
+    return `${dow} ${day}/${month}`;
+  },
+
+  getTodayFullStr() {
+    const d = new Date();
+    const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+    const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  },
+
+  getUpcomingDates(count = 7) {
+    const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    const fullDaysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    const dates = [];
+    const now = new Date();
+
+    for (let i = 0; i < count; i++) {
+      const d = new Date(now);
+      d.setDate(now.getDate() + i);
+      const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+      const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
+      const year = d.getFullYear();
+      const dow = daysOfWeek[d.getDay()];
+      const fullDow = fullDaysOfWeek[d.getDay()];
+      dates.push({
+        day,
+        month,
+        year,
+        dow,
+        fullDow,
+        shortDate: `${day}/${month}`,
+        fullDate: `${day}/${month}/${year}`,
+        tag: `${dow} ${day}/${month}`,
+        label: i === 0 ? `Hôm nay - ${fullDow}, ${day}/${month}/${year}` : (i === 1 ? `Ngày mai - ${fullDow}, ${day}/${month}/${year}` : `${fullDow}, ${day}/${month}/${year}`)
+      });
+    }
+    return dates;
+  },
+
   vnd: (n) => new Intl.NumberFormat('vi-VN').format(n || 0) + ' đ',
 
   // Phát hiện endpoint API khả dụng:
@@ -92,7 +141,7 @@ const Pay = {
       excess_amount: Number(p.get('excess') || 0),
       movie_key: p.get('movie') || 'an-mang-karaoke',
       cinema: p.get('cinema') || 'Beta Thanh Xuân',
-      show_date: p.get('date') || 'CN 25/10',
+      show_date: p.get('date') || (typeof window !== 'undefined' && window.Pay && Pay.getTodayTag ? Pay.getTodayTag() : 'Hôm nay'),
       show_time: p.get('time') || '12:15',
       seats: p.get('seats') ? p.get('seats').split(',').map(s => s.trim()) : ['D5', 'D6'],
       combos: (function() { try { return p.get('combos') ? JSON.parse(decodeURIComponent(p.get('combos'))) : {}; } catch(e){ return {}; } })(),
@@ -262,7 +311,7 @@ const Pay = {
       status: 'HOLDING',
       movie_key: extra.movie || extra.movie_key || 'an-mang-karaoke',
       cinema: extra.cinema || 'Beta Thanh Xuân',
-      show_date: extra.show_date || extra.date || 'CN 25/10',
+      show_date: extra.show_date || extra.date || (typeof window !== 'undefined' && window.Pay && Pay.getTodayTag ? Pay.getTodayTag() : 'Hôm nay'),
       show_time: extra.show_time || extra.time || '12:15',
       seats: extra.seats || ['D5', 'D6'],
       combos: extra.combos || (ord && ord.combos) || {}

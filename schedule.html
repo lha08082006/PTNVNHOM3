@@ -807,7 +807,50 @@
       updateSlotLinks();
     }
 
-    document.addEventListener('DOMContentLoaded', updateSlotLinks);
+    document.addEventListener('DOMContentLoaded', () => {
+      renderScheduleRealtimeDates();
+      updateSlotLinks();
+    });
+
+    // Tự động render 7 ngày chiếu theo thời gian thực chuẩn rạp
+    function renderScheduleRealtimeDates() {
+      const bar = document.getElementById('official-date-bar');
+      if (!bar) return;
+
+      const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+      const now = new Date();
+      bar.innerHTML = '';
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() + i);
+        const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+        const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
+        const dow = daysOfWeek[d.getDay()];
+        const shortDate = `${day}/${month}`;
+
+        const item = document.createElement('div');
+        item.className = 'date-item-official' + (i === 0 ? ' active' : '');
+        item.onclick = function() { selectDate(this, shortDate); };
+
+        item.innerHTML = `
+          <span class="d-number">${day}</span>
+          <span class="d-sub">/${month} - ${dow}</span>
+        `;
+
+        bar.appendChild(item);
+
+        if (i === 0) {
+          currentDate = shortDate;
+        }
+      }
+
+      // Cập nhật nhãn ngày trên các slot chiếu
+      document.querySelectorAll('.sch-slot-date').forEach(el => {
+        el.textContent = currentDate;
+      });
+    }
+
     setTimeout(updateSlotLinks, 100);
   </script>
 

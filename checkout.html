@@ -458,7 +458,7 @@
             </h3>
             <p class="m" id="summary-format" style="font-size: 13px;">2D Phụ đề</p>
             <p class="m" id="summary-cinema-hall" style="font-size: 13px;">Beta Thanh Xuân · Phòng 01</p>
-            <p class="m" id="summary-showtime" style="font-size: 13px; color: var(--status-warning);">CN 25/10 · 12:15</p>
+            <p class="m" id="summary-showtime" style="font-size: 13px; color: var(--status-warning);">Hôm nay · 12:15</p>
           </div>
         </div>
 
@@ -561,7 +561,7 @@
     let selectedSeatsStr = 'D5, D6';
     let currentMovie = 'linh-gioi-dai-chien';
     let currentCinema = 'Beta Thanh Xuân';
-    let currentDate = 'CN 25/10';
+    let currentDate = (window.Pay && Pay.getTodayTag) ? Pay.getTodayTag() : 'Hôm nay';
     let currentTime = '12:15';
 
     // Đọc query parameters

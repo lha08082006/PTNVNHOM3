@@ -334,7 +334,7 @@
         ← Quay lại
       </a>
       <p id="subbar-info" style="font-weight: 600; font-size: 15px; color: var(--text-light);">
-        <span id="subbar-cinema">Beta Thanh Xuân</span> · <span id="subbar-date">CN 25/10</span> · <span id="subbar-time" style="color: var(--status-warning);">12:15</span>
+        <span id="subbar-cinema">Beta Thanh Xuân</span> · <span id="subbar-date">Hôm nay</span> · <span id="subbar-time" style="color: var(--status-warning);">12:15</span>
       </p>
       <div style="font-size: 13px; color: var(--status-warning); display: flex; align-items: center; gap: 6px;">
         <span>⏳</span> Giữ ghế: <strong id="countdown-timer" style="font-family: monospace; font-size: 15px; color: var(--text-light);">09:58</strong>
@@ -576,7 +576,7 @@
 
     let currentMovieKey = 'linh-gioi-dai-chien';
     let currentCinema = 'Beta Thanh Xuân';
-    let currentDate = 'CN 25/10';
+    let currentDate = (window.Pay && Pay.getTodayTag) ? Pay.getTodayTag() : 'Hôm nay';
     let currentTime = '12:15';
 
     // Đọc URL query params
