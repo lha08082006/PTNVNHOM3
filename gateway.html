@@ -202,7 +202,7 @@
           <span style="color: #9a3412; font-weight: 700;">Nội dung chuyển khoản:</span>
           <div style="display: flex; align-items: center; gap: 8px;">
             <strong style="font-family: monospace; font-size: 16px; color: var(--beta-orange);" id="transfer-content">BC2610279854</strong>
-            <button class="copy-pill" style="background: var(--beta-orange); color: white; border-color: var(--beta-orange);" onclick="copyText('BC2610279854')">Copy</button>
+            <button id="btn-copy-transfer" class="copy-pill" style="background: var(--beta-orange); color: white; border-color: var(--beta-orange);" onclick="copyTransferContent()">Copy</button>
           </div>
         </div>
 
@@ -215,7 +215,7 @@
         </div>
 
         <div style="font-size: 12px; color: #dc2626; margin-top: 12px; line-height: 1.5; font-weight: 600;">
-          ⚠️ Lưu ý: Quý khách vui lòng giữ nguyên nội dung <strong>BC2610279854</strong> để hệ thống tự động xuất vé ngay tức thì!
+          ⚠️ Lưu ý: Quý khách vui lòng giữ nguyên nội dung <strong id="note-order-code">BC2610279854</strong> để hệ thống tự động xuất vé ngay tức thì!
         </div>
       </div>
     </div>
@@ -307,8 +307,14 @@
       if (sbEl) sbEl.open = true;
     }
 
+    function copyTransferContent() {
+      copyText(orderCode);
+    }
+
     const transferEl = document.getElementById('transfer-content');
     if (transferEl) transferEl.textContent = orderCode;
+    const noteOrderEl = document.getElementById('note-order-code');
+    if (noteOrderEl) noteOrderEl.textContent = orderCode;
     const amountEl = document.getElementById('payment-total-amount');
     if (amountEl) amountEl.textContent = Pay.vnd(total);
 
