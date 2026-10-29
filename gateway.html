@@ -326,7 +326,12 @@
     function updateQrCode(neededAmount, code) {
       const qrImg = document.querySelector('.qr-frame img');
       if (qrImg) {
-        qrImg.src = `https://vietqr.app/img?bank=MSB&acc=96886693088500&template=compact&showinfo=true&holder=LUONG%20HONG%20ANH&amount=${neededAmount}&des=${encodeURIComponent(code)}`;
+        qrImg.onerror = function() {
+          console.warn('[QR fallback]: Chuyển sang nguồn SePay');
+          this.onerror = null;
+          this.src = `https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=${neededAmount}&des=${encodeURIComponent(code)}`;
+        };
+        qrImg.src = `https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=${neededAmount}&des=${encodeURIComponent(code)}`;
       }
     }
     updateQrCode(total, orderCode);
