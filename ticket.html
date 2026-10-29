@@ -133,9 +133,9 @@
         <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
       </div>
       <div class="top-auth-links">
-        <a href="auth.html#login">Đăng nhập</a>
+        <span style="color: #005198;">Xin chào, <strong>LƯƠNG HỒNG ANH</strong></span>
         <span>|</span>
-        <a href="auth.html#register">Đăng ký</a>
+        <a href="account.html">Thành viên</a>
         <span>|</span>
         <a href="betabot.html">Hỗ trợ CSKH</a>
       </div>
@@ -195,8 +195,8 @@
         <h1 style="font-family: var(--font-display); font-size: 28px; font-weight: 900; color: var(--beta-navy); margin-bottom: 6px;">
           Đặt Vé Thành Công!
         </h1>
-        <p style="font-size: 14.5px; color: #64748b; max-width: 540px; margin: 0 auto;">
-          Cảm ơn bạn. Vé điện tử đã sẵn sàng. Thông tin vé và mã soát vé đã được gửi về email <strong style="color: #0f172a;">luonghonganh.cinema@gmail.com</strong> và SMS số <strong style="color: #0f172a;">0987654321</strong>.
+        <p style="font-size: 14.5px; color: #64748b; max-width: 580px; margin: 0 auto;" id="ticket-sent-info">
+          Cảm ơn bạn <strong style="color: #005198;">LƯƠNG HỒNG ANH</strong>. Vé điện tử đã sẵn sàng. Thông tin vé và mã soát vé đã được gửi về cho khách hàng <strong style="color: #005198;" id="ticket-customer-name">LƯƠNG HỒNG ANH</strong> qua email <strong style="color: #0f172a;" id="ticket-customer-email">luonghonganh.cinema@gmail.com</strong> và SMS số <strong style="color: #0f172a;" id="ticket-customer-phone">0987654321</strong>.
         </p>
       </div>
 
@@ -276,6 +276,16 @@
               </div>
               <div style="font-size: 11.5px; color: #059669; font-weight: 700; margin-top: 3px;">
                 ✓ Đã thanh toán (VietQR)
+              </div>
+            </div>
+
+            <div>
+              <div class="ticket-field-label">Chủ Vé / Khách Hàng</div>
+              <div class="ticket-field-value" id="ticket-card-customer" style="font-size: 16px; color: var(--beta-navy); font-weight: 900;">
+                LƯƠNG HỒNG ANH
+              </div>
+              <div style="font-size: 11.5px; color: #005198; font-weight: 700; margin-top: 3px;">
+                Thẻ Gold: BM-99281
               </div>
             </div>
           </div>
@@ -678,6 +688,19 @@
           document.getElementById('ticket-barcode-num').textContent = parts.join(' ');
         }
       }
+
+      const custName = ord.customer_name || 'LƯƠNG HỒNG ANH';
+      const custEmail = ord.email || 'luonghonganh.cinema@gmail.com';
+      const custPhone = ord.phone || '0987654321';
+
+      const custNameEl = document.getElementById('ticket-customer-name');
+      if (custNameEl) custNameEl.textContent = custName;
+      const cardCustEl = document.getElementById('ticket-card-customer');
+      if (cardCustEl) cardCustEl.textContent = custName;
+      const custEmailEl = document.getElementById('ticket-customer-email');
+      if (custEmailEl) custEmailEl.textContent = custEmail;
+      const custPhoneEl = document.getElementById('ticket-customer-phone');
+      if (custPhoneEl) custPhoneEl.textContent = custPhone;
     }
 
     // 1. Áp dụng ngay từ URL parameters nếu có

@@ -431,9 +431,9 @@
         <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
       </div>
       <div class="top-auth-links">
-        <a href="auth.html#login">Đăng nhập</a>
+        <span style="color: #005198;">Xin chào, <strong>LƯƠNG HỒNG ANH</strong></span>
         <span>|</span>
-        <a href="auth.html#register">Đăng ký</a>
+        <a href="account.html">Thành viên</a>
         <span>|</span>
         <a href="betabot.html">Hỗ trợ CSKH</a>
       </div>
@@ -757,6 +757,127 @@
   <script>
     const chatBox = document.getElementById('chat-messages-box');
     const inputField = document.getElementById('user-input-box');
+        // =========================================================================
+    // DỮ LIỆU ĐƠN HÀNG CHI TIẾT TỪ TÀI KHOẢN & CSKH
+    // =========================================================================
+    const INVOICES_DATA = {
+      'BC2610279854': {
+        code: 'BC2610279854',
+        movieTitle: 'Linh Giới Đại Chiến: Thần Sư Chung Quỳ',
+        cinema: 'Beta Thanh Xuân (Hà Nội)',
+        showtime: '18:30 • 27/10/2026',
+        seats: 'F07, F08 (VIP)',
+        total: 179000,
+        customerName: 'LƯƠNG HỒNG ANH',
+        customerPhone: '0987 654 321',
+        date: '27/10/2026',
+        time: '18:30',
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+      },
+      'BC2610153321': {
+        code: 'BC2610153321',
+        movieTitle: 'Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại',
+        cinema: 'Beta Giải Phóng (Hà Nội)',
+        showtime: '20:15 • 15/10/2026',
+        seats: 'D05, D06 (VIP)',
+        total: 130000,
+        customerName: 'LƯƠNG HỒNG ANH',
+        customerPhone: '0987 654 321',
+        date: '15/10/2026',
+        time: '20:15',
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+      },
+      'BC2610208819': {
+        code: 'BC2610208819',
+        movieTitle: 'Trại Buôn Người: Vùng Cấm Biên Giới',
+        cinema: 'Beta Thanh Xuân (Hà Nội)',
+        showtime: '21:00 • 20/10/2026',
+        seats: 'G09, G10 (VIP)',
+        total: 180000,
+        customerName: 'LƯƠNG HỒNG ANH',
+        customerPhone: '0987 654 321',
+        date: '20/10/2026',
+        time: '21:00',
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+      },
+      'BC2610264412': {
+        code: 'BC2610264412',
+        movieTitle: 'Út Lan 2',
+        cinema: 'Beta Trần Quang Khải (Hà Nội)',
+        showtime: '18:30 • 24/10/2026',
+        seats: 'E07, E08 (Ghế Thường)',
+        total: 150000,
+        customerName: 'LƯƠNG HỒNG ANH',
+        customerPhone: '0987 654 321',
+        date: '24/10/2026',
+        time: '18:30',
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+      },
+      'BC2610227189': {
+        code: 'BC2610227189',
+        movieTitle: 'Án Mạng Karaoke',
+        cinema: 'Beta Mỹ Đình (Hà Nội)',
+        showtime: '20:00 • 22/10/2026',
+        seats: 'F11, F12 (VIP) + Bắp Phô Mai',
+        total: 210000,
+        customerName: 'LƯƠNG HỒNG ANH',
+        customerPhone: '0987 654 321',
+        date: '22/10/2026',
+        time: '20:00',
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+      }
+    };
+
+    let currentActiveOrder = null;
+
+    async function resolveOrderInfo(code) {
+      if (!code) return null;
+      if (INVOICES_DATA[code]) return INVOICES_DATA[code];
+
+      // Tìm trong DB / LocalStorage thông qua Pay client
+      try {
+        if (window.Pay && Pay.getOrder) {
+          const ord = await Pay.getOrder(code);
+          if (ord) {
+            const movieObj = (Pay.getMovie ? Pay.getMovie(ord.movie_key) : null) || { title: (ord.movie_key || 'Phim Mới').toUpperCase() };
+            const seatsStr = Array.isArray(ord.seats) ? ord.seats.join(', ') : (ord.seats || 'Ghế đã chọn');
+            const showTimeStr = (ord.show_time || '18:30') + ' • ' + (ord.show_date || 'Hôm nay');
+
+            const resolved = {
+              code: ord.code,
+              movieTitle: movieObj.title,
+              cinema: ord.cinema || 'Beta Thanh Xuân (Hà Nội)',
+              showtime: showTimeStr,
+              seats: seatsStr,
+              total: ord.total || 0,
+              customerName: ord.customer_name || 'LƯƠNG HỒNG ANH',
+              customerPhone: ord.phone || '0987 654 321',
+              date: ord.show_date || 'Hôm nay',
+              time: ord.show_time || '18:30',
+              statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+            };
+            INVOICES_DATA[code] = resolved;
+            return resolved;
+          }
+        }
+      } catch (e) {
+        console.warn('Lỗi tra cứu đơn:', e.message);
+      }
+
+      return {
+        code: code,
+        movieTitle: 'Đơn hàng #' + code,
+        cinema: 'Beta Thanh Xuân (Hà Nội)',
+        showtime: 'Suất chiếu theo đơn',
+        seats: 'Ghế đã chọn',
+        total: 179000,
+        customerName: 'LƯƠNG HỒNG ANH',
+        customerPhone: '0987 654 321',
+        date: 'Hôm nay',
+        time: '18:30',
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+      };
+    }
     let isDarkMode = false;
 
     // Chuyển đổi giao diện Sáng / Tối
