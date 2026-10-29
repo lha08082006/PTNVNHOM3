@@ -197,6 +197,61 @@
         max-width: 100%;
       }
     }
+
+    /* Timeline Stepper for Refund */
+    .timeline-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+    .timeline-list::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+    .timeline-item {
+      display: flex;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
+    }
+    .timeline-dot {
+      flex: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin-top: 2px;
+      border: 2px solid white;
+      box-shadow: 0 0 0 2px #e2e8f0;
+    }
+    .timeline-dot.done {
+      background: #10b981;
+      box-shadow: 0 0 0 2px #a7f3d0;
+    }
+    .timeline-dot.active {
+      background: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+      animation: pulseRefund 1.5s infinite;
+    }
+    .timeline-dot.pending {
+      background: #cbd5e1;
+      box-shadow: 0 0 0 2px #f1f5f9;
+    }
+    @keyframes pulseRefund {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(37, 99, 235, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+
   </style>
 </head>
 
@@ -390,6 +445,73 @@
             <strong id="page-inv-bank-code" style="font-family: monospace;">VQR-261027-88291</strong>
           </div>
           <div id="page-inv-status-note" style="margin-top: 10px; padding: 10px 14px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; color: #475569; font-size: 13px;">
+          </div>
+        </div>
+
+        <!-- TIẾN TRÌNH CÁC BƯỚC XỬ LÝ HOÀN TIỀN (Hiển thị khi đơn đang xử lý hoàn tiền) -->
+        <div id="page-inv-refund-steps-section" style="display: none; background: #f8fafc; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 18px 20px; margin: 16px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">⏱️</span>
+              <h4 style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #1e40af;">
+                TIẾN TRÌNH CÁC BƯỚC XỬ LÝ HOÀN TIỀN
+              </h4>
+            </div>
+            <span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px;">
+              ⏳ ĐANG DIỄN RA: BƯỚC 3/4
+            </span>
+          </div>
+
+          <ol class="timeline-list" style="margin-left: 6px;">
+            <li class="timeline-item">
+              <i class="timeline-dot done"></i>
+              <div>
+                <div style="font-weight: 800; font-size: 13.5px; color: #0f172a;">1. Tiếp nhận báo cáo sự cố & yêu cầu hoàn tiền</div>
+                <div style="font-size: 12px; color: #10b981; font-weight: 700; margin-top: 1px;">✓ Đã tiếp nhận thành công</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                  Hệ thống CSKH Beta Cinemas đã ghi nhận yêu cầu báo lỗi thanh toán từ khách hàng.
+                </div>
+              </div>
+            </li>
+            <li class="timeline-item">
+              <i class="timeline-dot done"></i>
+              <div>
+                <div style="font-weight: 800; font-size: 13.5px; color: #0f172a;">2. Đối soát dữ liệu thanh toán ngân hàng</div>
+                <div style="font-size: 12px; color: #10b981; font-weight: 700; margin-top: 1px;">✓ Đã đối soát & khớp tiền trừ</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                  Khớp giao dịch ngân hàng thành công. Xác nhận tài khoản đã trừ tiền nhưng chưa được cấp vé hợp lệ.
+                </div>
+              </div>
+            </li>
+            <li class="timeline-item">
+              <i class="timeline-dot active"></i>
+              <div>
+                <div style="font-weight: 800; font-size: 13.5px; color: #2563eb;">3. Đã duyệt hoàn tiền & Ngân hàng đang giải ngân</div>
+                <div style="font-size: 12px; color: #2563eb; font-weight: 700; margin-top: 1px;">● Đang xử lý lệnh hoàn tiền về STK ngân hàng gốc</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                  Kế toán rạp đã ký duyệt hoàn tiền 100%. Lệnh chuyển tiền tự động đang được cổng thanh toán chuyển đến ngân hàng của bạn.
+                </div>
+              </div>
+            </li>
+            <li class="timeline-item">
+              <i class="timeline-dot pending"></i>
+              <div>
+                <div style="font-weight: 800; font-size: 13.5px; color: #64748b;">4. Hoàn tất nhận tiền về tài khoản</div>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Chờ ngân hàng ghi có biến động số dư</div>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+                  Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng chuyển tiền ban đầu của bạn.
+                </div>
+              </div>
+            </li>
+          </ol>
+
+          <div style="background: white; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-top: 16px; font-size: 12.5px; color: #1e40af; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+              Mã hồ sơ đối soát: <strong id="page-inv-refund-ref-code" style="font-family: monospace; font-size: 13.5px; color: #005198;">REF-2610-915</strong>
+            </div>
+            <a href="betabot.html" class="btn btn-outline btn-sm" style="border-color: #93c5fd; color: #1e40af; padding: 4px 10px; font-size: 12px; font-weight: 700;">
+              💬 Nhắn BetaBot Hỗ Trợ 24/7
+            </a>
           </div>
         </div>
 
@@ -632,6 +754,18 @@
       document.getElementById('page-inv-status-note').innerHTML = '<strong>Ghi chú:</strong> ' + data.statusNote;
       document.getElementById('page-inv-barcode-text').textContent = data.code;
 
+      let isRefunding = (data.code === 'BC2610227189') || 
+                          (data.statusBadge && data.statusBadge.includes('ĐANG XỬ LÝ HOÀN TIỀN'));
+      try {
+        const stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+        if (stored.includes(data.code)) isRefunding = true;
+      } catch(e) {}
+
+      if (isRefunding) {
+        data.statusBadge = '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
+        document.getElementById('page-inv-status-badge').innerHTML = data.statusBadge;
+      }
+
       const isPaid = (data.rawStatus === 'PAID') || 
                      (data.status === 'PAID') || 
                      (data.code === 'BC2610279854') || 
@@ -640,6 +774,7 @@
       const barcodeSec = document.getElementById('page-inv-barcode-section');
       const viewTicketBtn = document.getElementById('page-inv-view-ticket-btn');
       const reportBtn = document.getElementById('page-inv-report-issue-btn');
+      const refundStepsSec = document.getElementById('page-inv-refund-steps-section');
 
       if (isPaid) {
         if (barcodeSec) barcodeSec.style.display = 'block';
@@ -648,12 +783,33 @@
           viewTicketBtn.href = 'ticket.html?order=' + encodeURIComponent(data.code);
         }
         if (reportBtn) reportBtn.style.display = 'none';
+        if (refundStepsSec) refundStepsSec.style.display = 'none';
+      } else if (isRefunding) {
+        if (barcodeSec) barcodeSec.style.display = 'none';
+        if (viewTicketBtn) viewTicketBtn.style.display = 'none';
+        if (reportBtn) reportBtn.style.display = 'none';
+        if (refundStepsSec) {
+          refundStepsSec.style.display = 'block';
+          const refEl = document.getElementById('page-inv-refund-ref-code');
+          if (refEl) refEl.textContent = 'REF-' + (data.code || '').slice(-6);
+        }
       } else {
         if (barcodeSec) barcodeSec.style.display = 'none';
         if (viewTicketBtn) viewTicketBtn.style.display = 'none';
+        if (refundStepsSec) refundStepsSec.style.display = 'none';
         if (reportBtn) {
           reportBtn.style.display = 'inline-flex';
-          reportBtn.href = 'betabot.html?order=' + encodeURIComponent(data.code);
+          reportBtn.onclick = (e) => {
+            e.preventDefault();
+            try {
+              let stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+              if (!stored.includes(data.code)) {
+                stored.push(data.code);
+                localStorage.setItem('reported_refund_orders', JSON.stringify(stored));
+              }
+            } catch(e) {}
+            window.location.href = 'betabot.html?order=' + encodeURIComponent(data.code);
+          };
         }
       }
     }

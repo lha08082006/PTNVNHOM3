@@ -1192,11 +1192,11 @@
       setTimeout(() => {
         appendBotMessage(`
           <p>Xin chào! Mình là <strong>BetaBot</strong>. Mình đã nhận được yêu cầu <strong>báo cáo sự cố thanh toán</strong> cho đơn hàng sau từ lịch sử đặt vé của bạn:</p>
-          <div class="form-subcard" style="border-left: 4px solid #ef4444; background: #fffcfc; padding: 14px 16px; margin: 10px 0;">
+          <div class="form-subcard" style="border-left: 4px solid #3b82f6; background: #f8fafc; padding: 14px 16px; margin: 10px 0;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
               <div>
-                <span class="badge" style="background: #fee2e2; color: #b91c1c; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">
-                  ⚠️ HÓA ĐƠN ĐANG BÁO CÁO SỰ CỐ
+                <span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">
+                  ⏳ ĐÃ TIẾP NHẬN BÁO CÁO - ĐANG XỬ LÝ HOÀN TIỀN
                 </span>
                 <h4 style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 6px;">${order.movieTitle}</h4>
               </div>
@@ -1211,7 +1211,7 @@
               🕒 Suất chiếu: <strong>${order.showtime}</strong><br>
               💺 Ghế: <strong>${order.seats}</strong><br>
               💰 Số tiền đơn hàng: <strong style="color: #ff5400; font-size: 14px;">${new Intl.NumberFormat('vi-VN').format(order.total)} đ</strong><br>
-              ⚠️ Tình trạng: <span style="font-weight: 700; color: #dc2626;">${order.statusText}</span>
+              ⏳ Tình trạng: <span style="font-weight: 700; color: #2563eb;">${order.statusText}</span>
             </div>
 
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -1240,7 +1240,15 @@
       const orderCode = p.get('order');
 
       if (orderCode) {
+        try {
+          let list = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+          if (!list.includes(orderCode)) {
+            list.push(orderCode);
+            localStorage.setItem('reported_refund_orders', JSON.stringify(list));
+          }
+        } catch(e) {}
         currentActiveOrder = await resolveOrderInfo(orderCode);
+        currentActiveOrder.statusText = 'Đang xử lý hoàn tiền (Bước 3/4)';
         renderOrderContextGreeting(currentActiveOrder);
       } else if (ref) {
         setTimeout(() => {
