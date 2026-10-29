@@ -260,6 +260,12 @@
         <span style="color: #64748b;">Chi tiết hóa đơn điện tử</span>
       </div>
       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a id="page-inv-view-ticket-btn" href="ticket.html" class="btn btn-primary btn-sm" style="background: #005198; border-color: #005198; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+          🎟️ Xem Lại Vé Điện Tử
+        </a>
+        <a id="page-inv-report-issue-btn" href="betabot.html" class="btn btn-outline btn-sm" style="color: #b91c1c; border-color: #fca5a5; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+          ⚠️ Báo Cáo Lỗi
+        </a>
         <button type="button" class="btn btn-primary btn-sm" onclick="window.print()" style="background: #005198; border-color: #005198; font-weight: 700;">
           🖨️ In Hóa Đơn
         </button>
@@ -388,7 +394,7 @@
         </div>
 
         <!-- Barcode Tra Cứu -->
-        <div style="text-align: center; margin-top: 24px; padding-top: 18px; border-top: 1px dashed #cbd5e1;">
+        <div id="page-inv-barcode-section" style="text-align: center; margin-top: 24px; padding-top: 18px; border-top: 1px dashed #cbd5e1;">
           <div style="max-width: 340px; margin: 0 auto 8px;">
             <svg class="barcode-svg" viewBox="0 0 380 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 46px; display: block;">
               <g fill="#0f172a">
@@ -625,6 +631,31 @@
       document.getElementById('page-inv-bank-code').textContent = data.bankTransCode;
       document.getElementById('page-inv-status-note').innerHTML = '<strong>Ghi chú:</strong> ' + data.statusNote;
       document.getElementById('page-inv-barcode-text').textContent = data.code;
+
+      const isPaid = (data.rawStatus === 'PAID') || 
+                     (data.status === 'PAID') || 
+                     (data.code === 'BC2610279854') || 
+                     (data.statusBadge && (data.statusBadge.includes('ĐÃ THANH TOÁN') || data.statusBadge.includes('SẮP CHIẾU')));
+
+      const barcodeSec = document.getElementById('page-inv-barcode-section');
+      const viewTicketBtn = document.getElementById('page-inv-view-ticket-btn');
+      const reportBtn = document.getElementById('page-inv-report-issue-btn');
+
+      if (isPaid) {
+        if (barcodeSec) barcodeSec.style.display = 'block';
+        if (viewTicketBtn) {
+          viewTicketBtn.style.display = 'inline-flex';
+          viewTicketBtn.href = 'ticket.html?order=' + encodeURIComponent(data.code);
+        }
+        if (reportBtn) reportBtn.style.display = 'none';
+      } else {
+        if (barcodeSec) barcodeSec.style.display = 'none';
+        if (viewTicketBtn) viewTicketBtn.style.display = 'none';
+        if (reportBtn) {
+          reportBtn.style.display = 'inline-flex';
+          reportBtn.href = 'betabot.html?order=' + encodeURIComponent(data.code);
+        }
+      }
     }
 
     loadInvoiceDetails();
