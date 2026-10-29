@@ -897,29 +897,34 @@
 
     // Flow 1: Form Đối Soát Giao Dịch
     function renderReconcileFlow() {
+      const codeVal = currentActiveOrder ? currentActiveOrder.code : 'BC2610279854';
+      const amountVal = currentActiveOrder ? new Intl.NumberFormat('vi-VN').format(currentActiveOrder.total) : '180.000';
+      const dateVal = currentActiveOrder ? (currentActiveOrder.date || 'Hôm nay') : '27/10/2026';
+      const defaultTx = currentActiveOrder ? ('FT' + currentActiveOrder.code.replace(/\D/g, '').slice(-8)) : 'FT2610279854';
+
       appendBotMessage(`
-        <p><strong>Nhập thông tin chuyển khoản để mình đối soát tự động:</strong></p>
+        <p><strong>Nhập thông tin chuyển khoản để đối soát cho đơn <span style="color:#005198; font-family:monospace;">#${codeVal}</span>:</strong></p>
         <div class="form-subcard" id="form-reconcile-box">
           <label class="chat-field">
-            Mã giao dịch ngân hàng (FT... / Mã tham chiếu)
-            <input type="text" class="chat-input-text" id="recon-txid" value="FT2610279854" placeholder="VD: FT2610279854">
+            Mã giao dịch ngân hàng (Mã FT... / Mã tham chiếu / Ký hiệu chuẩn chi)
+            <input type="text" class="chat-input-text" id="recon-txid" value="${defaultTx}" placeholder="VD: FT2610279854">
           </label>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <label class="chat-field">
               Số tiền đã trừ (VNĐ)
-              <input type="text" class="chat-input-text" id="recon-amount" value="180.000" placeholder="180.000">
+              <input type="text" class="chat-input-text" id="recon-amount" value="${amountVal}" placeholder="VD: 150.000">
             </label>
             <label class="chat-field">
               Ngày giao dịch
-              <input type="text" class="chat-input-text" id="recon-date" value="27/10/2026">
+              <input type="text" class="chat-input-text" id="recon-date" value="${dateVal}">
             </label>
           </div>
           <label class="chat-field">
-            Mã đặt vé hoặc Số điện thoại mua vé
-            <input type="text" class="chat-input-text" id="recon-phone" value="0987654321" placeholder="VD: 0987654321">
+            Mã đặt vé cần đối soát
+            <input type="text" class="chat-input-text" id="recon-phone" value="${codeVal}" readonly style="background:#f8fafc; font-weight:700; color:#005198;">
           </label>
           <button class="btn btn-primary btn-sm" onclick="submitReconcile()" style="background:#FF5A3C; border:none; padding: 10px; font-weight: 800; border-radius: 8px;">
-            Kiểm Tra Đối Soát Ngay
+            Kiểm Tra Đối Soát Cho Đơn #${codeVal} Ngay
           </button>
         </div>
       `);
@@ -1035,16 +1040,24 @@
         </p>
         <div class="form-subcard">
           <div style="display:flex; justify-content:space-between; font-size:13px;">
+            <span style="color:#64748b;">Đơn hàng:</span>
+            <strong style="color:#005198; font-family:monospace;">#${currentActiveOrder ? currentActiveOrder.code : 'BC2610208819'}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:4px;">
+            <span style="color:#64748b;">Phim:</span>
+            <strong>${currentActiveOrder ? currentActiveOrder.movieTitle : 'Trại Buôn Người'}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:4px;">
             <span style="color:#64748b;">Số tiền hoàn:</span>
-            <strong style="color:#ff5400; font-size:15px;">180.000 đ</strong>
+            <strong style="color:#ff5400; font-size:15px;">${currentActiveOrder ? (new Intl.NumberFormat('vi-VN').format(currentActiveOrder.total) + ' đ') : '180.000 đ'}</strong>
           </div>
-          <div style="display:flex; justify-content:space-between; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:4px;">
             <span style="color:#64748b;">Nhận lại về:</span>
-            <strong>Tài khoản ngân hàng gốc (VietQR)</strong>
+            <strong>Tài khoản ngân hàng gốc (VietQR / MSB)</strong>
           </div>
-          <div style="display:flex; justify-content:space-between; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:4px;">
             <span style="color:#64748b;">Mã tham chiếu:</span>
-            <strong style="font-family:monospace;">REF-2610-889</strong>
+            <strong style="font-family:monospace;">REF-${currentActiveOrder ? currentActiveOrder.code.slice(-6) : '2610-889'}</strong>
           </div>
 
           <div style="margin-top: 10px;">
@@ -1083,35 +1096,35 @@
         <div class="form-subcard" role="form">
           <label class="chat-field">
             Mã đặt vé hoặc mã đơn
-            <input type="text" class="chat-input-text" value="BC2610279854">
+            <input type="text" class="chat-input-text" id="comp-order-code" value="${currentActiveOrder ? currentActiveOrder.code : 'BC2610279854'}" readonly style="background:#f8fafc; font-weight:700; color:#005198;">
           </label>
           <label class="chat-field">
             Số điện thoại liên hệ
-            <input type="text" class="chat-input-text" value="0987654321">
+            <input type="text" class="chat-input-text" id="comp-phone" value="${currentActiveOrder ? currentActiveOrder.customerPhone : '0912 345 678'}">
           </label>
           <label class="chat-field">
             Mã giao dịch ngân hàng
-            <input type="text" class="chat-input-text" value="FT2610279854">
+            <input type="text" class="chat-input-text" id="comp-txid" value="${currentActiveOrder ? ('FT' + currentActiveOrder.code.replace(/\D/g, '').slice(-8)) : 'FT2610279854'}">
           </label>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
             <label class="chat-field">
-              Số tiền đã chuyển
-              <input type="text" class="chat-input-text" value="180.000 đ">
+              Số tiền đơn hàng
+              <input type="text" class="chat-input-text" id="comp-amount" value="${currentActiveOrder ? (new Intl.NumberFormat('vi-VN').format(currentActiveOrder.total) + ' đ') : '180.000 đ'}">
             </label>
             <label class="chat-field">
               Giờ chuyển
-              <input type="text" class="chat-input-text" value="16:45">
+              <input type="text" class="chat-input-text" id="comp-time" value="${currentActiveOrder ? (currentActiveOrder.time || '18:30') : '16:45'}">
             </label>
           </div>
           <label class="chat-field">
             Mô tả sự cố chi tiết
-            <textarea style="min-height:70px; border-radius:8px; border:1px solid #cbd5e1; padding:8px 12px; font-family:inherit; font-size:13px;" placeholder="Ví dụ: Đã trừ tiền trên app ngân hàng nhưng trang web bị tải lại...">Tôi chuyển khoản VietQR thành công nhưng ứng dụng ngân hàng báo đã trừ tiền 180.000đ mà website không chuyển hướng xuất vé.</textarea>
+            <textarea id="comp-desc" style="min-height:70px; border-radius:8px; border:1px solid #cbd5e1; padding:8px 12px; font-family:inherit; font-size:13px;">Tôi chuyển khoản VietQR thanh toán cho đơn hàng #${currentActiveOrder ? currentActiveOrder.code : ''} phim ${currentActiveOrder ? currentActiveOrder.movieTitle : ''} (${currentActiveOrder ? (new Intl.NumberFormat('vi-VN').format(currentActiveOrder.total) + ' đ') : ''}) nhưng chưa được duyệt vé.</textarea>
           </label>
           <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer;">
             <input type="checkbox" checked style="width:16px; height:16px;"> Tôi xác nhận các thông tin trên là chính xác
           </label>
           <button class="btn btn-primary btn-sm" onclick="submitComplaint()" style="background:#FF5A3C; border:none; padding:10px; font-weight:800; border-radius:8px;">
-            Gửi Khiếu Nại CSKH Ngay
+            Gửi Khiếu Nại Cho Đơn #${currentActiveOrder ? currentActiveOrder.code : ''} Ngay
           </button>
         </div>
       `);
@@ -1174,21 +1187,68 @@
       });
     }
   
-    // Đọc URL query để điền sẵn nếu chuyển từ trang thanh toán bị lỗi sang
-    window.addEventListener('DOMContentLoaded', () => {
+    // Hiển thị thẻ báo lỗi đơn hàng riêng biệt nếu chuyển từ trang tài khoản sang
+    function renderOrderContextGreeting(order) {
+      setTimeout(() => {
+        appendBotMessage(`
+          <p>Xin chào! Mình là <strong>BetaBot</strong>. Mình đã nhận được yêu cầu <strong>báo cáo sự cố thanh toán</strong> cho đơn hàng sau từ lịch sử đặt vé của bạn:</p>
+          <div class="form-subcard" style="border-left: 4px solid #ef4444; background: #fffcfc; padding: 14px 16px; margin: 10px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+              <div>
+                <span class="badge" style="background: #fee2e2; color: #b91c1c; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">
+                  ⚠️ HÓA ĐƠN ĐANG BÁO CÁO SỰ CỐ
+                </span>
+                <h4 style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 6px;">${order.movieTitle}</h4>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 11px; color: #64748b;">Mã đơn hàng:</div>
+                <strong style="font-family: monospace; font-size: 15px; color: #005198;">${order.code}</strong>
+              </div>
+            </div>
+
+            <div style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 12px; background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
+              📍 Rạp: <strong>${order.cinema}</strong><br>
+              🕒 Suất chiếu: <strong>${order.showtime}</strong><br>
+              💺 Ghế: <strong>${order.seats}</strong><br>
+              💰 Số tiền đơn hàng: <strong style="color: #ff5400; font-size: 14px;">${new Intl.NumberFormat('vi-VN').format(order.total)} đ</strong><br>
+              ⚠️ Tình trạng: <span style="font-weight: 700; color: #dc2626;">${order.statusText}</span>
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-sm" onclick="triggerQuickAction('reconcile')" style="background: #ff5400; border-color: #ff5400; font-weight: 700;">
+                ⚡ Đối Soát Chuyển Khoản Ngay
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="triggerQuickAction('complaint')" style="border-color: #cbd5e1; color: #005198; font-weight: 700;">
+                📝 Gửi Phiếu Khiếu Nại CSKH
+              </button>
+              <a href="account.html" class="btn btn-outline btn-sm" style="color: #64748b;">
+                ← Quay Lại Lịch Sử Đơn
+              </a>
+            </div>
+          </div>
+          <p style="font-size: 13.5px; color: #334155; margin-top: 6px;">
+            Nếu bạn đã bị trừ tiền từ tài khoản ngân hàng nhưng chưa được duyệt vé, bạn hãy bấm nút <strong>"Đối Soát Chuyển Khoản Ngay"</strong> để hệ thống tự động kiểm tra sao kê ngân hàng và cấp vé tức thì nhé!
+          </p>
+        `);
+      }, 300);
+    }
+
+    // Đọc URL query để điền sẵn nếu chuyển từ trang tài khoản / thanh toán bị lỗi sang
+    window.addEventListener('DOMContentLoaded', async () => {
       const p = new URLSearchParams(window.location.search);
       const ref = p.get('ref');
-      const order = p.get('order');
-      if (ref || order) {
-        // Tự động mở form đối soát
+      const orderCode = p.get('order');
+
+      if (orderCode) {
+        currentActiveOrder = await resolveOrderInfo(orderCode);
+        renderOrderContextGreeting(currentActiveOrder);
+      } else if (ref) {
         setTimeout(() => {
           triggerQuickAction('reconcile');
           setTimeout(() => {
             const txEl = document.getElementById('recon-txid');
-            const phoneEl = document.getElementById('recon-phone');
-            if (txEl && ref) txEl.value = ref;
-            if (phoneEl && order) phoneEl.value = order;
-          }, 500);
+            if (txEl) txEl.value = ref;
+          }, 400);
         }, 300);
       }
     });
