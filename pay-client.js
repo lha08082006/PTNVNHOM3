@@ -211,8 +211,8 @@ const Pay = {
     return Object.values(localMap).sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
   },
 
-  // gateway.html / verify.html: Lắng nghe trạng thái đơn mỗi 2.5s
-  watch(code, onUpdate, ms = 2500) {
+  // gateway.html / verify.html: Lắng nghe trạng thái đơn mỗi 1.8s
+  watch(code, onUpdate, ms = 1800) {
     if (!code) return () => {};
     let stopped = false;
     let lastStatus = null;
