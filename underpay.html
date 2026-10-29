@@ -627,7 +627,7 @@
       // Tạo mã VietQR SePay đúng số tiền còn thiếu
       const qrImg = document.getElementById('underpay-qr-img');
       if (qrImg) {
-        qrImg.src = 'https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=' + currentRemaining + '&des=' + encodeURIComponent(ord.code);
+        qrImg.src = 'https://vietqr.app/img?bank=MSB&acc=96886693088500&template=compact&showinfo=true&holder=LUONG%20HONG%20ANH&amount=' + currentRemaining + '&des=' + encodeURIComponent(ord.code);
       }
     }
 
