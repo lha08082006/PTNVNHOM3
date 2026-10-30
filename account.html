@@ -737,50 +737,52 @@
             </div>
           </div>
 
-          <!-- Đơn hàng 4 (ĐÃ HỦY / ĐÃ HOÀN TIỀN): TRẠI BUÔN NGƯỜI - Đặt lúc: 20/10/2026 17:30:10 -->
-          <div class="order-history-item" data-status="cancelled" data-refund="refunded"
-            data-title="Trại Buôn Người: Vùng Cấm Biên Giới" data-code="BC2610208819" data-created="2026-10-20T17:30:10" onclick="window.location.href='ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889'" title="Bấm vào đơn để xem chi tiết hóa đơn"
-            style="border-left: 4px solid #ef4444; background: #fffdfd;">
+          <!-- Đơn hàng 4 (ĐÃ HOÀN TIỀN): TRẠI BUÔN NGƯỜI - Giao diện theo đúng mockup TicketRefunded -->
+          <div class="order-history-item" data-status="refunded" data-refund="refunded"
+            data-title="Trại Buôn Người: Vùng Cấm Biên Giới" data-code="BC2610208819" data-created="2026-10-20T17:30:10" onclick="window.location.href='ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889'" title="Bấm vào đơn để xem chi tiết đơn đã hoàn tiền"
+            style="border-left: 4px solid rgb(106, 166, 255); background: #fafcff; cursor: pointer;">
             <img class="order-item-poster" src="images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg"
               alt="Trại Buôn Người" onerror="this.src='images/400x633-145627-230926-40.jpg'">
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                 <div>
                   <span class="badge"
-                    style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-size: 11px; font-weight: 800;">
-                    ✕ ĐÃ HỦY (ĐÃ HOÀN TIỀN)
+                    style="background: rgb(106, 166, 255); color: rgb(18, 20, 28); font-size: 11.5px; font-weight: 800; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.3px;">
+                    ĐÃ HOÀN TIỀN
                   </span>
                   <h4
-                    style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #64748b; margin-top: 6px; text-decoration: line-through;">
+                    style="font-family: var(--font-display); font-size: 17.5px; font-weight: 800; color: #0f172a; margin-top: 6px;">
                     Trại Buôn Người: Vùng Cấm Biên Giới
                   </h4>
                 </div>
                 <div style="text-align: right;">
                   <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-                  <strong style="font-family: monospace; font-size: 14px; color: #b91c1c;">BC2610208819</strong>
+                  <strong style="font-family: monospace; font-size: 14.5px; color: #005198;">BC2610208819</strong>
                 </div>
               </div>
 
-              <div style="font-size: 13px; color: #64748b; margin-bottom: 12px; line-height: 1.6;">
+              <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
                 📍 Rạp: <strong>Beta Thanh Xuân (HN)</strong> • Phòng 02<br>
-                🕒 Suất chiếu ban đầu: <strong>21:00 (20/10/2026)</strong> • Ghế: <strong>G09, G10 (VIP)</strong><br>
+                🕒 Suất chiếu: <strong>21:00 (20/10/2026)</strong> • Ghế: <strong>G09, G10 (VIP)</strong><br>
                 📅 Thời gian đặt vé: <strong>17:30:10 (20/10/2026)</strong><br>
-                💸 Tiền vé: <strong style="text-decoration: line-through;">180.000 đ</strong> • <span
-                  style="color: #059669; font-weight: 800;">Đã hoàn 100% (180.000 đ) qua VietQR</span>
+                💳 Tiền vé: <strong>180.000 đ</strong> • <span
+                  style="color: #059669; font-weight: 800;">✓ Đã hoàn 100% (180.000 đ) về STK MB Bank</span>
               </div>
 
               <div
-                style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #991b1b; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-                <span>Lý do hủy: Khách hàng yêu cầu hủy đổi lịch xem phim trước 120 phút.</span>
-                <span style="font-family: monospace; font-weight: 700;">Mã đối soát: REF-2610-889</span>
+                style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 12.5px; color: #065f46; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                <div>
+                  <strong>✓ Đã hoàn tiền thành công</strong> (Số tiền 180.000 đ đã chuyển về tài khoản MB Bank ****4321).
+                </div>
+                <div style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">
+                  Mã đối soát: REF-2610-889
+                </div>
               </div>
 
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 8px; text-decoration: none;">
-                  <span>🎉</span> Xem Chi Tiết Đơn Đã Hoàn (Giao Diện Mới)
+                <a href="ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; text-decoration: none;">
+                  <span>🎉</span> Chi Tiết Đơn Đã Hoàn
                 </a>
-                <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610208819');" style="border-color: #005198; color: #005198; font-weight: 700;"><span>🧾</span> Chi Tiết Hóa Đơn</button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); reportOrderIssue('BC2610208819');" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Cáo Lỗi</button>
               </div>
             </div>
           </div>

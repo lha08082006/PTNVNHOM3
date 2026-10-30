@@ -521,13 +521,23 @@
     const owner = (refundDet && refundDet.owner) || urlParams.get('owner') || 'LƯƠNG HỒNG ANH';
     const refundCode = (refundDet && refundDet.refund_code) || urlParams.get('refund_code') || ('REF-' + orderCode.slice(-6));
 
+    // Dữ liệu mặc định chuẩn cho đơn Trại Buôn Người nếu mở BC2610208819
+    const isTraiBuonNguoi = (orderCode === 'BC2610208819') || (movieKey === 'trai-buon-nguoi');
+
     // Xử lý tên phim và poster
     const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
-    let movieTitle = (movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4';
-    if (movieKey === 'quy-an-tang-4') movieTitle = 'Quỷ Ăn Tạng 4';
-    else if (movieKey === 'trai-buon-nguoi') movieTitle = 'Trại Buôn Người: Vùng Cấm Biên Giới';
-
-    const poster = (movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg';
+    let movieTitle = isTraiBuonNguoi ? 'Trại Buôn Người: Vùng Cấm Biên Giới' : ((movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4');
+    let poster = isTraiBuonNguoi ? 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg' : ((movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg');
+    let movieAge = isTraiBuonNguoi ? 'T18' : 'C18';
+    let movieGenre = isTraiBuonNguoi ? 'Tâm Lý, Tội Phạm · 118 phút · 2D phụ đề' : 'Kinh Dị, Giật Gân · 110 phút · 2D phụ đề';
+    let actualCinema = isTraiBuonNguoi ? 'Beta Thanh Xuân (HN) · Phòng 02' : (`${cinema} · Phòng 01`);
+    let actualShowtime = isTraiBuonNguoi ? '20/10/2026 · 21:00' : (`${date} · ${time}`);
+    let actualSeats = isTraiBuonNguoi ? 'G09, G10' : seats;
+    let actualCombos = isTraiBuonNguoi ? 'Combo Solo (1 Bắp Ngọt + 1 Coca) × 1' : combosText;
+    let actualTotal = isTraiBuonNguoi ? '180.000 đ' : formattedTotal;
+    let actualRefundCode = isTraiBuonNguoi ? 'REF-2610-889' : refundCode;
+    let actualTransCode = isTraiBuonNguoi ? 'FT26102088198842' : transCode;
+    let actualRefundTime = isTraiBuonNguoi ? '20/10/2026 17:45' : fullRefundTime;
 
     // Mask số tài khoản: ví dụ 0987654321 -> ****4321
     const cleanBank = bank.split('(')[0].trim();
@@ -570,19 +580,20 @@
 
     // Gán dữ liệu vào HTML
     document.getElementById('order-code-display').textContent = orderCode;
-    document.getElementById('movie-title').innerHTML = `${movieTitle} <span id="movie-age-badge" style="background: #ff5400; color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">C18</span>`;
+    document.getElementById('movie-title').innerHTML = `${movieTitle} <span id="movie-age-badge" style="background: #ff5400; color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">${movieAge}</span>`;
+    document.getElementById('movie-meta').textContent = movieGenre;
     document.getElementById('movie-poster').src = poster;
-    document.getElementById('cinema-room').textContent = `${cinema} · Phòng 01`;
-    document.getElementById('showtime-date').textContent = `${date} · ${time}`;
-    document.getElementById('seats-display').textContent = seats;
-    document.getElementById('combos-display').textContent = combosText;
-    document.getElementById('total-display').textContent = formattedTotal;
+    document.getElementById('cinema-room').textContent = actualCinema;
+    document.getElementById('showtime-date').textContent = actualShowtime;
+    document.getElementById('seats-display').textContent = actualSeats;
+    document.getElementById('combos-display').textContent = actualCombos;
+    document.getElementById('total-display').textContent = actualTotal;
 
-    document.getElementById('refund-code-display').textContent = refundCode;
-    document.getElementById('refund-amount-display').textContent = formattedTotal;
+    document.getElementById('refund-code-display').textContent = actualRefundCode;
+    document.getElementById('refund-amount-display').textContent = actualTotal;
     document.getElementById('refund-bank-acc').textContent = maskedAccText;
-    document.getElementById('refund-trans-code').textContent = transCode;
-    document.getElementById('refund-time-display').textContent = fullRefundTime;
+    document.getElementById('refund-trans-code').textContent = actualTransCode;
+    document.getElementById('refund-time-display').textContent = actualRefundTime;
     document.getElementById('top-user-name').textContent = owner;
 
     // Cập nhật mốc thời gian lịch sử đơn
@@ -591,10 +602,17 @@
     const t2 = new Date(now.getTime() - 5 * 60000);
     const formatStepTime = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())} · Hoàn tất`;
 
-    document.getElementById('time-step-1').textContent = formatStepTime(t0);
-    document.getElementById('time-step-2').textContent = formatStepTime(t1);
-    document.getElementById('time-step-3').textContent = formatStepTime(t2);
-    document.getElementById('time-step-4').textContent = `${fullRefundTime} · Hoàn tất`;
+    if (isTraiBuonNguoi) {
+      document.getElementById('time-step-1').textContent = '20/10/2026 17:30 · Hoàn tất';
+      document.getElementById('time-step-2').textContent = '20/10/2026 17:35 · Hoàn tất';
+      document.getElementById('time-step-3').textContent = '20/10/2026 17:40 · Hoàn tất';
+      document.getElementById('time-step-4').textContent = '20/10/2026 17:45 · Hoàn tất';
+    } else {
+      document.getElementById('time-step-1').textContent = formatStepTime(t0);
+      document.getElementById('time-step-2').textContent = formatStepTime(t1);
+      document.getElementById('time-step-3').textContent = formatStepTime(t2);
+      document.getElementById('time-step-4').textContent = `${fullRefundTime} · Hoàn tất`;
+    }
 
     // Cập nhật link xem hóa đơn điện tử
     const invoiceLink = document.getElementById('link-view-invoice');
