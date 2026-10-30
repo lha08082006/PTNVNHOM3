@@ -7,5 +7,21 @@
 </head>
 <body>
   <script>window.location.replace('auth.html#login');</script>
+  <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
+  <div id="quick-dock-widget" class="quick-dock-widget">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-badge">3</span>
+    </button>
+    <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
+      <span class="dock-label">GIAO DIỆN:</span>
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
 </body>
 </html>

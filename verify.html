@@ -296,18 +296,7 @@
 
   <main class="container" style="padding-top: 28px; flex: 1;">
 
-    <!-- Stepper Các Bước Đặt Vé -->
-    <ol aria-label="Các bước đặt vé" style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; list-style: none; padding: 0; margin: 0 0 10px 0;">
-      <li class="st-step">
-        <b class="st-badge done">✓</b> Chọn suất &amp; vé
-      </li>
-      <li class="st-step">
-        <b class="st-badge done">✓</b> Chọn ghế
-      </li>
-      <li class="st-step active">
-        <b class="st-badge current">3</b> Thanh toán
-      </li>
-    </ol>
+    
 
     <!-- SECTION CARD: ĐANG XÁC MINH GIAO DỊCH (CHUẨN NỀN TRẮNG) -->
     <section class="verify-card">
@@ -350,7 +339,18 @@
         </p>
 
         <!-- Nút Trợ Giúp BetaBot -->
-        <a href="betabot.html" class="btn btn-outline" style="border-color: #cbd5e1; color: #005198; font-weight: 700; width: 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;">
+                <!-- Thông báo Lớp 1 (1 phút) chuẩn theo thiết kế File 1 (Verify.dc.html) -->
+        <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #92400e; line-height: 1.5; margin: 10px 0; text-align: left; width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-weight: 700;">⏳ Đang rà soát giao dịch (Lớp 1):</span>
+            <span id="layer1-countdown" style="font-family: monospace; font-size: 16px; color: #dc2626; font-weight: 900;">01:00</span>
+          </div>
+          <span style="color: #b45309; font-size: 12.5px;">
+            ● Nếu sau 1 phút vẫn chưa có kết quả, form báo lỗi giao dịch sẽ tự động hiện ra để bạn gửi khiếu nại hoàn tiền.
+          </span>
+        </div>
+
+<a href="betabot.html" class="btn btn-outline" style="border-color: #cbd5e1; color: #005198; font-weight: 700; width: 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;">
           <span>🤖</span> Chat với BetaBot Hỗ Trợ Đối Soát
         </a>
 
@@ -378,6 +378,10 @@
         <button type="button" onclick="triggerSim('LATE')" class="btn btn-outline btn-sm" style="color: #b91c1c; border-color: #ef4444; background: #fef2f2; font-weight: 800;">
           ⏳ [Lỗi 3a] Chuyển Quá Hạn Giữ Ghế
         </button>
+        <button type="button" onclick="triggerLayer1Timeout()" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #ef4444; background: #fff5f5; font-weight: 800;">
+          ⏱️ [Test UI] Hết 1 phút ngay → Hiện Form Hoàn Tiền (File 2)
+        </button>
+
       </div>
       <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px;">
         <a href="gateway.html" id="btn-verify-back-qr" class="btn btn-outline btn-sm" style="color: #005198;">
@@ -390,27 +394,22 @@
     </div>
   </main>
 
-  <!-- PROTOTYPE SWITCHER DOCK -->
-  <nav class="prototype-dock">
-    <span class="dock-label">Giao diện:</span>
-    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
-    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
-    <a href="booking.html" class="dock-item">🎟️ Đặt Suất/Vé</a>
-    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
-    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
-    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
-    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
-    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
-    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
-    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
-    <a href="verify.html" class="dock-item active">⏳ Xác Minh GD</a>
-    <a href="underpay.html" class="dock-item">⚠️ Chuyển Thiếu</a>
-    <a href="overpay.html" class="dock-item">💰 Chuyển Thừa</a>
-    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
-    <a href="account.html" class="dock-item">👤 Thành Viên</a>
-    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
-    <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
-  </nav>
+    <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
+  <div id="quick-dock-widget" class="quick-dock-widget">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-badge">3</span>
+    </button>
+    <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
+      <span class="dock-label">GIAO DIỆN:</span>
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
 
   <script src="pay-client.js"></script>
   <script>
@@ -438,16 +437,84 @@
       btnBackQr.href = `gateway.html?order=${order}&total=${total}&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
     }
 
-    // Đếm ngược 3 giây kiểm tra đối soát
+    // =========================================================================
+    // 1. NHẬN THỜI GIAN GIỮ GHẾ TỪ QUY TRÌNH TRƯỚC (GATEWAY) VÀ ĐẾM NGƯỢC
+    // =========================================================================
+    let holdTimeParam = parseInt(params.get('hold_time'), 10);
+    // Nếu không có hoặc lỗi, mặc định 480 giây (8 phút, do đã qua 2 phút ở cổng QR)
+    let seatHoldSeconds = (!isNaN(holdTimeParam) && holdTimeParam > 0) ? holdTimeParam : 480;
+    const holdTimerEl = document.getElementById('verify-countdown');
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+    }
+
+    if (holdTimerEl) holdTimerEl.textContent = formatTime(seatHoldSeconds);
+
+    // =========================================================================
+    // 2. ĐẾM NGƯỢC THỜI GIAN RÀ SOÁT LỚP 1 (1 PHÚT = 60 GIÂY CHẠY TỪNG GIÂY)
+    // =========================================================================
+    let layer1Seconds = 60;
+    const layer1El = document.getElementById('layer1-countdown');
+    if (layer1El) layer1El.textContent = formatTime(layer1Seconds);
+
+    function triggerLayer1Timeout() {
+      console.log('[Verify] Hết 1 phút rà soát Lớp 1 -> Tự động chuyển sang Form hoàn tiền (File 2)');
+      const query = new URLSearchParams({
+        order: order,
+        total: total,
+        movie: movie,
+        cinema: cinema,
+        seats: seats,
+        combos: combos,
+        date: date,
+        time: time,
+        format: format,
+        reason: 'NOT_RECOGNIZED',
+        hold_time: seatHoldSeconds
+      });
+      location.href = `refund.html?${query.toString()}`;
+    }
+    window.triggerLayer1Timeout = triggerLayer1Timeout;
+
+    // Đếm ngược 3 giây cập nhật text kiểm tra
     let secLeft = 3;
-    setInterval(() => {
+    const secEl = document.getElementById('sec-counter');
+
+    // BỘ ĐẾM THỜI GIAN THỰC CHẠY MỖI 1 GIÂY (CẢ 2 ĐỒNG HỒ ĐỀU CHẠY)
+    const mainTimer = setInterval(() => {
+      // 1. Đếm ngược Giữ Ghế từ trang trước
+      if (seatHoldSeconds > 0) {
+        seatHoldSeconds--;
+        if (holdTimerEl) holdTimerEl.textContent = formatTime(seatHoldSeconds);
+      } else {
+        clearInterval(mainTimer);
+        alert('Đơn hàng đã hết thời gian giữ ghế (10 phút). Đang chuyển sang màn hình tiếp nhận hoàn tiền.');
+        location.href = `refund.html?order=${order}&reason=LATE&total=${total}`;
+        return;
+      }
+
+      // 2. Đếm ngược Lớp 1 (60 giây)
+      if (layer1Seconds > 0) {
+        layer1Seconds--;
+        if (layer1El) layer1El.textContent = formatTime(layer1Seconds);
+
+        if (layer1Seconds === 0) {
+          clearInterval(mainTimer);
+          triggerLayer1Timeout();
+          return;
+        }
+      }
+
+      // 3. Nhịp đếm 3 giây kiểm tra
       secLeft--;
       if (secLeft <= 0) secLeft = 3;
-      const el = document.getElementById('sec-counter');
-      if (el) el.textContent = secLeft;
+      if (secEl) secEl.textContent = secLeft;
     }, 1000);
 
-    // Lắng nghe Realtime bằng Pay.watch
+    // Lắng nghe Realtime: Nếu thành công thì dừng đếm và xuất vé
     Pay.watch(order, (data) => {
       console.log('[Verify Status]:', data.status, data);
 

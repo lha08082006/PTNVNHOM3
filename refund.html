@@ -280,7 +280,7 @@
           ĐÃ TIẾP NHẬN YÊU CẦU HOÀN TIỀN THÀNH CÔNG!
         </h2>
         <p style="font-size: 14.5px; color: #334155; max-width: 600px; margin: 0 auto 18px; line-height: 1.6;">
-          Hồ sơ số <strong style="font-family: monospace; color: #005198;" id="res-ref-code">REF-2610-889</strong> đã được chuyển đến bộ phận kế toán liên ngân hàng. Số tiền <strong style="color: #ff5400;">180.000 đ</strong> sẽ được tự động hoàn về tài khoản của bạn trong <strong>15 - 30 phút</strong>.
+          Hồ sơ số <strong style="font-family: monospace; color: #005198;" id="res-ref-code">REF-2610-889</strong> đã được chuyển đến bộ phận kế toán liên ngân hàng. Số tiền <strong style="color: #ff5400;">180.000 đ</strong> sẽ được nhân viên kế toán đối soát và hoàn về tài khoản của bạn trong <strong>3 - 7 ngày làm việc</strong>.
         </p>
 
         <div style="background: white; border-radius: 12px; padding: 16px 20px; max-width: 460px; margin: 0 auto 24px; border: 1px solid #a7f3d0; text-align: left; font-size: 13.5px;">
@@ -350,7 +350,7 @@
                 Lý do phát sinh hoàn tiền:
               </div>
               <div style="font-size: 13.5px; font-weight: 700; color: #0f172a;">
-                Giao dịch đến sau khi hết thời gian giữ ghế hoặc đơn đã hủy
+                <span id="refund-reason-text">Giao dịch không khớp tự động sau 1 phút rà soát (Chưa ghi nhận tiền)</span>
               </div>
               <div style="font-size: 12.5px; color: #64748b; line-height: 1.5;">
                 Áp dụng khi ghế không còn trống hoặc đơn đã hủy theo yêu cầu đổi lịch trước 120 phút.
@@ -424,6 +424,24 @@
                        style="text-transform: uppercase;" 
                        required>
               </div>
+              <div class="form-field-group">
+                <label class="form-field-label" for="transfer-content-input">
+                  Nội dung giao dịch
+                </label>
+                <input type="text" 
+                       class="form-field-input" 
+                       id="transfer-content-input" 
+                       placeholder="Nội dung chuyển khoản ghi trên giao dịch">
+                <span style="font-size: 12px; color: #64748b; font-weight: 400;">Nhập đúng nội dung như trên biên lai chuyển khoản.</span>
+              </div>
+
+              <div class="form-field-group">
+                <label class="form-field-label">Ảnh chuyển khoản</label>
+                <div style="display: flex; flex-direction: column; gap: 8px; border: 1.5px dashed #cbd5e1; border-radius: 10px; padding: 12px 14px; background: #f8fafc;">
+                  <input type="file" id="bill-img" accept="image/png,image/jpeg" style="font-size: 13px;">
+                  <span style="font-size: 12px; color: #64748b;">JPG hoặc PNG, tối đa 5MB. Ảnh cần thấy rõ số tiền, nội dung và mã giao dịch.</span>
+                </div>
+              </div>
 
               <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #475569; cursor: pointer; line-height: 1.4; margin-top: 4px;">
                 <input type="checkbox" id="confirm-agree" checked required style="width: 18px; height: 18px; margin-top: 2px;">
@@ -431,16 +449,13 @@
               </label>
 
               <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: #b45309; line-height: 1.5;">
-                ● <strong>Dự kiến giải ngân:</strong> Trong vòng <strong>15 - 30 phút</strong> qua VietQR tự động hoặc 1 - 2 ngày làm việc theo chu kỳ chuyển tiền liên ngân hàng.
+                ● <strong>Dự kiến giải ngân:</strong> Nhân viên sẽ đối soát và thực hiện hoàn tiền trong vòng <strong>3 - 7 ngày làm việc</strong> theo chu kỳ chuyển tiền liên ngân hàng.
               </div>
 
-              <div style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
-                <button type="submit" class="btn btn-primary" style="flex: 1.2; font-weight: 800;">
+              <div style="margin-top: 8px;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: 800; padding: 12px 18px; font-size: 15px; border-radius: 10px; box-shadow: 0 4px 12px rgba(255, 84, 0, 0.25);">
                   Gửi Yêu Cầu Hoàn Tiền
                 </button>
-                <a href="schedule.html" class="btn btn-outline" style="flex: 1; text-align: center;">
-                  Đặt Vé Khác
-                </a>
               </div>
 
             </form>
@@ -533,26 +548,22 @@
     </div>
   </footer>
 
-  <!-- PROTOTYPE SWITCHER DOCK -->
-  <nav class="prototype-dock">
-    <span class="dock-label">Giao diện:</span>
-    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
-    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
-    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
-    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
-    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
-    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
-    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
-    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
-    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
-    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
-    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
-    <a href="account.html" class="dock-item">👤 Thành Viên</a>
-    <a href="ticket-cancelled.html" class="dock-item">❌ Đơn Hủy</a>
-    <a href="refund.html" class="dock-item active">💸 Hoàn Tiền</a>
-    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
-    <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
-  </nav>
+    <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
+  <div id="quick-dock-widget" class="quick-dock-widget">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-badge">3</span>
+    </button>
+    <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
+      <span class="dock-label">GIAO DIỆN:</span>
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
 
     <script src="pay-client.js"></script>
   <script>
@@ -561,6 +572,11 @@
     const reasonParam = urlParams.get('reason') || 'LATE';
     const totalParam = Number(urlParams.get('total') || 179000);
     const movieParam = urlParams.get('movie') || '';
+    const cinemaParam = urlParams.get('cinema') || 'Beta Thanh Xuân (Hà Nội)';
+    const seatsParam = urlParams.get('seats') || 'D5, D6';
+    const combosParam = urlParams.get('combos') || '';
+    const dateParam = urlParams.get('date') || 'Hôm nay';
+    const timeParam = urlParams.get('time') || '18:30';
 
     if (orderParam) {
       const orderEl = document.getElementById('refund-order-code');
@@ -596,14 +612,16 @@
       const bank = document.getElementById('bank-select').value;
       const acc = document.getElementById('acc-number').value.trim();
       const owner = document.getElementById('acc-name').value.trim();
+      const noteInput = document.getElementById('transfer-content-input');
+      const note = noteInput ? noteInput.value.trim() : '';
       const submitBtn = e.target.querySelector('button[type="submit"]');
 
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Đang gửi yêu cầu...';
+        submitBtn.textContent = '⏳ Đang chuyển hướng sang lịch sử đơn hàng...';
       }
 
-      let resRefundCode = 'REF-2610-889';
+      let resRefundCode = 'REF-' + (orderParam ? orderParam.slice(-6) : Math.floor(100000 + Math.random() * 900000));
 
       try {
         const res = await Pay.submitRefund({
@@ -616,25 +634,57 @@
           resRefundCode = res.refund_code;
         }
       } catch (err) {
-        console.warn('Lỗi gửi API refund, tiếp tục với mã hồ sơ mô phỏng:', err.message);
+        console.warn('Lỗi gọi API submitRefund:', err.message);
       }
 
-      document.getElementById('res-bank-name').textContent = bank;
-      document.getElementById('res-bank-acc').textContent = acc;
-      document.getElementById('res-bank-owner').textContent = owner;
-      const codeEl = document.getElementById('res-ref-code');
-      if (codeEl) codeEl.textContent = resRefundCode;
+      // Lưu hồ sơ hoàn tiền vào localStorage để account.html đọc
+      try {
+        let reported = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+        if (!reported.includes(orderParam)) {
+          reported.push(orderParam);
+          localStorage.setItem('reported_refund_orders', JSON.stringify(reported));
+        }
 
-      // Cập nhật link xem tiến trình
-      const trackLink = document.querySelector('#refund-success-container a[href="refund-track.html"]');
-      if (trackLink) {
-        trackLink.href = `refund-track.html?code=${resRefundCode}&order=${orderParam}`;
-      }
+        const refundDetail = {
+          order: orderParam,
+          movie: movieParam || 'quy-an-tang-4',
+          cinema: cinemaParam || 'Beta Thanh Xuân (Hà Nội)',
+          seats: seatsParam || 'D5, D6',
+          combos: combosParam || '',
+          total: totalParam || 90000,
+          date: dateParam || 'Hôm nay',
+          time: timeParam || '18:30',
+          bank: bank,
+          acc: acc,
+          owner: owner,
+          note: note,
+          refund_code: resRefundCode
+        };
+        localStorage.setItem('refund_detail_' + orderParam, JSON.stringify(refundDetail));
+      } catch (e) {}
 
-      // Ẩn form và hiện thông báo thành công
-      document.getElementById('refund-form-grid').style.display = 'none';
-      document.getElementById('refund-success-container').style.display = 'block';
-      window.scrollTo({ top: 120, behavior: 'smooth' });
+      // CHUYỂN HƯỚNG SANG GIAO DIỆN THÀNH VIÊN (account.html) MỞ CHI TIẾT ĐƠN HÀNG
+      const accountQuery = new URLSearchParams({
+        tab: 'orders',
+        order: orderParam,
+        movie: movieParam || 'quy-an-tang-4',
+        cinema: cinemaParam || 'Beta Thanh Xuân (Hà Nội)',
+        seats: seatsParam || 'D5, D6',
+        combos: combosParam || '',
+        total: totalParam || 90000,
+        date: dateParam || 'Hôm nay',
+        time: timeParam || '18:30',
+        bank: bank,
+        acc: acc,
+        owner: owner,
+        refund_code: resRefundCode,
+        open_modal: '1'
+      });
+
+      console.log('[Refund] Chuyển hướng sang account.html với dữ liệu khớp 100%:', orderParam);
+      setTimeout(() => {
+        location.href = `account.html?${accountQuery.toString()}`;
+      }, 300);
     }
   </script>
 

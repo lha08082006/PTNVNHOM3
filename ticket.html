@@ -483,24 +483,22 @@
     </div>
   </footer>
 
-  <!-- PROTOTYPE SWITCHER DOCK -->
-  <nav class="prototype-dock">
-    <span class="dock-label">Giao diện:</span>
-    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
-    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
-    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
-    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
-    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
-    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
-    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
-    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
-    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
-    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
-    <a href="ticket.html" class="dock-item active">🎟️ Vé E-Ticket</a>
-    <a href="account.html" class="dock-item">👤 Thành Viên</a>
-    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
-      <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
-  </nav>
+    <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
+  <div id="quick-dock-widget" class="quick-dock-widget">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-badge">3</span>
+    </button>
+    <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
+      <span class="dock-label">GIAO DIỆN:</span>
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
 
   <script src="pay-client.js"></script>
   <script>

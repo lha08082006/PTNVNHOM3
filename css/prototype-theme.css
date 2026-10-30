@@ -1087,3 +1087,123 @@ button, input, select, textarea {
   .header-inner { height: 68px; }
   .section-title { font-size: 20px; }
 }
+
+/* ==========================================================================
+   QUICK DOCK FLOATING WIDGET (Nut goc noi thu gon / mo rong kieu Chatbot)
+   ========================================================================== */
+.quick-dock-widget {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.quick-dock-fab {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 2px solid #ff5400;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 14px rgba(255, 84, 0, 0.4);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  flex-shrink: 0;
+}
+
+.quick-dock-fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(255, 84, 0, 0.6);
+}
+
+.quick-dock-fab.active {
+  background: #ff5400;
+  border-color: #ffffff;
+}
+
+.quick-dock-fab .fab-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: #ff5400;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0f172a;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.quick-dock-menu {
+  position: static !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  background: rgba(15, 23, 42, 0.96) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 999px !important;
+  padding: 6px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5) !important;
+  opacity: 0;
+  transform: translateX(16px) scale(0.95) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  pointer-events: none;
+}
+
+.quick-dock-menu.show {
+  opacity: 1 !important;
+  transform: translateX(0) scale(1) !important;
+  pointer-events: auto !important;
+}
+
+.dock-close-pill {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #94a3b8;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 4px;
+}
+
+.dock-close-pill:hover {
+  background: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+@media (max-width: 600px) {
+  .quick-dock-widget {
+    flex-direction: column-reverse !important;
+    align-items: flex-end !important;
+    bottom: 16px !important;
+    right: 16px !important;
+  }
+}

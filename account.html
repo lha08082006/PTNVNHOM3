@@ -1167,6 +1167,31 @@
             </li>
           </ol>
 
+          <!-- Thông tin tài khoản nhận hoàn tiền từ form refund.html -->
+          <div id="inv-refund-bank-info" style="display: none; background: white; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-top: 14px;">
+            <div style="font-weight: 800; font-size: 13px; color: #1e40af; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <span>🏦</span> THÔNG TIN TÀI KHOẢN NHẬN HOÀN TIỀN
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12.5px;">
+              <div>
+                <span style="color: #64748b;">Ngân hàng thụ hưởng:</span><br>
+                <strong id="inv-refund-bank-name" style="color: #0f172a;">MB Bank</strong>
+              </div>
+              <div>
+                <span style="color: #64748b;">Số tài khoản nhận:</span><br>
+                <strong id="inv-refund-bank-acc" style="font-family: monospace; color: #005198; font-size: 13.5px;">0987654321</strong>
+              </div>
+              <div>
+                <span style="color: #64748b;">Tên chủ tài khoản:</span><br>
+                <strong id="inv-refund-bank-owner" style="color: #0f172a; text-transform: uppercase;">NGUYEN HOANG NAM</strong>
+              </div>
+              <div>
+                <span style="color: #64748b;">Thời gian giải ngân dự kiến:</span><br>
+                <strong style="color: #2563eb;">3 - 7 ngày làm việc</strong>
+              </div>
+            </div>
+          </div>
+
           <div style="background: white; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-top: 16px; font-size: 12.5px; color: #1e40af; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <div>
               Mã hồ sơ đối soát: <strong id="inv-refund-ref-code" style="font-family: monospace; font-size: 13.5px; color: #005198;">REF-2610-915</strong>
@@ -1221,24 +1246,22 @@
     </div>
   </div>
 
-    <!-- PROTOTYPE SWITCHER DOCK -->
-  <nav class="prototype-dock">
-    <span class="dock-label">Giao diện:</span>
-    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
-    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
-    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
-    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
-    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
-    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
-    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
-    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
-    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
-    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
-    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
-    <a href="account.html" class="dock-item active">👤 Thành Viên</a>
-    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
-    <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
-  </nav>
+      <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
+  <div id="quick-dock-widget" class="quick-dock-widget">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-badge">3</span>
+    </button>
+    <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
+      <span class="dock-label">GIAO DIỆN:</span>
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
 
   <script>
     // Filter & Search Orders Logic
@@ -1946,7 +1969,189 @@
   }
 
   // Tự động gọi đồng bộ ngay khi trang tải xong
+  
+  function registerRefundOrderToUI(det) {
+    if (!det || !det.order) return;
+    const ordCode = det.order;
+    const movieKey = det.movie || 'quy-an-tang-4';
+    const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
+    let movieTitle = (movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4';
+    if (movieKey === 'quy-an-tang-4') movieTitle = 'Quỷ Ăn Tạng 4';
+    else if (movieKey === 'trai-buon-nguoi') movieTitle = 'Trại Buôn Người: Vùng Cấm Biên Giới';
+
+    const poster = POSTER_MAP[movieKey] || (movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg';
+    const cinema = det.cinema || 'Beta Thanh Xuân (Hà Nội)';
+    const seats = det.seats || 'D5, D6';
+    const time = det.time || '18:30';
+    const date = det.date || 'Hôm nay';
+    const total = Number(det.total) || 90000;
+    const bank = det.bank || 'MB Bank (Ngân hàng Quân Đội)';
+    const acc = det.acc || '0987654321';
+    const owner = det.owner || 'NGUYEN HOANG NAM';
+    const refundCode = det.refund_code || ('REF-' + ordCode.slice(-6));
+    const showTimeStr = time + ' • ' + date;
+    const totalFormatted = (window.Pay ? Pay.vnd(total) : total.toLocaleString('vi-VN') + ' đ');
+
+    // Cập nhật vào danh sách hoàn tiền
+    markOrderAsRefunding(ordCode);
+
+    // Cập nhật hoặc thêm vào INVOICES_DATA
+    const subtotal = Math.round(total / 1.08);
+    const vat = total - subtotal;
+    INVOICES_DATA[ordCode] = {
+      code: ordCode,
+      rawStatus: 'REFUNDING',
+      status: 'REFUNDING',
+      invoiceNumber: 'HD-2026-' + ordCode.slice(-6),
+      symbol: '1C26TBB',
+      createdAt: new Date().toLocaleString('vi-VN'),
+      movieTitle: movieTitle,
+      moviePoster: poster,
+      movieAge: 'C18',
+      format: '2D Phụ Đề',
+      cinema: cinema,
+      room: 'Phòng chiếu 01',
+      showtime: showTimeStr,
+      seats: seats,
+      customerName: owner,
+      customerPhone: '0987 654 321',
+      customerEmail: 'khachhang@email.com',
+      memberId: 'BM-2026-VIP',
+      paymentMethod: 'VietQR / SePay (Ngân hàng MSB)',
+      bankTransCode: 'FT' + ordCode.slice(-8),
+      statusBadge: '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>',
+      statusNote: `Hồ sơ hoàn tiền ${refundCode} đã được kế toán rạp duyệt hợp lệ. Số tiền ${totalFormatted} đang được giải ngân về STK ${bank} - ${acc} (${owner}) trong 3 - 7 ngày làm việc.`,
+      items: [
+        { name: 'Vé xem phim 2D VIP (Ghế ' + seats + ')', qty: seats.includes(',') ? seats.split(',').length : 1, price: Math.round(total / (seats.includes(',') ? seats.split(',').length : 1)), amount: total }
+      ],
+      subtotal: subtotal,
+      vat: vat,
+      discount: 0,
+      total: total,
+      isRefunding: true,
+      refundBank: bank,
+      refundAcc: acc,
+      refundOwner: owner,
+      refundCode: refundCode
+    };
+
+    // Kiểm tra thẻ đơn hàng trên giao diện Lịch Sử Đặt Vé
+    let card = document.querySelector(`.order-history-item[data-code="${ordCode}"]`);
+    const wrapper = document.getElementById('orders-list-wrapper');
+
+    if (!card && wrapper) {
+      card = document.createElement('div');
+      card.className = 'order-history-item';
+      card.setAttribute('data-status', 'cancelled');
+      card.setAttribute('data-title', movieTitle);
+      card.setAttribute('data-code', ordCode);
+      card.style.cssText = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
+      card.title = 'Bấm vào đơn để xem chi tiết hóa đơn & hoàn tiền';
+      card.onclick = () => openInvoiceModal(ordCode);
+
+      card.innerHTML = `
+        <img class="order-item-poster" src="${poster}" alt="${movieTitle}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <div>
+              <span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>
+              <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">
+                ${movieTitle}
+              </h4>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
+              <strong style="font-family: monospace; font-size: 14px; color: #005198;">${ordCode}</strong>
+            </div>
+          </div>
+
+          <div style="font-size: 13px; color: #475569; margin-bottom: 10px; line-height: 1.6;">
+            📍 Rạp: <strong>${cinema}</strong><br>
+            🕒 Suất: <strong>${showTimeStr}</strong><br>
+            💺 Ghế: <strong>${seats}</strong><br>
+            💳 Đã thanh toán: <strong>${totalFormatted}</strong> (Qua SePay VietQR)
+          </div>
+
+          <div class="refund-in-progress-box" style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+            <span>Yêu cầu hoàn tiền đã tiếp nhận. Hoàn về: <strong>${bank} - ${acc}</strong>.</span>
+            <span style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">Mã hồ sơ: ${refundCode}</span>
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
+              <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
+            </button>
+          </div>
+        </div>
+      `;
+
+      wrapper.insertBefore(card, wrapper.firstChild);
+    } else if (card) {
+      applyRefundStatusToCard(ordCode);
+    }
+  }
+  window.registerRefundOrderToUI = registerRefundOrderToUI;
+
+  // Tự động gọi đồng bộ ngay khi trang tải xong
   window.addEventListener('DOMContentLoaded', () => {
+    // 1. Kiểm tra URL params
+    const pageParams = new URLSearchParams(window.location.search);
+    const tabParam = pageParams.get('tab');
+    if (tabParam) {
+      switchAccountTab(tabParam);
+    }
+
+    const targetOrder = pageParams.get('order');
+    const openModalParam = pageParams.get('open_modal');
+
+    // Khởi tạo các đơn hoàn tiền từ localStorage
+    try {
+      const savedRefunds = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+      savedRefunds.forEach(code => {
+        try {
+          const detailStr = localStorage.getItem('refund_detail_' + code);
+          if (detailStr) {
+            registerRefundOrderToUI(JSON.parse(detailStr));
+          }
+        } catch (e) {}
+      });
+    } catch (e) {}
+
+    // Nếu từ URL có thông tin đơn refund
+    if (targetOrder) {
+      let det = null;
+      try {
+        const detailStr = localStorage.getItem('refund_detail_' + targetOrder);
+        if (detailStr) det = JSON.parse(detailStr);
+      } catch (e) {}
+
+      if (!det) {
+        det = {
+          order: targetOrder,
+          movie: pageParams.get('movie') || 'quy-an-tang-4',
+          cinema: pageParams.get('cinema') || 'Beta Thanh Xuân (Hà Nội)',
+          seats: pageParams.get('seats') || 'D5, D6',
+          combos: pageParams.get('combos') || '',
+          total: Number(pageParams.get('total') || 90000),
+          date: pageParams.get('date') || 'Hôm nay',
+          time: pageParams.get('time') || '18:30',
+          bank: pageParams.get('bank') || 'MB Bank (Ngân hàng Quân Đội)',
+          acc: pageParams.get('acc') || '0987654321',
+          owner: pageParams.get('owner') || 'NGUYEN HOANG NAM',
+          refund_code: pageParams.get('refund_code') || ('REF-' + targetOrder.slice(-6))
+        };
+      }
+      registerRefundOrderToUI(det);
+
+      if (openModalParam === '1') {
+        setTimeout(() => {
+          openInvoiceModal(targetOrder);
+          const c = document.querySelector(`.order-history-item[data-code="${targetOrder}"]`);
+          if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    }
+
     applyAllRefundStatuses();
     syncRealOrdersToUI().then(() => applyAllRefundStatuses());
   });

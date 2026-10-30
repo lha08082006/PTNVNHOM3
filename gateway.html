@@ -206,12 +206,35 @@
           </div>
         </div>
 
-        <!-- Hỗ trợ khiếu nại chuyển tiền qua Chatbot -->
-        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1; display: flex; justify-content: space-between; align-items: center; font-size: 12.5px;">
-          <span style="color: #64748b;">Đã trừ tiền nhưng chưa thấy vé?</span>
-          <a id="btn-complain-bot" href="betabot.html" style="color: #005198; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-            🤖 Chatbot Đối Soát / Khiếu Nại →
-          </a>
+        <!-- Khu vực Báo Cáo Lỗi (Thay thế hoàn toàn Chatbot đối soát/khiếu nại) -->
+        <div id="report-error-wrapper" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1; text-align: center;">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b; margin-bottom: 8px;">
+            <span>Đã trừ tiền nhưng chưa nhận được vé?</span>
+            <span id="report-countdown-hint" style="font-size: 11.5px; color: #dc2626; font-weight: 700;">
+              Khả dụng sau: <span id="report-unlock-time" style="font-family: monospace;">02:00</span>
+            </span>
+          </div>
+          <button id="btn-report-error" type="button" disabled onclick="handleReportError()" style="
+            width: 100%;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            color: #94a3b8;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: not-allowed;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            opacity: 0.65;
+            transition: all 0.3s ease;
+          ">
+            <span id="btn-report-icon">⏳</span>
+            <span id="btn-report-text">Báo Cáo Lỗi: Đã chuyển tiền nhưng chưa có vé (<span id="btn-report-timer" style="font-family: monospace;">02:00</span>)</span>
+          </button>
+          <div id="report-error-status" style="font-size: 12px; color: #64748b; margin-top: 6px; display: none;"></div>
         </div>
 
         <div style="font-size: 12px; color: #dc2626; margin-top: 12px; line-height: 1.5; font-weight: 600;">
@@ -248,6 +271,9 @@
         <button type="button" onclick="triggerSimulation('NETWORK_LAG')" class="btn btn-outline btn-sm" style="color: #4f46e5; border-color: #6366f1; background: #eef2ff; font-weight: 800;">
           🤖 [Lỗi 3b] Trừ Tiền Web Treo (Thử BetaBot)
         </button>
+        <button type="button" onclick="unlockReportButton()" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #ef4444; background: #fef2f2; font-weight: 800;">
+          ⏱️ [Test UI] Mở Khóa Ngay Nút Báo Cáo Lỗi (Không chờ 2p)
+        </button>
       </div>
       <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px;">
         <a href="verify.html" id="btn-sandbox-verify" class="btn btn-outline btn-sm" style="color: #005198;">
@@ -262,26 +288,22 @@
   </div>
   </div>
 
-  <!-- PROTOTYPE SWITCHER DOCK -->
-  <nav class="prototype-dock">
-    <span class="dock-label">Giao diện:</span>
-    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
-    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
-    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
-    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
-    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
-    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
-    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
-    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
-    <a href="gateway.html" class="dock-item active">📱 Cổng Quét QR</a>
-    <a href="underpay.html" class="dock-item">⚠️ Chuyển Thiếu</a>
-    <a href="overpay.html" class="dock-item">💰 Chuyển Thừa</a>
-    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
-    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
-    <a href="account.html" class="dock-item">👤 Thành Viên</a>
-    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
-      <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
-  </nav>
+    <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
+  <div id="quick-dock-widget" class="quick-dock-widget">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-badge">3</span>
+    </button>
+    <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
+      <span class="dock-label">GIAO DIỆN:</span>
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
 
   <script src="pay-client.js"></script>
   <script>
@@ -350,6 +372,93 @@
     let countdownInterval = null;
     const countdownEl = document.getElementById('gateway-countdown');
 
+    // =========================================================================
+    // QUẢN LÝ NÚT BÁO CÁO LỖI (MỜ + ĐẾM NGƯỢC 2 PHÚT -> MỞ KHÓA -> MỜ KHI BẤM)
+    // =========================================================================
+    let reportCooldown = 120; // 2 phút = 120 giây
+    let isReportUnlocked = false;
+    let isReportSubmitted = false;
+
+    // Hàm mở khóa nút Báo Cáo Lỗi sau khi hết 2 phút
+    function unlockReportButton() {
+      if (isReportUnlocked || isReportSubmitted || hasRedirected) return;
+      isReportUnlocked = true;
+
+      const btn = document.getElementById('btn-report-error');
+      const icon = document.getElementById('btn-report-icon');
+      const text = document.getElementById('btn-report-text');
+      const hint = document.getElementById('report-countdown-hint');
+
+      if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.style.background = '#ffffff';
+        btn.style.borderColor = '#dc2626';
+        btn.style.color = '#dc2626';
+        btn.style.boxShadow = '0 2px 8px rgba(220, 38, 38, 0.12)';
+      }
+      if (icon) icon.textContent = '📢';
+      if (text) text.innerHTML = 'Báo Cáo Lỗi: Tôi đã chuyển tiền nhưng chưa có vé';
+      if (hint) {
+        hint.innerHTML = '<span style="color: #16a34a; font-weight: 700;">● Có thể gửi báo cáo ngay</span>';
+      }
+      console.log('[Gateway] Đã qua 2 phút: Nút Báo Cáo Lỗi đã mở khóa!');
+    }
+    window.unlockReportButton = unlockReportButton;
+
+    // Khi khách bấm nút Báo Cáo Lỗi: Vẫn giữ nút nhưng chuyển về trạng thái làm mờ & chuyển sang Verify (File 1)
+    function handleReportError() {
+      if (!isReportUnlocked || isReportSubmitted) return;
+      isReportSubmitted = true;
+
+      const btn = document.getElementById('btn-report-error');
+      const icon = document.getElementById('btn-report-icon');
+      const text = document.getElementById('btn-report-text');
+      const hint = document.getElementById('report-countdown-hint');
+      const statusText = document.getElementById('report-error-status');
+
+      // Giữ nguyên nút trên màn hình nhưng làm mờ và khóa lại (disabled)
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.55';
+        btn.style.cursor = 'not-allowed';
+        btn.style.background = '#fef2f2';
+        btn.style.borderColor = '#fca5a5';
+        btn.style.color = '#991b1b';
+        btn.style.boxShadow = 'none';
+      }
+      if (icon) icon.textContent = '⏳';
+      if (text) text.innerHTML = 'Đã gửi báo cáo lỗi (Đang chuyển sang xác minh giao dịch...)';
+      if (hint) {
+        hint.innerHTML = '<span style="color: #b91c1c; font-weight: 700;">Đã ghi nhận yêu cầu</span>';
+      }
+
+      if (statusText) {
+        statusText.style.display = 'block';
+        statusText.innerHTML = '⏳ Hệ thống đã tiếp nhận báo cáo. Đang chuyển sang màn hình xác minh giao dịch (Lớp 1)...';
+      }
+      console.log('[Gateway] Khách bấm báo cáo lỗi, chuyển hướng sang verify.html (File 1):', orderCode);
+
+      const baseQuery = new URLSearchParams({
+        order: orderCode,
+        total: total,
+        movie: movie,
+        cinema: cinema,
+        seats: seats,
+        combos: combos,
+        date: date,
+        time: time,
+        format: format,
+        hold_time: timeLeft
+      });
+
+      setTimeout(() => {
+        location.href = `verify.html?${baseQuery.toString()}`;
+      }, 700);
+    }
+    window.handleReportError = handleReportError;
+
     function startTimer() {
       countdownInterval = setInterval(() => {
         if (hasRedirected) {
@@ -357,12 +466,32 @@
           return;
         }
         timeLeft--;
+
+        // 1. Cập nhật đồng hồ đếm ngược mở khóa nút Báo Cáo Lỗi
+        if (!isReportUnlocked && !isReportSubmitted) {
+          reportCooldown--;
+          if (reportCooldown > 0) {
+            const rm = Math.floor(reportCooldown / 60);
+            const rs = reportCooldown % 60;
+            const rTimeStr = (rm < 10 ? '0' + rm : rm) + ':' + (rs < 10 ? '0' + rs : rs);
+
+            const timerEl = document.getElementById('btn-report-timer');
+            if (timerEl) timerEl.textContent = rTimeStr;
+            const unlockEl = document.getElementById('report-unlock-time');
+            if (unlockEl) unlockEl.textContent = rTimeStr;
+          } else {
+            unlockReportButton();
+          }
+        }
+
+        // 2. Hết 10 phút giữ ghế
         if (timeLeft <= 0) {
           clearInterval(countdownInterval);
           if (countdownEl) countdownEl.textContent = '00:00';
           handleTimeout();
           return;
         }
+
         const m = Math.floor(timeLeft / 60);
         const s = timeLeft % 60;
         if (countdownEl) {

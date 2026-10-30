@@ -550,19 +550,22 @@
     </div>
   </footer>
 
-  <!-- PROTOTYPE SWITCHER DOCK -->
-  <nav class="prototype-dock">
-    <span class="dock-label">Giao diện:</span>
-    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
-    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
-    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
-    <a href="underpay.html" class="dock-item active">⚠️ Chuyển Thiếu</a>
-    <a href="overpay.html" class="dock-item">💰 Chuyển Thừa</a>
-    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
-    <a href="refund.html" class="dock-item">💸 Hoàn Tiền</a>
-    <a href="refund-track.html" class="dock-item">📈 Tiến Trình</a>
-    <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
-  </nav>
+    <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
+  <div id="quick-dock-widget" class="quick-dock-widget">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-badge">3</span>
+    </button>
+    <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
+      <span class="dock-label">GIAO DIỆN:</span>
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
 
   <script src="pay-client.js"></script>
   <script>

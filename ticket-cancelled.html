@@ -282,9 +282,7 @@
 
         <div style="text-align: right;">
           <div style="font-size: 12px; color: #64748b; font-weight: 600;">Mã đơn đặt vé:</div>
-          <div style="font-family: monospace; font-size: 18px; font-weight: 800; color: #005198; letter-spacing: 1px;">
-            BC2610208819
-          </div>
+          <div id="cancel-order-code" style="font-family: monospace; font-size: 18px; font-weight: 800; color: #005198; letter-spacing: 1px;">BC1317376612</div>
         </div>
       </div>
 
@@ -297,16 +295,14 @@
             
             <!-- Poster + Tên Phim -->
             <div style="display: flex; gap: 18px; align-items: flex-start;">
-              <img src="images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg" 
+              <img id="cancel-movie-poster" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg" 
                    alt="Trại Buôn Người" 
                    onerror="this.src='images/400x633-145627-230926-40.jpg'"
                    style="width: 86px; aspect-ratio: 2/3; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0;">
               
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
-                  <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: #64748b; margin: 0; text-decoration: line-through;">
-                    Trại Buôn Người: Vùng Cấm Biên Giới
-                  </h2>
+                  <h2 id="cancel-movie-title" style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: #64748b; margin: 0; text-decoration: line-through;">Quỷ Ăn Tạng 4</h2>
                   <span class="badge" style="background: #fee2e2; color: #991b1b; font-weight: 800; font-size: 11px; padding: 2px 7px;">T16</span>
                 </div>
                 
@@ -314,11 +310,9 @@
                   Hành động, Hồi hộp · 118 phút · <strong>2D Phụ đề Tiếng Anh</strong>
                 </p>
                 <p style="font-size: 13px; color: #475569; margin-bottom: 4px;">
-                  📍 <strong>Beta Thanh Xuân (Hà Nội)</strong> · Phòng chiếu 02 (Dolby Atmos)
+                  📍 <strong id="cancel-cinema">Beta Thanh Xuân (Hà Nội)</strong> · Phòng chiếu 01
                 </p>
-                <p style="font-size: 13.5px; color: #ff5400; font-weight: 700;">
-                  🕒 Suất chiếu ban đầu: 21:00 • Thứ Ba (20/10/2026)
-                </p>
+                <p style="font-size: 13.5px; color: #ff5400; font-weight: 700;">🕒 Suất chiếu ban đầu: <span id="cancel-showtime">18:30 • Hôm nay</span></p>
               </div>
             </div>
 
@@ -326,9 +320,7 @@
             <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; flex-direction: column; gap: 10px;">
               <div class="line-row">
                 <span class="label-muted">Vị trí ghế đã chọn:</span>
-                <span class="value-bold" style="color: #64748b; text-decoration: line-through;">
-                  G09, G10 (2 Ghế VIP)
-                </span>
+                <span id="cancel-seats" class="value-bold" style="color: #64748b; text-decoration: line-through;">D5, D6</span>
               </div>
 
               <div class="line-row">
@@ -338,20 +330,18 @@
 
               <div class="line-row">
                 <span class="label-muted">Tổng tiền ban đầu:</span>
-                <span class="value-bold" style="text-decoration: line-through; color: #64748b;">180.000 đ</span>
+                <span id="cancel-total" class="value-bold" style="text-decoration: line-through; color: #64748b;">90.000 đ</span>
               </div>
 
               <div class="line-row" style="background: #ecfdf5; border-radius: 8px; padding: 8px 12px; margin-top: 4px;">
                 <span style="font-weight: 700; color: #065f46;">Số tiền đã hoàn trả 100%:</span>
-                <span style="font-family: var(--font-display); font-size: 16px; font-weight: 900; color: #059669;">
-                  +180.000 đ (VietQR)
-                </span>
+                <span id="cancel-refund-amount" style="font-family: var(--font-display); font-size: 16px; font-weight: 900; color: #059669;">+90.000 đ (VietQR)</span>
               </div>
             </div>
 
             <!-- Ghi Chú Nét Đứt Nhả Ghế -->
             <div class="alert-dashed-box">
-              ⚠️ <strong>Lưu ý:</strong> Đơn hàng đã được xác nhận hủy thành công. Hai ghế <strong>G09, G10</strong> đã được hoàn trả lại sơ đồ phòng chiếu để khán giả khác đặt, vé điện tử trước đó không còn hiệu lực qua cửa soát vé.
+              ⚠️ <strong>Lưu ý:</strong> Đơn hàng đã được xác nhận hủy thành công. Ghế <strong id="cancel-note-seats">D5, D6</strong> đã được hoàn trả lại sơ đồ phòng chiếu để khán giả khác đặt, vé điện tử trước đó không còn hiệu lực qua cửa soát vé.
             </div>
 
           </section>
@@ -402,7 +392,7 @@
 
               <div class="line-row">
                 <span class="label-muted">Mã đối soát hoàn tiền:</span>
-                <strong style="font-family: monospace; font-size: 13.5px; color: var(--beta-navy);">REF-2610-889</strong>
+                <strong id="cancel-ref-code" style="font-family: monospace; font-size: 13.5px; color: var(--beta-navy);">REF-1376612</strong>
               </div>
             </div>
 
@@ -583,25 +573,64 @@
     </div>
   </footer>
 
-  <!-- PROTOTYPE SWITCHER DOCK -->
-  <nav class="prototype-dock">
-    <span class="dock-label">Giao diện:</span>
-    <a href="index.html" class="dock-item">🧭 Showcase Hub</a>
-    <a href="home.html" class="dock-item">🏠 Trang Chủ</a>
-    <a href="auth.html" class="dock-item">🔐 Đăng Nhập/Ký</a>
-    <a href="schedule.html" class="dock-item">📅 Lịch Chiếu</a>
-    <a href="movie-detail.html" class="dock-item">🎬 Phim</a>
-    <a href="seats.html" class="dock-item">💺 Chọn Ghế</a>
-    <a href="combo.html" class="dock-item">🍿 Bắp Nước</a>
-    <a href="checkout.html" class="dock-item">💳 Thanh Toán</a>
-    <a href="gateway.html" class="dock-item">📱 Cổng Quét QR</a>
-    <a href="verify.html" class="dock-item">⏳ Xác Minh GD</a>
-    <a href="ticket.html" class="dock-item">🎟️ Vé E-Ticket</a>
-    <a href="account.html" class="dock-item active">👤 Thành Viên</a>
-    <a href="ticket-cancelled.html" class="dock-item">❌ Đơn Hủy</a>
-    <a href="support.html" class="dock-item">💬 Hỗ Trợ</a>
-    <a href="betabot.html" class="dock-item">🤖 BetaBot AI</a>
-  </nav>
+    <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
+  <div id="quick-dock-widget" class="quick-dock-widget">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-badge">3</span>
+    </button>
+    <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
+      <span class="dock-label">GIAO DIỆN:</span>
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
 
+
+  <script>
+    (function initCancelledPage() {
+      const params = new URLSearchParams(window.location.search);
+      const order = params.get('order') || localStorage.getItem('last_active_order') || 'BC1317376612';
+      const movieKey = params.get('movie') || 'quy-an-tang-4';
+      const total = Number(params.get('total') || 90000);
+      const cinema = params.get('cinema') || 'Beta Thanh Xuân (Hà Nội)';
+      const seats = params.get('seats') || 'D5, D6';
+      const date = params.get('date') || 'Hôm nay';
+      const time = params.get('time') || '18:30';
+      const refundCode = params.get('refund_code') || ('REF-' + order.slice(-6));
+
+      const movieTitle = (movieKey === 'quy-an-tang-4') ? 'Quỷ Ăn Tạng 4' : 'Trại Buôn Người: Vùng Cấm Biên Giới';
+      const poster = (movieKey === 'quy-an-tang-4') 
+        ? 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg' 
+        : 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg';
+
+      const totalFmt = total.toLocaleString('vi-VN') + ' đ';
+
+      const ordEl = document.getElementById('cancel-order-code');
+      if (ordEl) ordEl.textContent = order;
+      const tEl = document.getElementById('cancel-movie-title');
+      if (tEl) tEl.textContent = movieTitle;
+      const pEl = document.getElementById('cancel-movie-poster');
+      if (pEl) pEl.src = poster;
+      const cEl = document.getElementById('cancel-cinema');
+      if (cEl) cEl.textContent = cinema;
+      const stEl = document.getElementById('cancel-showtime');
+      if (stEl) stEl.textContent = `${time} • ${date}`;
+      const sEl = document.getElementById('cancel-seats');
+      if (sEl) sEl.textContent = seats;
+      const totEl = document.getElementById('cancel-total');
+      if (totEl) totEl.textContent = totalFmt;
+      const refEl = document.getElementById('cancel-refund-amount');
+      if (refEl) refEl.textContent = `+${totalFmt} (VietQR)`;
+      const noteEl = document.getElementById('cancel-note-seats');
+      if (noteEl) noteEl.textContent = seats;
+      const rcEl = document.getElementById('cancel-ref-code');
+      if (rcEl) rcEl.textContent = refundCode;
+    })();
+  </script>
 </body>
 </html>
