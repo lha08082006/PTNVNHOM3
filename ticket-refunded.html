@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi Tiết Đơn Hàng: Đã Hoàn Tiền - Beta Cinemas (Thiết Kế Nền Trắng 2026)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  <style>
+    /* Refunded Ticket Page Layout */
+    .refunded-page {
+      background: #f8fafc;
+      min-height: calc(100vh - 140px);
+      padding: 32px 0 60px;
+    }
+
+    .refunded-container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    .top-action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .btn-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #9A5B00;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-back-link:hover {
+      color: #005198;
+      transform: translateX(-3px);
+    }
+
+    .page-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .badge-refunded {
+      display: inline-block;
+      background: rgb(106, 166, 255);
+      color: rgb(18, 20, 28);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    /* Main Grid Layout (2 columns) */
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Card Panels */
+    .c-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+
+    .c-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+
+    .c-card-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    /* Line Rows */
+    .ln {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .m {
+      color: #5B6070;
+      font-size: 13.5px;
+    }
+
+    /* Stepper Timeline */
+    .timeline-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    .timeline-list::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: #86efac;
+      z-index: 1;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .timeline-dot-done {
+      flex: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-top: 4px;
+      background: #10b981;
+      border: 2px solid white;
+      box-shadow: 0 0 0 2px #a7f3d0;
+    }
+
+    @media (max-width: 860px) {
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <span style="color: #005198;">Xin chào, <strong id="top-user-name">LƯƠNG HỒNG ANH</strong></span>
+        <span>|</span>
+        <a href="account.html">Tài khoản</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" 
+             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+          <option selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option>Beta Trần Quang Khải</option>
+          <option>Beta Giải Phóng (Hà Nội)</option>
+          <option>Beta Mỹ Đình (Hà Nội)</option>
+          <option>Beta Quang Trung (TP.HCM)</option>
+          <option>Beta Ung Văn Khiêm (TP.HCM)</option>
+          <option>Beta Thái Nguyên</option>
+          <option>Beta Bắc Giang</option>
+          <option>Beta Nha Trang</option>
+        </select>
+        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official active">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Khung Thân Chính Nền Trắng (Refunded Detail) -->
+  <main class="refunded-page">
+    <div class="container refunded-container">
+      
+      <!-- Top Action Bar -->
+      <div class="top-action-bar">
+        <div>
+          <a href="account.html?tab=orders" class="btn-back-link">
+            <span>←</span> Đơn của tôi
+          </a>
+          <div class="page-title-row">
+            <h1 style="font-family: var(--font-display); font-size: 28px; font-weight: 900; color: #0f172a; margin: 0;">
+              Chi tiết đơn
+            </h1>
+            <span class="badge-refunded">Đã hoàn tiền</span>
+          </div>
+        </div>
+
+        <div style="text-align: right;">
+          <p class="m" style="margin: 0; font-size: 14px;">
+            Mã đơn <b style="color: #15171F; font-family: monospace; font-size: 15px;" id="order-code-display">BC2610279854</b>
+          </p>
+        </div>
+      </div>
+
+      <!-- Layout 2 Cột Đối Xứng Chuẩn Mockup -->
+      <div class="details-grid">
+        
+        <!-- CỘT TRÁI: THÔNG TIN VÉ / SUẤT CHIẾU ĐÃ HOÀN -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          
+          <section class="c-card">
+            <!-- Header Phim + Poster -->
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <img id="movie-poster" 
+                   src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg" 
+                   alt="Poster phim" 
+                   style="flex: none; width: 76px; height: 112px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12);"
+                   onerror="this.src='images/400x633-145627-230926-40.jpg';">
+              <div style="flex: 1;">
+                <h2 style="font-size: 21px; font-weight: 800; color: #0f172a; margin: 0 0 6px; line-height: 1.3;" id="movie-title">
+                  Quỷ Ăn Tạng 4 
+                  <span id="movie-age-badge" style="background: #ff5400; color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">C18</span>
+                </h2>
+                <p class="m" id="movie-meta" style="margin: 0 0 4px;">Kinh Dị, Giật Gân · 110 phút · 2D phụ đề</p>
+                <p class="m" id="cinema-room" style="margin: 0 0 4px;">Beta Thanh Xuân (Hà Nội) · Phòng 01</p>
+                <p class="m" id="showtime-date" style="margin: 0;">Hôm nay · 18:30</p>
+              </div>
+            </div>
+
+            <!-- Phân Cách Chi Tiết Ghế & Bắp Nước -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 14px; display: flex; flex-direction: column; gap: 10px;">
+              <div class="ln">
+                <span class="m">Ghế</span>
+                <span style="font-weight: 700; color: #0f172a;" id="seats-display">D5, D6</span>
+              </div>
+              <div class="ln">
+                <span class="m">Bắp nước</span>
+                <span style="color: #0f172a;" id="combos-display">Combo 1 (1 Bắp Ngọt + 1 Coca) × 1</span>
+              </div>
+              <div class="ln">
+                <span class="m">Tổng tiền</span>
+                <span style="color: #9A5B00; font-weight: 800; font-size: 16px;" id="total-display">179.000 đ</span>
+              </div>
+            </div>
+
+            <!-- Ghi chú đơn đã hoàn tiền không còn vé -->
+            <p class="m" style="border: 1px dashed #64748b; border-radius: 8px; padding: 12px 14px; margin: 4px 0 0; background: #f8fafc; font-size: 13px; line-height: 1.5; color: #475569;">
+              ℹ️ Đơn đã được hoàn tiền, không còn vé.
+            </p>
+          </section>
+
+          <!-- Nút điều hướng phụ trợ -->
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="account.html?tab=orders" class="btn btn-outline btn-sm" style="font-weight: 700; border-color: #cbd5e1; color: #475569; padding: 8px 16px; border-radius: 8px;">
+              ← Quay Lại Lịch Sử Đặt Vé
+            </a>
+            <a id="link-view-invoice" href="invoice.html" class="btn btn-outline btn-sm" style="font-weight: 700; border-color: #005198; color: #005198; padding: 8px 16px; border-radius: 8px;">
+              🧾 Xem Hóa Đơn Điện Tử
+            </a>
+          </div>
+
+        </div>
+
+        <!-- CỘT PHẢI: HOÀN TIỀN & LỊCH SỬ ĐƠN (TIMELINE) -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          
+          <!-- THẺ HOÀN TIỀN -->
+          <section class="c-card">
+            <h3 class="c-card-title">Hoàn tiền</h3>
+            
+            <div class="ln">
+              <span class="m">Mã hoàn tiền</span>
+              <span style="font-family: monospace; font-weight: 700; color: #005198;" id="refund-code-display">REF-2610-915</span>
+            </div>
+
+            <div class="ln">
+              <span class="m">Số tiền hoàn</span>
+              <span style="color: #9A5B00; font-weight: 800; font-size: 16px;" id="refund-amount-display">179.000 đ</span>
+            </div>
+
+            <div class="ln">
+              <span class="m">Tài khoản nhận</span>
+              <span style="font-weight: 600; color: #0f172a;" id="refund-bank-acc">MB Bank ****4321</span>
+            </div>
+
+            <div class="ln">
+              <span class="m">Mã giao dịch hoàn</span>
+              <span style="text-align: right; word-break: break-all; font-family: monospace; font-size: 13px; color: #0f172a;" id="refund-trans-code">FT26102798549921</span>
+            </div>
+
+            <div class="ln">
+              <span class="m">Thời điểm hoàn</span>
+              <span style="color: #0f172a;" id="refund-time-display">30/10/2026 23:45</span>
+            </div>
+
+            <!-- Trạng thái hoàn tiền thành công -->
+            <div style="border: 1px solid #10b981; background: #ecfdf5; border-radius: 8px; padding: 10px 14px; font-weight: 700; color: #047857; display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+              <span style="font-size: 16px;">✓</span> Đã hoàn tiền thành công
+            </div>
+
+            <div style="margin-top: 6px;">
+              <a href="betabot.html" class="btn btn-outline" style="display: inline-flex; align-items: center; justify-content: center; width: 100%; font-weight: 700; border-color: #cbd5e1; color: #334155; padding: 10px 16px; border-radius: 8px; font-size: 13.5px;">
+                💬 Liên hệ CSKH
+              </a>
+            </div>
+          </section>
+
+          <!-- THẺ LỊCH SỬ ĐƠN (TIMELINE 4 BƯỚC HOÀN TẤT) -->
+          <section class="c-card">
+            <h3 class="c-card-title">Lịch sử đơn</h3>
+            
+            <ol class="timeline-list">
+              <!-- Bước 1 -->
+              <li class="timeline-item">
+                <i class="timeline-dot-done"></i>
+                <div>
+                  <div style="font-weight: 700; font-size: 14px; color: #0f172a;">Đã tiếp nhận</div>
+                  <div class="m" style="font-size: 13px; color: #64748b; margin-top: 2px;" id="time-step-1">
+                    30/10/2026 23:30 · Hoàn tất
+                  </div>
+                </div>
+              </li>
+
+              <!-- Bước 2 -->
+              <li class="timeline-item">
+                <i class="timeline-dot-done"></i>
+                <div>
+                  <div style="font-weight: 700; font-size: 14px; color: #0f172a;">Đối soát</div>
+                  <div class="m" style="font-size: 13px; color: #64748b; margin-top: 2px;" id="time-step-2">
+                    30/10/2026 23:35 · Hoàn tất
+                  </div>
+                </div>
+              </li>
+
+              <!-- Bước 3 -->
+              <li class="timeline-item">
+                <i class="timeline-dot-done"></i>
+                <div>
+                  <div style="font-weight: 700; font-size: 14px; color: #0f172a;">Đã duyệt</div>
+                  <div class="m" style="font-size: 13px; color: #64748b; margin-top: 2px;" id="time-step-3">
+                    30/10/2026 23:40 · Hoàn tất
+                  </div>
+                </div>
+              </li>
+
+              <!-- Bước 4 -->
+              <li class="timeline-item">
+                <i class="timeline-dot-done"></i>
+                <div>
+                  <div style="font-weight: 700; font-size: 14px; color: #0f172a;">Đã chuyển hoàn</div>
+                  <div class="m" style="font-size: 13px; color: #64748b; margin-top: 2px;" id="time-step-4">
+                    30/10/2026 23:45 · Hoàn tất
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- CHÂN TRANG FOOTER CHÍNH THỨC BETA CINEMAS -->
+  <footer class="footer-official">
+    <div class="container">
+      <div class="footer-official-grid">
+        <!-- Cột 1: Giới Thiệu Doanh Nghiệp & Logo Trắng -->
+        <div>
+          <div style="margin-bottom: 18px;">
+            <a href="home.html">
+              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png" 
+                   onerror="this.onerror=null; this.src='images/logo-white-official.png';" 
+                   alt="Beta Cinemas" 
+                   style="height: 48px;">
+            </a>
+          </div>
+          <p style="font-size: 13px; color: #e0f2fe; line-height: 1.8; margin-bottom: 16px;">
+            <strong>CÔNG TY CỔ PHẦN BETA MEDIA</strong><br>
+            Tầng 3, số 59 phố Xuân Diệu, Phường Quảng An, Quận Tây Hồ, Thành phố Hà Nội.<br>
+            Mã số doanh nghiệp: 0106633482 do Sở KH&ĐT TP. Hà Nội cấp.<br>
+            Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
+          </p>
+          <div>
+            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+          </div>
+        </div>
+
+        <!-- Cột 2: Cụm Rạp Beta -->
+        <div>
+          <h4 class="footer-official-title">CỤM RẠP BETA CINEMAS</h4>
+          <ul class="footer-official-links">
+            <li><a href="schedule.html">Beta Thanh Xuân (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Trần Quang Khải (TP.HCM)</a></li>
+            <li><a href="schedule.html">Beta Giải Phóng (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Mỹ Đình (Hà Nội)</a></li>
+            <li><a href="schedule.html">Beta Quang Trung (TP.HCM)</a></li>
+            <li><a href="schedule.html">Beta Thái Nguyên</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 3: Liên Kết Hữu Ích -->
+        <div>
+          <h4 class="footer-official-title">LIÊN KẾT NHANH</h4>
+          <ul class="footer-official-links">
+            <li><a href="home.html#promos">Ưu Đãi Học Sinh Sinh Viên</a></li>
+            <li><a href="support.html">Điều Khoản Mua Vé</a></li>
+            <li><a href="support.html">Chính Sách Hoàn Tiền</a></li>
+            <li><a href="betabot.html">Trung Tâm Trợ Giúp BetaBot</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 4: Kết Nối Với Chúng Tôi -->
+        <div>
+          <h4 class="footer-official-title">KẾT NỐI VỚI BETA</h4>
+          <p style="font-size: 13px; color: #e0f2fe; margin-bottom: 14px;">Theo dõi chúng tôi để nhận khuyến mãi hấp dẫn nhất:</p>
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <a href="https://facebook.com" target="_blank" class="footer-social-btn" title="Facebook">f</a>
+            <a href="https://youtube.com" target="_blank" class="footer-social-btn" title="YouTube">yt</a>
+            <a href="https://instagram.com" target="_blank" class="footer-social-btn" title="Instagram">ig</a>
+            <a href="https://tiktok.com" target="_blank" class="footer-social-btn" title="TikTok">tk</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-official-bottom">
+        <p>© 2026 BETA MEDIA. Toàn bộ bản quyền thuộc về Beta Cinemas. Hệ thống phòng chiếu chuẩn Hollywood.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- NÚT NỔI FAB & THANH CÔNG CỤ NHANH DOCK -->
+  <div class="quick-dock-wrapper" id="quick-dock-container">
+    <button type="button" class="fab-dock-btn" id="btn-toggle-quick-dock" onclick="toggleQuickDock()" title="Mở menu chuyển nhanh">
+      <span class="fab-icon-open">⚡</span>
+      <span class="fab-icon-close" style="display: none;">✕</span>
+    </button>
+    <nav class="quick-dock" id="quick-dock-nav" style="display: none;">
+      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <a href="ticket-refunded.html" class="dock-item active" data-page="ticket-refunded">🎉 Đơn Đã Hoàn</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+    </nav>
+  </div>
+  <script src="quick-dock.js"></script>
+
+  <!-- Script Tự Động Đồng Bộ Dữ Liệu Khớp 100% -->
+  <script src="pay-client.js"></script>
+  <script>
+    // 1. Phân tích tham số từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderCode = urlParams.get('order') || localStorage.getItem('last_active_order') || 'BC2610279854';
+    
+    // 2. Tra cứu dữ liệu từ localStorage
+    let refundDet = null;
+    try {
+      const stored = localStorage.getItem('refund_detail_' + orderCode);
+      if (stored) refundDet = JSON.parse(stored);
+    } catch (e) {}
+
+    // Tra cứu từ pay-client nếu có
+    const localOrd = (window.Pay && Pay.getLocalOrder) ? Pay.getLocalOrder(orderCode) : null;
+
+    // Trích xuất các trường dữ liệu
+    const movieKey = (refundDet && refundDet.movie) || urlParams.get('movie') || (localOrd && localOrd.movie_key) || 'quy-an-tang-4';
+    const cinema = (refundDet && refundDet.cinema) || urlParams.get('cinema') || (localOrd && localOrd.cinema) || 'Beta Thanh Xuân (Hà Nội)';
+    const seats = (refundDet && refundDet.seats) || urlParams.get('seats') || (localOrd && (Array.isArray(localOrd.seats) ? localOrd.seats.join(', ') : localOrd.seats)) || 'D5, D6';
+    const rawCombos = (refundDet && refundDet.combos) || urlParams.get('combos') || '';
+    const date = (refundDet && refundDet.date) || urlParams.get('date') || 'Hôm nay';
+    const time = (refundDet && refundDet.time) || urlParams.get('time') || '18:30';
+    const total = Number((refundDet && refundDet.total) || urlParams.get('total') || (localOrd && localOrd.total) || 179000);
+    const bank = (refundDet && refundDet.bank) || urlParams.get('bank') || 'MB Bank (Ngân hàng Quân Đội)';
+    const acc = (refundDet && refundDet.acc) || urlParams.get('acc') || '0987654321';
+    const owner = (refundDet && refundDet.owner) || urlParams.get('owner') || 'LƯƠNG HỒNG ANH';
+    const refundCode = (refundDet && refundDet.refund_code) || urlParams.get('refund_code') || ('REF-' + orderCode.slice(-6));
+
+    // Xử lý tên phim và poster
+    const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
+    let movieTitle = (movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4';
+    if (movieKey === 'quy-an-tang-4') movieTitle = 'Quỷ Ăn Tạng 4';
+    else if (movieKey === 'trai-buon-nguoi') movieTitle = 'Trại Buôn Người: Vùng Cấm Biên Giới';
+
+    const poster = (movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg';
+
+    // Mask số tài khoản: ví dụ 0987654321 -> ****4321
+    const cleanBank = bank.split('(')[0].trim();
+    const last4Acc = acc.length >= 4 ? acc.slice(-4) : acc;
+    const maskedAccText = `${cleanBank} ****${last4Acc}`;
+
+    // Format tiền VND
+    const formattedTotal = (window.Pay && Pay.vnd) ? Pay.vnd(total) : total.toLocaleString('vi-VN') + ' đ';
+
+    // Xử lý chuỗi combo
+    let combosText = 'Không kèm bắp nước';
+    if (rawCombos) {
+      if (typeof rawCombos === 'string' && rawCombos.startsWith('{')) {
+        try {
+          const parsed = JSON.parse(rawCombos);
+          const parts = [];
+          for (let k in parsed) {
+            parts.push(`Combo (${k}) × ${parsed[k]}`);
+          }
+          if (parts.length > 0) combosText = parts.join(', ');
+        } catch (e) {
+          combosText = rawCombos;
+        }
+      } else {
+        combosText = rawCombos;
+      }
+    } else {
+      combosText = 'Combo 1 (1 Bắp Ngọt + 1 Coca) × 1';
+    }
+
+    // Thời gian hoàn tiền (mặc định lấy thời điểm hiện tại hoặc lùi vài phút)
+    const now = new Date();
+    const pad = (n) => n.toString().padStart(2, '0');
+    const timeFormatted = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const dateFormatted = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+    const fullRefundTime = `${dateFormatted} ${timeFormatted}`;
+
+    // Tạo mã giao dịch ngân hàng
+    const transCode = 'FT' + orderCode.slice(-8) + Math.floor(1000 + Math.random() * 9000);
+
+    // Gán dữ liệu vào HTML
+    document.getElementById('order-code-display').textContent = orderCode;
+    document.getElementById('movie-title').innerHTML = `${movieTitle} <span id="movie-age-badge" style="background: #ff5400; color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">C18</span>`;
+    document.getElementById('movie-poster').src = poster;
+    document.getElementById('cinema-room').textContent = `${cinema} · Phòng 01`;
+    document.getElementById('showtime-date').textContent = `${date} · ${time}`;
+    document.getElementById('seats-display').textContent = seats;
+    document.getElementById('combos-display').textContent = combosText;
+    document.getElementById('total-display').textContent = formattedTotal;
+
+    document.getElementById('refund-code-display').textContent = refundCode;
+    document.getElementById('refund-amount-display').textContent = formattedTotal;
+    document.getElementById('refund-bank-acc').textContent = maskedAccText;
+    document.getElementById('refund-trans-code').textContent = transCode;
+    document.getElementById('refund-time-display').textContent = fullRefundTime;
+    document.getElementById('top-user-name').textContent = owner;
+
+    // Cập nhật mốc thời gian lịch sử đơn
+    const t0 = new Date(now.getTime() - 15 * 60000);
+    const t1 = new Date(now.getTime() - 10 * 60000);
+    const t2 = new Date(now.getTime() - 5 * 60000);
+    const formatStepTime = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())} · Hoàn tất`;
+
+    document.getElementById('time-step-1').textContent = formatStepTime(t0);
+    document.getElementById('time-step-2').textContent = formatStepTime(t1);
+    document.getElementById('time-step-3').textContent = formatStepTime(t2);
+    document.getElementById('time-step-4').textContent = `${fullRefundTime} · Hoàn tất`;
+
+    // Cập nhật link xem hóa đơn điện tử
+    const invoiceLink = document.getElementById('link-view-invoice');
+    if (invoiceLink) {
+      invoiceLink.href = 'invoice.html?order=' + encodeURIComponent(orderCode);
+    }
+  </script>
+</body>
+</html>

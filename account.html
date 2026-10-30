@@ -1336,6 +1336,7 @@
       <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
+      <a href="ticket-refunded.html" class="dock-item" data-page="ticket-refunded">🎉 Đã Hoàn</a>
       <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
     </nav>
   </div>
@@ -2326,7 +2327,7 @@
       }
       if (timerRow) timerRow.style.display = 'none';
       if (descBox) {
-        descBox.innerHTML = '✓ <strong>Lệnh hoàn tiền tự động (API Auto-Payout) đã được thực thi thành công!</strong><br>Số tiền <strong>' + total + '</strong> đã được hoàn trả về tài khoản <strong>' + bank + ' - ' + acc + '</strong>. Giao dịch đã hoàn tất tự động mà không cần nhân viên can thiệp.';
+        descBox.innerHTML = '✓ <strong>Lệnh hoàn tiền tự động (API Auto-Payout) đã được thực thi thành công!</strong><br>Số tiền <strong>' + total + '</strong> đã được hoàn trả về tài khoản <strong>' + bank + ' - ' + acc + '</strong>. Giao dịch đã hoàn tất tự động mà không cần nhân viên can thiệp.<div style="margin-top: 10px;"><a href="ticket-refunded.html?order=' + encodeURIComponent(ordCode) + '" class="btn btn-primary btn-sm" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;"><span>🎉</span> Xem Giao Diện Chi Tiết Đơn Đã Hoàn (Mockup)</a></div>';
         descBox.style.color = '#065f46';
       }
       if (fallbackNotice) fallbackNotice.style.display = 'none';
@@ -2373,7 +2374,7 @@
         cardBox.style.background = '#ecfdf5';
         cardBox.style.borderColor = '#a7f3d0';
         cardBox.style.color = '#065f46';
-        cardBox.innerHTML = '<strong>✓ Hệ thống đã tự động hoàn tiền thành công (' + total + ')</strong> về: ' + bank + ' - ' + acc + '. Giao dịch hoàn tất không cần nhân viên can thiệp.';
+        cardBox.innerHTML = '<strong>✓ Hệ thống đã tự động hoàn tiền thành công (' + total + ')</strong> về: ' + bank + ' - ' + acc + '. Giao dịch hoàn tất không cần nhân viên can thiệp.<div style="margin-top: 8px;"><a href="ticket-refunded.html?order=' + encodeURIComponent(ordCode) + '" class="btn btn-sm" style="background: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; text-decoration: none;"><span>🎉</span> Xem Đơn Đã Hoàn</a></div>';
       }
 
     } else if (state === 'FALLBACK_STAFF') {

@@ -62,7 +62,8 @@ window.toggleQuickDock = toggleQuickDock;
     const links = {
       'verify': `verify.html?${query}`,
       'ticket-cancelled': `ticket-cancelled.html?${query}`,
-      'refund': `refund.html?${query}`
+      'refund': `refund.html?${query}`,
+      'ticket-refunded': `ticket-refunded.html?${query}`
     };
 
     const nav = document.getElementById('quick-dock-nav');
@@ -78,7 +79,8 @@ window.toggleQuickDock = toggleQuickDock;
       const curPath = (window.location.pathname || '').toLowerCase();
       if ((p === 'verify' && curPath.includes('verify')) ||
           (p === 'ticket-cancelled' && curPath.includes('ticket-cancelled')) ||
-          (p === 'refund' && curPath.includes('refund') && !curPath.includes('refund-track'))) {
+          (p === 'refund' && curPath.includes('refund') && !curPath.includes('refund-track') && !curPath.includes('ticket-refunded')) ||
+          (p === 'ticket-refunded' && curPath.includes('ticket-refunded'))) {
         item.classList.add('active');
       } else {
         item.classList.remove('active');
