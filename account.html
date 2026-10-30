@@ -569,6 +569,10 @@
               <span style="color: #b45309; font-weight: 700;">Chưa hoàn tiền</span>
               <span class="filter-tab-count" id="count-unrefunded" style="background: #fef3c7; color: #b45309;">2</span>
             </button>
+            <button class="filter-tab-btn" data-filter="refunded" onclick="applyOrderFilter('refunded', this)" style="border-color: #bfdbfe;">
+              <span style="color: #1e40af; font-weight: 700;">🎉 Đã hoàn tiền</span>
+              <span class="filter-tab-count" id="count-refunded" style="background: #dbeafe; color: #1e40af;">1</span>
+            </button>
           </div>
 
           <div class="filter-search-box">
@@ -579,6 +583,19 @@
         </div>
 
         <!-- Danh Sách Đơn Hàng -->
+        <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 12px 18px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 22px;">🎉</span>
+            <div>
+              <div style="font-weight: 800; font-size: 14px; color: #1e40af;">GIAO DIỆN MỚI: CHI TIẾT ĐƠN ĐÃ HOÀN TIỀN THÀNH CÔNG</div>
+              <div style="font-size: 12.5px; color: #475569;">Giao diện theo đúng file thiết kế mockup <strong style="color: #0f172a;">TicketRefunded.dc.html</strong>.</div>
+            </div>
+          </div>
+          <a href="ticket-refunded.html" class="btn btn-primary btn-sm" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <span>👉</span> Xem Giao Diện Đã Hoàn Tiền
+          </a>
+        </div>
+
         <div id="orders-list-wrapper">
 
           <!-- Đơn hàng 1 (Mới nhất - Sắp chiếu): LINH GIỚI ĐẠI CHIẾN - Đặt lúc: 27/10/2026 18:14:02 -->
@@ -722,7 +739,7 @@
 
           <!-- Đơn hàng 4 (ĐÃ HỦY / ĐÃ HOÀN TIỀN): TRẠI BUÔN NGƯỜI - Đặt lúc: 20/10/2026 17:30:10 -->
           <div class="order-history-item" data-status="cancelled" data-refund="refunded"
-            data-title="Trại Buôn Người: Vùng Cấm Biên Giới" data-code="BC2610208819" data-created="2026-10-20T17:30:10" onclick="openInvoiceModal('BC2610208819')" title="Bấm vào đơn để xem chi tiết hóa đơn"
+            data-title="Trại Buôn Người: Vùng Cấm Biên Giới" data-code="BC2610208819" data-created="2026-10-20T17:30:10" onclick="window.location.href='ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889'" title="Bấm vào đơn để xem chi tiết hóa đơn"
             style="border-left: 4px solid #ef4444; background: #fffdfd;">
             <img class="order-item-poster" src="images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg"
               alt="Trại Buôn Người" onerror="this.src='images/400x633-145627-230926-40.jpg'">
@@ -759,6 +776,9 @@
               </div>
 
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 8px; text-decoration: none;">
+                  <span>🎉</span> Xem Chi Tiết Đơn Đã Hoàn (Giao Diện Mới)
+                </a>
                 <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610208819');" style="border-color: #005198; color: #005198; font-weight: 700;"><span>🧾</span> Chi Tiết Hóa Đơn</button>
                 <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); reportOrderIssue('BC2610208819');" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Cáo Lỗi</button>
               </div>
@@ -1369,12 +1389,14 @@
         const st = item.getAttribute('data-status');
         if (counts[st] !== undefined) counts[st]++;
         if (item.getAttribute('data-refund') === 'unrefunded') counts.unrefunded++;
+        if (item.getAttribute('data-refund') === 'refunded') counts.refunded = (counts.refunded || 0) + 1;
       });
       if (document.getElementById('count-all')) document.getElementById('count-all').textContent = counts.all;
       if (document.getElementById('count-upcoming')) document.getElementById('count-upcoming').textContent = counts.upcoming;
       if (document.getElementById('count-completed')) document.getElementById('count-completed').textContent = counts.completed;
       if (document.getElementById('count-cancelled')) document.getElementById('count-cancelled').textContent = counts.cancelled;
       if (document.getElementById('count-unrefunded')) document.getElementById('count-unrefunded').textContent = counts.unrefunded;
+      if (document.getElementById('count-refunded')) document.getElementById('count-refunded').textContent = counts.refunded || 1;
       if (document.getElementById('total-orders-count')) document.getElementById('total-orders-count').textContent = counts.all;
     }
 
@@ -1408,6 +1430,8 @@
           matchStatus = true;
         } else if (currentFilter === 'unrefunded') {
           matchStatus = isUnrefunded;
+        } else if (currentFilter === 'refunded') {
+          matchStatus = (item.getAttribute('data-refund') === 'refunded');
         } else if (currentFilter === 'cancelled') {
           matchStatus = (itemStatus === 'cancelled');
         } else {
