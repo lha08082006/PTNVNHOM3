@@ -1143,6 +1143,53 @@
             </div>
           </div>
 
+          
+          <!-- BANNER QUY TRÌNH HOÀN TIỀN TỰ ĐỘNG (AUTO-REFUND TRONG 24H) -->
+          <div id="modal-auto-refund-banner" style="display: block; background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div style="font-weight: 800; font-size: 13.5px; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 17px;">🤖</span> CƠ CHẾ HOÀN TIỀN TỰ ĐỘNG (AUTO-REFUND 24H)
+              </div>
+              <span id="auto-refund-badge" class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px;">
+                ⏳ CẤP 1: HỆ THỐNG ĐANG TỰ ĐỘNG XỬ LÝ (TRONG 24H)
+              </span>
+            </div>
+
+            <!-- Đồng hồ và thông tin tiến trình tự động -->
+            <div id="auto-refund-timer-row" style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 14px; flex-wrap: wrap; gap: 6px;">
+              <div style="font-size: 12.5px; color: #334155; display: flex; align-items: center; gap: 6px;">
+                <span>⏱️</span> <span>Hạn chót hệ thống tự động hoàn tất:</span>
+              </div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #1d4ed8;">
+                Còn lại: <span id="auto-refund-timer-val" style="font-family: monospace; font-size: 15px; color: #1e40af;">23:59:15</span>
+              </div>
+            </div>
+
+            <div id="auto-refund-desc-box" style="font-size: 12.5px; color: #1e293b; margin-top: 8px; line-height: 1.55;">
+              Hệ thống thanh toán đang phát lệnh hoàn tiền tự động qua API liên ngân hàng về số tài khoản của bạn. <strong>Khách hàng không cần thao tác thêm, nhân viên không cần can thiệp.</strong>
+            </div>
+
+            <div id="auto-refund-fallback-notice" style="font-size: 12px; color: #475569; margin-top: 8px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 8px 12px; line-height: 1.45;">
+              📌 <strong>Quy định chuyển tiếp:</strong> Hệ thống tự động thực hiện hoàn tiền trong tối đa <strong>24 giờ</strong>. Nếu sau 24h hệ thống không thể chuyển trả (do ngân hàng gián đoạn hoặc lỗi số tài khoản), hệ thống sẽ <strong>tự động chuyển giao sang Nhân viên Kế toán rạp</strong> để đối soát và xử lý thủ công (3 - 7 ngày).
+            </div>
+
+            <!-- Panel Sandbox dành riêng cho demo / thuyết trình -->
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #bfdbfe; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 11.5px; color: #1e40af; font-weight: 800;">🧪 THỬ NGHIỆM KỊCH BẢN THUYẾT TRÌNH (DEMO):</span>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-sm" onclick="triggerAutoRefundSuccess(activeInvoiceOrderCode)" style="background: #10b981; color: white; padding: 5px 12px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;" title="Giả lập hệ thống tự chuyển tiền thành công">
+                  🟢 Kịch bản 1: Hệ thống tự động trả tiền xong
+                </button>
+                <button type="button" class="btn btn-sm" onclick="triggerAutoRefundFallback(activeInvoiceOrderCode)" style="background: #f59e0b; color: white; padding: 5px 12px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;" title="Giả lập tự động lỗi -> chuyển nhân viên">
+                  🟠 Kịch bản 2: Lỗi/Quá 24h → Chuyển nhân viên
+                </button>
+                <button type="button" class="btn btn-sm" onclick="resetAutoRefundStatus(activeInvoiceOrderCode)" style="background: #64748b; color: white; padding: 5px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;" title="Đặt lại trạng thái 24h">
+                  🔄 Reset 24h
+                </button>
+              </div>
+            </div>
+          </div>
+
           <ol class="timeline-list" style="margin-left: 6px;">
             <!-- Bước 1 -->
             <li class="timeline-item">
@@ -1169,25 +1216,25 @@
             </li>
 
             <!-- Bước 3 -->
-            <li class="timeline-item">
-              <i class="timeline-dot active"></i>
+            <li class="timeline-item" id="timeline-step-3">
+              <i class="timeline-dot active" id="timeline-step-3-dot"></i>
               <div>
-                <div style="font-weight: 800; font-size: 13.5px; color: #2563eb;">3. Đã duyệt hoàn tiền & Ngân hàng đang giải ngân</div>
-                <div style="font-size: 12px; color: #2563eb; font-weight: 700; margin-top: 1px;">● Đang xử lý lệnh hoàn tiền về STK ngân hàng gốc</div>
-                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
-                  Kế toán rạp đã ký duyệt hoàn tiền 100%. Lệnh chuyển tiền tự động đang được cổng thanh toán chuyển đến ngân hàng của bạn.
+                <div id="timeline-step-3-title" style="font-weight: 800; font-size: 13.5px; color: #2563eb;">3. Hệ thống tự động chuyển tiền (Tối đa 24h)</div>
+                <div id="timeline-step-3-badge" style="font-size: 12px; color: #2563eb; font-weight: 700; margin-top: 1px;">● Đang phát lệnh chuyển tiền tự động qua API ngân hàng</div>
+                <div id="timeline-step-3-desc" style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                  Lệnh chuyển tiền tự động đang được kết nối trực tiếp đến ngân hàng của bạn. Nếu sau 24h không thành công, hệ thống sẽ tự động chuyển giao Kế toán rạp xử lý.
                 </div>
               </div>
             </li>
 
             <!-- Bước 4 -->
-            <li class="timeline-item">
-              <i class="timeline-dot pending"></i>
+            <li class="timeline-item" id="timeline-step-4">
+              <i class="timeline-dot pending" id="timeline-step-4-dot"></i>
               <div>
-                <div style="font-weight: 800; font-size: 13.5px; color: #64748b;">4. Hoàn tất nhận tiền về tài khoản</div>
-                <div style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Chờ ngân hàng ghi có biến động số dư</div>
-                <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
-                  Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng chuyển tiền ban đầu của bạn.
+                <div id="timeline-step-4-title" style="font-weight: 800; font-size: 13.5px; color: #64748b;">4. Hoàn tất nhận tiền về tài khoản</div>
+                <div id="timeline-step-4-badge" style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Chờ ngân hàng ghi có biến động số dư</div>
+                <div id="timeline-step-4-desc" style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+                  Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng của bạn.
                 </div>
               </div>
             </li>
@@ -1213,7 +1260,7 @@
               </div>
               <div>
                 <span style="color: #64748b;">Thời gian giải ngân dự kiến:</span><br>
-                <strong style="color: #2563eb;">3 - 7 ngày làm việc</strong>
+                <strong id="inv-refund-sla-text" style="color: #2563eb;">Tối đa 24 giờ (Tự động chuyển trả)</strong>
               </div>
             </div>
           </div>
@@ -1757,6 +1804,10 @@
           }
           const refEl = document.getElementById('inv-refund-ref-code');
           if (refEl) refEl.textContent = 'REF-' + (data.code || '').slice(-6);
+
+          // Cập nhật giao diện tự động hoàn tiền 24h
+          updateAutoRefundUI(data.code);
+          startAutoRefundCountdown(data.code);
         }
       } else {
         // Đơn lỗi / chưa hoàn tiền: Chưa báo cáo lỗi thì hiển thị nút Báo Cáo Lỗi
@@ -2101,7 +2152,7 @@
     }
     localStorage.setItem('layer2_outcome_' + ordCode, 'EXPIRED');
 
-    alert('⏱️ [HẾT THỜI GIAN GIỮ GHẾ - LỚP 2 KẾT THÚC]\n\nĐã hết 10 phút giữ ghế mà chưa nhận được tiền từ ngân hàng.\n\n→ Hệ thống đã tự động NHẢ GHẾ để mở bán lại cho khán giả khác.\n→ Đơn hàng chính thức khóa và chuyển sang trạng thái ĐÃ HỦY.\n→ Kế toán sẽ thực hiện hoàn tiền 100% trong 3 - 7 ngày làm việc về số tài khoản bạn đã cung cấp.');
+    alert('⏱️ [HẾT THỜI GIAN GIỮ GHẾ - LỚP 2 KẾT THÚC]\n\nĐã hết thời gian giữ ghế mà chưa nhận được tiền từ ngân hàng.\n\n→ Hệ thống đã tự động NHẢ GHẾ để mở bán lại cho khán giả khác.\n→ KÍCH HOẠT CƠ CHẾ HOÀN TIỀN TỰ ĐỘNG:\n  1. Cấp 1 (Tự động trong 24h): Hệ thống tự động phát lệnh hoàn tiền về tài khoản ngân hàng của bạn mà không cần nhân viên can thiệp.\n  2. Cấp 2 (Dự phòng): Nếu sau 24h hệ thống không thể chuyển trả, hồ sơ sẽ tự động chuyển giao sang Nhân viên Kế toán xử lý thủ công (3 - 7 ngày).');
 
     const card = document.querySelector(`.order-history-item[data-code="${ordCode}"]`);
     const det = getRefundDetail(ordCode);
@@ -2120,15 +2171,19 @@
         badge.style.background = '#fee2e2';
         badge.style.color = '#991b1b';
         badge.style.border = '1px solid #fca5a5';
-        badge.textContent = '❌ ĐÃ HỦY - CHỜ KẾ TOÁN HOÀN TIỀN';
+        badge.textContent = '❌ ĐÃ HỦY - ĐANG TỰ ĐỘNG HOÀN TIỀN (24H)';
       }
 
       const l2Box = card.querySelector(`#layer2-box-${ordCode}`) || card.querySelector('.refund-in-progress-box');
       if (l2Box) {
         l2Box.outerHTML = `
-          <div class="refund-in-progress-box" style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #9f1239;">
-            <div style="font-weight: 700; margin-bottom: 2px;">⚠️ Đã tự động nhả ghế ${seats} do hết 10 phút giữ ghế.</div>
-            <div>Hồ sơ số <strong>${refundCode}</strong> đang được Kế toán rạp xử lý hoàn tiền về: <strong>${bank} - ${acc}</strong> (Dự kiến 3 - 7 ngày).</div>
+          <div class="refund-in-progress-box" id="autorefund-box-${ordCode}" style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 12.5px; color: #1e40af;">
+            <div style="font-weight: 800; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 4px;">
+              <span>🤖 HỆ THỐNG ĐANG TỰ ĐỘNG HOÀN TIỀN (TRONG 24H)</span>
+              <span style="font-size: 12px; color: #1d4ed8;">⏱️ Còn: <strong id="autorefund-timer-${ordCode}" style="font-family: monospace;">23:58:45</strong></span>
+            </div>
+            <div>Đã tự động nhả ghế ${seats}. Đang phát lệnh hoàn trả tự động về: <strong>${bank} - ${acc}</strong>.</div>
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">Nếu sau 24h không chuyển được, hệ thống sẽ tự động chuyển giao Nhân viên Kế toán rạp xử lý thủ công.</div>
           </div>
         `;
       }
@@ -2150,8 +2205,8 @@
       INVOICES_DATA[ordCode].rawStatus = 'CANCELLED';
       INVOICES_DATA[ordCode].status = 'CANCELLED';
       INVOICES_DATA[ordCode].isRefunding = true;
-      INVOICES_DATA[ordCode].statusBadge = '<span class="badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 11px; font-weight: 800;">❌ ĐÃ HỦY - CHỜ KẾ TOÁN HOÀN TIỀN</span>';
-      INVOICES_DATA[ordCode].statusNote = 'Đơn hàng đã hết thời gian giữ ghế và đã tự động nhả ghế. Kế toán đang xử lý lệnh chuyển khoản hoàn tiền 100% trong 3 - 7 ngày làm việc.';
+      INVOICES_DATA[ordCode].statusBadge = '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">❌ ĐÃ HỦY - TỰ ĐỘNG HOÀN TIỀN (24H)</span>';
+      INVOICES_DATA[ordCode].statusNote = 'Đơn hàng đã hết thời gian giữ ghế. Hệ thống đang tự động hoàn tiền trong 24h về STK ngân hàng của bạn. Nếu sau 24h không thành công, hệ thống sẽ tự động chuyển giao Kế toán rạp xử lý.';
     }
 
     const modal = document.getElementById('invoice-modal');
@@ -2160,6 +2215,337 @@
     }
   }
   window.triggerLayer2Expired = triggerLayer2Expired;
+
+  
+  // ==========================================
+  // CƠ CHẾ HOÀN TIỀN TỰ ĐỘNG (AUTO-REFUND TRONG 24H)
+  // ==========================================
+  let autoRefundTimers = {};
+
+  function formatTimeHMS(totalSec) {
+    if (totalSec <= 0) return '00:00:00';
+    const h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
+    const m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
+    const s = (totalSec % 60).toString().padStart(2, '0');
+    return h + ':' + m + ':' + s;
+  }
+
+  function startAutoRefundCountdown(ordCode) {
+    if (!ordCode) return;
+    if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
+
+    let sec = parseInt(localStorage.getItem('autorefund_sec_' + ordCode) || '86340', 10);
+    const timerEl = document.getElementById('auto-refund-timer-val');
+    const cardTimerEl = document.getElementById('autorefund-timer-' + ordCode);
+
+    if (timerEl) timerEl.textContent = formatTimeHMS(sec);
+    if (cardTimerEl) cardTimerEl.textContent = formatTimeHMS(sec);
+
+    autoRefundTimers[ordCode] = setInterval(() => {
+      const state = localStorage.getItem('autorefund_state_' + ordCode);
+      if (state) {
+        clearInterval(autoRefundTimers[ordCode]);
+        return;
+      }
+      sec--;
+      if (sec <= 0) {
+        clearInterval(autoRefundTimers[ordCode]);
+        triggerAutoRefundFallback(ordCode, true);
+        return;
+      }
+      localStorage.setItem('autorefund_sec_' + ordCode, sec);
+      const curTimerEl = document.getElementById('auto-refund-timer-val');
+      const curCardTimerEl = document.getElementById('autorefund-timer-' + ordCode);
+      if (curTimerEl) curTimerEl.textContent = formatTimeHMS(sec);
+      if (curCardTimerEl) curCardTimerEl.textContent = formatTimeHMS(sec);
+    }, 1000);
+  }
+
+  function updateAutoRefundUI(ordCode) {
+    if (!ordCode) return;
+    const state = localStorage.getItem('autorefund_state_' + ordCode);
+    const det = getRefundDetail(ordCode);
+    const bank = det ? det.bank : 'MB Bank';
+    const acc = det ? det.acc : '0987654321';
+    const total = det ? (window.Pay ? Pay.vnd(det.total) : '179.000 đ') : '179.000 đ';
+
+    const banner = document.getElementById('modal-auto-refund-banner');
+    const badge = document.getElementById('auto-refund-badge');
+    const timerRow = document.getElementById('auto-refund-timer-row');
+    const descBox = document.getElementById('auto-refund-desc-box');
+    const fallbackNotice = document.getElementById('auto-refund-fallback-notice');
+
+    const step3Title = document.getElementById('timeline-step-3-title');
+    const step3Badge = document.getElementById('timeline-step-3-badge');
+    const step3Desc = document.getElementById('timeline-step-3-desc');
+    const step3Dot = document.getElementById('timeline-step-3-dot');
+
+    const step4Title = document.getElementById('timeline-step-4-title');
+    const step4Badge = document.getElementById('timeline-step-4-badge');
+    const step4Desc = document.getElementById('timeline-step-4-desc');
+    const step4Dot = document.getElementById('timeline-step-4-dot');
+
+    const slaText = document.getElementById('inv-refund-sla-text');
+
+    const card = document.querySelector('.order-history-item[data-code="' + ordCode + '"]');
+    const cardBadge = card ? card.querySelector('.badge') : null;
+    const cardBox = card ? (card.querySelector('#autorefund-box-' + ordCode) || card.querySelector('.refund-in-progress-box')) : null;
+
+    if (state === 'SUCCESS') {
+      // 1. KỊCH BẢN 1: HỆ THỐNG TỰ ĐỘNG CHUYỂN TRẢ THÀNH CÔNG
+      if (banner) {
+        banner.style.background = '#ecfdf5';
+        banner.style.borderColor = '#86efac';
+      }
+      if (badge) {
+        badge.style.background = '#d1fae5';
+        badge.style.color = '#065f46';
+        badge.style.borderColor = '#a7f3d0';
+        badge.textContent = '✓ HỆ THỐNG ĐÃ TỰ ĐỘNG HOÀN TIỀN THÀNH CÔNG';
+      }
+      if (timerRow) timerRow.style.display = 'none';
+      if (descBox) {
+        descBox.innerHTML = '✓ <strong>Lệnh hoàn tiền tự động (API Auto-Payout) đã được thực thi thành công!</strong><br>Số tiền <strong>' + total + '</strong> đã được hoàn trả về tài khoản <strong>' + bank + ' - ' + acc + '</strong>. Giao dịch đã hoàn tất tự động mà không cần nhân viên can thiệp.';
+        descBox.style.color = '#065f46';
+      }
+      if (fallbackNotice) fallbackNotice.style.display = 'none';
+
+      if (step3Title) {
+        step3Title.textContent = '3. Hệ thống đã tự động chuyển tiền thành công';
+        step3Title.style.color = '#059669';
+      }
+      if (step3Badge) {
+        step3Badge.textContent = '✓ Đã hoàn tất chuyển tiền tự động qua API ngân hàng';
+        step3Badge.style.color = '#059669';
+      }
+      if (step3Desc) step3Desc.textContent = 'Tiền đã được chuyển trả trực tiếp vào STK của bạn trong cam kết 24h.';
+      if (step3Dot) {
+        step3Dot.className = 'timeline-dot done';
+      }
+
+      if (step4Title) {
+        step4Title.textContent = '4. Hoàn tất nhận tiền về tài khoản';
+        step4Title.style.color = '#059669';
+      }
+      if (step4Badge) {
+        step4Badge.textContent = '✓ Ngân hàng đã ghi có biến động số dư';
+        step4Badge.style.color = '#059669';
+      }
+      if (step4Desc) step4Desc.textContent = 'Giao dịch hoàn tất 100%. Cảm ơn bạn đã đồng hành cùng Beta Cinemas!';
+      if (step4Dot) {
+        step4Dot.className = 'timeline-dot done';
+      }
+
+      if (slaText) {
+        slaText.textContent = '✓ Đã hoàn tất tự động';
+        slaText.style.color = '#059669';
+      }
+
+      // Card ngoài danh sách
+      if (cardBadge) {
+        cardBadge.style.background = '#d1fae5';
+        cardBadge.style.color = '#065f46';
+        cardBadge.style.borderColor = '#a7f3d0';
+        cardBadge.textContent = '✓ ĐÃ HOÀN TIỀN TỰ ĐỘNG';
+      }
+      if (cardBox) {
+        cardBox.style.background = '#ecfdf5';
+        cardBox.style.borderColor = '#a7f3d0';
+        cardBox.style.color = '#065f46';
+        cardBox.innerHTML = '<strong>✓ Hệ thống đã tự động hoàn tiền thành công (' + total + ')</strong> về: ' + bank + ' - ' + acc + '. Giao dịch hoàn tất không cần nhân viên can thiệp.';
+      }
+
+    } else if (state === 'FALLBACK_STAFF') {
+      // 2. KỊCH BẢN 2: TỰ ĐỘNG LỖI / QUÁ 24H -> CHUYỂN GIAO NHÂN VIÊN
+      if (banner) {
+        banner.style.background = '#fffbeb';
+        banner.style.borderColor = '#fcd34d';
+      }
+      if (badge) {
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#b45309';
+        badge.style.borderColor = '#fde68a';
+        badge.textContent = '👤 CẤP 2: ĐÃ CHUYỂN GIAO NHÂN VIÊN KẾ TOÁN';
+      }
+      if (timerRow) timerRow.style.display = 'none';
+      if (descBox) {
+        descBox.innerHTML = '⚠️ <strong>Lệnh hoàn tiền tự động trong 24h bị gián đoạn</strong> do cổng ngân hàng gián đoạn hoặc sai STK.<br>Hệ thống đã <strong>tự động chuyển giao toàn bộ hồ sơ sang Nhân viên Kế toán rạp</strong> để đối soát và chuyển tiền thủ công cho bạn.';
+        descBox.style.color = '#92400e';
+      }
+      if (fallbackNotice) {
+        fallbackNotice.style.display = 'block';
+        fallbackNotice.innerHTML = '📌 <strong>Kế toán rạp đang xử lý:</strong> Dự kiến nhân viên sẽ đối soát và thực hiện hoàn tiền trong vòng <strong>3 - 7 ngày làm việc</strong> theo chu kỳ chuyển tiền liên ngân hàng.';
+      }
+
+      if (step3Title) {
+        step3Title.textContent = '3. Nhân viên Kế toán đang xử lý thủ công (Do tự động thất bại)';
+        step3Title.style.color = '#d97706';
+      }
+      if (step3Badge) {
+        step3Badge.textContent = '● Kế toán rạp đang đối soát & chuyển tiền liên ngân hàng';
+        step3Badge.style.color = '#d97706';
+      }
+      if (step3Desc) step3Desc.textContent = 'Hệ thống tự động không thực hiện được sau 24h nên đã chuyển giao hồ sơ cho nhân viên can thiệp thủ công.';
+      if (step3Dot) {
+        step3Dot.className = 'timeline-dot active';
+      }
+
+      if (step4Title) {
+        step4Title.textContent = '4. Hoàn tất nhận tiền về tài khoản';
+        step4Title.style.color = '#64748b';
+      }
+      if (step4Badge) {
+        step4Badge.textContent = 'Dự kiến 3 - 7 ngày làm việc';
+        step4Badge.style.color = '#94a3b8';
+      }
+      if (step4Desc) step4Desc.textContent = 'Chờ kế toán rạp duyệt lệnh chuyển khoản thủ công.';
+      if (step4Dot) {
+        step4Dot.className = 'timeline-dot pending';
+      }
+
+      if (slaText) {
+        slaText.textContent = '3 - 7 ngày làm việc (Nhân viên đối soát)';
+        slaText.style.color = '#d97706';
+      }
+
+      // Card ngoài danh sách
+      if (cardBadge) {
+        cardBadge.style.background = '#fef3c7';
+        cardBadge.style.color = '#b45309';
+        cardBadge.style.borderColor = '#fde68a';
+        cardBadge.textContent = '👤 CHỜ NHÂN VIÊN HOÀN TIỀN';
+      }
+      if (cardBox) {
+        cardBox.style.background = '#fffbeb';
+        cardBox.style.borderColor = '#fde68a';
+        cardBox.style.color = '#92400e';
+        cardBox.innerHTML = '<strong>⚠️ Tự động hoàn tiền trong 24h không thành công.</strong> Hồ sơ đã tự động chuyển sang <strong>Nhân viên Kế toán rạp</strong> xử lý thủ công về: ' + bank + ' - ' + acc + ' (Dự kiến 3 - 7 ngày).';
+      }
+
+    } else {
+      // 3. MẶC ĐỊNH: ĐANG TỰ ĐỘNG HOÀN TIỀN (TRONG 24H)
+      if (banner) {
+        banner.style.background = '#eff6ff';
+        banner.style.borderColor = '#bfdbfe';
+      }
+      if (badge) {
+        badge.style.background = '#dbeafe';
+        badge.style.color = '#1e40af';
+        badge.style.borderColor = '#bfdbfe';
+        badge.textContent = '⏳ CẤP 1: HỆ THỐNG ĐANG TỰ ĐỘNG XỬ LÝ (TRONG 24H)';
+      }
+      if (timerRow) timerRow.style.display = 'flex';
+      if (descBox) {
+        descBox.innerHTML = 'Hệ thống thanh toán đang phát lệnh hoàn tiền tự động qua API liên ngân hàng về số tài khoản của bạn. <strong>Khách hàng không cần thao tác thêm, nhân viên không cần can thiệp.</strong>';
+        descBox.style.color = '#1e293b';
+      }
+      if (fallbackNotice) {
+        fallbackNotice.style.display = 'block';
+        fallbackNotice.innerHTML = '📌 <strong>Quy định chuyển tiếp:</strong> Hệ thống tự động thực hiện hoàn tiền trong tối đa <strong>24 giờ</strong>. Nếu sau 24h hệ thống không thể chuyển trả (do ngân hàng gián đoạn hoặc lỗi số tài khoản), hệ thống sẽ <strong>tự động chuyển giao sang Nhân viên Kế toán rạp</strong> để đối soát và xử lý thủ công (3 - 7 ngày).';
+      }
+
+      if (step3Title) {
+        step3Title.textContent = '3. Hệ thống tự động chuyển tiền (Tối đa 24h)';
+        step3Title.style.color = '#2563eb';
+      }
+      if (step3Badge) {
+        step3Badge.textContent = '● Đang phát lệnh chuyển tiền tự động qua API ngân hàng';
+        step3Badge.style.color = '#2563eb';
+      }
+      if (step3Desc) step3Desc.textContent = 'Lệnh chuyển tiền tự động đang được kết nối trực tiếp đến ngân hàng của bạn. Nếu sau 24h không thành công, hệ thống sẽ tự động chuyển giao Kế toán rạp xử lý.';
+      if (step3Dot) {
+        step3Dot.className = 'timeline-dot active';
+      }
+
+      if (step4Title) {
+        step4Title.textContent = '4. Hoàn tất nhận tiền về tài khoản';
+        step4Title.style.color = '#64748b';
+      }
+      if (step4Badge) {
+        step4Badge.textContent = 'Chờ ngân hàng ghi có biến động số dư';
+        step4Badge.style.color = '#94a3b8';
+      }
+      if (step4Desc) step4Desc.textContent = 'Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng của bạn.';
+      if (step4Dot) {
+        step4Dot.className = 'timeline-dot pending';
+      }
+
+      if (slaText) {
+        slaText.textContent = 'Tối đa 24 giờ (Tự động chuyển trả)';
+        slaText.style.color = '#2563eb';
+      }
+
+      // Card ngoài danh sách
+      if (cardBadge) {
+        cardBadge.style.background = '#dbeafe';
+        cardBadge.style.color = '#1e40af';
+        cardBadge.style.borderColor = '#bfdbfe';
+        cardBadge.textContent = '🤖 ĐANG TỰ ĐỘNG HOÀN TIỀN (24H)';
+      }
+      if (cardBox) {
+        cardBox.style.background = '#eff6ff';
+        cardBox.style.borderColor = '#bfdbfe';
+        cardBox.style.color = '#1e40af';
+        cardBox.innerHTML = `
+          <div style="font-weight: 800; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 4px;">
+            <span>🤖 HỆ THỐNG ĐANG TỰ ĐỘNG HOÀN TIỀN (TRONG 24H)</span>
+            <span style="font-size: 12px; color: #1d4ed8;">⏱️ Còn: <strong id="autorefund-timer-${ordCode}" style="font-family: monospace;">23:58:45</strong></span>
+          </div>
+          <div>Đang phát lệnh hoàn trả tự động về: <strong>${bank} - ${acc}</strong> (${total}).</div>
+          <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">Nếu sau 24h không chuyển được, hệ thống sẽ tự động chuyển giao Nhân viên Kế toán rạp xử lý thủ công.</div>
+        `;
+      }
+    }
+  }
+  window.updateAutoRefundUI = updateAutoRefundUI;
+
+  // Kịch bản 1: Hệ thống tự động chuyển trả thành công
+  function triggerAutoRefundSuccess(ordCode) {
+    if (!ordCode) return;
+    if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
+    localStorage.setItem('autorefund_state_' + ordCode, 'SUCCESS');
+
+    const det = getRefundDetail(ordCode);
+    const bank = det ? det.bank : 'MB Bank';
+    const acc = det ? det.acc : '0987654321';
+    const total = det ? (window.Pay ? Pay.vnd(det.total) : '179.000 đ') : '179.000 đ';
+
+    alert('🎉 [HỆ THỐNG TỰ ĐỘNG HOÀN TIỀN THÀNH CÔNG]\n\nLệnh chuyển tiền tự động (API Auto-Payout) đã được thực thi thành công!\n\n→ Số tiền: ' + total + '\n→ Đã hoàn trực tiếp về STK: ' + bank + ' - ' + acc + '\n→ Thời gian thực hiện: Trong 24h cam kết\n→ Trạng thái: Hệ thống tự động hoàn tất 100% (Không cần nhân viên).');
+
+    updateAutoRefundUI(ordCode);
+  }
+  window.triggerAutoRefundSuccess = triggerAutoRefundSuccess;
+
+  // Kịch bản 2: Hệ thống tự động không chuyển trả được -> Chuyển nhân viên
+  function triggerAutoRefundFallback(ordCode, isAutoTimeout) {
+    if (!ordCode) return;
+    if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
+    localStorage.setItem('autorefund_state_' + ordCode, 'FALLBACK_STAFF');
+
+    const det = getRefundDetail(ordCode);
+    const bank = det ? det.bank : 'MB Bank';
+    const acc = det ? det.acc : '0987654321';
+
+    const reason = isAutoTimeout 
+      ? 'Đã hết thời hạn 24 giờ mà giao dịch chuyển tiền tự động chưa thành công từ phía ngân hàng.' 
+      : 'Hệ thống tự động phát hiện ngân hàng đích bảo trì / STK thụ hưởng cần xác minh bổ sung.';
+
+    alert('⚠️ [HỆ THỐNG TỰ ĐỘNG CHUYỂN GIAO SANG NHÂN VIÊN]\n\n' + reason + '\n\n→ Hệ thống đã TỰ ĐỘNG CHUYỂN GIAO hồ sơ sang Kế toán rạp & CSKH.\n→ Nhân viên sẽ trực tiếp đối soát và chuyển tiền thủ công về: ' + bank + ' - ' + acc + ' trong vòng 3 - 7 ngày làm việc.');
+
+    updateAutoRefundUI(ordCode);
+  }
+  window.triggerAutoRefundFallback = triggerAutoRefundFallback;
+
+  // Reset về trạng thái tự động ban đầu
+  function resetAutoRefundStatus(ordCode) {
+    if (!ordCode) return;
+    localStorage.removeItem('autorefund_state_' + ordCode);
+    localStorage.setItem('autorefund_sec_' + ordCode, '86340');
+    alert('🔄 Đã đặt lại trạng thái: Hệ thống đang tự động hoàn tiền trong 24h (Kịch bản ban đầu).');
+    updateAutoRefundUI(ordCode);
+    startAutoRefundCountdown(ordCode);
+  }
+  window.resetAutoRefundStatus = resetAutoRefundStatus;
 
   // BỘ ĐẾM THỜI GIAN THỰC LỚP 2
   function startLayer2Countdown(ordCode, initialSec) {
@@ -2345,13 +2731,19 @@
 
         sandboxPanelHtml = `
           <div class="sandbox-layer2-panel" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 12px;">
-            <span style="color: #475569; font-weight: 700;">🧪 THỬ NGHIỆM LỚP 2:</span>
+            <span style="color: #475569; font-weight: 700;">🧪 THỬ NGHIỆM TIẾN TRÌNH:</span>
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerLayer2Success('${ordCode}')" style="background: #10b981; color: white; padding: 5px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
-                🟢 Test 2A: Tiền về kịp (Xuất vé)
+              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerLayer2Success('${ordCode}')" style="background: #10b981; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
+                🟢 Test 2A: Tiền về kịp
               </button>
-              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerLayer2Expired('${ordCode}')" style="background: #ef4444; color: white; padding: 5px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
-                🔴 Test 2B: Hết giờ giữ ghế (Nhả ghế)
+              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerLayer2Expired('${ordCode}')" style="background: #ef4444; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
+                🔴 Test 2B: Hết giữ ghế
+              </button>
+              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerAutoRefundSuccess('${ordCode}')" style="background: #059669; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;" title="Giả lập tự động hoàn tiền thành công">
+                🤖 Auto-Refund Xong
+              </button>
+              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerAutoRefundFallback('${ordCode}')" style="background: #f59e0b; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;" title="Giả lập tự động lỗi -> chuyển nhân viên">
+                👤 Chuyển Nhân Viên
               </button>
             </div>
           </div>
