@@ -1117,6 +1117,32 @@
             </span>
           </div>
 
+          <!-- Banner Trạng Thái Lớp 2 Đang Rà Soát Ngầm -->
+          <div id="modal-layer2-banner" style="display: none; background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div style="font-weight: 800; font-size: 13.5px; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                <span class="pulse-dot">●</span> ⏳ QUY TRÌNH RÀ SOÁT LỚP 2 ĐANG DIỄN RA
+              </div>
+              <div style="font-weight: 800; font-size: 13.5px; color: #dc2626;">
+                Giữ ghế còn lại: <span id="modal-layer2-timer" style="font-family: monospace; font-size: 15px;">06:45</span>
+              </div>
+            </div>
+            <div style="font-size: 12px; color: #475569; margin-top: 4px; line-height: 1.5;">
+              Hệ thống đang quét ngầm với cổng thanh toán SePay & ngân hàng. Nếu nhận được tiền trước khi hết thời gian giữ ghế, <strong>hệ thống sẽ tự động xuất vé ngay lập tức và hủy yêu cầu hoàn tiền</strong>.
+            </div>
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #bfdbfe; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+              <span style="font-size: 11.5px; color: #1e40af; font-weight: 700;">🧪 THỬ NGHIỆM LỚP 2 (SANDBOX):</span>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn btn-sm" onclick="triggerLayer2Success(activeInvoiceOrderCode)" style="background: #10b981; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
+                  🟢 Test 2A: Giả lập tiền về kịp (Xuất vé)
+                </button>
+                <button type="button" class="btn btn-sm" onclick="triggerLayer2Expired(activeInvoiceOrderCode)" style="background: #ef4444; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
+                  🔴 Test 2B: Giả lập hết giờ giữ ghế (Nhả ghế)
+                </button>
+              </div>
+            </div>
+          </div>
+
           <ol class="timeline-list" style="margin-left: 6px;">
             <!-- Bước 1 -->
             <li class="timeline-item">
@@ -1718,6 +1744,17 @@
         if (reportIssueBtn) reportIssueBtn.style.display = 'none';
         if (refundStepsSec) {
           refundStepsSec.style.display = 'block';
+
+          // Kiểm tra xem Lớp 2 có đang chạy hay đã hoàn thành
+          const modalL2Banner = document.getElementById('modal-layer2-banner');
+          const outcome = localStorage.getItem('layer2_outcome_' + data.code);
+          if (modalL2Banner) {
+            if (outcome === 'PAID' || outcome === 'EXPIRED') {
+              modalL2Banner.style.display = 'none';
+            } else {
+              modalL2Banner.style.display = 'block';
+            }
+          }
           const refEl = document.getElementById('inv-refund-ref-code');
           if (refEl) refEl.textContent = 'REF-' + (data.code || '').slice(-6);
         }
@@ -1970,6 +2007,194 @@
 
   // Tự động gọi đồng bộ ngay khi trang tải xong
   
+  // =========================================================================
+  // LOGIC QUY TRÌNH RÀ SOÁT LỚP 2 (ĐẾM NGƯỢC GIỮ GHẾ & 2 KỊCH BẢN TỰ ĐỘNG)
+  // =========================================================================
+  const layer2Timers = {};
+
+  function formatTimeMinSec(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+  }
+
+  function getRefundDetail(ordCode) {
+    try {
+      const s = localStorage.getItem('refund_detail_' + ordCode);
+      if (s) return JSON.parse(s);
+    } catch (e) {}
+    return null;
+  }
+
+  // KỊCH BẢN 2A: TIỀN VỀ KỊP TRONG THỜI GIAN GIỮ GHẾ -> XUẤT VÉ THÀNH CÔNG
+  function triggerLayer2Success(ordCode) {
+    if (!ordCode) return;
+    if (layer2Timers[ordCode]) {
+      clearInterval(layer2Timers[ordCode]);
+    }
+    localStorage.setItem('layer2_outcome_' + ordCode, 'PAID');
+
+    alert('🎉 [RÀ SOÁT LỚP 2 THÀNH CÔNG]\n\nĐã nhận được tiền từ ngân hàng cho đơn hàng ' + ordCode + '!\nGhế vẫn còn hiệu lực trong thời gian giữ vé.\n\n→ Vé xem phim E-Ticket đã được xuất thành công!\n→ Yêu cầu hoàn tiền đã tự động được hủy.');
+
+    // Cập nhật thẻ đơn hàng trên giao diện Lịch Sử Đặt Vé
+    const card = document.querySelector(`.order-history-item[data-code="${ordCode}"]`);
+    if (card) {
+      card.style.borderLeft = '4px solid #10b981';
+      card.style.background = '#fafdfc';
+      card.setAttribute('data-status', 'upcoming');
+
+      const badge = card.querySelector('.badge');
+      if (badge) {
+        badge.style.background = '#d1fae5';
+        badge.style.color = '#065f46';
+        badge.style.border = '1px solid #a7f3d0';
+        badge.textContent = '✓ ĐÃ THANH TOÁN (SEPAY THÀNH CÔNG)';
+      }
+
+      const l2Box = card.querySelector(`#layer2-box-${ordCode}`) || card.querySelector('.refund-in-progress-box');
+      if (l2Box) {
+        l2Box.outerHTML = `
+          <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; color: #065f46; font-size: 12.5px; font-weight: 700;">
+            ✓ Tiền đã khớp trong thời gian giữ ghế. Vé đã xuất thành công, mã QR vào rạp đã sẵn sàng!
+          </div>
+        `;
+      }
+
+      const sb = card.querySelector('.sandbox-layer2-panel');
+      if (sb) sb.style.display = 'none';
+
+      const btns = card.querySelector('div[style*="display: flex; gap: 10px"]');
+      if (btns) {
+        btns.innerHTML = `
+          <a href="ticket.html?order=${ordCode}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
+            <span>🎟️</span> Xem Lại Tình Trạng Vé
+          </a>
+          <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="border-color: #005198; color: #005198; font-weight: 700;">
+            <span>🧾</span> Chi Tiết Hóa Đơn
+          </button>
+        `;
+      }
+    }
+
+    // Cập nhật dữ liệu INVOICES_DATA
+    if (INVOICES_DATA[ordCode]) {
+      INVOICES_DATA[ordCode].rawStatus = 'PAID';
+      INVOICES_DATA[ordCode].status = 'PAID';
+      INVOICES_DATA[ordCode].isRefunding = false;
+      INVOICES_DATA[ordCode].statusBadge = '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (SEPAY THÀNH CÔNG)</span>';
+      INVOICES_DATA[ordCode].statusNote = 'Giao dịch thanh toán đã khớp thành công trong thời gian giữ ghế Lớp 2. Vé sẵn sàng quét mã vào rạp.';
+    }
+
+    // Nếu Modal chi tiết hóa đơn đang mở, refresh lại
+    const modal = document.getElementById('invoice-modal');
+    if (modal && modal.classList.contains('open') && activeInvoiceOrderCode === ordCode) {
+      openInvoiceModal(ordCode);
+    }
+  }
+  window.triggerLayer2Success = triggerLayer2Success;
+
+  // KỊCH BẢN 2B: HẾT GIỜ GIỮ GHẾ MÀ CHƯA CÓ TIỀN -> NHẢ GHẾ & CHUYỂN KẾ TOÁN HOÀN TIỀN
+  function triggerLayer2Expired(ordCode) {
+    if (!ordCode) return;
+    if (layer2Timers[ordCode]) {
+      clearInterval(layer2Timers[ordCode]);
+    }
+    localStorage.setItem('layer2_outcome_' + ordCode, 'EXPIRED');
+
+    alert('⏱️ [HẾT THỜI GIAN GIỮ GHẾ - LỚP 2 KẾT THÚC]\n\nĐã hết 10 phút giữ ghế mà chưa nhận được tiền từ ngân hàng.\n\n→ Hệ thống đã tự động NHẢ GHẾ để mở bán lại cho khán giả khác.\n→ Đơn hàng chính thức khóa và chuyển sang trạng thái ĐÃ HỦY.\n→ Kế toán sẽ thực hiện hoàn tiền 100% trong 3 - 7 ngày làm việc về số tài khoản bạn đã cung cấp.');
+
+    const card = document.querySelector(`.order-history-item[data-code="${ordCode}"]`);
+    const det = getRefundDetail(ordCode);
+    const refundCode = det ? det.refund_code : ('REF-' + ordCode.slice(-6));
+    const bank = det ? det.bank : 'MB Bank';
+    const acc = det ? det.acc : '0987654321';
+    const seats = det ? det.seats : 'D5, D6';
+
+    if (card) {
+      card.style.borderLeft = '4px solid #ef4444';
+      card.style.background = '#fffdfd';
+      card.setAttribute('data-status', 'cancelled');
+
+      const badge = card.querySelector('.badge');
+      if (badge) {
+        badge.style.background = '#fee2e2';
+        badge.style.color = '#991b1b';
+        badge.style.border = '1px solid #fca5a5';
+        badge.textContent = '❌ ĐÃ HỦY - CHỜ KẾ TOÁN HOÀN TIỀN';
+      }
+
+      const l2Box = card.querySelector(`#layer2-box-${ordCode}`) || card.querySelector('.refund-in-progress-box');
+      if (l2Box) {
+        l2Box.outerHTML = `
+          <div class="refund-in-progress-box" style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #9f1239;">
+            <div style="font-weight: 700; margin-bottom: 2px;">⚠️ Đã tự động nhả ghế ${seats} do hết 10 phút giữ ghế.</div>
+            <div>Hồ sơ số <strong>${refundCode}</strong> đang được Kế toán rạp xử lý hoàn tiền về: <strong>${bank} - ${acc}</strong> (Dự kiến 3 - 7 ngày).</div>
+          </div>
+        `;
+      }
+
+      const sb = card.querySelector('.sandbox-layer2-panel');
+      if (sb) sb.style.display = 'none';
+
+      const btns = card.querySelector('div[style*="display: flex; gap: 10px"]');
+      if (btns) {
+        btns.innerHTML = `
+          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #e11d48; border-color: #e11d48; font-weight: 700;">
+            <span>⏱️</span> Xem Tiến Trình Hoàn Tiền (Bước 3/4)
+          </button>
+        `;
+      }
+    }
+
+    if (INVOICES_DATA[ordCode]) {
+      INVOICES_DATA[ordCode].rawStatus = 'CANCELLED';
+      INVOICES_DATA[ordCode].status = 'CANCELLED';
+      INVOICES_DATA[ordCode].isRefunding = true;
+      INVOICES_DATA[ordCode].statusBadge = '<span class="badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 11px; font-weight: 800;">❌ ĐÃ HỦY - CHỜ KẾ TOÁN HOÀN TIỀN</span>';
+      INVOICES_DATA[ordCode].statusNote = 'Đơn hàng đã hết thời gian giữ ghế và đã tự động nhả ghế. Kế toán đang xử lý lệnh chuyển khoản hoàn tiền 100% trong 3 - 7 ngày làm việc.';
+    }
+
+    const modal = document.getElementById('invoice-modal');
+    if (modal && modal.classList.contains('open') && activeInvoiceOrderCode === ordCode) {
+      openInvoiceModal(ordCode);
+    }
+  }
+  window.triggerLayer2Expired = triggerLayer2Expired;
+
+  // BỘ ĐẾM THỜI GIAN THỰC LỚP 2
+  function startLayer2Countdown(ordCode, initialSec) {
+    if (layer2Timers[ordCode]) clearInterval(layer2Timers[ordCode]);
+
+    let secLeft = initialSec > 0 ? initialSec : 420; // Mặc định 7 phút
+    const timerEl = document.getElementById(`layer2-timer-${ordCode}`);
+    const modalTimerEl = document.getElementById('modal-layer2-timer');
+
+    if (timerEl) timerEl.textContent = formatTimeMinSec(secLeft);
+    if (modalTimerEl) modalTimerEl.textContent = formatTimeMinSec(secLeft);
+
+    layer2Timers[ordCode] = setInterval(() => {
+      // Nếu đã có kết quả 2A hoặc 2B thì hủy đếm
+      const outcome = localStorage.getItem('layer2_outcome_' + ordCode);
+      if (outcome) {
+        clearInterval(layer2Timers[ordCode]);
+        return;
+      }
+
+      secLeft--;
+      localStorage.setItem('hold_sec_' + ordCode, secLeft);
+
+      const curTimerEl = document.getElementById(`layer2-timer-${ordCode}`);
+      const curModalTimerEl = document.getElementById('modal-layer2-timer');
+      if (curTimerEl) curTimerEl.textContent = formatTimeMinSec(secLeft);
+      if (curModalTimerEl) curModalTimerEl.textContent = formatTimeMinSec(secLeft);
+
+      if (secLeft <= 0) {
+        clearInterval(layer2Timers[ordCode]);
+        triggerLayer2Expired(ordCode);
+      }
+    }, 1000);
+  }
+
   function registerRefundOrderToUI(det) {
     if (!det || !det.order) return;
     const ordCode = det.order;
@@ -1992,6 +2217,9 @@
     const showTimeStr = time + ' • ' + date;
     const totalFormatted = (window.Pay ? Pay.vnd(total) : total.toLocaleString('vi-VN') + ' đ');
 
+    // Kiểm tra kết quả trước đó của Lớp 2 nếu có
+    const outcome = localStorage.getItem('layer2_outcome_' + ordCode);
+
     // Cập nhật vào danh sách hoàn tiền
     markOrderAsRefunding(ordCode);
 
@@ -2000,8 +2228,8 @@
     const vat = total - subtotal;
     INVOICES_DATA[ordCode] = {
       code: ordCode,
-      rawStatus: 'REFUNDING',
-      status: 'REFUNDING',
+      rawStatus: outcome === 'PAID' ? 'PAID' : (outcome === 'EXPIRED' ? 'CANCELLED' : 'REFUNDING'),
+      status: outcome === 'PAID' ? 'PAID' : (outcome === 'EXPIRED' ? 'CANCELLED' : 'REFUNDING'),
       invoiceNumber: 'HD-2026-' + ordCode.slice(-6),
       symbol: '1C26TBB',
       createdAt: new Date().toLocaleString('vi-VN'),
@@ -2019,8 +2247,14 @@
       memberId: 'BM-2026-VIP',
       paymentMethod: 'VietQR / SePay (Ngân hàng MSB)',
       bankTransCode: 'FT' + ordCode.slice(-8),
-      statusBadge: '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>',
-      statusNote: `Hồ sơ hoàn tiền ${refundCode} đã được kế toán rạp duyệt hợp lệ. Số tiền ${totalFormatted} đang được giải ngân về STK ${bank} - ${acc} (${owner}) trong 3 - 7 ngày làm việc.`,
+      statusBadge: outcome === 'PAID' 
+        ? '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (SEPAY THÀNH CÔNG)</span>'
+        : (outcome === 'EXPIRED' 
+          ? '<span class="badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 11px; font-weight: 800;">❌ ĐÃ HỦY - CHỜ KẾ TOÁN HOÀN TIỀN</span>'
+          : '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐANG RÀ SOÁT LỚP 2 (GIỮ GHẾ)</span>'),
+      statusNote: outcome === 'PAID' 
+        ? 'Giao dịch thanh toán đã khớp thành công trong thời gian giữ ghế. Vé xem phim đã được kích hoạt hợp lệ.'
+        : `Hồ sơ hoàn tiền ${refundCode} đã được kế toán rạp duyệt hợp lệ. Số tiền ${totalFormatted} đang được giải ngân về STK ${bank} - ${acc} (${owner}) trong 3 - 7 ngày làm việc.`,
       items: [
         { name: 'Vé xem phim 2D VIP (Ghế ' + seats + ')', qty: seats.includes(',') ? seats.split(',').length : 1, price: Math.round(total / (seats.includes(',') ? seats.split(',').length : 1)), amount: total }
       ],
@@ -2028,7 +2262,7 @@
       vat: vat,
       discount: 0,
       total: total,
-      isRefunding: true,
+      isRefunding: outcome !== 'PAID',
       refundBank: bank,
       refundAcc: acc,
       refundOwner: owner,
@@ -2042,19 +2276,100 @@
     if (!card && wrapper) {
       card = document.createElement('div');
       card.className = 'order-history-item';
-      card.setAttribute('data-status', 'cancelled');
-      card.setAttribute('data-title', movieTitle);
       card.setAttribute('data-code', ordCode);
-      card.style.cssText = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
+
+      if (outcome === 'PAID') {
+        card.setAttribute('data-status', 'upcoming');
+        card.style.cssText = 'border-left: 4px solid #10b981; background: #fafdfc;';
+      } else if (outcome === 'EXPIRED') {
+        card.setAttribute('data-status', 'cancelled');
+        card.style.cssText = 'border-left: 4px solid #ef4444; background: #fffdfd;';
+      } else {
+        card.setAttribute('data-status', 'cancelled');
+        card.style.cssText = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
+      }
       card.title = 'Bấm vào đơn để xem chi tiết hóa đơn & hoàn tiền';
       card.onclick = () => openInvoiceModal(ordCode);
+
+      // Cấu hình nội dung hộp trạng thái & nút bấm
+      let statusContentHtml = '';
+      let sandboxPanelHtml = '';
+      let actionButtonsHtml = '';
+
+      if (outcome === 'PAID') {
+        statusContentHtml = `
+          <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; color: #065f46; font-size: 12.5px; font-weight: 700;">
+            ✓ Tiền đã khớp trong thời gian giữ ghế. Vé đã xuất thành công, mã QR vào rạp đã sẵn sàng!
+          </div>
+        `;
+        actionButtonsHtml = `
+          <a href="ticket.html?order=${ordCode}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
+            <span>🎟️</span> Xem Lại Tình Trạng Vé
+          </a>
+          <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="border-color: #005198; color: #005198; font-weight: 700;">
+            <span>🧾</span> Chi Tiết Hóa Đơn
+          </button>
+        `;
+      } else if (outcome === 'EXPIRED') {
+        statusContentHtml = `
+          <div class="refund-in-progress-box" style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #9f1239;">
+            <div style="font-weight: 700; margin-bottom: 2px;">⚠️ Đã tự động nhả ghế ${seats} do hết 10 phút giữ ghế.</div>
+            <div>Hồ sơ số <strong>${refundCode}</strong> đang được Kế toán rạp xử lý hoàn tiền về: <strong>${bank} - ${acc}</strong> (Dự kiến 3 - 7 ngày).</div>
+          </div>
+        `;
+        actionButtonsHtml = `
+          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #e11d48; border-color: #e11d48; font-weight: 700;">
+            <span>⏱️</span> Xem Tiến Trình Hoàn Tiền (Bước 3/4)
+          </button>
+        `;
+      } else {
+        // LỚP 2 ĐANG CHẠY: HIỂN THỊ ĐỒNG HỒ ĐẾM NGƯỢC GIỮ GHẾ & PANEL SANDBOX
+        statusContentHtml = `
+          <div class="layer2-active-box" id="layer2-box-${ordCode}" style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+              <div style="font-weight: 800; font-size: 13px; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                <span class="pulse-dot">●</span> ⏳ ĐANG RÀ SOÁT LỚP 2 VỚI NGÂN HÀNG
+              </div>
+              <div style="font-size: 12px; color: #dc2626; font-weight: 800;">
+                Giữ ghế còn lại: <span id="layer2-timer-${ordCode}" style="font-family: monospace; font-size: 14.5px;">06:45</span>
+              </div>
+            </div>
+            <div style="font-size: 12.5px; color: #475569; line-height: 1.5;">
+              Hệ thống đang quét ngầm với ngân hàng. Nếu nhận được tiền trước khi hết giờ giữ ghế, <strong>vé sẽ được xuất ngay và hủy yêu cầu hoàn tiền</strong>.
+            </div>
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">
+              Hồ sơ hoàn tiền dự phòng: <strong style="font-family: monospace;">${refundCode}</strong> · Hoàn về: <strong>${bank} - ${acc}</strong> nếu hết thời gian giữ ghế.
+            </div>
+          </div>
+        `;
+
+        sandboxPanelHtml = `
+          <div class="sandbox-layer2-panel" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 12px;">
+            <span style="color: #475569; font-weight: 700;">🧪 THỬ NGHIỆM LỚP 2:</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerLayer2Success('${ordCode}')" style="background: #10b981; color: white; padding: 5px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
+                🟢 Test 2A: Tiền về kịp (Xuất vé)
+              </button>
+              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerLayer2Expired('${ordCode}')" style="background: #ef4444; color: white; padding: 5px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
+                🔴 Test 2B: Hết giờ giữ ghế (Nhả ghế)
+              </button>
+            </div>
+          </div>
+        `;
+
+        actionButtonsHtml = `
+          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
+            <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
+          </button>
+        `;
+      }
 
       card.innerHTML = `
         <img class="order-item-poster" src="${poster}" alt="${movieTitle}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
         <div style="flex: 1;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
             <div>
-              <span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>
+              ${INVOICES_DATA[ordCode].statusBadge}
               <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">
                 ${movieTitle}
               </h4>
@@ -2072,22 +2387,28 @@
             💳 Đã thanh toán: <strong>${totalFormatted}</strong> (Qua SePay VietQR)
           </div>
 
-          <div class="refund-in-progress-box" style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-            <span>Yêu cầu hoàn tiền đã tiếp nhận. Hoàn về: <strong>${bank} - ${acc}</strong>.</span>
-            <span style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">Mã hồ sơ: ${refundCode}</span>
-          </div>
+          ${statusContentHtml}
+          ${sandboxPanelHtml}
 
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
-              <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
-            </button>
+            ${actionButtonsHtml}
           </div>
         </div>
       `;
 
       wrapper.insertBefore(card, wrapper.firstChild);
+
+      // Kích hoạt đồng hồ đếm ngược Lớp 2 nếu đang chạy
+      if (!outcome) {
+        const holdSec = parseInt(det.hold_time || localStorage.getItem('hold_sec_' + ordCode) || '420', 10);
+        startLayer2Countdown(ordCode, holdSec);
+      }
     } else if (card) {
-      applyRefundStatusToCard(ordCode);
+      if (outcome === 'PAID') {
+        triggerLayer2Success(ordCode);
+      } else if (outcome === 'EXPIRED') {
+        triggerLayer2Expired(ordCode);
+      }
     }
   }
   window.registerRefundOrderToUI = registerRefundOrderToUI;

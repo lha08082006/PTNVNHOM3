@@ -693,36 +693,80 @@
         if (COMBOS[k].qty > 0) combosPayload[k] = COMBOS[k].qty;
       }
 
-      const btn = document.querySelector('button[onclick="doCheckout()"]');
+      // Lấy nút theo id (an toàn hơn querySelector với onclick attribute)
+      const btn = document.getElementById('btn-submit-pay');
       if (btn) {
         btn.disabled = true;
         btn.textContent = 'Đang khởi tạo đơn hàng...';
       }
 
+      // Hàm reset nút nếu có lỗi và không redirect được
+      const resetBtn = () => {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Thanh toán ngay';
+        }
+      };
+
       try {
-        await Pay.createOrderAndGo({
+        // Tạo mã đơn hàng local trước để luôn có fallback
+        const localOrderCode = 'BC' + Math.floor(1000000000 + Math.random() * 9000000000);
+        let finalOrderCode = localOrderCode;
+
+        // Thử gọi API để lấy mã đơn chính thức
+        try {
+          const o = await Pay.post('create-order', {
+            movie_key: currentMovie,
+            cinema: currentCinema,
+            show_date: currentDate,
+            show_time: currentTime,
+            seats: seatArray,
+            combos: combosPayload,
+            voucher: discountAmount > 0 ? 'BETAVIP' : null,
+            total: finalTotal,
+            phone: '0987654321',
+            customer_name: 'LƯƠNG HỒNG ANH',
+            email: 'luonghonganh.cinema@gmail.com'
+          });
+          if (o && o.code) {
+            finalOrderCode = o.code;
+          }
+        } catch (apiErr) {
+          console.warn('[Checkout] API tạo đơn lỗi, dùng mã local:', apiErr.message);
+        }
+
+        // Lưu đơn hàng vào local để account.html có thể hiển thị
+        Pay.saveLocalOrder({
+          code: finalOrderCode,
+          status: 'HOLDING',
+          paid_amount: 0,
           movie_key: currentMovie,
           cinema: currentCinema,
-          show_date: currentDate,
-          show_time: currentTime,
           seats: seatArray,
           combos: combosPayload,
-          voucher: discountAmount > 0 ? 'BETAVIP' : null,
           total: finalTotal,
-          phone: '0987654321',
-          customer_name: 'LƯƠNG HỒNG ANH',
-          email: 'luonghonganh.cinema@gmail.com'
+          show_date: currentDate,
+          show_time: currentTime,
+          created_at: new Date().toISOString()
         });
+
+        // Luôn chuyển sang cổng QR sau khi có mã đơn
+        const query = new URLSearchParams({
+          order: finalOrderCode,
+          movie: currentMovie,
+          cinema: currentCinema,
+          seats: selectedSeatsStr,
+          combos: JSON.stringify(combosPayload),
+          total: finalTotal,
+          date: currentDate,
+          time: currentTime
+        });
+        window.location.href = 'gateway.html?' + query.toString();
+
       } catch (err) {
-        console.warn('Lỗi kết nối API:', err.message);
-        window.location.href = 'gateway.html?movie=' + encodeURIComponent(currentMovie) + 
-                               '&cinema=' + encodeURIComponent(currentCinema) + 
-                               '&seats=' + encodeURIComponent(selectedSeatsStr) + 
-                               '&combos=' + encodeURIComponent(JSON.stringify(combosPayload)) + 
-                               '&total=' + finalTotal + 
-                               '&date=' + encodeURIComponent(currentDate) + 
-                               '&time=' + encodeURIComponent(currentTime) + 
-                               '&order=BC2610279854';
+        console.error('[Checkout] Lỗi không xác định:', err);
+        alert('Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!');
+        resetBtn();
       }
     }
 
