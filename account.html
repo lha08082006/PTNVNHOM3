@@ -1410,24 +1410,44 @@
       filterOrdersList();
     }
 
+    function isOrderRefunding(item) {
+      if (!item) return false;
+      const ref = item.getAttribute('data-refund');
+      const st = item.getAttribute('data-status');
+      const code = (item.getAttribute('data-code') || '').toUpperCase();
+      if (ref === 'unrefunded' || st === 'unrefunded' || st === 'refunding') return true;
+      if (typeof isOrderInRefundList === 'function' && isOrderInRefundList(code)) return true;
+      if (item.querySelector('.refund-in-progress-box')) return true;
+      const badge = item.querySelector('.badge');
+      if (badge && badge.textContent.includes('ĐANG XỬ LÝ')) return true;
+      return false;
+    }
+
+    function isOrderRefunded(item) {
+      if (!item) return false;
+      const ref = item.getAttribute('data-refund');
+      const st = item.getAttribute('data-status');
+      if (ref === 'refunded' || st === 'refunded') return true;
+      const badge = item.querySelector('.badge');
+      if (badge && badge.textContent.includes('ĐÃ HOÀN TIỀN') && !badge.textContent.includes('ĐANG XỬ LÝ')) return true;
+      return false;
+    }
+
     function updateOrderCounts() {
       const items = document.querySelectorAll('.order-history-item');
       let counts = { all: items.length, upcoming: 0, completed: 0, cancelled: 0, unrefunded: 0, refunded: 0 };
       items.forEach(item => {
-        const st = item.getAttribute('data-status');
-        const ref = item.getAttribute('data-refund');
+        const itemStatus = item.getAttribute('data-status');
 
-        if (ref === 'refunded' || st === 'refunded') {
+        if (isOrderRefunded(item)) {
           counts.refunded++;
-        } else if (ref === 'unrefunded' || st === 'unrefunded' || st === 'refunding') {
-          // Đơn chưa hoàn tiền: CHỈ gồm đơn đang xử lý hoàn tiền
+        } else if (isOrderRefunding(item)) {
           counts.unrefunded++;
-        } else if (st === 'cancelled') {
-          // Đơn đã hủy: CHỈ gồm những đơn đã hủy
+        } else if (itemStatus === 'cancelled') {
           counts.cancelled++;
-        } else if (st === 'upcoming') {
+        } else if (itemStatus === 'upcoming') {
           counts.upcoming++;
-        } else if (st === 'completed') {
+        } else if (itemStatus === 'completed') {
           counts.completed++;
         }
       });
@@ -1460,25 +1480,29 @@
 
       items.forEach(item => {
         const itemStatus = item.getAttribute('data-status');
-        const isUnrefunded = item.getAttribute('data-refund') === 'unrefunded';
         const itemTitle = (item.getAttribute('data-title') || '').toLowerCase();
         const itemCode = (item.getAttribute('data-code') || '').toLowerCase();
         const textContent = item.textContent.toLowerCase();
 
-        const ref = item.getAttribute('data-refund');
+        const refunding = isOrderRefunding(item);
+        const refunded = isOrderRefunded(item);
+
         let matchStatus = false;
         if (currentFilter === 'all') {
           matchStatus = true;
         } else if (currentFilter === 'unrefunded') {
           // Đơn chưa hoàn tiền: CHỈ gồm đơn đang xử lý hoàn tiền
-          matchStatus = (ref === 'unrefunded' || itemStatus === 'unrefunded' || itemStatus === 'refunding');
+          matchStatus = refunding && !refunded;
         } else if (currentFilter === 'refunded') {
-          matchStatus = (ref === 'refunded' || itemStatus === 'refunded');
+          // Đã hoàn tiền: CHỈ gồm đơn đã hoàn tiền thành công
+          matchStatus = refunded;
         } else if (currentFilter === 'cancelled') {
-          // Đơn đã hủy: CHỈ gồm những đơn đã hủy (loại trừ đơn đang xử lý hoàn tiền hoặc đã hoàn tiền)
-          matchStatus = (itemStatus === 'cancelled' && ref !== 'unrefunded' && ref !== 'refunded');
+          // Đơn đã hủy: CHỈ gồm những đơn đã hủy thuần túy (loại trừ tuyệt đối đơn đang xử lý hoàn tiền và đơn đã hoàn tiền)
+          matchStatus = (itemStatus === 'cancelled' || textContent.includes('đã hủy')) && !refunding && !refunded;
+        } else if (currentFilter === 'upcoming') {
+          matchStatus = (itemStatus === 'upcoming') && !refunding && !refunded;
         } else {
-          matchStatus = (itemStatus === currentFilter);
+          matchStatus = (itemStatus === currentFilter) && !refunding && !refunded;
         }
 
         const matchSearch = !searchQuery || itemTitle.includes(searchQuery) || itemCode.includes(searchQuery) || textContent.includes(searchQuery);
@@ -1757,7 +1781,8 @@
       // 1. Cập nhật viền & nền card cho đơn ĐANG XỬ LÝ
       card.style.borderLeft = '4px solid #3b82f6';
       card.style.background = '#f8fafc';
-      card.setAttribute('data-status', 'cancelled');
+      card.setAttribute('data-status', 'unrefunded');
+      card.setAttribute('data-refund', 'unrefunded');
 
       // 2. Cập nhật Badge
       const badgeEl = card.querySelector('.badge');
@@ -2073,7 +2098,10 @@
         // Tạo thẻ đơn hàng HTML
         const card = document.createElement('div');
         card.className = 'order-history-item';
-        card.setAttribute('data-status', statusClass);
+        card.setAttribute('data-status', isRef ? 'unrefunded' : statusClass);
+        if (isRef) {
+          card.setAttribute('data-refund', 'unrefunded');
+        }
         card.setAttribute('data-title', movieObj.title);
         card.setAttribute('data-code', ord.code);
         card.setAttribute('data-created', ord.created_at || new Date().toISOString());
@@ -2084,6 +2112,7 @@
         const isRef = isOrderInRefundList(ord.code) || ord.status === 'REFUNDING';
         let actionBtns = '';
         if (isRef) {
+          statusClass = 'unrefunded';
           badgeHtml = '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
           borderStyle = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
           actionBtns = `
@@ -2178,12 +2207,14 @@
         }
       });
 
-      // Cập nhật lại số đếm tổng đơn hàng
+      // Cập nhật lại số đếm tổng đơn hàng và lọc
       const totalCountEl = document.getElementById('total-orders-count');
       if (totalCountEl) {
         const allItems = document.querySelectorAll('.order-history-item');
         totalCountEl.textContent = allItems.length;
       }
+      updateOrderCounts();
+      filterOrdersList();
     } catch (e) {
       console.warn('Lỗi đồng bộ đơn hàng Supabase lên giao diện:', e.message);
     }
@@ -2804,7 +2835,8 @@
         card.setAttribute('data-status', 'cancelled');
         card.style.cssText = 'border-left: 4px solid #ef4444; background: #fffdfd;';
       } else {
-        card.setAttribute('data-status', 'cancelled');
+        card.setAttribute('data-status', 'unrefunded');
+        card.setAttribute('data-refund', 'unrefunded');
         card.style.cssText = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
       }
       card.title = 'Bấm vào đơn để xem chi tiết hóa đơn & hoàn tiền';
