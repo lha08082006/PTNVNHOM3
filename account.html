@@ -541,7 +541,7 @@
             Lịch Sử Giao Dịch Xem Phim
           </h3>
           <span style="font-size: 13px; color: #64748b;">
-            Tổng cộng: <strong id="total-orders-count" style="color: var(--beta-navy);">3</strong> đơn hàng
+            Tổng cộng: <strong id="total-orders-count" style="color: var(--beta-navy);">5</strong> đơn hàng
           </span>
         </div>
 
@@ -550,7 +550,7 @@
           <div class="filter-tabs-group">
             <button class="filter-tab-btn active" data-filter="all" onclick="applyOrderFilter('all', this)">
               <span>Tất cả</span>
-              <span class="filter-tab-count" id="count-all">3</span>
+              <span class="filter-tab-count" id="count-all">5</span>
             </button>
             <button class="filter-tab-btn" data-filter="upcoming" onclick="applyOrderFilter('upcoming', this)">
               <span>Sắp chiếu</span>
@@ -562,12 +562,12 @@
             </button>
             <button class="filter-tab-btn" data-filter="cancelled" onclick="applyOrderFilter('cancelled', this)">
               <span>Đã hủy</span>
-              <span class="filter-tab-count" id="count-cancelled">3</span>
+              <span class="filter-tab-count" id="count-cancelled">2</span>
             </button>
             <button class="filter-tab-btn" data-filter="unrefunded" onclick="applyOrderFilter('unrefunded', this)"
               style="border-color: #fde68a;">
               <span style="color: #b45309; font-weight: 700;">Chưa hoàn tiền</span>
-              <span class="filter-tab-count" id="count-unrefunded" style="background: #fef3c7; color: #b45309;">2</span>
+              <span class="filter-tab-count" id="count-unrefunded" style="background: #fef3c7; color: #b45309;">1</span>
             </button>
             <button class="filter-tab-btn" data-filter="refunded" onclick="applyOrderFilter('refunded', this)" style="border-color: #bfdbfe;">
               <span style="color: #1e40af; font-weight: 700;">🎉 Đã hoàn tiền</span>
@@ -770,7 +770,7 @@
 
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; text-decoration: none;">
-                  <span>🎉</span> Chi Tiết Đơn Đã Hoàn
+                  <span>🧾</span> Xem Chi Tiết Đơn Hàng
                 </a>
               </div>
             </div>
@@ -1578,7 +1578,7 @@
         memberId: 'BM-99281 (Beta VIP Gold)',
         paymentMethod: 'VietQR (Đã hoàn tiền 100%)',
         bankTransCode: 'REF-2610-889',
-        statusBadge: '<span class="badge" style="background: #fee2e2; color: #b91c1c; font-weight: 800; font-size: 11px;">✕ ĐÃ HỦY (ĐÃ HOÀN TIỀN)</span>',
+        statusBadge: '<span class="badge" style="background: rgb(106, 166, 255); color: rgb(18, 20, 28); font-weight: 800; font-size: 11px;">ĐÃ HOÀN TIỀN</span>',
         statusNote: 'Hóa đơn đã hủy theo yêu cầu của khách hàng trước giờ chiếu 120 phút. Đã giải ngân hoàn tiền 100% (180.000 đ) qua VietQR ngày 20/10/2026.',
         items: [
           { name: 'Vé xem phim 2D VIP (Ghế G09, G10)', qty: 2, price: 90000, amount: 180000 }
@@ -1630,7 +1630,8 @@
       try {
         const stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
         if (Array.isArray(stored)) {
-          stored.forEach(c => { if (!list.includes(c)) list.push(c); });
+          // Loại trừ BC2610208819 vì đơn này đã hoàn tiền thành công 100%
+          stored.forEach(c => { if (!list.includes(c) && c !== 'BC2610208819') list.push(c); });
         }
       } catch(e) {}
       return list;
@@ -1662,7 +1663,46 @@
       const card = document.querySelector(`.order-history-item[data-code="${orderCode}"]`);
       if (!card) return;
 
-      // 1. Cập nhật viền & nền card
+      // ĐẶC BIỆT: Nếu đơn này đã hoàn tiền (BC2610208819 hoặc data-refund="refunded")
+      if (card.getAttribute('data-refund') === 'refunded' || orderCode === 'BC2610208819') {
+        card.setAttribute('data-status', 'refunded');
+        card.setAttribute('data-refund', 'refunded');
+        card.style.borderLeft = '4px solid rgb(106, 166, 255)';
+        card.style.background = '#fafcff';
+
+        const badgeEl = card.querySelector('.badge');
+        if (badgeEl) {
+          badgeEl.style.background = 'rgb(106, 166, 255)';
+          badgeEl.style.color = 'rgb(18, 20, 28)';
+          badgeEl.style.border = 'none';
+          badgeEl.style.fontSize = '11.5px';
+          badgeEl.style.fontWeight = '800';
+          badgeEl.textContent = 'ĐÃ HOÀN TIỀN';
+        }
+
+        // Xóa hoàn toàn hộp thông báo đang xử lý bước 3/4
+        const inProgBoxes = card.querySelectorAll('.refund-in-progress-box, div[style*="background: #eff6ff"]');
+        inProgBoxes.forEach(b => b.remove());
+
+        // Đảm bảo nút là "Xem Chi Tiết Đơn Hàng"
+        const btnsContainer = card.querySelector('div[style*="display: flex; gap: 10px"]') || card.querySelector('div[style*="display: flex; gap: 8px"]');
+        if (btnsContainer) {
+          btnsContainer.innerHTML = `
+            <a href="ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; text-decoration: none;">
+              <span>🧾</span> Xem Chi Tiết Đơn Hàng
+            </a>
+          `;
+        }
+
+        if (INVOICES_DATA[orderCode]) {
+          INVOICES_DATA[orderCode].statusBadge = '<span class="badge" style="background: rgb(106, 166, 255); color: rgb(18, 20, 28); font-weight: 800; font-size: 11px;">ĐÃ HOÀN TIỀN</span>';
+          INVOICES_DATA[orderCode].statusNote = 'Hóa đơn đã hoàn tiền 100% (180.000 đ) qua VietQR ngày 20/10/2026. Mã đối soát: REF-2610-889.';
+          INVOICES_DATA[orderCode].isRefunding = false;
+        }
+        return;
+      }
+
+      // 1. Cập nhật viền & nền card cho đơn ĐANG XỬ LÝ
       card.style.borderLeft = '4px solid #3b82f6';
       card.style.background = '#f8fafc';
       card.setAttribute('data-status', 'cancelled');
@@ -1919,10 +1959,7 @@
   };
 
   async function syncRealOrdersToUI() {
-    if (!window.Pay || !Pay.getOrders) return;
-    try {
-      const realOrders = await Pay.getOrders({ limit: 15 });
-      if (!realOrders || realOrders.length === 0) return;
+    return;
 
       const wrapper = document.getElementById('orders-list-wrapper');
       if (!wrapper) return;
@@ -2853,6 +2890,24 @@
 
     const targetOrder = pageParams.get('order');
     const openModalParam = pageParams.get('open_modal');
+
+    // Dọn dẹp BC2610208819 khỏi danh sách đang xử lý hoàn tiền nếu có
+    try {
+      let storedList = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+      if (storedList.includes('BC2610208819')) {
+        storedList = storedList.filter(c => c !== 'BC2610208819');
+        localStorage.setItem('reported_refund_orders', JSON.stringify(storedList));
+      }
+    } catch(e) {}
+
+    // Dọn dẹp BC2610208819 khỏi danh sách đang xử lý hoàn tiền nếu có
+    try {
+      let storedList = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+      if (storedList.includes('BC2610208819')) {
+        storedList = storedList.filter(c => c !== 'BC2610208819');
+        localStorage.setItem('reported_refund_orders', JSON.stringify(storedList));
+      }
+    } catch(e) {}
 
     // Khởi tạo các đơn hoàn tiền từ localStorage
     try {
