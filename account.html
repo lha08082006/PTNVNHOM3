@@ -1410,6 +1410,12 @@
       filterOrdersList();
     }
 
+    function isOrderPendingPayment(item) {
+      if (!item) return false;
+      const text = (item.textContent || '').toLowerCase();
+      return text.includes('chờ thanh toán');
+    }
+
     function isOrderRefunding(item) {
       if (!item) return false;
       const ref = item.getAttribute('data-refund');
@@ -1438,14 +1444,15 @@
       let counts = { all: items.length, upcoming: 0, completed: 0, cancelled: 0, unrefunded: 0, refunded: 0 };
       items.forEach(item => {
         const itemStatus = item.getAttribute('data-status');
+        const pendingPayment = isOrderPendingPayment(item);
 
         if (isOrderRefunded(item)) {
           counts.refunded++;
         } else if (isOrderRefunding(item)) {
           counts.unrefunded++;
-        } else if (itemStatus === 'cancelled') {
+        } else if (itemStatus === 'cancelled' || pendingPayment) {
           counts.cancelled++;
-        } else if (itemStatus === 'upcoming') {
+        } else if (itemStatus === 'upcoming' && !pendingPayment) {
           counts.upcoming++;
         } else if (itemStatus === 'completed') {
           counts.completed++;
@@ -1486,6 +1493,7 @@
 
         const refunding = isOrderRefunding(item);
         const refunded = isOrderRefunded(item);
+        const pendingPayment = isOrderPendingPayment(item);
 
         let matchStatus = false;
         if (currentFilter === 'all') {
@@ -1497,12 +1505,13 @@
           // Đã hoàn tiền: CHỈ gồm đơn đã hoàn tiền thành công
           matchStatus = refunded;
         } else if (currentFilter === 'cancelled') {
-          // Đơn đã hủy: CHỈ gồm những đơn đã hủy thuần túy (loại trừ tuyệt đối đơn đang xử lý hoàn tiền và đơn đã hoàn tiền)
-          matchStatus = (itemStatus === 'cancelled' || textContent.includes('đã hủy')) && !refunding && !refunded;
+          // Đơn đã hủy: gồm đơn đã hủy và đơn chờ thanh toán (loại trừ tuyệt đối đơn đang xử lý hoàn tiền và đơn đã hoàn tiền)
+          matchStatus = (itemStatus === 'cancelled' || pendingPayment || textContent.includes('chờ thanh toán') || textContent.includes('đã hủy')) && !refunding && !refunded;
         } else if (currentFilter === 'upcoming') {
-          matchStatus = (itemStatus === 'upcoming') && !refunding && !refunded;
+          // Đã thanh toán: CHỈ gồm các đơn đã thanh toán thành công (loại trừ đơn chờ thanh toán, đơn hoàn tiền)
+          matchStatus = (itemStatus === 'upcoming') && !pendingPayment && !refunding && !refunded;
         } else {
-          matchStatus = (itemStatus === currentFilter) && !refunding && !refunded;
+          matchStatus = (itemStatus === currentFilter) && !pendingPayment && !refunding && !refunded;
         }
 
         const matchSearch = !searchQuery || itemTitle.includes(searchQuery) || itemCode.includes(searchQuery) || textContent.includes(searchQuery);
@@ -2060,12 +2069,17 @@
         const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(ord.movie_key) : { title: (ord.movie_key || 'Phim Mới').toUpperCase() };
         const poster = POSTER_MAP[ord.movie_key] || 'images/400x633-145627-230926-40.jpg';
 
-        // Xử lý huy hiệu trạng thái
+        // Xử lý huy hiệu trạng thái & phân loại mục tab
+        const isRef = isOrderInRefundList(ord.code) || ord.status === 'REFUNDING';
         let badgeHtml = '';
         let borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
         let statusClass = 'upcoming';
 
-        if (ord.code === 'BC2885539882' || ord.status === 'CONFIRMED_LATE' || ord.status === 'PAID_COMPENSATED' || ord.status === 'REISSUED') {
+        if (isRef) {
+          statusClass = 'unrefunded';
+          badgeHtml = '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
+          borderStyle = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
+        } else if (ord.code === 'BC2885539882' || ord.status === 'CONFIRMED_LATE' || ord.status === 'PAID_COMPENSATED' || ord.status === 'REISSUED') {
           badgeHtml = '<span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-size: 11px; font-weight: 800;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>';
           borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
           statusClass = 'upcoming';
@@ -2086,9 +2100,10 @@
           borderStyle = 'border-left: 4px solid #ef4444; background: #fffdfd;';
           statusClass = 'cancelled';
         } else {
+          // Các đơn ở trạng thái 'HOLDING' / 'PENDING' (Chờ thanh toán) -> ĐƯA VÀO MỤC ĐÃ HỦY
           badgeHtml = '<span class="badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 800;">⏳ CHỜ THANH TOÁN</span>';
-          borderStyle = 'border-left: 4px solid #64748b;';
-          statusClass = 'upcoming';
+          borderStyle = 'border-left: 4px solid #64748b; background: #fafafa;';
+          statusClass = 'cancelled';
         }
 
         const seatsStr = Array.isArray(ord.seats) ? ord.seats.join(', ') : (ord.seats || 'D5, D6');
@@ -2098,7 +2113,7 @@
         // Tạo thẻ đơn hàng HTML
         const card = document.createElement('div');
         card.className = 'order-history-item';
-        card.setAttribute('data-status', isRef ? 'unrefunded' : statusClass);
+        card.setAttribute('data-status', statusClass);
         if (isRef) {
           card.setAttribute('data-refund', 'unrefunded');
         }
@@ -2109,12 +2124,8 @@
         card.title = 'Bấm vào đơn để xem chi tiết hóa đơn';
         card.onclick = () => openInvoiceModal(ord.code);
 
-        const isRef = isOrderInRefundList(ord.code) || ord.status === 'REFUNDING';
         let actionBtns = '';
         if (isRef) {
-          statusClass = 'unrefunded';
-          badgeHtml = '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
-          borderStyle = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
           actionBtns = `
             <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ord.code}');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
               <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
@@ -3054,6 +3065,7 @@
       sortOrderCardsByBookingTimeDesc();
       applyAllRefundStatuses();
       updateOrderCounts();
+      filterOrdersList();
     });
   });
 
