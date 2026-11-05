@@ -541,7 +541,7 @@
             Lịch Sử Giao Dịch Xem Phim
           </h3>
           <span style="font-size: 13px; color: #64748b;">
-            Tổng cộng: <strong id="total-orders-count" style="color: var(--beta-navy);">5</strong> đơn hàng
+            Tổng cộng: <strong id="total-orders-count" style="color: var(--beta-navy);">6</strong> đơn hàng
           </span>
         </div>
 
@@ -550,11 +550,11 @@
           <div class="filter-tabs-group">
             <button class="filter-tab-btn active" data-filter="all" onclick="applyOrderFilter('all', this)">
               <span>Tất cả</span>
-              <span class="filter-tab-count" id="count-all">5</span>
+              <span class="filter-tab-count" id="count-all">6</span>
             </button>
             <button class="filter-tab-btn" data-filter="upcoming" onclick="applyOrderFilter('upcoming', this)">
               <span>Sắp chiếu</span>
-              <span class="filter-tab-count" id="count-upcoming">1</span>
+              <span class="filter-tab-count" id="count-upcoming">2</span>
             </button>
             <button class="filter-tab-btn" data-filter="completed" onclick="applyOrderFilter('completed', this)">
               <span>Đã xem</span>
@@ -586,6 +586,43 @@
         
 
         <div id="orders-list-wrapper">
+
+          <!-- Đơn hàng (ĐÃ THANH TOÁN - CẤP BÙ VÉ): QUỶ ĂN TẠNG 4 - Đặt lúc: 05/11/2026 21:56:43 -->
+          <div class="order-history-item" data-status="upcoming" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
+            data-code="BC2885539882" data-created="2026-11-05T21:56:43" onclick="openInvoiceModal('BC2885539882')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #10b981; background: #fafdfc;">
+            <img class="order-item-poster" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg"
+              alt="Quỷ Ăn Tạng 4" onerror="this.src='images/400x633-145627-230926-40.jpg'">
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                <div>
+                  <span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-size: 11px; font-weight: 800;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>
+                  <h4
+                    style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">
+                    QUỶ ĂN TẠNG 4: LỜI NGUYỄN TRỞ LẠI
+                  </h4>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
+                  <strong
+                    style="font-family: monospace; font-size: 14px; color: var(--beta-navy);">BC2885539882</strong>
+                </div>
+              </div>
+
+              <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
+                📍 Rạp: <strong>Beta Thanh Xuân</strong><br>
+                🕒 Suất: <strong>12:15 • T5 05/11</strong><br>
+                📅 Thời gian đặt vé: <strong>21:56:43 5/11/2026</strong><br>
+                💺 Ghế: <strong>D5</strong><br>
+                💳 Thanh toán: <strong>45.000 đ</strong> (Qua SePay VietQR - MSB)
+              </div>
+
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="ticket.html?order=BC2885539882" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
+                  <span>🎟️</span> Xem Lại Tình Trạng Vé
+                </a>
+              </div>
+            </div>
+          </div>
 
           <!-- Đơn hàng 1 (Mới nhất - Sắp chiếu): LINH GIỚI ĐẠI CHIẾN - Đặt lúc: 27/10/2026 18:14:02 -->
           <div class="order-history-item" data-status="upcoming" data-title="Linh Giới Đại Chiến: Thần Sư Chung Quỳ"
@@ -1959,7 +1996,10 @@
   };
 
   async function syncRealOrdersToUI() {
-    return;
+    if (!window.Pay || !Pay.getOrders) return;
+    try {
+      const realOrders = await Pay.getOrders({ limit: 15 });
+      if (!realOrders || realOrders.length === 0) return;
 
       const wrapper = document.getElementById('orders-list-wrapper');
       if (!wrapper) return;
@@ -1985,7 +2025,11 @@
         let borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
         let statusClass = 'upcoming';
 
-        if (ord.status === 'PAID') {
+        if (ord.code === 'BC2885539882' || ord.status === 'CONFIRMED_LATE' || ord.status === 'PAID_COMPENSATED' || ord.status === 'REISSUED') {
+          badgeHtml = '<span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-size: 11px; font-weight: 800;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>';
+          borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
+          statusClass = 'upcoming';
+        } else if (ord.status === 'PAID') {
           badgeHtml = '<span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-size: 11px; font-weight: 800;">✓ ĐÃ THANH TOÁN (SEPAY)</span>';
           borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
           statusClass = 'upcoming';
@@ -2032,7 +2076,7 @@
               <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
             </button>
           `;
-        } else if (ord.status === 'PAID') {
+        } else if (ord.status === 'PAID' || ord.status === 'CONFIRMED_LATE' || ord.status === 'REISSUED' || ord.code === 'BC2885539882') {
           actionBtns = `
             <a href="ticket.html?order=${ord.code}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
               <span>🎟️</span> Xem Lại Tình Trạng Vé
