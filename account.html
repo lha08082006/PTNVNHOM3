@@ -562,7 +562,7 @@
             </button>
             <button class="filter-tab-btn" data-filter="cancelled" onclick="applyOrderFilter('cancelled', this)">
               <span>Đã hủy</span>
-              <span class="filter-tab-count" id="count-cancelled">2</span>
+              <span class="filter-tab-count" id="count-cancelled">1</span>
             </button>
             <button class="filter-tab-btn" data-filter="unrefunded" onclick="applyOrderFilter('unrefunded', this)"
               style="border-color: #fde68a;">
@@ -661,8 +661,8 @@
             </div>
           </div>
 
-          <!-- Đơn hàng 2 (ĐÃ HỦY - CHƯA HOÀN TIỀN): ÚT LAN 2 - Đặt lúc: 24/10/2026 18:28:44 -->
-          <div class="order-history-item" data-status="cancelled" data-refund="unrefunded" data-title="Út Lan 2"
+          <!-- Đơn hàng 2 (ĐÃ HỦY): ÚT LAN 2 - Đặt lúc: 24/10/2026 18:28:44 -->
+          <div class="order-history-item" data-status="cancelled" data-title="Út Lan 2"
             data-code="BC2610264412" data-created="2026-10-24T18:28:44" onclick="openInvoiceModal('BC2610264412')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #f59e0b; background: #fffdf5;">
             <img class="order-item-poster" src="images/ul2-main-dam-hoi-digital-094550-140926-42.jpg"
               alt="Út Lan 2" onerror="this.src='images/400x633-145627-230926-40.jpg'">
@@ -1412,19 +1412,31 @@
 
     function updateOrderCounts() {
       const items = document.querySelectorAll('.order-history-item');
-      let counts = { all: items.length, upcoming: 0, completed: 0, cancelled: 0, unrefunded: 0 };
+      let counts = { all: items.length, upcoming: 0, completed: 0, cancelled: 0, unrefunded: 0, refunded: 0 };
       items.forEach(item => {
         const st = item.getAttribute('data-status');
-        if (counts[st] !== undefined) counts[st]++;
-        if (item.getAttribute('data-refund') === 'unrefunded') counts.unrefunded++;
-        if (item.getAttribute('data-refund') === 'refunded') counts.refunded = (counts.refunded || 0) + 1;
+        const ref = item.getAttribute('data-refund');
+
+        if (ref === 'refunded' || st === 'refunded') {
+          counts.refunded++;
+        } else if (ref === 'unrefunded' || st === 'unrefunded' || st === 'refunding') {
+          // Đơn chưa hoàn tiền: CHỈ gồm đơn đang xử lý hoàn tiền
+          counts.unrefunded++;
+        } else if (st === 'cancelled') {
+          // Đơn đã hủy: CHỈ gồm những đơn đã hủy
+          counts.cancelled++;
+        } else if (st === 'upcoming') {
+          counts.upcoming++;
+        } else if (st === 'completed') {
+          counts.completed++;
+        }
       });
       if (document.getElementById('count-all')) document.getElementById('count-all').textContent = counts.all;
       if (document.getElementById('count-upcoming')) document.getElementById('count-upcoming').textContent = counts.upcoming;
       if (document.getElementById('count-completed')) document.getElementById('count-completed').textContent = counts.completed;
       if (document.getElementById('count-cancelled')) document.getElementById('count-cancelled').textContent = counts.cancelled;
       if (document.getElementById('count-unrefunded')) document.getElementById('count-unrefunded').textContent = counts.unrefunded;
-      if (document.getElementById('count-refunded')) document.getElementById('count-refunded').textContent = counts.refunded || 1;
+      if (document.getElementById('count-refunded')) document.getElementById('count-refunded').textContent = counts.refunded;
       if (document.getElementById('total-orders-count')) document.getElementById('total-orders-count').textContent = counts.all;
     }
 
@@ -1453,15 +1465,18 @@
         const itemCode = (item.getAttribute('data-code') || '').toLowerCase();
         const textContent = item.textContent.toLowerCase();
 
+        const ref = item.getAttribute('data-refund');
         let matchStatus = false;
         if (currentFilter === 'all') {
           matchStatus = true;
         } else if (currentFilter === 'unrefunded') {
-          matchStatus = isUnrefunded;
+          // Đơn chưa hoàn tiền: CHỈ gồm đơn đang xử lý hoàn tiền
+          matchStatus = (ref === 'unrefunded' || itemStatus === 'unrefunded' || itemStatus === 'refunding');
         } else if (currentFilter === 'refunded') {
-          matchStatus = (item.getAttribute('data-refund') === 'refunded');
+          matchStatus = (ref === 'refunded' || itemStatus === 'refunded');
         } else if (currentFilter === 'cancelled') {
-          matchStatus = (itemStatus === 'cancelled');
+          // Đơn đã hủy: CHỈ gồm những đơn đã hủy (loại trừ đơn đang xử lý hoàn tiền hoặc đã hoàn tiền)
+          matchStatus = (itemStatus === 'cancelled' && ref !== 'unrefunded' && ref !== 'refunded');
         } else {
           matchStatus = (itemStatus === currentFilter);
         }
