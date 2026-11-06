@@ -1493,6 +1493,36 @@
     // DỮ LIỆU CHI TIẾT HÓA ĐƠN ĐIỆN TỬ (INVOICE DATA)
     // =========================================================================
     const INVOICES_DATA = {
+      'BC2885539882': {
+        code: 'BC2885539882',
+        invoiceNumber: 'HD-2026-009140',
+        symbol: '1C26TBB',
+        createdAt: '05/11/2026 21:56:43',
+        movieTitle: 'QUỶ ĂN TẠNG 4: LỜI NGUYỄN TRỞ LẠI',
+        moviePoster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
+        movieAge: 'C18',
+        format: '2D Phụ Đề',
+        cinema: 'Beta Thanh Xuân (Hà Nội)',
+        room: 'Phòng chiếu 02',
+        showtime: '12:15 • Thứ 5 (05/11/2026)',
+        seats: 'D5 (Ghế VIP)',
+        customerName: 'LƯƠNG HỒNG ANH',
+        customerPhone: '0912 345 678',
+        customerEmail: 'luonghonganh@email.com',
+        memberId: 'BM-99281 (Beta VIP Gold)',
+        paymentMethod: 'VietQR / SePay (Cấp bù vé)',
+        bankTransCode: 'VQR-261105-39882',
+        statusBadge: '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>',
+        statusNote: 'Hóa đơn đã được đối soát thành công và cấp bù vé mới theo chính sách bồi hoàn sự cố thanh toán. Vé hợp lệ vào phòng chiếu.',
+        items: [
+          { name: 'Vé xem phim 2D VIP (Ghế D5) - Cấp bù vé', qty: 1, price: 45000, amount: 45000 }
+        ],
+        subtotal: 41667,
+        vat: 3333,
+        discount: 0,
+        total: 45000
+      },
+
       'BC2610279854': {
         code: 'BC2610279854',
         invoiceNumber: 'HD-2026-008921',
@@ -1794,7 +1824,69 @@
         INVOICES_DATA[orderCode].statusNote = 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Hệ thống phát lệnh tự động chuyển tiền hoàn lại, nếu quá 24h sẽ chuyển sang Bước 4: Nhân viên xử lý).';
         INVOICES_DATA[orderCode].isRefunding = true;
       }
-      const data = INVOICES_DATA[orderCode];
+      let data = INVOICES_DATA[orderCode];
+      if (!data) {
+        // Fallback: Tự động trích xuất thông tin hóa đơn từ thẻ đơn hàng trên giao diện nếu chưa có trong DB tĩnh
+        const card = document.querySelector(`.order-history-item[data-code="${orderCode}"]`);
+        if (card) {
+          const title = card.getAttribute('data-title') || card.querySelector('h4')?.textContent?.trim() || 'Vé Xem Phim Beta';
+          const poster = card.querySelector('img.order-item-poster')?.src || 'images/400x633-145627-230926-40.jpg';
+          const badgeEl = card.querySelector('.badge');
+          const badgeHtml = badgeEl ? badgeEl.outerHTML : '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN</span>';
+          
+          const text = card.innerText || '';
+          let cinema = 'Beta Thanh Xuân (Hà Nội)';
+          let showtime = '12:15 • 05/11/2026';
+          let seats = 'D5 (Ghế VIP)';
+          let total = 45000;
+
+          const cinemaMatch = text.match(/Rạp:\s*([^\n\r•]+)/i);
+          if (cinemaMatch) cinema = cinemaMatch[1].trim();
+          const showMatch = text.match(/Suất:\s*([^\n\r•]+)/i) || text.match(/Suất chiếu:\s*([^\n\r•]+)/i);
+          if (showMatch) showtime = showMatch[1].trim();
+          const seatMatch = text.match(/Ghế:\s*([^\n\r•]+)/i);
+          if (seatMatch) seats = seatMatch[1].trim();
+          const totalMatch = text.match(/Thanh toán:\s*([\d\.]+)\s*đ/i) || text.match(/Tiền vé:\s*([\d\.]+)\s*đ/i) || text.match(/Tổng tiền:\s*([\d\.]+)\s*đ/i);
+          if (totalMatch) {
+            total = parseInt(totalMatch[1].replace(/\./g, '')) || 45000;
+          }
+
+          const vat = Math.round(total * 0.08 / 1.08);
+          const subtotal = total - vat;
+
+          data = {
+            code: orderCode,
+            invoiceNumber: 'HD-2026-00' + (orderCode.length >= 4 ? orderCode.slice(-4) : '9140'),
+            symbol: '1C26TBB',
+            createdAt: card.getAttribute('data-created') ? new Date(card.getAttribute('data-created')).toLocaleString('vi-VN') : '05/11/2026 21:56:43',
+            movieTitle: title,
+            moviePoster: poster,
+            movieAge: 'C18',
+            format: '2D Phụ Đề',
+            cinema: cinema,
+            room: 'Phòng chiếu 02',
+            showtime: showtime,
+            seats: seats,
+            customerName: 'LƯƠNG HỒNG ANH',
+            customerPhone: '0912 345 678',
+            customerEmail: 'luonghonganh@email.com',
+            memberId: 'BM-99281 (Beta VIP Gold)',
+            paymentMethod: 'VietQR / SePay',
+            bankTransCode: 'VQR-' + (orderCode.length >= 6 ? orderCode.slice(-6) : '39882'),
+            statusBadge: badgeHtml,
+            statusNote: 'Hóa đơn đã được xác nhận thanh toán hợp lệ và lưu trữ vào sổ sách điện tử.',
+            items: [
+              { name: `Vé xem phim 2D (${seats})`, qty: 1, price: total, amount: total }
+            ],
+            subtotal: subtotal,
+            vat: vat,
+            discount: 0,
+            total: total
+          };
+          INVOICES_DATA[orderCode] = data;
+        }
+      }
+
       if (!data) {
         alert('Không tìm thấy thông tin hóa đơn cho đơn hàng: ' + orderCode);
         return;
