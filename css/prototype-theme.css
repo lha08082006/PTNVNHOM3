@@ -84,7 +84,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-bottom: 70px; /* Room for prototype switcher */
+  padding-bottom: 70px;
+  /* Room for prototype switcher */
 }
 
 a {
@@ -99,7 +100,10 @@ img {
   display: block;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -207,7 +211,7 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   ALPHA CINEMA UNIFIED HEADER (CHUẨN DUY NHẤT TOÀN BỘ WEB THEO YÊU CẦU)
+   BETA CINEMA UNIFIED HEADER (CHUẨN DUY NHẤT TOÀN BỘ WEB THEO YÊU CẦU)
    ========================================================================== */
 .alpha-unified-header {
   background: #12141C;
@@ -251,6 +255,7 @@ button, input, select, textarea {
   color: #F3F1EC;
   transition: opacity 0.2s;
 }
+
 .alpha-logo-link:hover {
   opacity: 0.9;
 }
@@ -306,7 +311,8 @@ button, input, select, textarea {
   transition: all 0.2s;
 }
 
-.alpha-cinema-select:hover, .alpha-cinema-select:focus {
+.alpha-cinema-select:hover,
+.alpha-cinema-select:focus {
   border-color: #FF5A3C;
   box-shadow: 0 0 0 1px rgba(255, 90, 60, 0.4);
 }
@@ -432,10 +438,12 @@ button, input, select, textarea {
   .alpha-header-container {
     padding: 14px 16px 12px;
   }
+
   .alpha-nav-menu {
     gap: 16px;
     font-size: 14px;
   }
+
   .alpha-search-input {
     width: 180px;
   }
@@ -487,7 +495,8 @@ button, input, select, textarea {
   transition: all 0.2s;
 }
 
-.cinema-select-official:hover, .cinema-select-official:focus {
+.cinema-select-official:hover,
+.cinema-select-official:focus {
   border-color: #005198 !important;
   background: white !important;
   box-shadow: 0 0 0 3px rgba(0, 81, 152, 0.1) !important;
@@ -647,7 +656,8 @@ button, input, select, textarea {
   padding: 6px 0;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover,
+.nav-link.active {
   color: var(--beta-navy);
 }
 
@@ -1052,9 +1062,23 @@ button, input, select, textarea {
 }
 
 /* Responsive Grid Helper */
-.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
 
 @media (max-width: 1024px) {
   .header-row {
@@ -1063,29 +1087,53 @@ button, input, select, textarea {
     flex-wrap: wrap;
     gap: 12px;
   }
+
   .main-menu-official {
     overflow-x: auto;
     width: 100%;
     padding-bottom: 8px;
     gap: 18px;
   }
+
   .footer-official-grid {
     grid-template-columns: 1fr 1fr;
     gap: 25px;
   }
-  .footer-grid { grid-template-columns: 1fr 1fr; }
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-  .main-nav-links { display: none; }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .main-nav-links {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {
   .footer-official-grid {
     grid-template-columns: 1fr;
   }
-  .footer-grid { grid-template-columns: 1fr; }
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  .header-inner { height: 68px; }
-  .section-title { font-size: 20px; }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .header-inner {
+    height: 68px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
 }
 
 /* ==========================================================================
@@ -1147,7 +1195,7 @@ button, input, select, textarea {
   align-items: center;
   justify-content: center;
   border: 2px solid #0f172a;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .quick-dock-menu {

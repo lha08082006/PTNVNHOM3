@@ -748,8 +748,7 @@
 
               <div
                 style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-                <span>Yêu cầu hoàn tiền đã tiếp nhận ngày 22/10/2026. Tiến trình hiện tại: <strong>Bước 3/4 (Ngân hàng
-                    đối soát)</strong>.</span>
+                <span>Yêu cầu hoàn tiền đã tiếp nhận ngày 22/10/2026. Tiến trình hiện tại: <strong>Bước 3/5 (Hệ thống tự động chuyển tiền)</strong>.</span>
                 <span
                   style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">Mã
                   hồ sơ: REF-2610-915</span>
@@ -1165,8 +1164,8 @@
                 TIẾN TRÌNH CÁC BƯỚC XỬ LÝ HOÀN TIỀN
               </h4>
             </div>
-            <span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px;">
-              ⏳ ĐANG DIỄN RA: BƯỚC 3/4
+            <span id="inv-refund-steps-badge" class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px;">
+              ⏳ ĐANG DIỄN RA: BƯỚC 3/5
             </span>
           </div>
 
@@ -1280,13 +1279,25 @@
               </div>
             </li>
 
-            <!-- Bước 4 -->
+            <!-- Bước 4: Chuyển qua nhân viên xử lý -->
             <li class="timeline-item" id="timeline-step-4">
               <i class="timeline-dot pending" id="timeline-step-4-dot"></i>
               <div>
-                <div id="timeline-step-4-title" style="font-weight: 800; font-size: 13.5px; color: #64748b;">4. Hoàn tất nhận tiền về tài khoản</div>
-                <div id="timeline-step-4-badge" style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Chờ ngân hàng ghi có biến động số dư</div>
+                <div id="timeline-step-4-title" style="font-weight: 800; font-size: 13.5px; color: #64748b;">4. Chuyển qua nhân viên xử lý</div>
+                <div id="timeline-step-4-badge" style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Dự phòng (Khi tự động gián đoạn hoặc quá 24h)</div>
                 <div id="timeline-step-4-desc" style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+                  Nhân viên Kế toán rạp sẽ tiếp nhận đối soát thủ công và thực hiện chuyển tiền nếu hệ thống tự động không thành công.
+                </div>
+              </div>
+            </li>
+
+            <!-- Bước 5: Hoàn tất nhận tiền về tài khoản -->
+            <li class="timeline-item" id="timeline-step-5">
+              <i class="timeline-dot pending" id="timeline-step-5-dot"></i>
+              <div>
+                <div id="timeline-step-5-title" style="font-weight: 800; font-size: 13.5px; color: #64748b;">5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)</div>
+                <div id="timeline-step-5-badge" style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Chờ ngân hàng ghi có biến động số dư</div>
+                <div id="timeline-step-5-desc" style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
                   Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng của bạn.
                 </div>
               </div>
@@ -1634,7 +1645,7 @@
         paymentMethod: 'SePay VietQR',
         bankTransCode: 'REF-2610-915',
         statusBadge: '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>',
-        statusNote: 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/4 (Ngân hàng đối tác đang xử lý lệnh chuyển tiền hoàn lại, dự kiến hoàn tất trong 1-2 ngày làm việc).',
+        statusNote: 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Hệ thống phát lệnh tự động chuyển tiền hoàn lại, nếu quá 24h sẽ chuyển sang Bước 4: Nhân viên xử lý).',
         items: [
           { name: 'Vé xem phim 2D VIP (Ghế F11, F12)', qty: 2, price: 80000, amount: 160000 },
           { name: 'Bắp Rang Phô Mai Lớn', qty: 1, price: 50000, amount: 50000 }
@@ -1765,7 +1776,7 @@
           badgeEl.textContent = 'ĐÃ HOÀN TIỀN';
         }
 
-        // Xóa hoàn toàn hộp thông báo đang xử lý bước 3/4
+        // Xóa hoàn toàn hộp thông báo đang xử lý bước 3/5
         const inProgBoxes = card.querySelectorAll('.refund-in-progress-box, div[style*="background: #eff6ff"]');
         inProgBoxes.forEach(b => b.remove());
 
@@ -1809,7 +1820,7 @@
       if (oldWarningBox) {
         oldWarningBox.outerHTML = `
           <div class="refund-in-progress-box" style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-            <span>Yêu cầu hoàn tiền đã tiếp nhận. Tiến trình hiện tại: <strong>Bước 3/4 (Ngân hàng đối soát)</strong>.</span>
+            <span>Yêu cầu hoàn tiền đã tiếp nhận. Tiến trình hiện tại: <strong>Bước 3/5 (Hệ thống tự động chuyển tiền)</strong>.</span>
             <span style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">Mã hồ sơ: REF-${orderCode.slice(-6)}</span>
           </div>
         `;
@@ -1820,7 +1831,7 @@
           newBox.className = 'refund-in-progress-box';
           newBox.style.cssText = 'background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;';
           newBox.innerHTML = `
-            <span>Yêu cầu hoàn tiền đã tiếp nhận. Tiến trình hiện tại: <strong>Bước 3/4 (Ngân hàng đối soát)</strong>.</span>
+            <span>Yêu cầu hoàn tiền đã tiếp nhận. Tiến trình hiện tại: <strong>Bước 3/5 (Hệ thống tự động chuyển tiền)</strong>.</span>
             <span style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">Mã hồ sơ: REF-${orderCode.slice(-6)}</span>
           `;
           btnsDiv.parentNode.insertBefore(newBox, btnsDiv);
@@ -1840,7 +1851,7 @@
       // 5. Cập nhật dữ liệu INVOICES_DATA
       if (INVOICES_DATA[orderCode]) {
         INVOICES_DATA[orderCode].statusBadge = '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
-        INVOICES_DATA[orderCode].statusNote = 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/4 (Ngân hàng đối tác đang xử lý lệnh chuyển tiền hoàn lại, dự kiến hoàn tất trong 1-2 ngày làm việc).';
+        INVOICES_DATA[orderCode].statusNote = 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Hệ thống phát lệnh tự động chuyển tiền hoàn lại, nếu quá 24h sẽ chuyển sang Bước 4: Nhân viên xử lý).';
         INVOICES_DATA[orderCode].isRefunding = true;
       }
     }
@@ -1853,7 +1864,7 @@
     function openInvoiceModal(orderCode) {
       if (isOrderInRefundList(orderCode) && INVOICES_DATA[orderCode]) {
         INVOICES_DATA[orderCode].statusBadge = '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
-        INVOICES_DATA[orderCode].statusNote = 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/4 (Ngân hàng đối tác đang xử lý lệnh chuyển tiền hoàn lại, dự kiến hoàn tất trong 1-2 ngày làm việc).';
+        INVOICES_DATA[orderCode].statusNote = 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Hệ thống phát lệnh tự động chuyển tiền hoàn lại, nếu quá 24h sẽ chuyển sang Bước 4: Nhân viên xử lý).';
         INVOICES_DATA[orderCode].isRefunding = true;
       }
       const data = INVOICES_DATA[orderCode];
@@ -2370,7 +2381,7 @@
       if (btns) {
         btns.innerHTML = `
           <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #e11d48; border-color: #e11d48; font-weight: 700;">
-            <span>⏱️</span> Xem Tiến Trình Hoàn Tiền (Bước 3/4)
+            <span>⏱️</span> Xem Tiến Trình Hoàn Tiền (Bước 3/5)
           </button>
         `;
       }
@@ -2460,7 +2471,13 @@
     const step4Desc = document.getElementById('timeline-step-4-desc');
     const step4Dot = document.getElementById('timeline-step-4-dot');
 
+    const step5Title = document.getElementById('timeline-step-5-title');
+    const step5Badge = document.getElementById('timeline-step-5-badge');
+    const step5Desc = document.getElementById('timeline-step-5-desc');
+    const step5Dot = document.getElementById('timeline-step-5-dot');
+
     const slaText = document.getElementById('inv-refund-sla-text');
+    const headerStepsBadge = document.getElementById('inv-refund-steps-badge');
 
     const card = document.querySelector('.order-history-item[data-code="' + ordCode + '"]');
     const cardBadge = card ? card.querySelector('.badge') : null;
@@ -2486,7 +2503,7 @@
       if (fallbackNotice) fallbackNotice.style.display = 'none';
 
       if (step3Title) {
-        step3Title.textContent = '3. Hệ thống đã tự động chuyển tiền thành công';
+        step3Title.textContent = '3. Hệ thống tự động chuyển tiền (Tối đa 24h)';
         step3Title.style.color = '#059669';
       }
       if (step3Badge) {
@@ -2499,21 +2516,40 @@
       }
 
       if (step4Title) {
-        step4Title.textContent = '4. Hoàn tất nhận tiền về tài khoản';
+        step4Title.textContent = '4. Chuyển qua nhân viên xử lý';
         step4Title.style.color = '#059669';
       }
       if (step4Badge) {
-        step4Badge.textContent = '✓ Ngân hàng đã ghi có biến động số dư';
+        step4Badge.textContent = '✓ Bỏ qua (Tự động thành công, không cần nhân viên can thiệp)';
         step4Badge.style.color = '#059669';
       }
-      if (step4Desc) step4Desc.textContent = 'Giao dịch hoàn tất 100%. Cảm ơn bạn đã đồng hành cùng Beta Cinemas!';
+      if (step4Desc) step4Desc.textContent = 'Hệ thống tự động đã xử lý thành công toàn bộ, không cần chuyển giao nhân viên.';
       if (step4Dot) {
         step4Dot.className = 'timeline-dot done';
       }
 
+      if (step5Title) {
+        step5Title.textContent = '5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)';
+        step5Title.style.color = '#059669';
+      }
+      if (step5Badge) {
+        step5Badge.textContent = '✓ Ngân hàng đã ghi có biến động số dư (Hoàn thành công 100%)';
+        step5Badge.style.color = '#059669';
+      }
+      if (step5Desc) step5Desc.textContent = 'Giao dịch hoàn tất 100%. Tiền đã được hoàn về tài khoản thành công!';
+      if (step5Dot) {
+        step5Dot.className = 'timeline-dot done';
+      }
+
       if (slaText) {
-        slaText.textContent = '✓ Đã hoàn tất tự động';
+        slaText.textContent = '✓ Đã hoàn tất tự động (Hoàn thành công)';
         slaText.style.color = '#059669';
+      }
+      if (headerStepsBadge) {
+        headerStepsBadge.style.background = '#d1fae5';
+        headerStepsBadge.style.color = '#065f46';
+        headerStepsBadge.style.borderColor = '#a7f3d0';
+        headerStepsBadge.textContent = '✓ HOÀN TẤT: BƯỚC 5/5';
       }
 
       // Card ngoài danh sách
@@ -2544,43 +2580,62 @@
       }
       if (timerRow) timerRow.style.display = 'none';
       if (descBox) {
-        descBox.innerHTML = '⚠️ <strong>Lệnh hoàn tiền tự động trong 24h bị gián đoạn</strong> do cổng ngân hàng gián đoạn hoặc sai STK.<br>Hệ thống đã <strong>tự động chuyển giao toàn bộ hồ sơ sang Nhân viên Kế toán rạp</strong> để đối soát và chuyển tiền thủ công cho bạn.';
+        descBox.innerHTML = '⚠️ <strong>Lệnh hoàn tiền tự động trong 24h bị gián đoạn</strong> do cổng ngân hàng gián đoạn hoặc sai STK.<br>Hệ thống đã <strong>tự động chuyển giao toàn bộ hồ sơ sang Bước 4: Nhân viên Kế toán rạp</strong> để đối soát và chuyển tiền thủ công cho bạn.';
         descBox.style.color = '#92400e';
       }
       if (fallbackNotice) {
         fallbackNotice.style.display = 'block';
-        fallbackNotice.innerHTML = '📌 <strong>Kế toán rạp đang xử lý:</strong> Dự kiến nhân viên sẽ đối soát và thực hiện hoàn tiền trong vòng <strong>3 - 7 ngày làm việc</strong> theo chu kỳ chuyển tiền liên ngân hàng.';
+        fallbackNotice.innerHTML = '📌 <strong>Kế toán rạp đang xử lý:</strong> Hồ sơ đang ở <strong>Bước 4/5: Chuyển qua nhân viên xử lý</strong>. Dự kiến nhân viên sẽ đối soát và thực hiện hoàn tiền trong vòng <strong>3 - 7 ngày làm việc</strong> theo chu kỳ chuyển tiền liên ngân hàng.';
       }
 
       if (step3Title) {
-        step3Title.textContent = '3. Nhân viên Kế toán đang xử lý thủ công (Do tự động thất bại)';
-        step3Title.style.color = '#d97706';
+        step3Title.textContent = '3. Hệ thống tự động chuyển tiền (Quá hạn 24h)';
+        step3Title.style.color = '#64748b';
       }
       if (step3Badge) {
-        step3Badge.textContent = '● Kế toán rạp đang đối soát & chuyển tiền liên ngân hàng';
-        step3Badge.style.color = '#d97706';
+        step3Badge.textContent = '⚠️ Tự động không thành công (Hết hạn 24h / Cổng thanh toán gián đoạn)';
+        step3Badge.style.color = '#b45309';
       }
-      if (step3Desc) step3Desc.textContent = 'Hệ thống tự động không thực hiện được sau 24h nên đã chuyển giao hồ sơ cho nhân viên can thiệp thủ công.';
+      if (step3Desc) step3Desc.textContent = 'Hệ thống tự động không hoàn được tiền sau 24h nên đã chuyển giao hồ sơ sang nhân viên.';
       if (step3Dot) {
-        step3Dot.className = 'timeline-dot active';
+        step3Dot.className = 'timeline-dot done';
       }
 
       if (step4Title) {
-        step4Title.textContent = '4. Hoàn tất nhận tiền về tài khoản';
-        step4Title.style.color = '#64748b';
+        step4Title.textContent = '4. Chuyển qua nhân viên xử lý (Đang đối soát)';
+        step4Title.style.color = '#d97706';
       }
       if (step4Badge) {
-        step4Badge.textContent = 'Dự kiến 3 - 7 ngày làm việc';
-        step4Badge.style.color = '#94a3b8';
+        step4Badge.textContent = '● Nhân viên Kế toán rạp đang đối soát & xử lý thủ công';
+        step4Badge.style.color = '#d97706';
       }
-      if (step4Desc) step4Desc.textContent = 'Chờ kế toán rạp duyệt lệnh chuyển khoản thủ công.';
+      if (step4Desc) step4Desc.textContent = 'Hồ sơ đã được chuyển giao cho nhân viên Kế toán rạp can thiệp đối soát và chuyển tiền thủ công (dự kiến 3 - 7 ngày làm việc).';
       if (step4Dot) {
-        step4Dot.className = 'timeline-dot pending';
+        step4Dot.className = 'timeline-dot active';
+      }
+
+      if (step5Title) {
+        step5Title.textContent = '5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)';
+        step5Title.style.color = '#64748b';
+      }
+      if (step5Badge) {
+        step5Badge.textContent = 'Chờ nhân viên kế toán duyệt lệnh chuyển khoản';
+        step5Badge.style.color = '#94a3b8';
+      }
+      if (step5Desc) step5Desc.textContent = 'Tiền sẽ được nhân viên kế toán chuyển trực tiếp vào tài khoản ngân hàng của bạn.';
+      if (step5Dot) {
+        step5Dot.className = 'timeline-dot pending';
       }
 
       if (slaText) {
-        slaText.textContent = '3 - 7 ngày làm việc (Nhân viên đối soát)';
+        slaText.textContent = '3 - 7 ngày làm việc (Nhân viên kế toán đối soát)';
         slaText.style.color = '#d97706';
+      }
+      if (headerStepsBadge) {
+        headerStepsBadge.style.background = '#fef3c7';
+        headerStepsBadge.style.color = '#b45309';
+        headerStepsBadge.style.borderColor = '#fde68a';
+        headerStepsBadge.textContent = '👤 ĐANG DIỄN RA: BƯỚC 4/5';
       }
 
       // Card ngoài danh sách
@@ -2594,7 +2649,7 @@
         cardBox.style.background = '#fffbeb';
         cardBox.style.borderColor = '#fde68a';
         cardBox.style.color = '#92400e';
-        cardBox.innerHTML = '<strong>⚠️ Tự động hoàn tiền trong 24h không thành công.</strong> Hồ sơ đã tự động chuyển sang <strong>Nhân viên Kế toán rạp</strong> xử lý thủ công về: ' + bank + ' - ' + acc + ' (Dự kiến 3 - 7 ngày).';
+        cardBox.innerHTML = '<strong>⚠️ Tự động hoàn tiền trong 24h không thành công.</strong> Hồ sơ đã tự động chuyển sang <strong>Bước 4: Nhân viên Kế toán rạp</strong> xử lý thủ công về: ' + bank + ' - ' + acc + ' (Dự kiến 3 - 7 ngày).';
       }
 
     } else {
@@ -2616,7 +2671,7 @@
       }
       if (fallbackNotice) {
         fallbackNotice.style.display = 'block';
-        fallbackNotice.innerHTML = '📌 <strong>Quy định chuyển tiếp:</strong> Hệ thống tự động thực hiện hoàn tiền trong tối đa <strong>24 giờ</strong>. Nếu sau 24h hệ thống không thể chuyển trả (do ngân hàng gián đoạn hoặc lỗi số tài khoản), hệ thống sẽ <strong>tự động chuyển giao sang Nhân viên Kế toán rạp</strong> để đối soát và xử lý thủ công (3 - 7 ngày).';
+        fallbackNotice.innerHTML = '📌 <strong>Quy định chuyển tiếp:</strong> Hệ thống tự động thực hiện hoàn tiền trong tối đa <strong>24 giờ</strong>. Nếu sau 24h hệ thống không thể chuyển trả (do ngân hàng gián đoạn hoặc lỗi số tài khoản), hệ thống sẽ <strong>tự động chuyển giao sang Bước 4: Nhân viên Kế toán rạp</strong> để đối soát và xử lý thủ công (3 - 7 ngày).';
       }
 
       if (step3Title) {
@@ -2633,21 +2688,40 @@
       }
 
       if (step4Title) {
-        step4Title.textContent = '4. Hoàn tất nhận tiền về tài khoản';
+        step4Title.textContent = '4. Chuyển qua nhân viên xử lý';
         step4Title.style.color = '#64748b';
       }
       if (step4Badge) {
-        step4Badge.textContent = 'Chờ ngân hàng ghi có biến động số dư';
+        step4Badge.textContent = 'Dự phòng (Khi tự động gián đoạn hoặc quá 24h)';
         step4Badge.style.color = '#94a3b8';
       }
-      if (step4Desc) step4Desc.textContent = 'Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng của bạn.';
+      if (step4Desc) step4Desc.textContent = 'Nhân viên Kế toán rạp sẽ tiếp nhận đối soát thủ công và thực hiện chuyển tiền nếu hệ thống tự động không thành công.';
       if (step4Dot) {
         step4Dot.className = 'timeline-dot pending';
+      }
+
+      if (step5Title) {
+        step5Title.textContent = '5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)';
+        step5Title.style.color = '#64748b';
+      }
+      if (step5Badge) {
+        step5Badge.textContent = 'Chờ ngân hàng ghi có biến động số dư';
+        step5Badge.style.color = '#94a3b8';
+      }
+      if (step5Desc) step5Desc.textContent = 'Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng của bạn.';
+      if (step5Dot) {
+        step5Dot.className = 'timeline-dot pending';
       }
 
       if (slaText) {
         slaText.textContent = 'Tối đa 24 giờ (Tự động chuyển trả)';
         slaText.style.color = '#2563eb';
+      }
+      if (headerStepsBadge) {
+        headerStepsBadge.style.background = '#dbeafe';
+        headerStepsBadge.style.color = '#1e40af';
+        headerStepsBadge.style.borderColor = '#bfdbfe';
+        headerStepsBadge.textContent = '⏳ ĐANG DIỄN RA: BƯỚC 3/5';
       }
 
       // Card ngoài danh sách
@@ -2881,7 +2955,7 @@
         `;
         actionButtonsHtml = `
           <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #e11d48; border-color: #e11d48; font-weight: 700;">
-            <span>⏱️</span> Xem Tiến Trình Hoàn Tiền (Bước 3/4)
+            <span>⏱️</span> Xem Tiến Trình Hoàn Tiền (Bước 3/5)
           </button>
         `;
       } else {

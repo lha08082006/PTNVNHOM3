@@ -770,7 +770,7 @@
         customerPhone: '0987 654 321',
         date: '27/10/2026',
         time: '18:30',
-        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/5)'
       },
       'BC2610264412': {
         code: 'BC2610264412',
@@ -783,7 +783,7 @@
         customerPhone: '0987 654 321',
         date: '24/10/2026',
         time: '18:30',
-        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/5)'
       },
       'BC2610227189': {
         code: 'BC2610227189',
@@ -796,7 +796,7 @@
         customerPhone: '0987 654 321',
         date: '22/10/2026',
         time: '20:00',
-        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/5)'
       },
       'BC2610208819': {
         code: 'BC2610208819',
@@ -809,7 +809,7 @@
         customerPhone: '0987 654 321',
         date: '20/10/2026',
         time: '21:00',
-        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/5)'
       },
       'BC2610153321': {
         code: 'BC2610153321',
@@ -822,7 +822,7 @@
         customerPhone: '0987 654 321',
         date: '15/10/2026',
         time: '20:15',
-        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/5)'
       }
     };
 
@@ -852,7 +852,7 @@
               customerPhone: ord.phone || '0987 654 321',
               date: ord.show_date || 'Hôm nay',
               time: ord.show_time || '18:30',
-              statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+              statusText: 'Đang xử lý hoàn tiền (Bước 3/5)'
             };
             INVOICES_DATA[code] = resolved;
             return resolved;
@@ -873,7 +873,7 @@
         customerPhone: '0987 654 321',
         date: 'Hôm nay',
         time: '18:30',
-        statusText: 'Đang xử lý hoàn tiền (Bước 3/4)'
+        statusText: 'Đang xử lý hoàn tiền (Bước 3/5)'
       };
     }
     let isDarkMode = false;
@@ -1367,7 +1367,7 @@
           }
         } catch(e) {}
         currentActiveOrder = await resolveOrderInfo(orderCode);
-        currentActiveOrder.statusText = 'Đang xử lý hoàn tiền (Bước 3/4)';
+        currentActiveOrder.statusText = 'Đang xử lý hoàn tiền (Bước 3/5)';
         renderOrderContextGreeting(currentActiveOrder);
       } else if (ref) {
         setTimeout(() => {

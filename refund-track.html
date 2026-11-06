@@ -360,25 +360,39 @@
                 </div>
               </li>
 
-              <!-- Bước 3: Đã duyệt (Đang diễn ra) -->
+              <!-- Bước 3: Hệ thống tự động chuyển tiền -->
               <li class="timeline-item">
                 <i class="timeline-dot active"></i>
                 <div>
-                  <div style="font-weight: 800; font-size: 14px; color: #FF5A3C;">3. Đã duyệt giải ngân</div>
+                  <div style="font-weight: 800; font-size: 14px; color: #FF5A3C;">3. Hệ thống tự động chuyển tiền (Tối đa 24h)</div>
                   <div style="font-size: 12.5px; color: #FF5A3C; font-weight: 700; margin-top: 2px;">
-                    ● Đang xử lý lệnh chuyển tiền ngân hàng
+                    ● Đang phát lệnh chuyển tiền tự động qua API ngân hàng
                   </div>
                   <div style="font-size: 12.5px; color: #64748b; margin-top: 2px;">
-                    Lệnh hoàn tiền tự động đang được cổng thanh toán chuyển đến ngân hàng MB Bank của bạn.
+                    Lệnh hoàn tiền tự động đang được cổng thanh toán chuyển đến ngân hàng của bạn. Nếu sau 24h không thành công, hệ thống sẽ tự động chuyển giao Kế toán rạp xử lý.
                   </div>
                 </div>
               </li>
 
-              <!-- Bước 4: Đã chuyển hoàn -->
+              <!-- Bước 4: Chuyển qua nhân viên xử lý -->
               <li class="timeline-item">
                 <i class="timeline-dot pending"></i>
                 <div>
-                  <div style="font-weight: 800; font-size: 14px; color: #64748b;">4. Đã chuyển hoàn</div>
+                  <div style="font-weight: 800; font-size: 14px; color: #64748b;">4. Chuyển qua nhân viên xử lý</div>
+                  <div style="font-size: 12.5px; color: #94a3b8; margin-top: 2px;">
+                    Dự phòng (Khi tự động quá 24h hoặc lỗi cổng thanh toán)
+                  </div>
+                  <div style="font-size: 12.5px; color: #94a3b8; margin-top: 2px;">
+                    Nhân viên Kế toán rạp sẽ tiếp nhận đối soát thủ công và hoàn tiền trực tiếp nếu hệ thống tự động không thành công.
+                  </div>
+                </div>
+              </li>
+
+              <!-- Bước 5: Hoàn tất nhận tiền về tài khoản -->
+              <li class="timeline-item">
+                <i class="timeline-dot pending"></i>
+                <div>
+                  <div style="font-weight: 800; font-size: 14px; color: #64748b;">5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)</div>
                   <div style="font-size: 12.5px; color: #94a3b8; margin-top: 2px;">
                     Mã giao dịch hoàn: <strong>FT2610279854</strong> (hiển thị khi hoàn tất)
                   </div>
@@ -530,7 +544,7 @@
 
         // Cập nhật các bước trên timeline
         const dots = document.querySelectorAll('.timeline-list .timeline-dot');
-        if (dots.length >= 4) {
+        if (dots.length >= 5) {
           // Reset
           dots.forEach(d => { d.className = 'timeline-dot pending'; });
 
@@ -543,16 +557,17 @@
             dots[0].className = 'timeline-dot done';
             dots[1].className = 'timeline-dot done';
             dots[2].className = 'timeline-dot active';
-          } else if (rf.status === 'APPROVED') {
+          } else if (rf.status === 'FALLBACK_STAFF') {
             dots[0].className = 'timeline-dot done';
             dots[1].className = 'timeline-dot done';
             dots[2].className = 'timeline-dot done';
             dots[3].className = 'timeline-dot active';
-          } else if (rf.status === 'DONE') {
+          } else if (rf.status === 'DONE' || rf.status === 'APPROVED') {
             dots[0].className = 'timeline-dot done';
             dots[1].className = 'timeline-dot done';
             dots[2].className = 'timeline-dot done';
             dots[3].className = 'timeline-dot done';
+            dots[4].className = 'timeline-dot done';
           }
         }
       }).catch(err => console.log('Không lấy được refund:', err.message));

@@ -458,7 +458,7 @@
               </h4>
             </div>
             <span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px;">
-              ⏳ ĐANG DIỄN RA: BƯỚC 3/4
+              ⏳ ĐANG DIỄN RA: BƯỚC 3/5
             </span>
           </div>
 
@@ -486,17 +486,27 @@
             <li class="timeline-item">
               <i class="timeline-dot active"></i>
               <div>
-                <div style="font-weight: 800; font-size: 13.5px; color: #2563eb;">3. Đã duyệt hoàn tiền & Ngân hàng đang giải ngân</div>
-                <div style="font-size: 12px; color: #2563eb; font-weight: 700; margin-top: 1px;">● Đang xử lý lệnh hoàn tiền về STK ngân hàng gốc</div>
+                <div style="font-weight: 800; font-size: 13.5px; color: #2563eb;">3. Hệ thống tự động chuyển tiền (Tối đa 24h)</div>
+                <div style="font-size: 12px; color: #2563eb; font-weight: 700; margin-top: 1px;">● Đang phát lệnh chuyển tiền tự động qua API ngân hàng</div>
                 <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
-                  Kế toán rạp đã ký duyệt hoàn tiền 100%. Lệnh chuyển tiền tự động đang được cổng thanh toán chuyển đến ngân hàng của bạn.
+                  Lệnh chuyển tiền tự động đang được kết nối trực tiếp đến ngân hàng của bạn. Nếu sau 24h không thành công, hệ thống sẽ tự động chuyển giao Kế toán rạp xử lý.
                 </div>
               </div>
             </li>
             <li class="timeline-item">
               <i class="timeline-dot pending"></i>
               <div>
-                <div style="font-weight: 800; font-size: 13.5px; color: #64748b;">4. Hoàn tất nhận tiền về tài khoản</div>
+                <div style="font-weight: 800; font-size: 13.5px; color: #64748b;">4. Chuyển qua nhân viên xử lý</div>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Dự phòng (Khi tự động gián đoạn hoặc quá 24h)</div>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+                  Nhân viên Kế toán rạp sẽ tiếp nhận đối soát thủ công và thực hiện chuyển tiền nếu hệ thống tự động không thành công.
+                </div>
+              </div>
+            </li>
+            <li class="timeline-item">
+              <i class="timeline-dot pending"></i>
+              <div>
+                <div style="font-weight: 800; font-size: 13.5px; color: #64748b;">5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)</div>
                 <div style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Chờ ngân hàng ghi có biến động số dư</div>
                 <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
                   Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng chuyển tiền ban đầu của bạn.
@@ -634,7 +644,7 @@
         paymentMethod: 'SePay VietQR',
         bankTransCode: 'REF-2610-915',
         statusBadge: '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>',
-        statusNote: 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/4 (Ngân hàng đối tác đang xử lý lệnh chuyển tiền hoàn lại, dự kiến hoàn tất trong 1-2 ngày làm việc).',
+        statusNote: 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Ngân hàng đối tác đang xử lý lệnh chuyển tiền hoàn lại, dự kiến hoàn tất trong 1-2 ngày làm việc).',
         items: [
           { name: 'Vé xem phim 2D VIP (Ghế F11, F12)', qty: 2, price: 80000, amount: 160000 },
           { name: 'Bắp Rang Phô Mai Lớn', qty: 1, price: 50000, amount: 50000 }
