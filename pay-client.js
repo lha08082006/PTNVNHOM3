@@ -57,9 +57,12 @@ const Pay = {
   getApiBase() {
     if (typeof window !== 'undefined' && window.location) {
       const port = window.location.port;
-      if (port && port !== '3000') {
-        return 'http://localhost:3000/api/';
+      // Đang truy cập trực tiếp qua server Node (port 5000, 3000) hoặc Vercel (port chuẩn 80/443 hoặc rỗng)
+      if (port === '5000' || port === '3000' || !port) {
+        return '/api/';
       }
+      // Đang mở qua Live Server (port 5500, 5501...) -> ưu tiên kết nối tới port 5000
+      return 'http://localhost:5000/api/';
     }
     return '/api/';
   },
@@ -74,8 +77,8 @@ const Pay = {
       try {
         r = await fetch(url, opts);
       } catch (networkErr) {
-        // Nếu fetch tới port 3000 bị chặn (CORS / server chưa bật), thử relative
-        if (apiBase.startsWith('http://localhost:3000')) {
+        // Nếu fetch tới server nền bị chặn (CORS / port 5000/3000 chưa bật), thử relative
+        if (apiBase.startsWith('http://localhost:5000') || apiBase.startsWith('http://localhost:3000')) {
           url = '/api/' + cleanPath;
           r = await fetch(url, opts);
         } else {
