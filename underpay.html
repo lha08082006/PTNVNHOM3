@@ -575,7 +575,7 @@
     }
 
     const params = new URLSearchParams(window.location.search);
-    let orderCode = params.get('order') || 'BC2610279854';
+    let orderCode = (params.get('order') || '').toUpperCase();
     let total = Number(params.get('total') || 179000);
     let currentPaid = Number(params.get('paid') || Math.max(50000, total - 79000));
     let currentRemaining = Number(params.get('remaining') || (total - currentPaid));
@@ -635,78 +635,51 @@
       }
     }
 
-    // Khởi tạo hiển thị tức thì từ query params
-    renderOrderData({
-      code: orderCode,
-      total: total,
-      paid_amount: currentPaid,
-      remaining_amount: currentRemaining,
-      movie_key: movie,
-      cinema: cinema,
-      show_date: date,
-      show_time: time,
-      seats: seats
-    });
-
-    // Đọc chi tiết đơn hàng từ API nếu có
-    if (window.Pay && orderCode) {
-      Pay.getOrder(orderCode).then(ord => {
-        if (ord) renderOrderData(ord);
-      }).catch(err => console.log('Fetch error:', err.message));
-
-      // Lắng nghe realtime qua Pay.watch
-      Pay.watch(orderCode, (ord) => {
-        if (!ord) return;
-        // Nếu đã trả đủ -> chuyển sang xuất vé
-        if (ord.status === 'PAID') {
-          location.href = `ticket.html?${fullQueryParams.toString()}`;
-        }
-        // Nếu đã hết hạn giữ ghế
-        if (ord.status === 'EXPIRED') {
-          location.href = `refund.html?${fullQueryParams.toString()}&reason=SHORT`;
-        }
-      });
+    // Dữ liệu thật từ máy chủ: số đã nhận, số còn thiếu, thời gian giữ ghế còn lại
+    let secondsLeft = 0;
+    let leaving = false;
+    function onUpdate(ord) {
+      if (!ord || leaving) return;
+      if (ord.status === 'PENDING') {
+        renderOrderData(ord);
+        secondsLeft = ord.seconds_left;
+        return;
+      }
+      // Đã chuyển đủ -> vé; hết giờ khi chưa đủ -> hoàn phần đã nhận (theo dõi tại order.html)
+      leaving = true;
+      location.href = Pay.routeFor(ord);
     }
+    if (orderCode) Pay.watch(orderCode, onUpdate, 3000);
 
     function checkUnderpayStatus() {
       Pay.getOrder(orderCode).then(ord => {
-        if (ord && ord.status === 'PAID') {
-          location.href = `ticket.html?${fullQueryParams.toString()}`;
-        } else {
-          alert(`Hệ thống đang đợi nhận thêm ${Pay.vnd(currentRemaining)} từ ngân hàng. Vui lòng quét mã QR chuyển bù hoặc thử lại sau vài giây!`);
-        }
+        if (ord && ord.status !== 'PENDING') return onUpdate(ord);
+        alert(`Hệ thống đang đợi nhận thêm ${Pay.vnd(currentRemaining)} từ ngân hàng. Vui lòng quét mã QR chuyển bù hoặc thử lại sau vài giây!`);
       });
     }
 
-    // Demo: Giả lập chuyển nốt số tiền thiếu
+    // Sandbox: chuyển nốt phần còn thiếu
     async function demoPayRemaining() {
       try {
-        await Pay.simulate('OK', orderCode, currentRemaining, { total, movie, cinema, seats, date, time });
-        alert('Đã giả lập chuyển bù nốt số tiền thiếu thành công! Hệ thống sẽ tự động xuất vé...');
-        location.href = `ticket.html?${fullQueryParams.toString()}`;
-      } catch (e) {
-        location.href = `ticket.html?${fullQueryParams.toString()}`;
-      }
+        const r = await Pay.simulate('TOPUP', orderCode);
+        onUpdate(r.order);
+      } catch (e) { alert(e.message); }
     }
 
-    // Demo: Giả lập hết giờ giữ ghế
+    // Sandbox: tua tới lúc hết 10 phút giữ ghế khi vẫn chưa đủ tiền -> hệ thống tự hoàn phần đã nhận
     async function demoExpireOrder() {
       try {
-        await Pay.simulate('LATE', orderCode, null, { total, movie, cinema, seats, date, time });
-        location.href = `refund.html?${fullQueryParams.toString()}&reason=SHORT`;
-      } catch (e) {
-        location.href = `refund.html?${fullQueryParams.toString()}&reason=SHORT`;
-      }
+        const r = await Pay.simulate('SHIFT', orderCode, null, { minutes: Math.ceil(secondsLeft / 60) + 1 });
+        onUpdate(r.order);
+      } catch (e) { alert(e.message); }
     }
 
-    // Đếm ngược thời gian giữ ghế (06:12 -> 06:11 -> ...)
-    let totalSeconds = 270; // 4 phút 30 giây
     const countdownEl = document.getElementById('underpay-countdown');
     setInterval(() => {
-      if (totalSeconds > 0) {
-        totalSeconds--;
-        const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-        const s = (totalSeconds % 60).toString().padStart(2, '0');
+      if (secondsLeft > 0) {
+        secondsLeft--;
+        const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+        const s = (secondsLeft % 60).toString().padStart(2, '0');
         if (countdownEl) countdownEl.textContent = `${m}:${s}`;
       }
     }, 1000);

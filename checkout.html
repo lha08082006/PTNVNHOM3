@@ -273,11 +273,11 @@
     <div class="c" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
       <div>
         <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 4px;">Thanh toán</h2>
-        <p class="m">Ghế được giữ đúng 10 phút, không gia hạn. Hết giờ ghế sẽ được nhả.</p>
+        <p class="m">Bấm "Thanh toán ngay" để khóa ghế đúng 10 phút và nhận mã VietQR. Hết giờ ghế sẽ được nhả.</p>
       </div>
       <p role="timer" style="font-size: 28px; font-weight: 800; color: var(--status-warning); display: flex; align-items: baseline; gap: 8px;">
-        <span id="countdown-timer">09:58</span>
-        <span class="m" style="font-weight: 400; font-size: 14px;">giữ ghế còn lại</span>
+        <span id="countdown-timer">10:00</span>
+        <span class="m" style="font-weight: 400; font-size: 14px;">giữ ghế sau khi bấm thanh toán</span>
       </p>
     </div>
 
@@ -709,77 +709,32 @@
       };
 
       try {
-        // Tạo mã đơn hàng local trước để luôn có fallback
-        const localOrderCode = 'BC' + Math.floor(1000000000 + Math.random() * 9000000000);
-        let finalOrderCode = localOrderCode;
-
-        // Thử gọi API để lấy mã đơn chính thức
-        try {
-          const o = await Pay.post('create-order', {
-            movie_key: currentMovie,
-            cinema: currentCinema,
-            show_date: currentDate,
-            show_time: currentTime,
-            seats: seatArray,
-            combos: combosPayload,
-            voucher: discountAmount > 0 ? 'BETAVIP' : null,
-            total: finalTotal,
-            phone: '0987654321',
-            customer_name: 'LƯƠNG HỒNG ANH',
-            email: 'luonghonganh.cinema@gmail.com'
-          });
-          if (o && o.code) {
-            finalOrderCode = o.code;
-          }
-        } catch (apiErr) {
-          console.warn('[Checkout] API tạo đơn lỗi, dùng mã local:', apiErr.message);
-        }
-
-        // Lưu đơn hàng vào local để account.html có thể hiển thị
-        Pay.saveLocalOrder({
-          code: finalOrderCode,
-          status: 'HOLDING',
-          paid_amount: 0,
+        // Máy chủ tạo đơn PENDING và khóa ghế nguyên tử 10 phút (Tầng 1 bắt đầu từ đây)
+        await Pay.createOrderAndGo({
           movie_key: currentMovie,
           cinema: currentCinema,
-          seats: seatArray,
-          combos: combosPayload,
-          total: finalTotal,
           show_date: currentDate,
           show_time: currentTime,
-          created_at: new Date().toISOString()
-        });
-
-        // Luôn chuyển sang cổng QR sau khi có mã đơn
-        const query = new URLSearchParams({
-          order: finalOrderCode,
-          movie: currentMovie,
-          cinema: currentCinema,
-          seats: selectedSeatsStr,
-          combos: JSON.stringify(combosPayload),
+          seats: seatArray,
+          combos: combosPayload,
+          voucher: discountAmount > 0 ? 'BETAVIP' : null,
           total: finalTotal,
-          date: currentDate,
-          time: currentTime
+          phone: '0987654321',
+          customer_name: 'LƯƠNG HỒNG ANH',
+          email: 'luonghonganh.cinema@gmail.com'
         });
-        window.location.href = 'gateway.html?' + query.toString();
-
       } catch (err) {
-        console.error('[Checkout] Lỗi không xác định:', err);
-        alert('Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!');
+        console.error('[Checkout] Không tạo được đơn:', err);
+        if (err.status === 409) {
+          alert(err.message + ' Bạn sẽ được đưa về sơ đồ ghế để chọn lại.');
+          location.href = 'seats.html?' + new URLSearchParams({ movie: currentMovie, cinema: currentCinema, date: currentDate, time: currentTime }).toString();
+          return;
+        }
+        alert('Không tạo được đơn hàng (' + err.message + '). Bạn chưa bị trừ tiền – vui lòng thử lại.');
         resetBtn();
       }
     }
 
-    // Đếm ngược 10 phút giữ ghế
-    let timeLeft = 598; // 09:58
-    setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft--;
-        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        const s = (timeLeft % 60).toString().padStart(2, '0');
-        document.getElementById('countdown-timer').textContent = m + ':' + s;
-      }
-    }, 1000);
 
     parseParams();
   </script>

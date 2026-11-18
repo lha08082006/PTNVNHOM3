@@ -1,33 +1,51 @@
 -- =====================================================================
--- Beta Cinemas - schema thanh toán (Supabase / Postgres)
--- Dán toàn bộ file này vào Supabase > SQL Editor > New query > Run
+-- Beta Cinemas - schema đặt vé, đối soát & hoàn tiền (Supabase / Postgres)
+-- Quy trình 3 tầng "Cứu vé trước – Hoàn tiền sau".
+-- Cài mới: dán toàn bộ file vào Supabase > SQL Editor > Run.
+-- Nâng cấp DB đang chạy bản cũ: chạy migrations/2026-11-18_quy-trinh-3-tang.sql
 -- =====================================================================
 create extension if not exists pgcrypto;
 
--- 1) Đơn đặt vé -------------------------------------------------------
+-- 1) Đơn đặt vé ---------------------------------------------------------
 create table if not exists orders (
   id              uuid primary key default gen_random_uuid(),
-  code            text unique not null,               -- BC2610289854: cũng là NỘI DUNG CHUYỂN KHOẢN
-  user_id         uuid references auth.users(id),     -- null nếu khách không đăng nhập
+  code            text unique not null,               -- BC2610289854: cũng là nội dung chuyển khoản
+  user_id         uuid references auth.users(id),
   phone           text,
+  email           text,
+  customer_name   text,
   movie_key       text,
   cinema          text,
   show_date       text,
   show_time       text,
-  showtime_key    text not null,                      -- phim|rạp|ngày|giờ (để khóa ghế theo suất)
-  seats           jsonb not null default '[]',        -- ["D5","D6"]
-  combos          jsonb not null default '{}',        -- {"solo":1}
+  show_at         timestamptz,                        -- giờ chiếu (BR-03: còn >= 30 phút mới cấp vé bù)
+  showtime_key    text not null,
+  seats           jsonb not null default '[]',
+  combos          jsonb not null default '{}',
   voucher         text,
-  total           bigint not null check (total >= 0), -- số tiền phải trả (tính ở server)
-  paid_amount     bigint not null default 0,          -- số tiền đã nhận được (cộng dồn)
-  status          text not null default 'HOLDING'
-                  check (status in ('HOLDING','PARTIAL','PAID','EXPIRED','CANCELLED')),
-  hold_expires_at timestamptz not null,               -- hết giờ giữ ghế (10 phút)
-  paid_at         timestamptz,
+  total           bigint not null check (total >= 0),
+  paid_amount     bigint not null default 0,
+  status          text not null default 'PENDING' check (status in (
+                    'PENDING','CONFIRMED','CANCELLED','FAILED','EXPIRED',
+                    'CONFIRMED_LATE','REFUND_REQUESTED','REFUNDED','MANUAL_REVIEW')),
+  hold_expires_at timestamptz not null,               -- hết 10 phút giữ ghế
+  check_seq       int not null default 0,             -- số mốc tra cứu Tầng 1 đã chạy
+  last_check_at   timestamptz,
+  reported_at     timestamptz,                        -- khách bấm "Đã chuyển tiền nhưng chưa có vé"
+  expired_at      timestamptz,
+  scan_until      timestamptz,                        -- hết cửa sổ ScanList 24 giờ
+  job_checked_at  timestamptz,                        -- lần Job 30 phút gần nhất
+  paid_at         timestamptz,                        -- thời điểm giao dịch ngân hàng
+  confirmed_at    timestamptz,
+  manual_reason   text,
+  source_account  jsonb,                              -- tài khoản nguồn truy xuất từ giao dịch
+  sandbox         jsonb,                              -- cờ mô phỏng (chỉ dùng cho demo/UAT)
+  history         jsonb not null default '[]',        -- lịch sử chuyển trạng thái (NFR-13)
   created_at      timestamptz not null default now()
 );
+create index if not exists orders_status_idx on orders(status);
 
--- 2) Ghế đang giữ / đã bán (khóa duy nhất theo suất + ghế) --------------
+-- 2) Ghế đang giữ / đã bán: khóa chính (suất, ghế) bảo đảm 0 trùng ghế (NFR-05)
 create table if not exists seat_holds (
   showtime_key text not null,
   seat_id      text not null,
@@ -36,10 +54,11 @@ create table if not exists seat_holds (
   expires_at   timestamptz,
   primary key (showtime_key, seat_id)
 );
+create index if not exists seat_holds_order_idx on seat_holds(order_id);
 
--- 3) Mọi giao dịch tiền VÀO mà SePay báo về (lưu nguyên bản để đối soát) ---
+-- 3) Sổ cái giao dịch tiền vào (webhook SePay + API tra cứu) ---------------
 create table if not exists bank_transactions (
-  id               bigint primary key,                -- "id" giao dịch của SePay -> chống xử lý trùng
+  id               bigint primary key,
   gateway          text,
   account_number   text,
   transaction_date timestamptz,
@@ -47,73 +66,100 @@ create table if not exists bank_transactions (
   code             text,
   transfer_type    text,
   amount           bigint,
-  reference_code   text,                              -- mã giao dịch ngân hàng (FT..., MBVCB...)
+  reference_code   text unique,                       -- chống xử lý trùng webhook (NFR-06)
   raw              jsonb,
   order_id         uuid references orders(id),
-  result           text check (result in
-                   ('OK','SHORT','EXCESS','LATE','DUPLICATE','RECOVERED','UNMATCHED','IGNORED','ERROR')),
+  result           text,
   note             text,
   created_at       timestamptz not null default now()
 );
-create index if not exists bank_tx_ref_idx  on bank_transactions(reference_code);
 create index if not exists bank_tx_code_idx on bank_transactions(code);
 
--- 4) Hồ sơ hoàn tiền (khớp 4 bước ở trang refund-track) -------------------
+-- 4) Hồ sơ hoàn tiền ----------------------------------------------------
 create table if not exists refunds (
-  id            uuid primary key default gen_random_uuid(),
-  code          text unique not null,                 -- REF-2610-889
-  order_id      uuid not null references orders(id),
-  bank_tx_id    bigint references bank_transactions(id),
-  amount        bigint not null check (amount > 0),
-  reason        text not null check (reason in ('LATE','SHORT','EXCESS','DUPLICATE','SYSTEM_ERROR')),
-  status        text not null default 'WAITING_INFO'
-                check (status in ('WAITING_INFO','RECEIVED','RECONCILING','APPROVED','DONE')),
-  bank_name     text,
-  acc_number    text,
-  acc_name      text,
-  received_at   timestamptz,
-  reconciled_at timestamptz,
-  approved_at   timestamptz,
-  done_at       timestamptz,
-  refund_ref    text,                                 -- mã giao dịch hoàn tiền (nhân viên nhập khi DONE)
-  created_at    timestamptz not null default now()
+  id                 uuid primary key default gen_random_uuid(),
+  code               text unique not null,
+  order_id           uuid not null references orders(id),
+  order_code         text,
+  amount             bigint not null check (amount > 0),
+  reason             text not null check (reason in ('LATE','SEAT_TAKEN','NEAR_SHOWTIME','SHORT','EXCESS','DUPLICATE','MISMATCH')),
+  status             text not null default 'REQUESTED' check (status in (
+                       'REQUESTED','RETRYING','DONE','MANUAL_REVIEW','FORM_SUBMITTED','CS_APPROVED','PAID_OUT')),
+  idempotency_key    text unique not null,             -- BR-04: chống hoàn trùng
+  tx_refs            text,
+  source_account     jsonb,
+  attempts           int not null default 0,
+  last_attempt_at    timestamptz,
+  last_error         text,
+  deadline_at        timestamptz not null,             -- hạn tự hoàn 24 giờ
+  is_manual          boolean not null default false,
+  verified_at        timestamptz,                      -- mốc "Đối soát"
+  reconciled_at      timestamptz,                      -- CSKH đối chiếu xong (thủ công)
+  approved_at        timestamptz,                      -- mốc "Đã duyệt"
+  done_at            timestamptz,                      -- mốc "Đã chuyển hoàn"
+  accounting_paid_at timestamptz,
+  refund_ref         text,
+  bank_name          text,                             -- RefundForm
+  acc_number         text,
+  acc_name           text,
+  receipt_url        text,
+  form_submitted_at  timestamptz,
+  cs_decision        text check (cs_decision in ('CAN_HOAN_TIEN','NGOAI_LE')),
+  cs_note            text,
+  created_at         timestamptz not null default now()
 );
-create unique index if not exists refunds_tx_reason_uq
-  on refunds(bank_tx_id, reason) where bank_tx_id is not null;
+create index if not exists refunds_order_code_idx on refunds(order_code);
+create index if not exists refunds_status_idx on refunds(status);
 
--- Tự điền mốc thời gian khi nhân viên đổi cột status trong Table Editor
-create or replace function touch_refund() returns trigger as $$
-begin
-  if new.status is distinct from old.status then
-    if new.status = 'RECEIVED'    then new.received_at   := now(); end if;
-    if new.status = 'RECONCILING' then new.reconciled_at := now(); end if;
-    if new.status = 'APPROVED'    then new.approved_at   := now(); end if;
-    if new.status = 'DONE'        then new.done_at       := now(); end if;
-  end if;
-  return new;
-end $$ language plpgsql;
-
-drop trigger if exists refunds_touch on refunds;
-create trigger refunds_touch before update on refunds
-  for each row execute function touch_refund();
-
--- 5) Khiếu nại (khi không tìm thấy giao dịch ở bất kỳ đâu) ---------------
-create table if not exists complaints (
+-- 5) Phiếu hỗ trợ cho CSKH (MANUAL_REVIEW, báo lỗi, tiền không khớp đơn) ----
+create table if not exists support_tickets (
   id          uuid primary key default gen_random_uuid(),
-  code        text unique not null,                   -- CS-2610-123
-  bank_ref    text,
+  code        text unique not null,
   order_code  text,
-  phone       text,
-  amount      bigint,
-  description text,
-  status      text not null default 'OPEN' check (status in ('OPEN','RESOLVED')),
+  refund_code text,
+  type        text not null check (type in ('PAYMENT_REPORT','MANUAL_REVIEW','DATA_MISMATCH','UNMATCHED_TX')),
+  priority    text not null default 'HIGH',
+  status      text not null default 'OPEN' check (status in ('OPEN','WAITING_CUSTOMER','WAITING_ACCOUNTING','RESOLVED')),
+  summary     text,
+  context     jsonb,                                  -- BR-11: ngữ cảnh giao dịch gom sẵn
+  decision    text,
+  note        text,
+  updated_at  timestamptz,
   created_at  timestamptz not null default now()
 );
+create index if not exists tickets_order_idx on support_tickets(order_code);
 
--- 6) Bảo mật: bật RLS và KHÔNG tạo policy => trình duyệt (anon key) không đọc được gì.
---    Chỉ các hàm /api (dùng service_role key ở server) mới truy cập được.
+-- 6) Thông báo đa kênh (BR-09) -----------------------------------------
+create table if not exists notifications (
+  id         uuid primary key default gen_random_uuid(),
+  order_code text,
+  channel    text not null check (channel in ('WEB','EMAIL','SMS')),
+  event      text,
+  title      text,
+  message    text,
+  recipient  text,
+  created_at timestamptz not null default now()
+);
+create index if not exists notifications_order_idx on notifications(order_code);
+
+-- 7) Nhật ký gọi API cổng thanh toán (NFR-13, NFR-14) --------------------
+create table if not exists gateway_logs (
+  id         uuid primary key default gen_random_uuid(),
+  order_code text,
+  api        text,      -- QUERY_STATUS | CANCEL_ORDER | REFUND
+  phase      text,      -- WEBHOOK | SHORT_POLL | FINAL_CHECK | EXPIRY_CHECK | JOB_30M | REFUND | RETRY ...
+  result     text,
+  detail     jsonb,
+  created_at timestamptz not null default now()
+);
+create index if not exists gateway_logs_order_idx on gateway_logs(order_code);
+
+-- 8) Bảo mật: bật RLS, không tạo policy => trình duyệt (anon key) không đọc được gì.
+--    Chỉ /api (service_role key phía máy chủ) mới truy cập được.
 alter table orders            enable row level security;
 alter table seat_holds        enable row level security;
 alter table bank_transactions enable row level security;
 alter table refunds           enable row level security;
-alter table complaints        enable row level security;
+alter table support_tickets   enable row level security;
+alter table notifications     enable row level security;
+alter table gateway_logs      enable row level security;

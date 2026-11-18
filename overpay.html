@@ -555,114 +555,42 @@
 
   <script src="pay-client.js"></script>
   <script>
+    // Chuyển thừa: vé vẫn được xuất, phần thừa được TỰ ĐỘNG hoàn về tài khoản đã chuyển (Refund API).
+    // Khách chỉ phải điền biểu mẫu khi hệ thống không tự hoàn được trong 24 giờ.
     const params = new URLSearchParams(window.location.search);
-    let orderCode = params.get('order') || 'BC2610279854';
-    let total = Number(params.get('total') || 179000);
-    let excessAmount = Number(params.get('excess') || 21000);
-    let paidAmount = Number(params.get('paid') || (total + excessAmount));
-    const movie = params.get('movie') || '';
-    const cinema = params.get('cinema') || '';
-    const seats = params.get('seats') || '';
-    const date = params.get('date') || '';
-    const time = params.get('time') || '';
-    const combos = params.get('combos') || '';
-
-    const fullQueryParams = new URLSearchParams({
-      order: orderCode,
-      movie: movie,
-      cinema: cinema,
-      seats: seats,
-      total: total,
-      date: date,
-      time: time
-    });
-
-    // Cập nhật link xem vé
+    const orderCode = (params.get('order') || '').toUpperCase();
+    const trackUrl = 'order.html?code=' + encodeURIComponent(orderCode);
     const ticketBtn = document.getElementById('btn-view-ticket');
-    if (ticketBtn) ticketBtn.href = `ticket.html?${fullQueryParams.toString()}`;
+    if (ticketBtn) ticketBtn.href = 'ticket.html?order=' + encodeURIComponent(orderCode);
+
+    const form = document.getElementById('overpay-refund-form');
+    const box = document.createElement('div');
+    box.id = 'overpay-auto-refund';
+    box.style.cssText = 'padding: 14px 16px; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; font-size: 13.5px; line-height: 1.6;';
+    box.textContent = 'Đang tải trạng thái hoàn tiền thừa...';
+    if (form) { form.style.display = 'none'; form.parentNode.insertBefore(box, form); }
 
     function renderOverpayData(ord) {
       if (!ord) return;
-      orderCode = ord.code || orderCode;
-      total = ord.total || total;
-      excessAmount = ord.excess_amount || (ord.paid_amount ? ord.paid_amount - total : excessAmount);
-      if (excessAmount <= 0) excessAmount = 21000;
-      paidAmount = ord.paid_amount || (total + excessAmount);
+      const ex = (ord.refunds || []).find(r => r.reason === 'EXCESS');
+      const excess = ex ? ex.amount : ord.excess_amount;
+      document.getElementById('overpay-order-code').textContent = ord.code;
+      document.getElementById('overpay-paid-amount').textContent = Pay.vnd(ord.paid_amount);
+      document.getElementById('overpay-total-amount').textContent = Pay.vnd(ord.total);
+      document.getElementById('overpay-excess-amount').textContent = Pay.vnd(excess);
+      if (Pay.renderInvoice) Pay.renderInvoice(ord);
 
-      document.getElementById('overpay-order-code').textContent = orderCode;
-      document.getElementById('overpay-paid-amount').textContent = Pay.vnd(paidAmount);
-      document.getElementById('overpay-total-amount').textContent = Pay.vnd(total);
-      document.getElementById('overpay-excess-amount').textContent = Pay.vnd(excessAmount);
-
-      // Đồng bộ hóa đơn chi tiết phim & bắp nước động
-      if (window.Pay && Pay.renderInvoice) {
-        Pay.renderInvoice({
-          ...ord,
-          movie_key: ord.movie_key || movie,
-          cinema: ord.cinema || cinema,
-          show_date: ord.show_date || date,
-          show_time: ord.show_time || time,
-          seats: ord.seats || seats
-        });
-      }
+      if (!ex) { box.textContent = 'Chưa ghi nhận khoản chuyển thừa cho đơn này.'; return; }
+      const done = ex.status === 'DONE';
+      box.innerHTML = done
+        ? `✅ <strong>Đã gửi lệnh hoàn ${Pay.vnd(ex.amount)} tiền thừa</strong> về ${ex.source_account ? (ex.source_account.bank_name + ' ' + ex.source_account.acc_masked) : 'tài khoản đã chuyển'} (mã ${ex.refund_ref || ex.code}). Tiền về tùy ngân hàng, thường 3–7 ngày làm việc.`
+        : ex.needs_form
+          ? `⚠️ Hệ thống chưa tự hoàn được ${Pay.vnd(ex.amount)} tiền thừa. <a href="refund.html?order=${encodeURIComponent(ord.code)}" style="font-weight: 800;">Điền biểu mẫu nhận hoàn tiền →</a>`
+          : `🔄 Hệ thống đang <strong>tự động hoàn ${Pay.vnd(ex.amount)}</strong> về tài khoản bạn đã chuyển (gửi lại mỗi 30 phút, tối đa 24 giờ). Bạn không cần điền thông tin.`;
+      box.innerHTML += ` <a href="${trackUrl}" style="font-weight: 700;">Theo dõi chi tiết →</a>`;
     }
 
-    // Hiển thị ngay tức thì từ URL params
-    renderOverpayData({
-      code: orderCode,
-      total: total,
-      paid_amount: paidAmount,
-      excess_amount: excessAmount,
-      movie_key: movie,
-      cinema: cinema,
-      show_date: date,
-      show_time: time,
-      seats: seats
-    });
-
-    // Tự động load dữ liệu từ API nếu có
-    if (window.Pay && orderCode) {
-      Pay.getOrder(orderCode).then(ord => {
-        if (ord) renderOverpayData(ord);
-      }).catch(err => console.log('Fetch error:', err.message));
-    }
-
-    // Xử lý gửi form hoàn tiền thừa
-    async function handleOverpaySubmit(e) {
-      e.preventDefault();
-
-      const bank = document.getElementById('bank-select').value;
-      const acc = document.getElementById('acc-number').value.trim();
-      const owner = document.getElementById('acc-name').value.trim();
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Đang gửi yêu cầu...';
-      }
-
-      let resCode = 'REF-2610-889';
-
-      try {
-        const res = await Pay.submitRefund({
-          order: orderCode,
-          bank,
-          acc,
-          owner
-        });
-        if (res && res.refund_code) resCode = res.refund_code;
-      } catch (err) {
-        console.warn('Lỗi gọi API refund:', err.message);
-      }
-
-      document.getElementById('res-refund-code').textContent = resCode;
-      const trackBtn = document.getElementById('btn-track-refund');
-      if (trackBtn) trackBtn.href = `refund-track.html?code=${resCode}&order=${orderCode}`;
-
-      // Ẩn form và hiện alert thành công
-      document.getElementById('overpay-refund-form').style.display = 'none';
-      document.getElementById('refund-success-alert').style.display = 'block';
-    }
+    if (orderCode) Pay.watch(orderCode, renderOverpayData, 10000);
   </script>
 
 </body>

@@ -2074,192 +2074,108 @@
     'ca-voi-nuot-chung': 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg'
   };
 
+  // Đồng bộ đơn hàng THẬT từ máy chủ (US-03): nhãn trạng thái theo vòng đời đơn + tiến trình hoàn tiền 4 mốc.
+  // Mỗi lần đồng bộ cũng "đẩy" Job đối soát cho các đơn đang chờ, nên trạng thái luôn mới nhất.
+  const REAL_STATUS_STYLE = {
+    PENDING:          { tab: 'cancelled', refund: null,         bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '⏳' },
+    EXPIRED:          { tab: 'cancelled', refund: 'unrefunded', bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '🔎' },
+    CONFIRMED:        { tab: 'upcoming',  refund: null,         bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '✓' },
+    CONFIRMED_LATE:   { tab: 'upcoming',  refund: null,         bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '✓' },
+    REFUND_REQUESTED: { tab: 'cancelled', refund: 'unrefunded', bg: '#dbeafe', fg: '#1e40af', bd: '#bfdbfe', bar: '#3b82f6', icon: '💸' },
+    MANUAL_REVIEW:    { tab: 'cancelled', refund: 'unrefunded', bg: '#fee2e2', fg: '#991b1b', bd: '#fca5a5', bar: '#ef4444', icon: '📝' },
+    REFUNDED:         { tab: 'cancelled', refund: 'refunded',   bg: '#e0e7ff', fg: '#3730a3', bd: '#c7d2fe', bar: '#6366f1', icon: '✓' },
+    CANCELLED:        { tab: 'cancelled', refund: null,         bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '✕' },
+    FAILED:           { tab: 'cancelled', refund: null,         bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '✕' }
+  };
+
+  function realOrderActions(ord) {
+    const c = encodeURIComponent(ord.code);
+    const track = `<a href="order.html?code=${c}" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="border-color: #005198; color: #005198; font-weight: 700;">📈 Theo dõi đơn hàng</a>`;
+    if (ord.has_ticket) {
+      return `<a href="ticket.html?order=${c}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">🎟️ Xem vé</a>` + track;
+    }
+    if (ord.status === 'PENDING') {
+      return `<a href="${Pay.routeFor(ord)}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #ea580c; border-color: #ea580c; font-weight: 700;">📱 Tiếp tục thanh toán</a>` + track;
+    }
+    if (ord.refund && ord.refund.needs_form) {
+      return `<a href="refund.html?order=${c}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #dc2626; border-color: #dc2626; font-weight: 700;">📝 Điền biểu mẫu nhận hoàn tiền</a>` + track;
+    }
+    return track;
+  }
+
+  function realRefundMini(ord) {
+    const r = ord.refund;
+    if (!r) return '';
+    const dots = r.steps.map(s => `<span title="${s.label}" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: ${s.done ? '#166534' : '#94a3b8'}; font-weight: ${s.done ? 700 : 500};"><span style="width: 14px; height: 14px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 9px; background: ${s.done ? '#16a34a' : '#e2e8f0'}; color: #fff;">${s.done ? '✓' : ''}</span>${s.label}</span>`).join('<span style="color: #cbd5e1;">—</span>');
+    return `<div style="margin: -4px 0 12px; padding: 8px 10px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
+      <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">💸 Hoàn <strong>${Pay.vnd(r.amount)}</strong> · ${r.reason_label}${r.is_manual ? ' · thủ công' : ' · tự động'}</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">${dots}</div>
+    </div>`;
+  }
+
   async function syncRealOrdersToUI() {
     if (!window.Pay || !Pay.getOrders) return;
     try {
-      const realOrders = await Pay.getOrders({ limit: 15 });
-      if (!realOrders || realOrders.length === 0) return;
-
+      const realOrders = await Pay.getOrders({ limit: 20 });
       const wrapper = document.getElementById('orders-list-wrapper');
-      if (!wrapper) return;
+      if (!wrapper || !realOrders.length) return;
 
-      // Thu thập các mã đơn đã có sẵn trên trang tĩnh để tránh trùng lặp
-      const existingCodes = new Set();
-      document.querySelectorAll('.order-history-item').forEach(el => {
-        const c = el.getAttribute('data-code');
-        if (c) existingCodes.add(c);
-      });
+      realOrders.slice().reverse().forEach(ord => {
+        const st = REAL_STATUS_STYLE[ord.status] || REAL_STATUS_STYLE.CANCELLED;
+        const movieObj = Pay.getMovie(ord.movie_key);
+        const poster = movieObj.poster || POSTER_MAP[ord.movie_key] || 'images/400x633-145627-230926-40.jpg';
+        const seatsStr = (ord.seats || []).join(', ');
+        const showTimeStr = (ord.show_time || '') + ' • ' + (ord.show_date || '');
+        const badgeHtml = `<span class="badge" style="background: ${st.bg}; color: ${st.fg}; border: 1px solid ${st.bd}; font-size: 11px; font-weight: 800;">${st.icon} ${ord.status_label.toUpperCase()}</span>`;
 
-      // Lọc các đơn mới từ Supabase chưa hiển thị trên giao diện
-      const newOrders = realOrders.filter(o => !existingCodes.has(o.code));
-      if (newOrders.length === 0) return;
-
-      // Duyệt qua từng đơn mới và chèn lên đầu danh sách
-      newOrders.reverse().forEach(ord => {
-        const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(ord.movie_key) : { title: (ord.movie_key || 'Phim Mới').toUpperCase() };
-        const poster = POSTER_MAP[ord.movie_key] || 'images/400x633-145627-230926-40.jpg';
-
-        // Xử lý huy hiệu trạng thái & phân loại mục tab
-        const isRef = isOrderInRefundList(ord.code) || ord.status === 'REFUNDING';
-        let badgeHtml = '';
-        let borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
-        let statusClass = 'upcoming';
-
-        if (isRef) {
-          statusClass = 'unrefunded';
-          badgeHtml = '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
-          borderStyle = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
-        } else if (ord.code === 'BC2885539882' || ord.status === 'CONFIRMED_LATE' || ord.status === 'PAID_COMPENSATED' || ord.status === 'REISSUED') {
-          badgeHtml = '<span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-size: 11px; font-weight: 800;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>';
-          borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
-          statusClass = 'upcoming';
-        } else if (ord.status === 'PAID') {
-          badgeHtml = '<span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-size: 11px; font-weight: 800;">✓ ĐÃ THANH TOÁN (SEPAY)</span>';
-          borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
-          statusClass = 'upcoming';
-        } else if (ord.status === 'PARTIAL') {
-          badgeHtml = '<span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-size: 11px; font-weight: 800;">⚠️ CHUYỂN THIẾU TIỀN</span>';
-          borderStyle = 'border-left: 4px solid #f59e0b; background: #fffdf5;';
-          statusClass = 'cancelled';
-        } else if (ord.status === 'EXCESS') {
-          badgeHtml = '<span class="badge" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 11px; font-weight: 800;">💰 CHUYỂN THỪA TIỀN</span>';
-          borderStyle = 'border-left: 4px solid #0284c7; background: #f8fafc;';
-          statusClass = 'upcoming';
-        } else if (ord.status === 'EXPIRED') {
-          badgeHtml = '<span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-size: 11px; font-weight: 800;">❌ ĐÃ HỦY (QUÁ HẠN)</span>';
-          borderStyle = 'border-left: 4px solid #ef4444; background: #fffdfd;';
-          statusClass = 'cancelled';
-        } else {
-          // Các đơn ở trạng thái 'HOLDING' / 'PENDING' (Chờ thanh toán) -> ĐƯA VÀO MỤC ĐÃ HỦY
-          badgeHtml = '<span class="badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 800;">⏳ CHỜ THANH TOÁN</span>';
-          borderStyle = 'border-left: 4px solid #64748b; background: #fafafa;';
-          statusClass = 'cancelled';
-        }
-
-        const seatsStr = Array.isArray(ord.seats) ? ord.seats.join(', ') : (ord.seats || 'D5, D6');
-        const showTimeStr = (ord.show_time || '18:30') + ' • ' + (ord.show_date || 'Hôm nay');
-        const totalFormatted = (window.Pay ? Pay.vnd(ord.total) : new Intl.NumberFormat('vi-VN').format(ord.total) + ' đ');
-
-        // Tạo thẻ đơn hàng HTML
+        const old = wrapper.querySelector(`.order-history-item[data-code="${ord.code}"]`);
         const card = document.createElement('div');
         card.className = 'order-history-item';
-        card.setAttribute('data-status', statusClass);
-        if (isRef) {
-          card.setAttribute('data-refund', 'unrefunded');
-        }
+        card.setAttribute('data-status', st.tab);
+        if (st.refund) card.setAttribute('data-refund', st.refund);
         card.setAttribute('data-title', movieObj.title);
         card.setAttribute('data-code', ord.code);
         card.setAttribute('data-created', ord.created_at || new Date().toISOString());
-        card.style.cssText = borderStyle;
-        card.title = 'Bấm vào đơn để xem chi tiết hóa đơn';
-        card.onclick = () => openInvoiceModal(ord.code);
-
-        let actionBtns = '';
-        if (isRef) {
-          actionBtns = `
-            <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ord.code}');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
-              <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
-            </button>
-          `;
-        } else if (ord.status === 'PAID' || ord.status === 'CONFIRMED_LATE' || ord.status === 'REISSUED' || ord.code === 'BC2885539882') {
-          actionBtns = `
-            <a href="ticket.html?order=${ord.code}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
-              <span>🎟️</span> Xem Lại Tình Trạng Vé
-            </a>
-          `;
-        } else {
-          actionBtns = `
-            <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ord.code}');" style="border-color: #005198; color: #005198; font-weight: 700;">
-              <span>🧾</span> Chi Tiết Hóa Đơn
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); reportOrderIssue('${ord.code}');" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">
-              ⚠️ Báo Cáo Lỗi
-            </button>
-          `;
-        }
-
+        card.setAttribute('data-real', '1');
+        card.style.cssText = `border-left: 4px solid ${st.bar}; background: #fff;`;
+        card.title = 'Bấm để theo dõi đơn hàng';
+        card.onclick = () => { location.href = 'order.html?code=' + encodeURIComponent(ord.code); };
         card.innerHTML = `
-          <img class="order-item-poster" src="${poster}" alt="${movieObj.title}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
+          <img class="order-item-poster" src="${poster}" alt="" onerror="this.src='images/400x633-145627-230926-40.jpg'">
           <div style="flex: 1;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
               <div>
                 ${badgeHtml}
-                <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">
-                  ${movieObj.title}
-                </h4>
+                <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">${movieObj.title}</h4>
+                ${ord.status_sublabel ? `<div style="font-size: 12px; color: #64748b;">${ord.status_sublabel}</div>` : ''}
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
                 <strong style="font-family: monospace; font-size: 14px; color: #005198;">${ord.code}</strong>
               </div>
             </div>
-
             <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
-              📍 Rạp: <strong>${ord.cinema || 'Beta Thanh Xuân'}</strong><br>
+              📍 Rạp: <strong>${ord.cinema || ''}</strong><br>
               🕒 Suất: <strong>${showTimeStr}</strong><br>
-              📅 Thời gian đặt vé: <strong>${new Date(ord.created_at || Date.now()).toLocaleString('vi-VN')}</strong><br>
+              📅 Thời gian đặt vé: <strong>${new Date(ord.created_at).toLocaleString('vi-VN')}</strong><br>
               💺 Ghế: <strong>${seatsStr}</strong><br>
-              💳 Thanh toán: <strong>${totalFormatted}</strong> (Qua SePay VietQR - MSB)
+              💳 Giá trị đơn: <strong>${Pay.vnd(ord.total)}</strong> · Đã nhận: <strong>${Pay.vnd(ord.paid_amount)}</strong> (VietQR - MSB)
             </div>
-
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-              ${actionBtns}
-            </div>
-          </div>
-        `;
-
-        wrapper.insertBefore(card, wrapper.firstChild);
-
-        // Lưu dữ liệu vào INVOICES_DATA để mở modal hóa đơn
-        if (!INVOICES_DATA[ord.code]) {
-          const subtotal = Math.round(ord.total / 1.08);
-          const vat = ord.total - subtotal;
-          INVOICES_DATA[ord.code] = {
-            code: ord.code,
-            rawStatus: ord.status,
-            status: ord.status,
-            invoiceNumber: 'HD-2026-' + (ord.code || '').slice(-6),
-            symbol: '1C26TBB',
-            createdAt: new Date(ord.created_at || Date.now()).toLocaleString('vi-VN'),
-            movieTitle: movieObj.title,
-            moviePoster: poster,
-            movieAge: 'C16',
-            format: '2D Phụ Đề',
-            cinema: ord.cinema || 'Beta Thanh Xuân (Hà Nội)',
-            room: 'Phòng chiếu 01',
-            showtime: showTimeStr,
-            seats: seatsStr,
-            customerName: 'LƯƠNG HỒNG ANH',
-            customerPhone: ord.phone || '0987 654 321',
-            customerEmail: 'luonghonganh@email.com',
-            memberId: 'BM-2026-VIP',
-            paymentMethod: 'VietQR / SePay (Ngân hàng MSB)',
-            bankTransCode: 'MSB-' + (ord.code || '').slice(-8),
-            statusBadge: badgeHtml,
-            statusNote: 'Đơn hàng được đồng bộ tự động từ cơ sở dữ liệu Supabase và cổng thanh toán SePay.',
-            items: [
-              { name: 'Vé xem phim 2D VIP (Ghế ' + seatsStr + ')', qty: Array.isArray(ord.seats) ? ord.seats.length : 2, price: 65000, amount: ord.total }
-            ],
-            subtotal: subtotal,
-            vat: vat,
-            discount: 0,
-            total: ord.total
-          };
-        }
+            ${realRefundMini(ord)}
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">${realOrderActions(ord)}</div>
+          </div>`;
+        if (old) old.replaceWith(card);
+        else wrapper.insertBefore(card, wrapper.firstChild);
       });
 
-      // Cập nhật lại số đếm tổng đơn hàng và lọc
-      const totalCountEl = document.getElementById('total-orders-count');
-      if (totalCountEl) {
-        const allItems = document.querySelectorAll('.order-history-item');
-        totalCountEl.textContent = allItems.length;
-      }
+      if (typeof sortOrderCardsByBookingTimeDesc === 'function') sortOrderCardsByBookingTimeDesc();
       updateOrderCounts();
       filterOrdersList();
     } catch (e) {
-      console.warn('Lỗi đồng bộ đơn hàng Supabase lên giao diện:', e.message);
+      console.warn('Lỗi đồng bộ đơn hàng thật:', e.message);
     }
   }
+  setInterval(() => { if (!document.hidden) syncRealOrdersToUI(); }, 20000);
 
   // Tự động gọi đồng bộ ngay khi trang tải xong
   

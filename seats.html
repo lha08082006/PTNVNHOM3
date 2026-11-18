@@ -337,7 +337,7 @@
         <span id="subbar-cinema">Beta Thanh Xuân</span> · <span id="subbar-date">Hôm nay</span> · <span id="subbar-time" style="color: var(--status-warning);">12:15</span>
       </p>
       <div style="font-size: 13px; color: var(--status-warning); display: flex; align-items: center; gap: 6px;">
-        <span>⏳</span> Giữ ghế: <strong id="countdown-timer" style="font-family: monospace; font-size: 15px; color: var(--text-light);">09:58</strong>
+        <span>⏳</span> Giữ ghế: <strong id="countdown-timer" style="font-family: monospace; font-size: 15px; color: var(--text-light);">10:00</strong> <span style="color: var(--text-muted, #94a3b8);">(bắt đầu khi thanh toán)</span>
       </div>
     </div>
 
@@ -658,18 +658,26 @@
       }
     }
 
-    // Đếm ngược 10:00 phút giữ chỗ
-    let secondsLeft = 598; // 09:58
-    setInterval(() => {
-      if (secondsLeft > 0) {
-        secondsLeft--;
-        const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
-        const s = (secondsLeft % 60).toString().padStart(2, '0');
-        document.getElementById('countdown-timer').textContent = `${m}:${s}`;
-      }
-    }, 1000);
+    // Đánh dấu ghế đang có người giữ / đã bán theo dữ liệu thật của suất chiếu (NFR-05)
+    async function markTakenSeats() {
+      if (!window.Pay || !Pay.getTakenSeats) return;
+      const key = [currentMovieKey, currentCinema, currentDate, currentTime].join('|');
+      const taken = await Pay.getTakenSeats(key);
+      taken.forEach(t => {
+        const el = document.querySelector('.r i[data-id="' + t.seat + '"]');
+        if (!el || el.classList.contains('x')) return;
+        el.classList.remove('s');
+        el.classList.add('x');
+        el.title = t.status === 'SOLD' ? 'Đã bán' : 'Đang có người giữ';
+        const k = selectedSeats.findIndex(s => s.id === t.seat);
+        if (k > -1) selectedSeats.splice(k, 1);
+      });
+      if (taken.length) updateSummary();
+    }
 
     initParams();
+    markTakenSeats();
+    setInterval(markTakenSeats, 15000);
   </script>
 </body>
 </html>

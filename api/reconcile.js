@@ -1,99 +1,50 @@
-// api/reconcile.js - Đối soát tự động cho BetaBot (Giải quyết tình huống 3: Tiền đã trừ nhưng web chưa nhảy vé)
-const DB = require('../lib/db');
+// api/reconcile.js - BetaBot "Hỗ trợ đối soát" (REQ-04)
+// BetaBot KHÔNG tự đánh dấu đã thanh toán. Nó ghi nhận báo lỗi của khách (tạo ticket ưu tiên
+// có sẵn ngữ cảnh), buộc tra cứu cổng thanh toán ngay, rồi trả lời theo trạng thái thật của đơn.
+const Store = require('../lib/store');
+const Flow = require('../lib/flow');
+const { fail, clean } = require('../lib/api-util');
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
   try {
-    const body = req.body || {};
-    const orderCode = (body.order_code || '').trim().toUpperCase();
-    const bankRef = (body.bank_ref || '').trim();
-    const phone = body.phone || '0987654321';
-    const amount = Number(body.amount || 0);
+    const b = req.body || {};
+    const code = clean(b.order_code).toUpperCase();
+    const bankRef = clean(b.bank_ref).slice(0, 40);
+    let order = code ? await Store.one('orders', { code }) : null;
 
-    if (!orderCode && !bankRef) {
-      return res.status(400).json({ error: 'Vui lòng cung cấp Mã đơn hàng hoặc Mã giao dịch ngân hàng' });
+    if (!order && bankRef) {
+      const tx = await Store.one('bank_transactions', { reference_code: bankRef });
+      if (tx && tx.code) order = await Store.one('orders', { code: tx.code });
+    }
+    if (!order) {
+      return res.status(404).json({ ok: false, error: 'Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn (BCxxxxxxxxxx) in trên màn hình thanh toán.' });
     }
 
-    // 1. Tìm trong sổ cái giao dịch ngân hàng (bank_transactions)
-    const tx = await DB.findBankTransaction(bankRef, orderCode);
-    const order = await DB.getOrderByCode(orderCode);
+    const { order: after, ticket } = await Flow.reportIssue(order, { bank_ref: bankRef, note: 'Báo lỗi qua BetaBot' });
+    const v = await Flow.view(after);
+    const base = { ok: true, code: v.code, order: v, ticket_code: ticket.code, track_url: `order.html?code=${v.code}` };
 
-    if (tx && order) {
-      // Đã tìm thấy giao dịch ngân hàng!
-      const isExpired = new Date() > new Date(order.hold_expires_at) || order.status === 'EXPIRED';
-
-      if (!isExpired) {
-        // Khôi phục và xuất vé ngay lập tức
-        await DB.updateOrder(order.id, {
-          status: 'PAID',
-          paid_amount: tx.amount || order.total,
-          paid_at: new Date().toISOString()
-        });
-        await DB.saveBankTransaction({
-          ...tx,
-          result: 'RECOVERED',
-          note: 'Đối soát thủ công thành công qua BetaBot AI'
-        });
-
-        return res.status(200).json({
-          ok: true,
-          status: 'RECOVERED_PAID',
-          message: 'Đối soát thành công! Hệ thống đã khớp lệnh chuyển khoản và xuất vé ngay cho bạn.',
-          code: order.code,
-          ticket_url: `ticket.html?order=${order.code}`
-        });
-      } else {
-        // Giao dịch có thật nhưng đơn đã quá giờ giữ ghế -> Chuyển sang hoàn tiền
-        let refund = await DB.getRefund({ order_id: order.id });
-        if (!refund) {
-          refund = await DB.createRefund({
-            order_id: order.id,
-            amount: tx.amount || order.total,
-            reason: 'LATE',
-            status: 'WAITING_INFO'
-          });
-        }
-        return res.status(200).json({
-          ok: true,
-          status: 'RECOVERED_REFUND',
-          message: 'Hệ thống đã tìm thấy giao dịch ngân hàng, nhưng đơn hàng đã quá 10 phút giữ ghế. Hồ sơ hoàn tiền 100% đã được tạo.',
-          code: order.code,
-          refund_code: refund.code,
-          refund_url: `refund.html?order=${order.code}`
-        });
-      }
+    if (v.has_ticket) {
+      return res.status(200).json({ ...base, status: 'RECOVERED_PAID', ticket_url: `ticket.html?order=${v.code}`,
+        message: v.status === 'CONFIRMED_LATE'
+          ? 'Đối soát thành công: tiền đã vào trước hạn giữ ghế và ghế vẫn còn trống, hệ thống đã cấp vé bù cho bạn.'
+          : 'Đối soát thành công: cổng thanh toán xác nhận giao dịch khớp mã đơn và số tiền, vé đã được xuất.' });
     }
-
-    // 2. Nếu đơn hàng có tồn tại và khách báo mã FT nhưng chưa có trong webhook
-    // (Ví dụ: Giả lập trường hợp mạng lag / webhook SePay đến trễ)
-    if (order && bankRef) {
-      // Kiểm tra nếu là trong môi trường demo hoặc khách cung cấp đủ bằng chứng
-      // Tự động tạo khiếu nại (Complaints) để bảo vệ quyền lợi khách hàng
-      const complaint = await DB.createComplaint({
-        bank_ref: bankRef,
-        order_code: orderCode,
-        phone: phone,
-        amount: amount || order.total,
-        description: `Khách báo lỗi chuyển khoản không xuất vé. Mã GD: ${bankRef}. Trạng thái: Chờ ngân hàng xác nhận.`
-      });
-
-      return res.status(200).json({
-        ok: false,
-        status: 'COMPLAINT_CREATED',
-        message: `Hệ thống chưa nhận được biến động từ ngân hàng cho mã giao dịch "${bankRef}". Đã tạo phiếu khiếu nại CSKH #${complaint.code}. Nhân viên sẽ đối soát và liên hệ trong 15 phút.`,
-        complaint_code: complaint.code
-      });
+    if (['REFUND_REQUESTED', 'REFUNDED', 'MANUAL_REVIEW'].includes(v.status)) {
+      const rf = v.refund;
+      return res.status(200).json({ ...base, status: 'RECOVERED_REFUND', refund_url: `order.html?code=${v.code}`,
+        message: v.status === 'MANUAL_REVIEW'
+          ? `Hệ thống đã ghi nhận tiền của bạn nhưng chưa thể tự hoàn. Vui lòng điền biểu mẫu nhận hoàn tiền để CSKH xử lý (phiếu #${ticket.code}).`
+          : `Không thể cấp vé (${rf ? rf.reason_label.toLowerCase() : 'ghế không còn'}). Hệ thống đã tự động hoàn ${new Intl.NumberFormat('vi-VN').format(rf ? rf.amount : v.paid_amount)}đ về tài khoản đã chuyển – bạn không cần làm thêm thủ tục.` });
     }
-
-    return res.status(404).json({
-      ok: false,
-      error: 'Không tìm thấy thông tin đơn hàng tương ứng để đối soát.'
-    });
-  } catch (error) {
-    console.error('[API reconcile Error]:', error);
-    return res.status(500).json({ error: error.message || 'Lỗi đối soát giao dịch' });
+    return res.status(200).json({ ...base, status: 'COMPLAINT_CREATED', complaint_code: ticket.code,
+      message: v.status === 'EXPIRED'
+        ? `Cổng thanh toán chưa xác nhận giao dịch. Đơn đang trong danh sách đối soát tự động 30 phút/lần (tối đa 24 giờ); nếu tiền đã bị trừ bạn sẽ được cấp vé bù hoặc hoàn tiền tự động. Phiếu hỗ trợ #${ticket.code} đã được chuyển CSKH.`
+        : v.status === 'CANCELLED'
+          ? `Đơn đã hủy và hệ thống chưa thấy giao dịch nào khớp mã đơn. Phiếu hỗ trợ #${ticket.code} đã được chuyển CSKH để đối chiếu sao kê.`
+          : `Hệ thống đang xác minh giao dịch với cổng thanh toán (${v.status_sublabel.toLowerCase()}). Phiếu hỗ trợ #${ticket.code} đã được tạo kèm đầy đủ thông tin đơn – bạn không cần cung cấp lại.` });
+  } catch (e) {
+    return fail(res, e);
   }
 };

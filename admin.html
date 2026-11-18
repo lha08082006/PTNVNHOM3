@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Nội bộ – Đối soát & Hoàn tiền | Beta Cinemas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue: #005198; --orange: #ea580c; --line: #e2e8f0; --muted: #64748b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Be Vietnam Pro', sans-serif; background: #f1f5f9; color: #0f172a; font-size: 14px; }
+    header { background: #0f172a; color: #fff; padding: 12px 22px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    header h1 { font-size: 16px; margin: 0; font-weight: 800; }
+    header .env { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #1e293b; color: #cbd5e1; }
+    nav.tabs { display: flex; gap: 4px; margin-left: auto; }
+    nav.tabs button { background: transparent; border: 0; color: #cbd5e1; padding: 8px 14px; border-radius: 8px; font: inherit; font-weight: 700; cursor: pointer; }
+    nav.tabs button.on { background: #fff; color: #0f172a; }
+    nav.tabs .count[hidden] { display: none; }
+    nav.tabs .count { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 999px; background: #ef4444; color: #fff; font-size: 11px; }
+    main { padding: 20px 22px 60px; max-width: 1400px; margin: 0 auto; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+    .card h2 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: .03em; color: var(--blue); display: flex; align-items: center; gap: 8px; }
+    .card h2 small { text-transform: none; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: 11.5px; text-transform: uppercase; color: var(--muted); font-weight: 700; background: #f8fafc; }
+    tr.flag td { background: #fef2f2; }
+    tr.clickable { cursor: pointer; } tr.clickable:hover td { background: #f8fafc; }
+    .mono { font-family: ui-monospace, Consolas, monospace; }
+    .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+    .p-ok { background: #dcfce7; color: #166534; } .p-warn { background: #fef3c7; color: #92400e; } .p-info { background: #dbeafe; color: #1e40af; }
+    .p-danger { background: #fee2e2; color: #991b1b; } .p-muted { background: #e2e8f0; color: #334155; }
+    .btn { border: 1px solid #cbd5e1; background: #fff; padding: 6px 12px; border-radius: 8px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+    .btn:hover { background: #f8fafc; } .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn.ok { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .btn.danger { color: #b91c1c; border-color: #fca5a5; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } @media (max-width: 1000px) { .grid2 { grid-template-columns: 1fr; } }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .kpi { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+    .kpi b { display: block; font-size: 22px; } .kpi span { color: var(--muted); font-size: 12px; }
+    .alert { padding: 10px 14px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; }
+    .alert.danger { background: #fee2e2; color: #991b1b; } .alert.warn { background: #fef3c7; color: #92400e; } .alert.info { background: #e0f2fe; color: #075985; }
+    .empty { color: var(--muted); padding: 14px 0; text-align: center; }
+    input, select, textarea { font: inherit; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
+    .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    #drawer { position: fixed; inset: 0 0 0 auto; width: min(720px, 100%); background: #fff; box-shadow: -10px 0 30px rgba(15,23,42,.18); transform: translateX(100%); transition: transform .2s; overflow-y: auto; z-index: 20; }
+    #drawer.open { transform: none; }
+    #drawer .dh { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--line); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
+    #drawer .db { padding: 16px 18px; }
+    .kv { display: grid; grid-template-columns: 170px 1fr; gap: 4px 12px; font-size: 13px; margin-bottom: 12px; }
+    .kv span { color: var(--muted); }
+    .receipt { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; margin-top: 6px; }
+    #login { max-width: 380px; margin: 80px auto; }
+    .sb { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .hint { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🎬 Beta Cinemas · Nội bộ đối soát & hoàn tiền</h1>
+    <span class="env" id="env">—</span>
+    <nav class="tabs" id="tabs" style="display: none;">
+      <button data-tab="cskh" class="on">CSKH <span class="count" id="c-cskh" hidden></span></button>
+      <button data-tab="ketoan">Kế toán <span class="count" id="c-ketoan" hidden></span></button>
+      <button data-tab="it">IT / Dev <span class="count" id="c-it" hidden></span></button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="card" id="login">
+      <h2>Đăng nhập nội bộ</h2>
+      <p class="hint">Nhập khóa truy cập nội bộ (biến môi trường <span class="mono">ADMIN_KEY</span> trên máy chủ). Khi chạy thử bằng bộ nhớ trong, khóa mặc định là <span class="mono">beta-admin</span>.</p>
+      <form onsubmit="event.preventDefault(); login(document.getElementById('key').value)">
+        <input id="key" type="password" placeholder="Khóa truy cập" style="width: 100%; margin-bottom: 10px;" autocomplete="current-password">
+        <button class="btn primary" style="width: 100%;">Vào trang nội bộ</button>
+      </form>
+      <div id="login-err" style="color: #b91c1c; margin-top: 8px;"></div>
+    </div>
+
+    <!-- ===================== CSKH ===================== -->
+    <section id="tab-cskh" hidden>
+      <div class="card">
+        <h2>Hàng đợi ưu tiên <small>MANUAL_REVIEW · báo lỗi của khách · tiền không khớp đơn (SOP 6.5.1)</small></h2>
+        <div id="tickets"></div>
+      </div>
+      <div class="card">
+        <h2>Hồ sơ hoàn tiền thủ công <small>khách gửi RefundForm → CSKH đối chiếu → Kế toán chi → CSKH xác nhận hoàn tất</small></h2>
+        <div id="cs-refunds"></div>
+      </div>
+    </section>
+
+    <!-- ===================== KẾ TOÁN ===================== -->
+    <section id="tab-ketoan" hidden>
+      <div class="card">
+        <h2>Lệnh chi hoàn thủ công <small>đã được CSKH duyệt CAN_HOAN_TIEN (SOP 6.5.2)</small></h2>
+        <div id="kt-refunds"></div>
+      </div>
+      <div class="card">
+        <h2>Báo cáo đối soát định kỳ <small>REQ-05 · website ↔ cổng thanh toán</small></h2>
+        <div class="row-actions" style="align-items: center; margin-bottom: 12px;">
+          Từ <input type="date" id="r-from"> đến <input type="date" id="r-to">
+          <button class="btn primary" onclick="loadReport()">Xem báo cáo</button>
+          <button class="btn" onclick="downloadCsv()">⬇️ Tải Excel (CSV)</button>
+        </div>
+        <div class="kpis" id="r-kpis"></div>
+        <div id="r-table"></div>
+      </div>
+    </section>
+
+    <!-- ===================== IT / DEV ===================== -->
+    <section id="tab-it" hidden>
+      <div id="alerts"></div>
+      <div class="grid2">
+        <div class="card">
+          <h2>Tham số vận hành <small>SOP 6.5.3</small></h2>
+          <div id="config" class="kv"></div>
+          <div class="row-actions">
+            <button class="btn primary" onclick="runJob(false)">▶ Chạy Job đối soát (đơn đến hạn)</button>
+            <button class="btn" onclick="runJob(true)">⚡ Chạy Job ngay cho mọi đơn EXPIRED</button>
+          </div>
+          <div id="job-result" class="hint" style="margin-top: 8px;"></div>
+        </div>
+        <div class="card">
+          <h2>Sandbox mô phỏng <small>dùng để chạy kịch bản UAT, không chuyển tiền thật</small></h2>
+          <div class="row-actions" style="align-items: center;">
+            Mã đơn <input id="sb-code" class="mono" placeholder="BCxxxxxxxxxx" style="width: 160px; text-transform: uppercase;">
+          </div>
+          <div class="sb">
+            <button class="btn" onclick="sb('SHIFT', { minutes: 2 })">⏩ +2 phút</button>
+            <button class="btn" onclick="sb('SHIFT', { minutes: 10 })">⏩ +10 phút</button>
+            <button class="btn" onclick="sb('SHIFT', { minutes: 30 })">⏩ +30 phút (1 chu kỳ Job)</button>
+            <button class="btn" onclick="sb('SHIFT', { minutes: 1440 })">⏩ +24 giờ</button>
+          </div>
+          <div class="sb">
+            <button class="btn" onclick="sb('SLOW_BANK')">🐢 Ngân hàng chậm 12 phút</button>
+            <button class="btn" onclick="sb('NETWORK_LAG')">📡 Webhook thất lạc</button>
+            <button class="btn" onclick="sb('LATE')">⏳ Tiền về sau hạn</button>
+            <button class="btn" onclick="sb('SEAT_TAKEN')">💺 Khách khác mua mất ghế</button>
+            <button class="btn" onclick="sb('MISMATCH')">≠ Sai số tiền</button>
+            <button class="btn" onclick="sb('DUP_WEBHOOK')">🔁 Webhook gửi trùng</button>
+          </div>
+          <div class="sb">
+            <button class="btn" onclick="sb('REFUND_FAIL', { times: 1 })">Refund API lỗi 1 lần</button>
+            <button class="btn" onclick="sb('REFUND_FAIL', { times: 99 })">Refund API lỗi liên tục</button>
+            <button class="btn" onclick="sb('NO_SOURCE')">Không có tài khoản nguồn</button>
+            <button class="btn" onclick="sb('SHOWTIME', { minutes: 20 })">Giờ chiếu còn 20 phút</button>
+            <button class="btn" onclick="sb('UNMATCHED')">Tiền vào không mã đơn</button>
+          </div>
+          <div id="sb-result" class="hint" style="margin-top: 8px;"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Đơn hàng gần nhất</h2>
+        <div id="orders"></div>
+      </div>
+      <div class="card">
+        <h2>Nhật ký gọi API cổng thanh toán <small>NFR-13</small></h2>
+        <div id="logs"></div>
+      </div>
+    </section>
+  </main>
+
+  <aside id="drawer">
+    <div class="dh"><strong id="d-title">Đơn hàng</strong><button class="btn" onclick="closeDrawer()">Đóng ✕</button></div>
+    <div class="db" id="d-body"></div>
+  </aside>
+
+  <script>
+    const API = (location.port && !['3000', '5000'].includes(location.port)) ? 'http://localhost:5000/api/' : '/api/';
+    let KEY = sessionStorage.getItem('beta_admin_key') || '';
+    let tab = 'cskh';
+    let overview = null;
+
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const vnd = (n) => new Intl.NumberFormat('vi-VN').format(n || 0) + 'đ';
+    const t = (iso) => iso ? new Date(iso).toLocaleString('vi-VN', { hour12: false }) : '';
+    const STATUS_TONE = { PENDING: 'warn', EXPIRED: 'warn', CONFIRMED: 'ok', CONFIRMED_LATE: 'ok', REFUND_REQUESTED: 'info', REFUNDED: 'muted', MANUAL_REVIEW: 'danger', CANCELLED: 'muted', FAILED: 'danger' };
+    const RF_LABEL = { REQUESTED: 'Mới tạo', RETRYING: 'Đang gửi lại (30 phút/lần)', DONE: 'Đã hoàn', MANUAL_REVIEW: 'Chờ khách điền form', FORM_SUBMITTED: 'Chờ CSKH đối chiếu', CS_APPROVED: 'Chờ Kế toán chi', PAID_OUT: 'Kế toán đã chi – chờ CSKH xác nhận' };
+    const RF_TONE = { REQUESTED: 'info', RETRYING: 'warn', DONE: 'ok', MANUAL_REVIEW: 'danger', FORM_SUBMITTED: 'warn', CS_APPROVED: 'info', PAID_OUT: 'info' };
+    const TK_LABEL = { PAYMENT_REPORT: 'Khách báo lỗi', MANUAL_REVIEW: 'Hoàn tiền thủ công', DATA_MISMATCH: 'Dữ liệu lệch', UNMATCHED_TX: 'Tiền không khớp đơn' };
+    const TK_STATUS = { OPEN: 'Mới / cần xử lý', WAITING_CUSTOMER: 'Chờ khách cập nhật', WAITING_ACCOUNTING: 'Chờ Kế toán' };
+    const pill = (txt, tone) => `<span class="pill p-${tone || 'muted'}">${esc(txt)}</span>`;
+
+    async function api(path, opts = {}) {
+      const r = await fetch(API + path, { ...opts, headers: { 'Content-Type': 'application/json', 'x-admin-key': KEY, ...(opts.headers || {}) } });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { const e = new Error(j.error || ('HTTP ' + r.status)); e.status = r.status; throw e; }
+      return j;
+    }
+    const post = (action, body) => api('admin', { method: 'POST', body: JSON.stringify({ action, ...body }) });
+
+    async function login(k) {
+      KEY = k.trim();
+      try {
+        await load();
+        sessionStorage.setItem('beta_admin_key', KEY);
+        document.getElementById('login').hidden = true;
+        document.getElementById('tabs').style.display = 'flex';
+        show(tab);
+      } catch (e) {
+        document.getElementById('login-err').textContent = e.message;
+      }
+    }
+
+    function show(name) {
+      tab = name;
+      document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+      ['cskh', 'ketoan', 'it'].forEach(n => { document.getElementById('tab-' + n).hidden = n !== name; });
+      if (name === 'ketoan' && !document.getElementById('r-table').innerHTML) loadReport();
+    }
+    document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => show(b.dataset.tab));
+
+    async function load() {
+      overview = await api('admin?action=overview');
+      document.getElementById('env').textContent = overview.live_db ? 'Supabase (dữ liệu thật)' : 'Bộ nhớ trong (chạy thử)';
+      renderCskh(); renderKetoan(); renderIt();
+    }
+
+    function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
+
+    // ---------------- CSKH ----------------
+    function renderCskh() {
+      const tk = overview.tickets;
+      badge('c-cskh', tk.filter(x => x.status === 'OPEN').length);
+      document.getElementById('tickets').innerHTML = tk.length ? `<table><thead><tr><th>Phiếu</th><th>Loại</th><th>Đơn</th><th>Nội dung</th><th>Trạng thái</th><th>Cập nhật</th><th></th></tr></thead><tbody>${
+        tk.map(x => `<tr><td class="mono">${esc(x.code)}</td><td>${pill(TK_LABEL[x.type] || x.type, x.type === 'PAYMENT_REPORT' ? 'warn' : 'danger')}</td>
+          <td class="mono">${x.order_code ? `<a href="#" onclick="openOrder('${esc(x.order_code)}'); return false;">${esc(x.order_code)}</a>` : '—'}</td>
+          <td>${esc(x.summary)}</td><td>${pill(TK_STATUS[x.status] || x.status, x.status === 'OPEN' ? 'danger' : 'info')}</td><td>${t(x.updated_at || x.created_at)}</td>
+          <td><button class="btn" onclick="resolveTicket('${esc(x.code)}')">Đóng phiếu</button></td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Không có phiếu nào cần xử lý 🎉</div>';
+
+      const rf = overview.refunds.filter(r => ['MANUAL_REVIEW', 'FORM_SUBMITTED', 'PAID_OUT'].includes(r.status));
+      document.getElementById('cs-refunds').innerHTML = rf.length ? `<table><thead><tr><th>Hồ sơ</th><th>Đơn</th><th>Số tiền</th><th>Lý do</th><th>Tình trạng</th><th>Tài khoản nhận</th><th>Thao tác</th></tr></thead><tbody>${
+        rf.map(r => `<tr><td class="mono">${esc(r.code)}</td><td class="mono"><a href="#" onclick="openOrder('${esc(r.order_code)}'); return false;">${esc(r.order_code)}</a></td>
+          <td><b>${vnd(r.amount)}</b></td><td>${esc(r.reason)}</td><td>${pill(RF_LABEL[r.status], RF_TONE[r.status])}${r.cs_note ? `<div class="hint">${esc(r.cs_note)}</div>` : ''}</td>
+          <td>${r.acc_number ? `${esc(r.bank_name)}<br><span class="mono">${esc(r.acc_number)}</span> · ${esc(r.acc_name)}${r.has_receipt ? ' · 🧾' : ''}` : '<span class="hint">chưa có</span>'}</td>
+          <td class="row-actions">${
+            r.status === 'FORM_SUBMITTED' ? `<button class="btn" onclick="openOrder('${esc(r.order_code)}')">Đối chiếu biên lai</button><button class="btn ok" onclick="decide('${esc(r.code)}','CAN_HOAN_TIEN')">CAN_HOAN_TIEN</button><button class="btn danger" onclick="decide('${esc(r.code)}','NGOAI_LE')">NGOAI_LE</button>`
+            : r.status === 'MANUAL_REVIEW' ? `<button class="btn" onclick="remind('${esc(r.code)}')">📨 Nhắc khách (Email/SMS)</button>`
+            : `<button class="btn ok" onclick="confirmDone('${esc(r.code)}')">Xác nhận hoàn tất</button>`
+          }</td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Không có hồ sơ hoàn tiền thủ công.</div>';
+    }
+
+    // ---------------- KẾ TOÁN ----------------
+    function renderKetoan() {
+      const rf = overview.refunds.filter(r => r.status === 'CS_APPROVED');
+      badge('c-ketoan', rf.length);
+      document.getElementById('kt-refunds').innerHTML = rf.length ? `<table><thead><tr><th>Hồ sơ</th><th>Đơn</th><th>Số tiền</th><th>Chuyển tới</th><th>CSKH ghi chú</th><th>Mã GD chuyển hoàn</th></tr></thead><tbody>${
+        rf.map(r => `<tr><td class="mono">${esc(r.code)}</td><td class="mono"><a href="#" onclick="openOrder('${esc(r.order_code)}'); return false;">${esc(r.order_code)}</a></td>
+          <td><b>${vnd(r.amount)}</b></td><td>${esc(r.bank_name)}<br><span class="mono">${esc(r.acc_number)}</span> · ${esc(r.acc_name)}</td><td>${esc(r.cs_note || '')}</td>
+          <td class="row-actions"><input id="ref-${esc(r.code)}" class="mono" placeholder="FT..." style="width: 130px;"><button class="btn ok" onclick="paid('${esc(r.code)}')">Đã chi hoàn</button></td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Không có lệnh chi nào đang chờ.</div>';
+    }
+
+    function dates() {
+      const today = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+      const f = document.getElementById('r-from'), to = document.getElementById('r-to');
+      if (!f.value) f.value = today; if (!to.value) to.value = today;
+      return `from=${f.value}&to=${to.value}`;
+    }
+    async function loadReport() {
+      const r = await api('admin?action=report&' + dates());
+      const s = r.summary;
+      const g = (name) => (s.byGroup[name] || { count: 0 }).count;
+      document.getElementById('r-kpis').innerHTML = [
+        ['Khớp thành công', g('Khớp thành công')], ['Cấp vé bù', g('Cấp vé bù')], ['Đã hoàn tự động', g('Đã hoàn tự động')],
+        ['Đã hoàn thủ công', g('Đã hoàn thủ công')], ['Còn lệch – chờ xử lý', g('Còn lệch – chờ xử lý') + g('Tiền không khớp đơn')],
+        ['Doanh thu vé', vnd(s.revenue)], ['Tiền thực nhận', vnd(s.received)], ['Đã hoàn', vnd(s.refunded)]
+      ].map(([k, v]) => `<div class="kpi"><b>${v}</b><span>${k}</span></div>`).join('');
+      document.getElementById('r-table').innerHTML = r.rows.length ? `<table><thead><tr><th>Mã đơn</th><th>Nhóm</th><th>Trạng thái</th><th>Giá trị đơn</th><th>Thực nhận</th><th>Đã hoàn</th><th>Chờ hoàn</th><th>Chênh lệch</th><th>Mã GD</th><th>Cảnh báo</th></tr></thead><tbody>${
+        r.rows.map(x => `<tr class="${x.flag === 'LỆCH' ? 'flag' : ''}"><td class="mono">${esc(x.code)}</td><td>${esc(x.group)}</td><td>${pill(x.status, STATUS_TONE[x.status])}</td>
+          <td>${vnd(x.total)}</td><td>${vnd(x.received)}</td><td>${vnd(x.refunded)}</td><td>${vnd(x.refund_open)}</td><td><b>${vnd(x.diff)}</b></td><td class="mono">${esc(x.tx_refs)}</td>
+          <td>${x.flag ? pill(x.flag, x.flag === 'LỆCH' ? 'danger' : 'warn') : ''}</td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Không có giao dịch trong khoảng thời gian này.</div>';
+    }
+    async function downloadCsv() {
+      const r = await fetch(API + 'admin?action=report&format=csv&' + dates(), { headers: { 'x-admin-key': KEY } });
+      if (!r.ok) return alert('Không tải được báo cáo');
+      const blob = await r.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `doi-soat_${document.getElementById('r-from').value}_${document.getElementById('r-to').value}.csv`;
+      a.click();
+    }
+
+    // ---------------- IT ----------------
+    function renderIt() {
+      const al = overview.alerts;
+      badge('c-it', al.filter(a => a.level === 'danger').length);
+      document.getElementById('alerts').innerHTML = al.map(a => `<div class="alert ${a.level}">${a.level === 'danger' ? '🚨' : a.level === 'warn' ? '⚠️' : 'ℹ️'} ${esc(a.text)}</div>`).join('');
+      const c = overview.config, m = (ms) => ms >= 3600e3 ? ms / 3600e3 + ' giờ' : ms >= 60e3 ? ms / 60e3 + ' phút' : ms / 1e3 + ' giây';
+      document.getElementById('config').innerHTML = [
+        ['Giữ ghế (Seat Lock)', m(c.HOLD_MS)], ['Chờ Webhook', m(c.WEBHOOK_WAIT_MS)], ['Short Polling', `${m(c.SHORT_POLL_MS)}/lần × ${c.SHORT_POLL_COUNT}`],
+        ['Final Check', m(c.FINAL_CHECK_MS) + '/lần'], ['Lịch tra cứu Tầng 1', overview.schedule.map(s => m(s.at)).join(' · ') + ' · 10 phút (chốt)'],
+        ['Job Tầng 2 / gửi lại Refund', m(c.JOB_MS) + '/lần'], ['Cửa sổ ScanList', m(c.SCAN_WINDOW_MS)], ['Hạn tự hoàn', m(c.REFUND_DEADLINE_MS)],
+        ['Cấp vé bù khi còn', '≥ ' + m(c.MIN_BEFORE_SHOW_MS) + ' trước giờ chiếu'], ['Cảnh báo khi API lỗi liên tiếp', c.ALERT_CONSECUTIVE_ERRORS + ' lần']
+      ].map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join('');
+      document.getElementById('orders').innerHTML = `<table><thead><tr><th>Mã đơn</th><th>Trạng thái</th><th>Ghế</th><th>Giá trị</th><th>Đã nhận</th><th>Tạo lúc</th></tr></thead><tbody>${
+        overview.orders.map(o => `<tr class="clickable" onclick="openOrder('${esc(o.code)}')"><td class="mono">${esc(o.code)}</td><td>${pill(o.label, STATUS_TONE[o.status])}</td><td>${esc((o.seats || []).join(', '))}</td><td>${vnd(o.total)}</td><td>${vnd(o.paid_amount)}</td><td>${t(o.created_at)}</td></tr>`).join('')
+      }</tbody></table>`;
+      document.getElementById('logs').innerHTML = logTable(overview.logs);
+    }
+    const logTable = (logs) => logs.length ? `<table><thead><tr><th>Thời điểm</th><th>Đơn</th><th>API</th><th>Pha</th><th>Kết quả</th><th>Chi tiết</th></tr></thead><tbody>${
+      logs.map(l => `<tr><td>${t(l.created_at)}</td><td class="mono">${esc(l.order_code)}</td><td>${esc(l.api)}</td><td>${esc(l.phase)}</td>
+        <td>${pill(l.result, l.result === 'SUCCESS' || l.result === 'OK' ? 'ok' : l.result === 'ERROR' || l.result === 'MISMATCH' || l.result === 'REJECTED' ? 'danger' : 'warn')}</td>
+        <td class="mono" style="font-size: 11.5px; max-width: 320px; overflow-wrap: anywhere;">${esc(JSON.stringify(l.detail || {}))}</td></tr>`).join('')
+    }</tbody></table>` : '<div class="empty">Chưa có nhật ký.</div>';
+
+    async function runJob(force) {
+      const r = await post('run_job', { force });
+      document.getElementById('job-result').textContent = `Đã quét ${r.pending} đơn PENDING, ${r.expired} đơn EXPIRED, ${r.refunds} lệnh hoàn. ${r.changed.length ? 'Thay đổi: ' + r.changed.join(' | ') : 'Không có thay đổi.'}`;
+      await load();
+    }
+
+    async function sb(scenario, extra = {}) {
+      const code = document.getElementById('sb-code').value.trim().toUpperCase();
+      try {
+        const r = await fetch(API + 'simulate-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scenario, order_code: code, ...extra }) });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error);
+        document.getElementById('sb-result').innerHTML = `✓ ${esc(j.description)}${j.order ? ` → ${pill(j.order.status_label, STATUS_TONE[j.order.status])}` : ''}`;
+        await load();
+      } catch (e) {
+        document.getElementById('sb-result').textContent = '✗ ' + e.message;
+      }
+    }
+
+    // ---------------- Thao tác ----------------
+    async function act(fn) { try { await fn(); await load(); } catch (e) { alert(e.message); } }
+    const decide = (code, decision) => act(async () => {
+      const note = decision === 'NGOAI_LE' ? prompt('Ghi chú cho khách (thông tin cần cập nhật):', 'Ảnh biên lai không rõ số tiền / mã giao dịch') : prompt('Ghi chú đối chiếu (tùy chọn):', 'Biên lai khớp log cổng thanh toán');
+      if (note === null) return;
+      await post('decide', { refund_code: code, decision, note });
+    });
+    const remind = (code) => act(async () => { await post('remind', { refund_code: code }); alert('Đã gửi nhắc qua Email, SMS và thông báo trên website.'); });
+    const paid = (code) => act(async () => { await post('accounting_paid', { refund_code: code, refund_ref: document.getElementById('ref-' + code).value }); });
+    const confirmDone = (code) => act(async () => { if (confirm('Xác nhận khách đã nhận tiền hoàn? Đơn sẽ chuyển REFUNDED và gửi thông báo kết quả cuối.')) await post('confirm_done', { refund_code: code }); });
+    const resolveTicket = (code) => act(async () => { const note = prompt('Kết quả xử lý:'); if (note !== null) await post('resolve_ticket', { ticket_code: code, note }); });
+
+    // ---------------- Chi tiết đơn (một màn hình duy nhất – US-05) ----------------
+    async function openOrder(code) {
+      document.getElementById('sb-code').value = code;
+      const d = await api('admin?action=order&code=' + encodeURIComponent(code));
+      const v = d.view, c = d.context;
+      document.getElementById('d-title').innerHTML = `Đơn <span class="mono">${esc(code)}</span> ${pill(v.status_label, STATUS_TONE[v.status])}`;
+      const rfs = d.refunds.map(r => `
+        <div class="card" style="padding: 12px 14px;">
+          <div class="kv">
+            <span>Hồ sơ</span><b class="mono">${esc(r.code)} ${pill(RF_LABEL[r.status], RF_TONE[r.status])}</b>
+            <span>Số tiền / lý do</span><b>${vnd(r.amount)} · ${esc(r.reason)}</b>
+            <span>idempotencyKey</span><span class="mono">${esc(r.idempotency_key)}</span>
+            <span>Số lần gửi / lỗi gần nhất</span><span>${r.attempts} · ${esc(r.last_error || '—')}</span>
+            <span>Hạn tự hoàn</span><span>${t(r.deadline_at)}</span>
+            ${r.acc_number ? `<span>RefundForm</span><span>${esc(r.bank_name)} · <span class="mono">${esc(r.acc_number)}</span> · ${esc(r.acc_name)} (gửi ${t(r.form_submitted_at)})</span>` : ''}
+            ${r.refund_ref ? `<span>Mã GD hoàn</span><span class="mono">${esc(r.refund_ref)}</span>` : ''}
+          </div>
+          ${r.receipt_url ? `<div class="hint">Ảnh biên lai khách gửi:</div><img class="receipt" src="${esc(r.receipt_url)}" alt="Biên lai">` : ''}
+        </div>`).join('');
+      document.getElementById('d-body').innerHTML = `
+        <div class="kv">
+          <span>Khách hàng</span><b>${esc(c.order.customer_name || '')} · ${esc(c.order.phone || '')} · ${esc(c.order.email || '')}</b>
+          <span>Phim / suất</span><span>${esc(c.order.movie_key)} · ${esc(c.order.cinema)} · ${esc(c.order.show_time)} ${esc(c.order.show_date)} · ghế ${esc((c.order.seats || []).join(', '))}</span>
+          <span>Giá trị / đã nhận</span><b>${vnd(v.total)} / ${vnd(v.paid_amount)}</b>
+          <span>Tạo đơn / hết giữ ghế</span><span>${t(v.created_at)} / ${t(v.hold_expires_at)}</span>
+          ${v.scan_until ? `<span>ScanList đến</span><span>${t(v.scan_until)}</span>` : ''}
+        </div>
+        <h3 style="font-size: 13px; color: #005198;">GIAO DỊCH NGÂN HÀNG (SỔ CÁI)</h3>
+        ${d.transactions.length ? `<table><thead><tr><th>Mã GD</th><th>Số tiền</th><th>Thời điểm</th><th>Nội dung</th></tr></thead><tbody>${d.transactions.map(x => `<tr><td class="mono">${esc(x.reference_code)}</td><td>${vnd(x.amount)}</td><td>${t(x.transaction_date)}</td><td>${esc(x.content)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Chưa có giao dịch nào khớp mã đơn.</div>'}
+        <h3 style="font-size: 13px; color: #005198; margin-top: 16px;">HOÀN TIỀN</h3>
+        ${rfs || '<div class="empty">Không có.</div>'}
+        <h3 style="font-size: 13px; color: #005198;">LỊCH SỬ TRẠNG THÁI</h3>
+        <table><tbody>${(v.history || []).map(h => `<tr><td style="width: 150px;">${t(h.at)}</td><td>${esc(h.from || '—')} → <b>${esc(h.to)}</b></td><td>${esc(h.note)}</td></tr>`).join('')}</tbody></table>
+        <h3 style="font-size: 13px; color: #005198; margin-top: 16px;">THÔNG BÁO ĐÃ GỬI</h3>
+        <table><tbody>${d.notifications.map(n => `<tr><td style="width: 150px;">${t(n.created_at)}</td><td>${pill(n.channel, 'info')}</td><td>${esc(n.recipient)}</td><td><b>${esc(n.title)}</b><br>${esc(n.message)}</td></tr>`).join('') || '<tr><td class="empty">Chưa có.</td></tr>'}</tbody></table>
+        <h3 style="font-size: 13px; color: #005198; margin-top: 16px;">LOG CỔNG THANH TOÁN</h3>
+        ${logTable(d.logs)}`;
+      document.getElementById('drawer').classList.add('open');
+    }
+    function closeDrawer() { document.getElementById('drawer').classList.remove('open'); }
+
+    if (KEY) login(KEY);
+    setInterval(() => { if (KEY && !document.hidden && !document.getElementById('drawer').classList.contains('open')) load().catch(() => {}); }, 15000);
+  </script>
+</body>
+
+</html>

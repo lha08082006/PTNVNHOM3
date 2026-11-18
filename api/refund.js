@@ -1,94 +1,84 @@
-// api/refund.js - Tiếp nhận và tra cứu hồ sơ hoàn tiền
-const DB = require('../lib/db');
+// api/refund.js - Tra cứu hoàn tiền & RefundForm (BR-06, NFR-12, NFR-16)
+// RefundForm chỉ mở khi hệ thống KHÔNG tự hoàn được (MANUAL_REVIEW): sau 24 giờ Refund API
+// thất bại hoặc dữ liệu giao dịch mâu thuẫn. Bình thường khách không phải điền gì.
+const Store = require('../lib/store');
+const Flow = require('../lib/flow');
+const { fail, clean } = require('../lib/api-util');
+
+const MAX_RECEIPT_BYTES = 5 * 1024 * 1024;
+
+// NFR-12: chỉ nhận JPG/PNG <= 5MB, kiểm tra chữ ký tệp (magic bytes) thay vì tin phần mở rộng
+function checkReceipt(dataUrl) {
+  const m = /^data:(image\/(?:jpeg|png));base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl || ''));
+  if (!m) throw Object.assign(new Error('Ảnh biên lai phải là tệp JPG hoặc PNG'), { http: 400 });
+  const buf = Buffer.from(m[2], 'base64');
+  if (buf.length > MAX_RECEIPT_BYTES) throw Object.assign(new Error('Ảnh biên lai vượt quá 5 MB'), { http: 400 });
+  const isJpg = buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
+  const isPng = buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  if (!(isJpg || isPng)) throw Object.assign(new Error('Tệp tải lên không phải ảnh JPG/PNG hợp lệ'), { http: 400 });
+  return dataUrl;
+}
 
 module.exports = async function handler(req, res) {
-  // GET: Tra cứu tiến trình hoàn tiền
-  if (req.method === 'GET') {
-    try {
-      const code = req.query.code;
-      const orderCode = req.query.order_code || req.query.order;
-
-      const refund = await DB.getRefund({ code, order_code: orderCode });
-      if (!refund) {
-        return res.status(404).json({ error: 'Không tìm thấy hồ sơ hoàn tiền' });
-      }
-
+  try {
+    if (req.method === 'GET') {
+      const q = req.query || {};
       let order = null;
-      if (refund.order_id) {
-        order = await DB.getOrderByCode(orderCode);
+      if (clean(q.code).startsWith('REF-')) {
+        const rf = await Store.one('refunds', { code: clean(q.code) });
+        if (rf) order = await Store.one('orders', { id: rf.order_id });
       }
-
-      return res.status(200).json({
-        ok: true,
-        refund: refund,
-        order: order || null
-      });
-    } catch (error) {
-      console.error('[API get-refund Error]:', error);
-      return res.status(500).json({ error: error.message || 'Lỗi tra cứu hoàn tiền' });
+      if (!order) {
+        const oc = clean(q.order_code || q.order || q.code).toUpperCase();
+        if (oc) order = await Store.one('orders', { code: oc });
+      }
+      if (!order) return res.status(404).json({ error: 'Không tìm thấy hồ sơ hoàn tiền' });
+      order = (await Flow.tick(order)) || order;
+      return res.status(200).json(await Flow.view(order));
     }
-  }
 
-  // POST: Gửi thông tin tài khoản ngân hàng để nhận hoàn tiền
-  if (req.method === 'POST') {
-    try {
-      const body = req.body || {};
-      const orderCode = (body.order_code || body.order || '').trim();
-      const refundCode = (body.code || body.refund_code || '').trim();
-      const bankName = body.bank_name || body.bank;
-      const accNumber = body.acc_number || body.acc;
-      const accName = body.acc_name || body.owner;
-
+    if (req.method === 'POST') {
+      const b = req.body || {};
+      const orderCode = clean(b.order_code || b.order).toUpperCase();
+      const bankName = clean(b.bank_name || b.bank).slice(0, 80);
+      const accNumber = clean(b.acc_number || b.acc).replace(/\s+/g, '');
+      const accName = clean(b.acc_name || b.owner).toUpperCase().slice(0, 80);
       if (!bankName || !accNumber || !accName) {
-        return res.status(400).json({ error: 'Vui lòng điền đầy đủ ngân hàng, số tài khoản và tên chủ tài khoản' });
+        return res.status(400).json({ error: 'Vui lòng điền đủ ngân hàng thụ hưởng, số tài khoản và tên chủ tài khoản' });
+      }
+      if (!/^\d{6,20}$/.test(accNumber)) return res.status(400).json({ error: 'Số tài khoản chỉ gồm 6–20 chữ số' });
+      const receipt = checkReceipt(b.receipt);
+
+      const order = orderCode ? await Store.one('orders', { code: orderCode }) : null;
+      if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn hàng #' + orderCode });
+      const refunds = await Store.find('refunds', { order_code: order.code, status: 'MANUAL_REVIEW' });
+      const rf = refunds[0];
+      if (!rf) {
+        return res.status(409).json({ error: 'Đơn này chưa cần điền biểu mẫu: hệ thống đang tự xử lý (cấp vé bù hoặc hoàn tiền tự động về tài khoản nguồn).' });
       }
 
-      let targetRefund = null;
-      if (refundCode) {
-        targetRefund = await DB.getRefund({ code: refundCode });
-      } else if (orderCode) {
-        targetRefund = await DB.getRefund({ order_code: orderCode });
-        // Nếu chưa có hồ sơ hoàn tiền cho đơn này -> tự động tạo
-        if (!targetRefund) {
-          const ord = await DB.getOrderByCode(orderCode);
-          if (ord) {
-            targetRefund = await DB.createRefund({
-              order_id: ord.id,
-              amount: ord.paid_amount || ord.total || 179000,
-              reason: 'LATE',
-              status: 'WAITING_INFO'
-            });
-          }
-        }
-      }
-
-      if (!targetRefund) {
-        return res.status(404).json({ error: 'Không tìm thấy hồ sơ hoàn tiền tương ứng' });
-      }
-
-      // Cập nhật thông tin ngân hàng và chuyển trạng thái sang RECEIVED (Đã tiếp nhận)
-      const updated = await DB.updateRefund(targetRefund.code, {
-        bank_name: bankName,
-        acc_number: accNumber,
-        acc_name: accName.toUpperCase(),
-        status: 'RECEIVED'
+      const now = new Date().toISOString();
+      const rows = await Store.update('refunds', { id: rf.id, status: 'MANUAL_REVIEW' }, {
+        status: 'FORM_SUBMITTED', bank_name: bankName, acc_number: accNumber, acc_name: accName,
+        receipt_url: receipt, form_submitted_at: now, cs_note: null
       });
+      const updated = rows[0];
+      if (!updated) return res.status(409).json({ error: 'Biểu mẫu đã được gửi trước đó' });
 
-      return res.status(200).json({
-        ok: true,
-        refund_code: updated.code,
-        status: updated.status,
-        amount: updated.amount,
-        bank_name: updated.bank_name,
-        acc_number: updated.acc_number,
-        acc_name: updated.acc_name,
-        message: 'Đã tiếp nhận thông tin hoàn tiền thành công!'
-      });
-    } catch (error) {
-      console.error('[API submit-refund Error]:', error);
-      return res.status(500).json({ error: error.message || 'Lỗi gửi yêu cầu hoàn tiền' });
+      const after = await Flow.addHistory(order, 'Khách đã gửi RefundForm (thông tin ngân hàng + ảnh biên lai)');
+      const tickets = await Store.find('support_tickets', { order_code: order.code, status: { neq: 'RESOLVED' } });
+      const context = await Flow.buildContext(after, updated);
+      if (tickets.length) {
+        for (const t of tickets) await Store.update('support_tickets', { id: t.id }, { status: 'OPEN', context, updated_at: now });
+      } else {
+        await Flow.openTicket(after, { type: 'MANUAL_REVIEW', summary: 'Khách đã gửi RefundForm', refund: updated });
+      }
+      await Flow.notify(after, 'FORM_RECEIVED', 'Đã nhận biểu mẫu hoàn tiền',
+        `Beta Cinemas đã nhận thông tin nhận hoàn tiền cho đơn ${order.code}. CSKH sẽ đối chiếu và chuyển Kế toán hoàn tiền trong 3–7 ngày làm việc.`);
+      return res.status(200).json({ ...(await Flow.view(after)), refund_code: updated.code, message: 'Đã tiếp nhận biểu mẫu hoàn tiền' });
     }
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  } catch (e) {
+    return fail(res, e);
   }
-
-  return res.status(405).json({ error: 'Method Not Allowed' });
 };

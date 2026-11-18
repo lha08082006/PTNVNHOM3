@@ -753,6 +753,8 @@
     // 2. Tra cứu chi tiết đơn hàng từ API hoặc Storage
     if (orderParam && window.Pay && Pay.getOrder) {
       Pay.getOrder(orderParam).then(ord => {
+        // Chỉ hiển thị vé khi đơn đã CONFIRMED / CONFIRMED_LATE; trạng thái khác chuyển sang trang theo dõi đơn
+        if (ord && ord.has_ticket === false) { location.replace('order.html?code=' + encodeURIComponent(ord.code)); return; }
         if (ord) applyOrderToTicket(ord);
       }).catch(e => console.warn('Lỗi lấy đơn hàng ticket:', e.message));
     }

@@ -153,211 +153,100 @@ const Pay = {
     };
   },
 
-  // Lấy chi tiết đơn hàng (tự động fallback nếu mất kết nối hoặc dùng Live Server)
+  // Lấy chi tiết đơn hàng từ máy chủ; mất kết nối thì trả trạng thái thật gần nhất đã lưu (nếu có)
   async getOrder(code) {
     if (!code) return null;
     try {
       const res = await Pay.call('order-status?code=' + encodeURIComponent(code));
-      if (res && res.code) {
-        Pay.saveLocalOrder(res);
-        return res;
-      }
-    } catch (e) {
-      // Backend không phản hồi hoặc Live Server 405 -> Đọc từ local
-    }
-    return Pay.getLocalOrder(code) || Pay.buildOrderFromUrl(code);
+      if (res && res.code) { Pay.saveLocalOrder(res); return res; }
+    } catch (e) {}
+    return Pay.getLocalOrder(code);
   },
 
-  // checkout.html: Tạo đơn và chuyển sang trang quét mã VietQR
+  // checkout.html: Tạo đơn (khóa ghế 10 phút ở máy chủ) rồi sang trang quét mã VietQR.
+  // Không bao giờ tự sinh mã đơn ở trình duyệt: khách chuyển tiền vào mã đơn không tồn tại là mất dấu tiền.
   async createOrderAndGo(payload) {
-    let orderCode = null;
-    let orderTotal = payload.total;
-
-    try {
-      const o = await Pay.post('create-order', payload);
-      if (o && o.code) {
-        orderCode = o.code;
-        orderTotal = o.total || orderTotal;
-        Pay.saveLocalOrder({ ...payload, combos: payload.combos || {}, code: orderCode, status: 'HOLDING', paid_amount: 0 });
-      }
-    } catch (err) {
-      console.warn('[Pay.createOrderAndGo fallback local]:', err.message);
-      orderCode = 'BC' + Math.floor(1000000000 + Math.random() * 9000000000);
-      Pay.saveLocalOrder({ ...payload, code: orderCode, status: 'HOLDING', paid_amount: 0 });
-    }
-
-    if (!orderCode) orderCode = 'BC2610279854';
-
-    const query = new URLSearchParams({
-      order: orderCode,
-      movie: payload.movie_key || '',
-      cinema: payload.cinema || '',
-      seats: (payload.seats || []).join(', '),
-      combos: typeof payload.combos === 'object' ? JSON.stringify(payload.combos) : (payload.combos || ''),
-      total: orderTotal || '',
-      date: payload.show_date || '',
-      time: payload.show_time || ''
-    });
-    location.href = 'gateway.html?' + query.toString();
+    const o = await Pay.post('create-order', payload);
+    Pay.saveLocalOrder(o);
+    location.href = 'gateway.html?order=' + encodeURIComponent(o.code);
+    return o;
   },
 
-  // account.html: Lấy danh sách toàn bộ đơn hàng từ Server / Supabase
+  // account.html: Danh sách đơn hàng thật từ máy chủ
   async getOrders(query = {}) {
-    try {
-      const q = new URLSearchParams(query).toString();
-      const res = await Pay.call('orders' + (q ? '?' + q : ''));
-      if (res && res.orders) return res.orders;
-    } catch (e) {
-      console.warn('Pay.getOrders error:', e.message);
-    }
-    const localMap = Pay.getLocalOrders ? Pay.getLocalOrders() : {};
-    return Object.values(localMap).sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    const q = new URLSearchParams(query).toString();
+    const res = await Pay.call('orders' + (q ? '?' + q : ''));
+    return (res && res.orders) || [];
   },
 
-  // gateway.html / verify.html: Lắng nghe trạng thái đơn mỗi 1.8s
-  watch(code, onUpdate, ms = 1800) {
+  // Theo dõi trạng thái đơn (mỗi lần hỏi máy chủ cũng chạy lịch tra cứu Tầng 1/Tầng 2)
+  watch(code, onUpdate, ms = 3000) {
     if (!code) return () => {};
     let stopped = false;
-    let lastStatus = null;
     const tick = async () => {
       if (stopped) return;
       try {
-        const data = await Pay.getOrder(code);
-        if (!stopped && onUpdate && data) {
-          onUpdate(data);
-          lastStatus = data.status;
-        }
+        const data = await Pay.call('order-status?code=' + encodeURIComponent(code));
+        if (!stopped && data && data.code) { Pay.saveLocalOrder(data); onUpdate && onUpdate(data); }
       } catch (e) {
         console.warn('Đang kiểm tra giao dịch...', e.message);
       }
     };
     tick();
     const timer = setInterval(tick, ms);
-    return () => {
-      stopped = true;
-      clearInterval(timer);
-    };
+    return () => { stopped = true; clearInterval(timer); };
   },
 
-  // betabot.html: Đối soát khẩn cấp
-  async reconcile(data) {
-    try {
-      return await Pay.post('reconcile', data);
-    } catch (e) {
-      return {
-        ok: true,
-        success: true,
-        code: data.order || data.code || 'BC2610279854',
-        message: 'BetaBot AI đã xác nhận giao dịch thành công qua sao kê ngân hàng!'
-      };
-    }
-  },
+  // Nút "Báo cáo lỗi: Đã chuyển tiền nhưng chưa có vé" (BR-10)
+  reportIssue: (code, extra = {}) => Pay.post('report-issue', { order_code: code, ...extra }),
 
-  // refund.html: Gửi tài khoản nhận hoàn tiền
-  async submitRefund(data) {
-    try {
-      return await Pay.post('refund', data);
-    } catch (e) {
-      const code = 'REF-' + Math.floor(100000 + Math.random() * 900000);
-      return {
-        ok: true,
-        success: true,
-        refund_code: code,
-        message: 'Hồ sơ hoàn tiền đã được ghi nhận thành công'
-      };
-    }
-  },
+  // betabot.html: Hỗ trợ đối soát (tạo phiếu CSKH + tra cứu ngay)
+  reconcile: (data) => Pay.post('reconcile', data),
 
-  // refund-track.html: Tra cứu thông tin hồ sơ hoàn tiền
+  // refund.html: RefundForm (chỉ khi đơn ở trạng thái Chờ xử lý thủ công)
+  submitRefund: (data) => Pay.post('refund', data),
+
   getRefunds: (query) => Pay.call('refund?' + new URLSearchParams(query)),
 
-  // Demo Sandbox: Giả lập Webhook SePay (Chạy được cả trên Backend lẫn Live Server Client-side)
-  async simulate(scenario, orderCode, customAmount, extra = {}) {
-    const payload = {
-      scenario,
-      order_code: orderCode,
-      custom_amount: customAmount,
-      total: extra.total,
-      movie_key: extra.movie_key || extra.movie,
-      cinema: extra.cinema,
-      show_date: extra.show_date || extra.date,
-      show_time: extra.show_time || extra.time,
-      seats: extra.seats,
-      combos: extra.combos
-    };
-
-    // 1. Thử gọi API backend server nếu có
+  // seats.html: ghế đang giữ / đã bán của một suất
+  async getTakenSeats(showtimeKey) {
     try {
-      const res = await Pay.post('simulate-payment', payload);
-      if (res && res.ok) {
-        // Cập nhật lại cache local nếu có
-        await Pay.getOrder(orderCode);
-        return res;
-      }
-    } catch (err) {
-      console.warn('[Pay.simulate Backend Error / Live Server 405 -> Chuyển sang mô phỏng Client-Side]:', err.message);
+      const r = await Pay.call('seats?showtime_key=' + encodeURIComponent(showtimeKey));
+      return (r && r.seats) || [];
+    } catch (e) {
+      return [];
     }
-
-    // 2. Client-side Simulation Engine (Đảm bảo 100% không bao giờ báo lỗi 405)
-    return Pay.simulateLocal(scenario, orderCode, customAmount, extra);
   },
 
-  // Động cơ mô phỏng Client-side độc lập
-  simulateLocal(scenario, orderCode, customAmount, extra = {}) {
-    const total = Number(extra.total || 179000);
-    const ref = 'FT' + Math.floor(10000000 + Math.random() * 90000000);
+  // Sandbox mô phỏng ngân hàng (demo / UAT). Không chuyển tiền thật.
+  simulate: (scenario, orderCode, customAmount, extra = {}) =>
+    Pay.post('simulate-payment', { scenario, order_code: orderCode, custom_amount: customAmount, ...extra }),
 
-    let ord = Pay.getLocalOrder(orderCode) || Pay.buildOrderFromUrl(orderCode) || {
-      code: orderCode,
-      total: total,
-      paid_amount: 0,
-      status: 'HOLDING',
-      movie_key: extra.movie || extra.movie_key || 'an-mang-karaoke',
-      cinema: extra.cinema || 'Beta Thanh Xuân',
-      show_date: extra.show_date || extra.date || (typeof window !== 'undefined' && window.Pay && Pay.getTodayTag ? Pay.getTodayTag() : 'Hôm nay'),
-      show_time: extra.show_time || extra.time || '12:15',
-      seats: extra.seats || ['D5', 'D6'],
-      combos: extra.combos || (ord && ord.combos) || {}
-    };
-
-    ord.total = total;
-
-    if (scenario === 'SHORT') {
-      const transfer = customAmount || Math.max(50000, total - 79000);
-      ord.status = 'PARTIAL';
-      ord.paid_amount = transfer;
-      ord.remaining_amount = total - transfer;
-      ord.excess_amount = 0;
-    } else if (scenario === 'EXCESS') {
-      const excess = 21000;
-      ord.status = 'PAID';
-      ord.paid_amount = total + excess;
-      ord.excess_amount = excess;
-      ord.remaining_amount = 0;
-      ord.paid_at = new Date().toISOString();
-    } else if (scenario === 'LATE') {
-      ord.status = 'EXPIRED';
-      ord.paid_amount = total;
-      ord.remaining_amount = 0;
-    } else if (scenario === 'NETWORK_LAG') {
-      // Giữ nguyên trạng thái đơn
-    } else {
-      // Mặc định OK: Trả đủ 100%
-      ord.status = 'PAID';
-      ord.paid_amount = total;
-      ord.remaining_amount = 0;
-      ord.paid_at = new Date().toISOString();
+  // Trang nên mở cho một đơn theo trạng thái hiện tại
+  routeFor(o) {
+    if (!o) return null;
+    const c = encodeURIComponent(o.code);
+    if (o.has_ticket) {
+      const excess = (o.refunds || []).some(r => r.reason === 'EXCESS');
+      return excess ? 'overpay.html?order=' + c : 'ticket.html?order=' + c;
     }
+    if (o.status === 'PENDING') return o.paid_amount > 0 ? 'underpay.html?order=' + c : 'gateway.html?order=' + c;
+    return 'order.html?code=' + c;
+  },
 
-    Pay.saveLocalOrder(ord);
+  // Màu nhãn trạng thái cho giao diện
+  statusTone(status) {
+    return ({
+      PENDING: 'warn', EXPIRED: 'warn', CONFIRMED: 'ok', CONFIRMED_LATE: 'ok',
+      REFUND_REQUESTED: 'info', REFUNDED: 'muted', MANUAL_REVIEW: 'danger', CANCELLED: 'muted', FAILED: 'danger'
+    })[status] || 'muted';
+  },
 
-    return {
-      ok: true,
-      scenario,
-      reference_code: ref,
-      order: ord,
-      client_side: true
-    };
+  fmtTime(isoStr) {
+    if (!isoStr) return '';
+    const d = new Date(isoStr);
+    const p = (n) => String(n).padStart(2, '0');
+    return `${p(d.getHours())}:${p(d.getMinutes())} ${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
   },
 
   // Danh mục thông tin chuẩn 11 bộ phim Beta Cinemas

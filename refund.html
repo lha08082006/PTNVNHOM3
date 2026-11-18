@@ -251,8 +251,8 @@
       
       <!-- Top Action Bar -->
       <div class="top-action-bar">
-        <a href="ticket-cancelled.html" class="btn-back-link">
-          <span>←</span> Quay lại chi tiết đơn hủy
+        <a href="order.html" id="btn-back-order" class="btn-back-link">
+          <span>←</span> Quay lại theo dõi đơn hàng
         </a>
       </div>
 
@@ -263,10 +263,10 @@
         </div>
         <div>
           <h1 style="font-family: var(--font-display); font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 4px;">
-            Đã Thanh Toán Nhưng Không Xuất Được Vé
+            Biểu Mẫu Nhận Hoàn Tiền (Xử Lý Thủ Công)
           </h1>
           <p style="font-size: 14px; color: #64748b; margin: 0; line-height: 1.5;">
-            Hệ thống đối soát ghi nhận giao dịch của bạn. Vui lòng xác nhận thông tin tài khoản ngân hàng để nhận lại đầy đủ <strong>100% số tiền hoàn</strong>.
+            Hệ thống đã ghi nhận tiền của bạn nhưng chưa thể tự hoàn về tài khoản nguồn. Vui lòng cung cấp tài khoản nhận và ảnh biên lai để CSKH đối chiếu và chuyển Kế toán hoàn <strong>100% số tiền</strong>.
           </p>
         </div>
       </div>
@@ -299,11 +299,11 @@
         </div>
 
         <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-          <a href="refund-track.html" class="btn btn-primary" style="background: #005198; border-color: #005198; font-weight: 800;">
+          <a href="order.html" id="btn-success-track" class="btn btn-primary" style="background: #005198; border-color: #005198; font-weight: 800;">
             <span>📈</span> Xem Tiến Trình Hoàn Tiền Ngay →
           </a>
-          <a href="ticket-cancelled.html" class="btn btn-outline" style="font-weight: 700;">
-            Quay Lại Chi Tiết Đơn Hủy
+          <a href="home.html" class="btn btn-outline" style="font-weight: 700;">
+            Về trang chủ
           </a>
         </div>
       </div>
@@ -336,12 +336,12 @@
 
               <div class="line-row">
                 <span class="label-muted">Mã giao dịch ngân hàng:</span>
-                <strong style="font-family: monospace; font-size: 13.5px; color: #0f172a;">FT2610279854</strong>
+                <strong style="font-family: monospace; font-size: 13.5px; color: #0f172a;" id="refund-tx-ref">—</strong>
               </div>
 
               <div class="line-row">
                 <span class="label-muted">Thời điểm thanh toán:</span>
-                <span class="value-bold">20/10/2026 · 16:48</span>
+                <span class="value-bold" id="refund-tx-time">—</span>
               </div>
             </div>
 
@@ -350,10 +350,10 @@
                 Lý do phát sinh hoàn tiền:
               </div>
               <div style="font-size: 13.5px; font-weight: 700; color: #0f172a;">
-                <span id="refund-reason-text">Giao dịch không khớp tự động sau 1 phút rà soát (Chưa ghi nhận tiền)</span>
+                <span id="refund-reason-text">—</span>
               </div>
               <div style="font-size: 12.5px; color: #64748b; line-height: 1.5;">
-                Áp dụng khi ghế không còn trống hoặc đơn đã hủy theo yêu cầu đổi lịch trước 120 phút.
+                <span id="refund-why-manual">—</span>
               </div>
             </div>
 
@@ -364,7 +364,7 @@
             </div>
 
             <div style="font-size: 13px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 12px;">
-              Cần hỗ trợ đối soát trực tiếp ngay? <a href="betabot.html" style="color: #005198; font-weight: 800; text-decoration: underline;">Gửi khiếu nại qua BetaBot AI →</a>
+              Cần hỗ trợ đối soát trực tiếp ngay? <a href="betabot.html" id="btn-refund-bot" style="color: #005198; font-weight: 800; text-decoration: underline;">Chat với BetaBot →</a>
             </div>
           </section>
         </div>
@@ -408,7 +408,7 @@
                        class="form-field-input" 
                        id="acc-number" 
                        placeholder="Ví dụ: 0987654321..." 
-                       value="0987654321" 
+                       inputmode="numeric" pattern="[0-9 ]{6,24}" 
                        required>
               </div>
 
@@ -419,26 +419,14 @@
                 <input type="text" 
                        class="form-field-input" 
                        id="acc-name" 
-                       placeholder="NGUYEN HOANG NAM" 
-                       value="NGUYEN HOANG NAM" 
+                       placeholder="NGUYEN HOANG NAM"  
                        style="text-transform: uppercase;" 
                        required>
               </div>
               <div class="form-field-group">
-                <label class="form-field-label" for="transfer-content-input">
-                  Nội dung giao dịch
-                </label>
-                <input type="text" 
-                       class="form-field-input" 
-                       id="transfer-content-input" 
-                       placeholder="Nội dung chuyển khoản ghi trên giao dịch">
-                <span style="font-size: 12px; color: #64748b; font-weight: 400;">Nhập đúng nội dung như trên biên lai chuyển khoản.</span>
-              </div>
-
-              <div class="form-field-group">
-                <label class="form-field-label">Ảnh chuyển khoản</label>
+                <label class="form-field-label" for="bill-img">Ảnh biên lai chuyển khoản <span style="color: #dc2626;">*</span></label>
                 <div style="display: flex; flex-direction: column; gap: 8px; border: 1.5px dashed #cbd5e1; border-radius: 10px; padding: 12px 14px; background: #f8fafc;">
-                  <input type="file" id="bill-img" accept="image/png,image/jpeg" style="font-size: 13px;">
+                  <input type="file" id="bill-img" accept="image/png,image/jpeg" required style="font-size: 13px;">
                   <span style="font-size: 12px; color: #64748b;">JPG hoặc PNG, tối đa 5MB. Ảnh cần thấy rõ số tiền, nội dung và mã giao dịch.</span>
                 </div>
               </div>
@@ -450,13 +438,13 @@
 
               <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; font-size: 12.5px; color: #1e40af; line-height: 1.55;">
                 <div style="font-weight: 800; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 13px;">
-                  <span>🤖</span> QUY TRÌNH HOÀN TIỀN TỰ ĐỘNG (AUTO-REFUND TRONG 24H):
+                  <span>🧾</span> BẠN ĐANG Ở BƯỚC HOÀN TIỀN THỦ CÔNG:
                 </div>
                 <div style="margin-bottom: 4px;">
-                  ● <strong>Cấp 1 (Tự động trong 24h):</strong> Hệ thống phát lệnh hoàn tiền tự động về STK ngân hàng của bạn trong vòng tối đa <strong>24 giờ</strong> mà không cần nhân viên can thiệp.
+                  ● Hệ thống đã ưu tiên <strong>cấp vé bù</strong>, rồi <strong>tự hoàn tiền về tài khoản nguồn trong 24 giờ</strong> nhưng chưa thành công.
                 </div>
-                <div style="color: #475569;">
-                  ● <strong>Cấp 2 (Dự phòng nhân viên):</strong> Nếu sau 24h hệ thống không thể chuyển trả tự động (do ngân hàng gián đoạn hoặc sai STK), hệ thống sẽ <strong>tự động chuyển giao sang Nhân viên Kế toán rạp</strong> để đối soát và xử lý thủ công (3 - 7 ngày).
+                <div>
+                  ● Sau khi bạn gửi biểu mẫu: <strong>CSKH đối chiếu</strong> biên lai với log cổng thanh toán → <strong>Kế toán chi hoàn</strong> → bạn nhận thông báo kết quả qua Website, Email, SMS (3 – 7 ngày làm việc).
                 </div>
               </div>
 
@@ -576,125 +564,105 @@
 
     <script src="pay-client.js"></script>
   <script>
+    // RefundForm (BR-06): chỉ dùng khi đơn ở trạng thái "Chờ xử lý thủ công".
     const urlParams = new URLSearchParams(window.location.search);
-    const orderParam = urlParams.get('order') || 'BC2610279854';
-    const reasonParam = urlParams.get('reason') || 'LATE';
-    const totalParam = Number(urlParams.get('total') || 179000);
-    const movieParam = urlParams.get('movie') || '';
-    const cinemaParam = urlParams.get('cinema') || 'Beta Thanh Xuân (Hà Nội)';
-    const seatsParam = urlParams.get('seats') || 'D5, D6';
-    const combosParam = urlParams.get('combos') || '';
-    const dateParam = urlParams.get('date') || 'Hôm nay';
-    const timeParam = urlParams.get('time') || '18:30';
+    const orderCode = (urlParams.get('order') || urlParams.get('code') || '').toUpperCase();
+    const MAX_BYTES = 5 * 1024 * 1024;
+    const trackUrl = 'order.html?code=' + encodeURIComponent(orderCode);
+    let currentRefund = null;
 
-    if (orderParam) {
-      const orderEl = document.getElementById('refund-order-code');
-      if (orderEl) orderEl.textContent = decodeURIComponent(orderParam);
+    document.getElementById('btn-back-order').href = trackUrl;
+    document.getElementById('btn-success-track').href = trackUrl;
+    document.getElementById('btn-refund-bot').href = 'betabot.html?order=' + encodeURIComponent(orderCode);
+    document.getElementById('refund-order-code').textContent = orderCode || '—';
+
+    function lockForm(message) {
+      const form = document.querySelector('form[onsubmit="handleRefundSubmit(event)"]');
+      if (!form) return;
+      form.querySelectorAll('input, select, button').forEach(el => { el.disabled = true; });
+      const box = document.createElement('div');
+      box.style.cssText = 'padding: 12px 14px; border-radius: 10px; background: #eff6ff; color: #1e40af; font-size: 13.5px; line-height: 1.55;';
+      box.innerHTML = message + ` <a href="${trackUrl}" style="font-weight: 700;">Xem trạng thái đơn →</a>`;
+      form.prepend(box);
     }
 
-    if (movieParam && window.Pay && Pay.getMovie) {
-      const m = Pay.getMovie(movieParam);
-      const titleEl = document.getElementById('refund-movie-title');
-      if (titleEl) titleEl.textContent = m.shortTitle || m.title;
-    }
-
-    const priceDisplay = document.getElementById('refund-amount-display');
-    if (priceDisplay) priceDisplay.textContent = Pay.vnd(totalParam);
-
-    // Tra cứu thông tin hồ sơ hoàn tiền từ API nếu có
-    if (window.Pay && orderParam) {
-      Pay.getOrder(orderParam).then(ord => {
-        if (!ord) return;
-        const refundAmount = ord.excess_amount > 0 ? ord.excess_amount : (ord.paid_amount || ord.total || totalParam);
-        if (priceDisplay) priceDisplay.textContent = Pay.vnd(refundAmount);
-        if (ord.movie_key && Pay.getMovie) {
-          const m = Pay.getMovie(ord.movie_key);
-          const titleEl = document.getElementById('refund-movie-title');
-          if (titleEl) titleEl.textContent = m.shortTitle || m.title;
+    async function load() {
+      if (!orderCode) return lockForm('Thiếu mã đơn hàng.');
+      try {
+        const o = await Pay.call('refund?order_code=' + encodeURIComponent(orderCode));
+        const m = Pay.getMovie(o.movie_key);
+        document.getElementById('refund-movie-title').textContent = m.shortTitle || m.title;
+        const rf = (o.refunds || []).find(r => r.needs_form) || o.refund;
+        currentRefund = rf;
+        document.getElementById('refund-amount-display').textContent = Pay.vnd(rf ? rf.amount : o.paid_amount);
+        document.getElementById('refund-tx-time').textContent = o.paid_at ? Pay.fmtTime(o.paid_at) : '—';
+        document.getElementById('refund-reason-text').textContent = rf ? rf.reason_label : o.status_label;
+        document.getElementById('refund-why-manual').textContent = rf && rf.cs_note
+          ? 'CSKH yêu cầu cập nhật: ' + rf.cs_note
+          : 'Hệ thống chưa tự hoàn được về tài khoản nguồn (quá hạn 24 giờ hoặc dữ liệu giao dịch cần CSKH đối chiếu).';
+        document.getElementById('refund-tx-ref').textContent = rf && rf.tx_refs ? rf.tx_refs.replace(/\+/g, ', ') : '—';
+        if (!rf || !rf.needs_form) {
+          if (rf && rf.form_submitted) return lockForm('Bạn đã gửi biểu mẫu cho đơn này. CSKH đang đối chiếu và sẽ chuyển Kế toán hoàn tiền.');
+          return lockForm('Đơn này <strong>chưa cần điền biểu mẫu</strong>: hệ thống đang tự xử lý (cấp vé bù hoặc tự hoàn tiền về tài khoản đã chuyển trong 24 giờ).');
         }
-      }).catch(e => console.log('Refund fetch error:', e.message));
+      } catch (e) {
+        lockForm('Không tải được thông tin đơn: ' + e.message);
+      }
+    }
+
+    // Kiểm tra JPG/PNG <= 5MB (NFR-12), rồi nén về JPEG <= 1600px để tải lên nhanh trên điện thoại
+    function readReceipt(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) return reject(new Error('Vui lòng chọn ảnh biên lai chuyển khoản'));
+        if (!['image/jpeg', 'image/png'].includes(file.type)) return reject(new Error('Ảnh biên lai phải là JPG hoặc PNG'));
+        if (file.size > MAX_BYTES) return reject(new Error('Ảnh biên lai vượt quá 5 MB'));
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * scale);
+          c.height = Math.round(img.height * scale);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Không đọc được ảnh – tệp có thể bị hỏng')); };
+        img.src = url;
+      });
     }
 
     async function handleRefundSubmit(e) {
       e.preventDefault();
-
+      const btn = e.target.querySelector('button[type="submit"]');
       const bank = document.getElementById('bank-select').value;
-      const acc = document.getElementById('acc-number').value.trim();
+      const acc = document.getElementById('acc-number').value.replace(/\s+/g, '');
       const owner = document.getElementById('acc-name').value.trim();
-      const noteInput = document.getElementById('transfer-content-input');
-      const note = noteInput ? noteInput.value.trim() : '';
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Đang chuyển hướng sang lịch sử đơn hàng...';
-      }
-
-      let resRefundCode = 'REF-' + (orderParam ? orderParam.slice(-6) : Math.floor(100000 + Math.random() * 900000));
-
+      if (!/^\d{6,20}$/.test(acc)) { alert('Số tài khoản chỉ gồm 6–20 chữ số'); return; }
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang gửi biểu mẫu...';
       try {
-        const res = await Pay.submitRefund({
-          order: orderParam,
-          bank,
-          acc,
-          owner
-        });
-        if (res && res.refund_code) {
-          resRefundCode = res.refund_code;
-        }
+        const receipt = await readReceipt(document.getElementById('bill-img').files[0]);
+        const res = await Pay.submitRefund({ order_code: orderCode, bank_name: bank, acc_number: acc, acc_name: owner, receipt });
+        document.getElementById('res-ref-code').textContent = res.refund_code;
+        document.getElementById('res-bank-name').textContent = bank;
+        document.getElementById('res-bank-acc').textContent = acc;
+        document.getElementById('res-bank-owner').textContent = owner.toUpperCase();
+        document.getElementById('refund-form-grid').style.display = 'none';
+        const ok = document.getElementById('refund-success-container');
+        ok.style.display = 'block';
+        const amountEl = ok.querySelector('p strong:nth-of-type(2)');
+        if (amountEl && currentRefund) amountEl.textContent = Pay.vnd(currentRefund.amount);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
-        console.warn('Lỗi gọi API submitRefund:', err.message);
+        alert(err.message);
+        btn.disabled = false;
+        btn.textContent = 'Gửi Yêu Cầu Hoàn Tiền';
       }
-
-      // Lưu hồ sơ hoàn tiền vào localStorage để account.html đọc
-      try {
-        let reported = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
-        if (!reported.includes(orderParam)) {
-          reported.push(orderParam);
-          localStorage.setItem('reported_refund_orders', JSON.stringify(reported));
-        }
-
-        const refundDetail = {
-          order: orderParam,
-          movie: movieParam || 'quy-an-tang-4',
-          cinema: cinemaParam || 'Beta Thanh Xuân (Hà Nội)',
-          seats: seatsParam || 'D5, D6',
-          combos: combosParam || '',
-          total: totalParam || 90000,
-          date: dateParam || 'Hôm nay',
-          time: timeParam || '18:30',
-          bank: bank,
-          acc: acc,
-          owner: owner,
-          note: note,
-          refund_code: resRefundCode
-        };
-        localStorage.setItem('refund_detail_' + orderParam, JSON.stringify(refundDetail));
-      } catch (e) {}
-
-      // CHUYỂN HƯỚNG SANG GIAO DIỆN THÀNH VIÊN (account.html) MỞ CHI TIẾT ĐƠN HÀNG
-      const accountQuery = new URLSearchParams({
-        tab: 'orders',
-        order: orderParam,
-        movie: movieParam || 'quy-an-tang-4',
-        cinema: cinemaParam || 'Beta Thanh Xuân (Hà Nội)',
-        seats: seatsParam || 'D5, D6',
-        combos: combosParam || '',
-        total: totalParam || 90000,
-        date: dateParam || 'Hôm nay',
-        time: timeParam || '18:30',
-        bank: bank,
-        acc: acc,
-        owner: owner,
-        refund_code: resRefundCode,
-        open_modal: '1'
-      });
-
-      console.log('[Refund] Chuyển hướng sang account.html với dữ liệu khớp 100%:', orderParam);
-      setTimeout(() => {
-        location.href = `account.html?${accountQuery.toString()}`;
-      }, 300);
     }
+    window.handleRefundSubmit = handleRefundSubmit;
+
+    load();
   </script>
 
 </body>

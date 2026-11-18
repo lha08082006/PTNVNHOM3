@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theo dõi đơn hàng - Beta Cinemas</title>
+
+  <!-- Google Fonts: Montserrat & Be Vietnam Pro chuẩn nhận diện Beta Cinemas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="css/prototype-theme.css">
+
+  <style>
+    body { background: #f1f5f9; font-family: 'Be Vietnam Pro', sans-serif; color: #0f172a; }
+    .od-wrap { max-width: 980px; margin: 28px auto 60px; padding: 0 16px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+    @media (max-width: 860px) { .od-wrap { grid-template-columns: 1fr; } }
+    .od-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(15,23,42,.05); }
+    .od-card h2 { font-size: 15px; font-weight: 800; color: #005198; margin: 0 0 12px; text-transform: uppercase; letter-spacing: .02em; }
+    .od-head { grid-column: 1 / -1; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .od-head img { width: 78px; height: 112px; object-fit: cover; border-radius: 8px; background: #e2e8f0; }
+    .od-head .meta { flex: 1; min-width: 220px; }
+    .od-head h1 { font-size: 20px; font-weight: 900; margin: 0 0 4px; font-family: 'Montserrat', sans-serif; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-weight: 800; font-size: 13px; }
+    .tone-ok { background: #dcfce7; color: #166534; } .tone-warn { background: #fef3c7; color: #92400e; }
+    .tone-info { background: #dbeafe; color: #1e40af; } .tone-danger { background: #fee2e2; color: #991b1b; }
+    .tone-muted { background: #e2e8f0; color: #334155; }
+    .row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px dashed #e2e8f0; font-size: 14px; }
+    .row:last-child { border-bottom: 0; } .row span:first-child { color: #64748b; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 4px; position: relative; }
+    .step { text-align: center; font-size: 12px; color: #94a3b8; }
+    .step .dot { width: 30px; height: 30px; margin: 0 auto 6px; border-radius: 50%; display: grid; place-items: center; background: #e2e8f0; color: #64748b; font-weight: 800; }
+    .step.done { color: #166534; } .step.done .dot { background: #16a34a; color: #fff; }
+    .step.active { color: #1e40af; font-weight: 700; } .step.active .dot { background: #fff; border: 3px solid #2563eb; color: #2563eb; }
+    .step small { display: block; color: #94a3b8; font-weight: 500; margin-top: 2px; }
+    .tl { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid #e2e8f0; }
+    .tl li { position: relative; padding: 0 0 12px 12px; font-size: 13px; }
+    .tl li::before { content: ''; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #2563eb; }
+    .tl time { display: block; color: #94a3b8; font-size: 11.5px; }
+    .note { padding: 10px 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 13px; margin-bottom: 8px; }
+    .note b { display: block; margin-bottom: 2px; }
+    .callout { padding: 12px 14px; border-radius: 10px; font-size: 13.5px; line-height: 1.55; margin-top: 12px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .od-empty { grid-column: 1 / -1; text-align: center; padding: 50px 20px; }
+    .od-search { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+    .od-search input { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; width: 240px; text-transform: uppercase; }
+  </style>
+</head>
+
+<body>
+  <!-- Top Bar chính thức Beta Cinemas -->
+  <div class="top-header-official">
+    <div class="container top-header-inner">
+      <div>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+      </div>
+      <div class="top-auth-links">
+        <a href="auth.html#login">Đăng nhập</a>
+        <span>|</span>
+        <a href="auth.html#register">Đăng ký</a>
+        <span>|</span>
+        <a href="betabot.html">Hỗ trợ CSKH</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Điều Hướng Chính Đồng Nhất (Chuẩn Beta Nền Trắng) -->
+  <header class="header-main-official">
+    <div class="container header-row">
+      <!-- Logo chính thức -->
+      <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
+        <img class="official-logo" src="https://betacinemas.vn/Assets/Common/logo/logo.png"
+          onerror="this.onerror=null; this.src='images/logo-official.png';" alt="Beta Cinemas">
+      </a>
+
+      <!-- Chọn Cụm Rạp -->
+      <div style="position: relative; flex-shrink: 0;">
+        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+          <option selected>Beta Thanh Xuân (Hà Nội)</option>
+          <option>Beta Trần Quang Khải</option>
+          <option>Beta Giải Phóng (Hà Nội)</option>
+          <option>Beta Mỹ Đình (Hà Nội)</option>
+          <option>Beta Quang Trung (TP.HCM)</option>
+          <option>Beta Ung Văn Khiêm (TP.HCM)</option>
+        </select>
+        <span
+          style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+      </div>
+
+      <!-- Main Navigation Menu -->
+      <nav>
+        <ul class="main-menu-official">
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="home.html" class="menu-link-official">PHIM</a></li>
+          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="od-wrap" id="od-root">
+      <div class="od-card od-empty" id="od-loading">Đang tải thông tin đơn hàng...</div>
+    </div>
+  </main>
+
+  <script src="pay-client.js"></script>
+  <script>
+    // Trang "Theo dõi đơn hàng" (US-03 / REQ-03): nhãn trạng thái thực tế theo vòng đời đơn,
+    // thanh tiến trình hoàn tiền 4 mốc (BR-08), lịch sử xử lý và thông báo đã gửi.
+    const params = new URLSearchParams(location.search);
+    const code = (params.get('code') || params.get('order') || '').toUpperCase();
+    const root = document.getElementById('od-root');
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+    const EXPLAIN = {
+      PENDING: 'Đơn đang trong 10 phút giữ ghế. Hệ thống tự kiểm tra với cổng thanh toán, bạn không cần thao tác thêm sau khi chuyển khoản.',
+      EXPIRED: 'Đơn đã hết giờ giữ ghế và ghế đã được nhả, nhưng hệ thống vẫn tự đối soát với ngân hàng 30 phút/lần trong 24 giờ. Nếu tiền đã bị trừ: còn ghế và còn ít nhất 30 phút trước giờ chiếu thì bạn được cấp vé bù, nếu không thì được hoàn tiền tự động.',
+      CONFIRMED: 'Thanh toán đã được xác nhận và vé điện tử đã được xuất.',
+      CONFIRMED_LATE: 'Giao dịch được ghi nhận trễ nhưng tiền vào trước hạn giữ ghế và ghế vẫn còn trống, nên hệ thống đã cấp vé bù cho bạn.',
+      REFUND_REQUESTED: 'Không thể cấp vé cho đơn này nên hệ thống đang tự gửi lệnh hoàn tiền về tài khoản bạn đã dùng để chuyển khoản (tối đa 24 giờ). Bạn không cần điền form hay gọi CSKH.',
+      REFUNDED: 'Lệnh hoàn tiền đã được gửi. Thời gian tiền về tài khoản tùy ngân hàng (thường 3–7 ngày làm việc).',
+      MANUAL_REVIEW: 'Hệ thống chưa thể tự hoàn tiền cho đơn này. Vui lòng điền biểu mẫu nhận hoàn tiền để CSKH đối chiếu và chuyển Kế toán hoàn tiền thủ công (3–7 ngày làm việc).',
+      CANCELLED: 'Đơn đã hủy và không ghi nhận giao dịch nào. Nếu bạn chắc chắn đã bị trừ tiền, hãy bấm "Báo lỗi" để CSKH kiểm tra sao kê.',
+      FAILED: 'Cổng thanh toán báo giao dịch thất bại, bạn không bị trừ tiền.'
+    };
+    const REFUND_STATUS = {
+      REQUESTED: 'Đã tạo yêu cầu, đang gửi lệnh hoàn', RETRYING: 'Cổng hoàn tiền chưa phản hồi – hệ thống tự gửi lại mỗi 30 phút',
+      DONE: 'Đã chuyển hoàn', MANUAL_REVIEW: 'Chờ bạn điền biểu mẫu nhận hoàn tiền', FORM_SUBMITTED: 'CSKH đang đối chiếu biểu mẫu',
+      CS_APPROVED: 'CSKH đã duyệt – chờ Kế toán chi hoàn', PAID_OUT: 'Kế toán đã chi – chờ xác nhận hoàn tất'
+    };
+
+    function refundBlock(r) {
+      const activeIdx = r.steps.findIndex(s => !s.done);
+      const steps = r.steps.map((s, i) => `
+        <div class="step ${s.done ? 'done' : i === activeIdx ? 'active' : ''}">
+          <div class="dot">${s.done ? '✓' : i + 1}</div>${esc(s.label)}
+          <small>${s.at ? Pay.fmtTime(s.at) : ''}</small>
+        </div>`).join('');
+      const form = r.needs_form ? `
+        <div class="callout tone-danger">
+          <strong>Cần bạn bổ sung thông tin.</strong> ${r.cs_note ? 'CSKH ghi chú: ' + esc(r.cs_note) + '. ' : ''}Vui lòng điền ngân hàng thụ hưởng, số tài khoản, tên chủ tài khoản và ảnh biên lai chuyển khoản.
+          <div class="actions"><a class="btn btn-primary btn-sm" href="refund.html?order=${encodeURIComponent(code)}">Điền biểu mẫu nhận hoàn tiền →</a></div>
+        </div>` : '';
+      return `
+        <div style="margin-top: 6px;">
+          <div class="row"><span>Mã hồ sơ</span><strong style="font-family: monospace;">${esc(r.code)}</strong></div>
+          <div class="row"><span>Số tiền hoàn</span><strong style="color: #ea580c;">${Pay.vnd(r.amount)}</strong></div>
+          <div class="row"><span>Lý do</span><span>${esc(r.reason_label)}</span></div>
+          <div class="row"><span>Tình trạng</span><span>${esc(REFUND_STATUS[r.status] || r.status)}${r.is_manual ? ' · hoàn thủ công' : ' · tự động'}</span></div>
+          ${r.source_account ? `<div class="row"><span>Hoàn về</span><span>${esc(r.source_account.bank_name || '')} ${esc(r.source_account.acc_masked)}</span></div>` : ''}
+          ${r.refund_ref ? `<div class="row"><span>Mã giao dịch hoàn</span><strong style="font-family: monospace;">${esc(r.refund_ref)}</strong></div>` : ''}
+          ${r.status !== 'DONE' && !r.is_manual ? `<div class="row"><span>Hạn gửi lệnh hoàn</span><span>${Pay.fmtTime(r.deadline_at)}</span></div>` : ''}
+          <div class="steps">${steps}</div>
+          ${form}
+        </div>`;
+    }
+
+    function render(o) {
+      const m = Pay.getMovie(o.movie_key);
+      const tone = Pay.statusTone(o.status);
+      const refunds = o.refunds || [];
+      const reported = o.tickets && o.tickets.some(t => t.type === 'PAYMENT_REPORT');
+      const canReport = ['PENDING', 'EXPIRED', 'CANCELLED'].includes(o.status) && !reported;
+      const history = (o.history || []).slice().reverse();
+
+      root.innerHTML = `
+        <div class="od-card od-head">
+          <img src="${esc(m.poster)}" alt="">
+          <div class="meta">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700;">ĐƠN HÀNG <span style="font-family: monospace; color: #0f172a;">#${esc(o.code)}</span></div>
+            <h1>${esc(m.shortTitle || m.title)} <span style="font-size: 13px; color: #ea580c;">${esc(m.age || '')}</span></h1>
+            <div style="font-size: 13.5px; color: #475569;">${esc(o.cinema)} · ${esc(o.show_time)} ${esc(o.show_date)} · Ghế ${esc((o.seats || []).join(', '))}</div>
+          </div>
+          <div style="text-align: right;">
+            <span class="badge tone-${tone}">● ${esc(o.status_label)}</span>
+            ${o.status_sublabel ? `<div style="font-size: 12px; color: #64748b; margin-top: 6px; max-width: 260px;">${esc(o.status_sublabel)}</div>` : ''}
+          </div>
+        </div>
+
+        <div>
+          <div class="od-card">
+            <h2>Tình trạng giao dịch</h2>
+            <div class="callout tone-${tone}" style="margin-top: 0;">${esc(EXPLAIN[o.status] || '')}</div>
+            <div style="margin-top: 12px;">
+              <div class="row"><span>Giá trị đơn</span><strong>${Pay.vnd(o.total)}</strong></div>
+              <div class="row"><span>Đã nhận</span><strong>${Pay.vnd(o.paid_amount)}</strong></div>
+              ${o.paid_at ? `<div class="row"><span>Thời điểm giao dịch ngân hàng</span><span>${Pay.fmtTime(o.paid_at)}</span></div>` : ''}
+              <div class="row"><span>Hết hạn giữ ghế</span><span>${Pay.fmtTime(o.hold_expires_at)}</span></div>
+              ${o.scan_until && o.status === 'EXPIRED' ? `<div class="row"><span>Đối soát tự động đến</span><span>${Pay.fmtTime(o.scan_until)}</span></div>` : ''}
+            </div>
+            <div class="actions">
+              ${o.has_ticket ? `<a class="btn btn-primary btn-sm" href="ticket.html?order=${encodeURIComponent(o.code)}">🎟️ Xem vé điện tử</a>` : ''}
+              ${o.status === 'PENDING' ? `<a class="btn btn-primary btn-sm" href="${Pay.routeFor(o)}">📱 Quay lại màn hình thanh toán</a>` : ''}
+              ${canReport ? `<button class="btn btn-outline btn-sm" onclick="report()" style="color: #dc2626; border-color: #fca5a5;">📢 Báo lỗi: đã chuyển tiền nhưng chưa có vé</button>` : ''}
+              <a class="btn btn-outline btn-sm" href="betabot.html?order=${encodeURIComponent(o.code)}">🤖 Chat BetaBot hỗ trợ đối soát</a>
+            </div>
+            ${reported ? `<div style="font-size: 12.5px; color: #475569; margin-top: 8px;">✓ Đã gửi phiếu hỗ trợ #${esc(o.tickets.find(t => t.type === 'PAYMENT_REPORT').code)} – CSKH đã có đủ thông tin đơn.</div>` : ''}
+          </div>
+
+          ${refunds.length ? `<div class="od-card" style="margin-top: 18px;"><h2>Tiến trình hoàn tiền</h2>${refunds.map(refundBlock).join('<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 16px 0;">')}</div>` : ''}
+        </div>
+
+        <div>
+          <div class="od-card">
+            <h2>Thông báo đã gửi</h2>
+            ${(o.notifications || []).length ? o.notifications.map(n => `<div class="note"><b>${esc(n.title)}</b>${esc(n.message)}<div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">${Pay.fmtTime(n.at)} · ${(n.channels || []).map(c => ({ WEB: 'Website', EMAIL: 'Email', SMS: 'SMS' })[c] || c).join(', ')}</div></div>`).join('') : '<div style="color: #94a3b8; font-size: 13px;">Chưa có thông báo.</div>'}
+          </div>
+          <div class="od-card" style="margin-top: 18px;">
+            <h2>Lịch sử xử lý</h2>
+            <ul class="tl">${history.map(h => `<li>${esc(h.note || h.to)}<time>${Pay.fmtTime(h.at)}</time></li>`).join('')}</ul>
+          </div>
+        </div>`;
+    }
+
+    async function report() {
+      try {
+        const r = await Pay.reportIssue(code);
+        alert('Đã tạo phiếu hỗ trợ #' + r.ticket_code + '. Hệ thống đã tra cứu lại cổng thanh toán ngay và CSKH đã có đủ thông tin đơn của bạn.');
+        render(r);
+      } catch (e) {
+        alert('Chưa gửi được: ' + e.message);
+      }
+    }
+
+    function showSearch(msg) {
+      root.innerHTML = `<div class="od-card od-empty">
+        <h2 style="text-transform: none;">${esc(msg)}</h2>
+        <div class="od-search"><input id="od-code" placeholder="BCxxxxxxxxxx" value="${esc(code)}"><button class="btn btn-primary" onclick="location.href='order.html?code='+document.getElementById('od-code').value.trim()">Tra cứu</button></div>
+      </div>`;
+    }
+
+    if (!code) {
+      showSearch('Nhập mã đơn hàng để theo dõi trạng thái giao dịch');
+    } else {
+      let loaded = false;
+      Pay.call('order-status?code=' + encodeURIComponent(code))
+        .then(o => { loaded = true; render(o); })
+        .catch(e => showSearch(e.status === 404 ? 'Không tìm thấy đơn #' + code : 'Không tải được đơn hàng: ' + e.message));
+      // Cập nhật thời gian thực (mỗi lần hỏi cũng đẩy Job đối soát cho đơn này)
+      setInterval(() => {
+        if (!loaded || document.hidden) return;
+        Pay.call('order-status?code=' + encodeURIComponent(code)).then(render).catch(() => {});
+      }, 10000);
+    }
+  </script>
+</body>
+
+</html>

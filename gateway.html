@@ -257,31 +257,33 @@
       </p>
       <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
         <button type="button" onclick="triggerSimulation('OK')" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 800;">
-          ⚡ [Demo Chuẩn] Chuyển ĐỦ 100%
-        </button>
-        <button type="button" onclick="triggerSimulation('SHORT')" class="btn btn-outline btn-sm" style="color: #b45309; border-color: #f59e0b; background: #fffbeb; font-weight: 800;">
-          ⚠️ [Lỗi 1] Khách Trả THIẾU Tiền
-        </button>
-        <button type="button" onclick="triggerSimulation('EXCESS')" class="btn btn-outline btn-sm" style="color: #0369a1; border-color: #0284c7; background: #f0f9ff; font-weight: 800;">
-          💰 [Lỗi 2] Khách Trả THỪA Tiền
-        </button>
-        <button type="button" onclick="triggerSimulation('LATE')" class="btn btn-outline btn-sm" style="color: #b91c1c; border-color: #ef4444; background: #fef2f2; font-weight: 800;">
-          ⏳ [Lỗi 3a] Trả Tiền QUÁ HẠN 10p
+          ⚡ TC-01 Chuyển đủ – Webhook về ngay
         </button>
         <button type="button" onclick="triggerSimulation('NETWORK_LAG')" class="btn btn-outline btn-sm" style="color: #4f46e5; border-color: #6366f1; background: #eef2ff; font-weight: 800;">
-          🤖 [Lỗi 3b] Trừ Tiền Web Treo (Thử BetaBot)
+          📡 TC-03 Webhook thất lạc (Short Polling bắt)
         </button>
-        <button type="button" onclick="unlockReportButton()" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #ef4444; background: #fef2f2; font-weight: 800;">
-          ⏱️ [Test UI] Mở Khóa Ngay Nút Báo Cáo Lỗi (Không chờ 2p)
+        <button type="button" onclick="triggerSimulation('SLOW_BANK')" class="btn btn-outline btn-sm" style="color: #7c3aed; border-color: #a78bfa; background: #f5f3ff; font-weight: 800;">
+          🐢 TC-05/06 Ngân hàng xử lý chậm 12 phút
+        </button>
+        <button type="button" onclick="triggerSimulation('SHORT')" class="btn btn-outline btn-sm" style="color: #b45309; border-color: #f59e0b; background: #fffbeb; font-weight: 800;">
+          ⚠️ Chuyển THIẾU tiền
+        </button>
+        <button type="button" onclick="triggerSimulation('EXCESS')" class="btn btn-outline btn-sm" style="color: #0369a1; border-color: #0284c7; background: #f0f9ff; font-weight: 800;">
+          💰 Chuyển THỪA tiền
+        </button>
+        <button type="button" onclick="triggerSimulation('LATE')" class="btn btn-outline btn-sm" style="color: #b91c1c; border-color: #ef4444; background: #fef2f2; font-weight: 800;">
+          ⏳ TC-08 Chuyển tiền SAU 10 phút
         </button>
       </div>
+      <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+        <button type="button" onclick="triggerSimulation('SHIFT', { minutes: 1 })" class="btn btn-outline btn-sm" style="font-weight: 700;">⏩ Tua nhanh 1 phút</button>
+        <button type="button" onclick="triggerSimulation('SHIFT', { minutes: 2 })" class="btn btn-outline btn-sm" style="font-weight: 700;">⏩ Tua nhanh 2 phút</button>
+        <button type="button" onclick="unlockReportButton()" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #ef4444; background: #fef2f2; font-weight: 700;">⏱️ Mở khóa ngay nút Báo cáo lỗi</button>
+      </div>
+      <div id="sandbox-result" style="margin-top: 10px; font-size: 12px; color: #475569;"></div>
       <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px;">
-        <a href="verify.html" id="btn-sandbox-verify" class="btn btn-outline btn-sm" style="color: #005198;">
-          Trang Chờ Xác Minh →
-        </a>
-        <a href="checkout.html" class="btn btn-outline btn-sm" style="color: #64748b;">
-          Hủy & Quay Lại
-        </a>
+        <a href="admin.html" class="btn btn-outline btn-sm" style="color: #005198;">Trang nội bộ CSKH/Kế toán/IT →</a>
+        <a href="checkout.html" class="btn btn-outline btn-sm" style="color: #64748b;">Quay lại</a>
       </div>
     </div>
     </details>
@@ -307,393 +309,145 @@
 
   <script src="pay-client.js"></script>
   <script>
-    function copyText(str) {
-      navigator.clipboard.writeText(str);
-      alert('Đã sao chép: ' + str);
-    }
-
+    // Tầng 1 – trong 10 phút giữ ghế. Đồng hồ và trạng thái lấy từ MÁY CHỦ (trình duyệt không tự quyết):
+    // chờ Webhook 2 phút -> Short Polling 15 giây/lần -> Final Check 3 phút/lần -> tra cứu chốt lúc 10:00.
     const params = new URLSearchParams(window.location.search);
-    let orderCode = params.get('order') || 'BC2610279854';
-    let total = params.get('total') || 179000;
-    const movie = params.get('movie') || '';
-    const cinema = params.get('cinema') || '';
-    const seats = params.get('seats') || '';
-    const date = params.get('date') || '';
-    const time = params.get('time') || '';
-    const format = params.get('format') || '';
-    const combos = params.get('combos') || '';
+    const orderCode = (params.get('order') || '').toUpperCase();
+    let order = null;
+    let secondsLeft = 600;
+    let hasRedirected = false;
+    let isReportUnlocked = false;
+    let isReportSubmitted = false;
 
-    // Nếu URL có ?sandbox=1 hoặc ?test=1 -> Mở sẵn bảng sandbox
     if (params.get('sandbox') === '1' || params.get('test') === '1') {
       const sbEl = document.getElementById('sandbox-details');
       if (sbEl) sbEl.open = true;
     }
 
-    function copyTransferContent() {
-      copyText(orderCode);
+    function copyText(str) {
+      navigator.clipboard.writeText(str);
+      alert('Đã sao chép: ' + str);
+    }
+    function copyTransferContent() { copyText(orderCode); }
+    const fmt = (sec) => String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
+
+    function setRadar(html, bg, color) {
+      const radar = document.querySelector('.pulse-radar');
+      if (!radar) return;
+      if (bg) { radar.style.background = bg; radar.style.color = color; }
+      radar.innerHTML = html;
     }
 
-    const transferEl = document.getElementById('transfer-content');
-    if (transferEl) transferEl.textContent = orderCode;
-    const noteOrderEl = document.getElementById('note-order-code');
-    if (noteOrderEl) noteOrderEl.textContent = orderCode;
-    const amountEl = document.getElementById('payment-total-amount');
-    if (amountEl) amountEl.textContent = Pay.vnd(total);
-
-    // Cập nhật link khiếu nại Chatbot
-    const complainBtn = document.getElementById('btn-complain-bot');
-    if (complainBtn) {
-      complainBtn.href = 'betabot.html?order=' + encodeURIComponent(orderCode);
-    }
-
-    const verifyBtn = document.getElementById('btn-sandbox-verify');
-    if (verifyBtn) {
-      verifyBtn.href = `verify.html?order=${orderCode}&total=${total}&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&combos=${encodeURIComponent(combos)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
-    }
-
-    function updateQrCode(neededAmount, code) {
+    function updateQrCode(amount) {
       const qrImg = document.querySelector('.qr-frame img');
-      if (qrImg) {
-        qrImg.onerror = function() {
-          console.warn('[QR fallback]: Chuyển sang nguồn SePay');
-          this.onerror = null;
-          this.src = `https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=${neededAmount}&des=${encodeURIComponent(code)}`;
-        };
-        qrImg.src = `https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=${neededAmount}&des=${encodeURIComponent(code)}`;
-      }
+      const src = `https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=${amount}&des=${encodeURIComponent(orderCode)}`;
+      if (qrImg && qrImg.getAttribute('src') !== src) qrImg.src = src;
     }
-    updateQrCode(total, orderCode);
 
-    // =========================================================================
-    // 1. ĐẾM NGƯỢC THỜI GIAN GIỮ GHẾ (10 PHÚT)
-    // =========================================================================
-    let timeLeft = 600; // 10 phút = 600 giây
-    let hasRedirected = false;
-    let countdownInterval = null;
-    const countdownEl = document.getElementById('gateway-countdown');
+    function go(url, delay = 900) {
+      if (hasRedirected) return;
+      hasRedirected = true;
+      setTimeout(() => { location.href = url; }, delay);
+    }
 
-    // =========================================================================
-    // QUẢN LÝ NÚT BÁO CÁO LỖI (MỜ + ĐẾM NGƯỢC 2 PHÚT -> MỞ KHÓA -> MỜ KHI BẤM)
-    // =========================================================================
-    let reportCooldown = 120; // 2 phút = 120 giây
-    let isReportUnlocked = false;
-    let isReportSubmitted = false;
-
-    // Hàm mở khóa nút Báo Cáo Lỗi sau khi hết 2 phút
+    // BR-10: nút báo lỗi chỉ mở sau 2 phút (đúng mốc hết thời gian chờ Webhook)
     function unlockReportButton() {
       if (isReportUnlocked || isReportSubmitted || hasRedirected) return;
       isReportUnlocked = true;
-
       const btn = document.getElementById('btn-report-error');
-      const icon = document.getElementById('btn-report-icon');
-      const text = document.getElementById('btn-report-text');
-      const hint = document.getElementById('report-countdown-hint');
-
       if (btn) {
         btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        btn.style.background = '#ffffff';
-        btn.style.borderColor = '#dc2626';
-        btn.style.color = '#dc2626';
-        btn.style.boxShadow = '0 2px 8px rgba(220, 38, 38, 0.12)';
+        Object.assign(btn.style, { opacity: '1', cursor: 'pointer', background: '#ffffff', borderColor: '#dc2626', color: '#dc2626', boxShadow: '0 2px 8px rgba(220, 38, 38, 0.12)' });
       }
-      if (icon) icon.textContent = '📢';
-      if (text) text.innerHTML = 'Báo Cáo Lỗi: Tôi đã chuyển tiền nhưng chưa có vé';
-      if (hint) {
-        hint.innerHTML = '<span style="color: #16a34a; font-weight: 700;">● Có thể gửi báo cáo ngay</span>';
-      }
-      console.log('[Gateway] Đã qua 2 phút: Nút Báo Cáo Lỗi đã mở khóa!');
+      document.getElementById('btn-report-icon').textContent = '📢';
+      document.getElementById('btn-report-text').innerHTML = 'Báo Cáo Lỗi: Tôi đã chuyển tiền nhưng chưa có vé';
+      document.getElementById('report-countdown-hint').innerHTML = '<span style="color: #16a34a; font-weight: 700;">● Có thể gửi báo cáo ngay</span>';
     }
     window.unlockReportButton = unlockReportButton;
 
-    // Khi khách bấm nút Báo Cáo Lỗi: Vẫn giữ nút nhưng chuyển về trạng thái làm mờ & chuyển sang Verify (File 1)
-    function handleReportError() {
+    async function handleReportError() {
       if (!isReportUnlocked || isReportSubmitted) return;
       isReportSubmitted = true;
-
       const btn = document.getElementById('btn-report-error');
-      const icon = document.getElementById('btn-report-icon');
-      const text = document.getElementById('btn-report-text');
-      const hint = document.getElementById('report-countdown-hint');
+      if (btn) { btn.disabled = true; btn.style.opacity = '0.55'; btn.style.cursor = 'not-allowed'; }
+      document.getElementById('btn-report-icon').textContent = '⏳';
+      document.getElementById('btn-report-text').innerHTML = 'Đang gửi báo cáo và tra cứu cổng thanh toán...';
       const statusText = document.getElementById('report-error-status');
-
-      // Giữ nguyên nút trên màn hình nhưng làm mờ và khóa lại (disabled)
-      if (btn) {
-        btn.disabled = true;
-        btn.style.opacity = '0.55';
-        btn.style.cursor = 'not-allowed';
-        btn.style.background = '#fef2f2';
-        btn.style.borderColor = '#fca5a5';
-        btn.style.color = '#991b1b';
-        btn.style.boxShadow = 'none';
-      }
-      if (icon) icon.textContent = '⏳';
-      if (text) text.innerHTML = 'Đã gửi báo cáo lỗi (Đang chuyển sang xác minh giao dịch...)';
-      if (hint) {
-        hint.innerHTML = '<span style="color: #b91c1c; font-weight: 700;">Đã ghi nhận yêu cầu</span>';
-      }
-
-      if (statusText) {
+      try {
+        const r = await Pay.reportIssue(orderCode);
         statusText.style.display = 'block';
-        statusText.innerHTML = '⏳ Hệ thống đã tiếp nhận báo cáo. Đang chuyển sang màn hình xác minh giao dịch (Lớp 1)...';
+        statusText.innerHTML = `✓ Đã tạo phiếu hỗ trợ <strong>#${r.ticket_code}</strong> kèm đầy đủ thông tin đơn – bạn không cần cung cấp lại. Đang chuyển sang màn hình xác minh giao dịch...`;
+        go('verify.html?order=' + encodeURIComponent(orderCode), 1200);
+      } catch (e) {
+        isReportSubmitted = false;
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
+        document.getElementById('btn-report-icon').textContent = '📢';
+        document.getElementById('btn-report-text').innerHTML = 'Báo Cáo Lỗi: Tôi đã chuyển tiền nhưng chưa có vé';
+        alert('Chưa gửi được báo cáo: ' + e.message + '. Vui lòng thử lại hoặc gọi 1900 636 807.');
       }
-      console.log('[Gateway] Khách bấm báo cáo lỗi, chuyển hướng sang verify.html (File 1):', orderCode);
-
-      const baseQuery = new URLSearchParams({
-        order: orderCode,
-        total: total,
-        movie: movie,
-        cinema: cinema,
-        seats: seats,
-        combos: combos,
-        date: date,
-        time: time,
-        format: format,
-        hold_time: timeLeft
-      });
-
-      setTimeout(() => {
-        location.href = `verify.html?${baseQuery.toString()}`;
-      }, 700);
     }
     window.handleReportError = handleReportError;
 
-    function startTimer() {
-      countdownInterval = setInterval(() => {
-        if (hasRedirected) {
-          clearInterval(countdownInterval);
-          return;
-        }
-        timeLeft--;
-
-        // 1. Cập nhật đồng hồ đếm ngược mở khóa nút Báo Cáo Lỗi
-        if (!isReportUnlocked && !isReportSubmitted) {
-          reportCooldown--;
-          if (reportCooldown > 0) {
-            const rm = Math.floor(reportCooldown / 60);
-            const rs = reportCooldown % 60;
-            const rTimeStr = (rm < 10 ? '0' + rm : rm) + ':' + (rs < 10 ? '0' + rs : rs);
-
-            const timerEl = document.getElementById('btn-report-timer');
-            if (timerEl) timerEl.textContent = rTimeStr;
-            const unlockEl = document.getElementById('report-unlock-time');
-            if (unlockEl) unlockEl.textContent = rTimeStr;
-          } else {
-            unlockReportButton();
-          }
-        }
-
-        // 2. Hết 10 phút giữ ghế
-        if (timeLeft <= 0) {
-          clearInterval(countdownInterval);
-          if (countdownEl) countdownEl.textContent = '00:00';
-          handleTimeout();
-          return;
-        }
-
-        const m = Math.floor(timeLeft / 60);
-        const s = timeLeft % 60;
-        if (countdownEl) {
-          countdownEl.textContent = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
-        }
-      }, 1000);
-    }
-    startTimer();
-
-    // Hết giờ giữ ghế: Nếu chưa thanh toán -> Về trang chủ
-    async function handleTimeout() {
+    function render(o) {
+      order = o;
       if (hasRedirected) return;
-      hasRedirected = true;
+      document.getElementById('transfer-content').textContent = o.code;
+      document.getElementById('note-order-code').textContent = o.code;
+      const need = o.status === 'PENDING' ? o.remaining_amount : o.total;
+      document.getElementById('payment-total-amount').textContent = Pay.vnd(need);
+      updateQrCode(need);
+      secondsLeft = o.seconds_left;
+      document.getElementById('gateway-countdown').textContent = fmt(secondsLeft);
 
-      try {
-        const ord = await Pay.getOrder(orderCode);
-        const paid = Number((ord && ord.paid_amount) || 0);
-
-        if (paid > 0) {
-          // Trường hợp khách chuyển tiền nhưng chuyển trễ sau khi đã hết giờ
-          alert('Đơn hàng đã hết 10 phút giữ ghế nhưng hệ thống ghi nhận bạn đã chuyển ' + Pay.vnd(paid) + '. Đang chuyển sang màn hình tiếp nhận hoàn tiền.');
-          location.href = `refund.html?order=${orderCode}&reason=LATE&movie=${encodeURIComponent(movie)}&cinema=${encodeURIComponent(cinema)}&seats=${encodeURIComponent(seats)}&combos=${encodeURIComponent(combos)}&total=${total}`;
-        } else {
-          // Trường hợp khách chưa thanh toán -> Hủy và trở về trang chủ
-          alert('Đã hết thời gian giữ vé và thanh toán (10 phút). Đơn hàng đã bị hủy tự động. Đang chuyển về trang chủ...');
-          location.href = 'home.html';
+      if (o.status === 'PENDING') {
+        if (o.paid_amount > 0) {
+          setRadar(`⚠️ <span>Đã nhận <strong>${Pay.vnd(o.paid_amount)}</strong>, còn thiếu <strong>${Pay.vnd(o.remaining_amount)}</strong>. Đang chuyển sang trang chuyển bù...</span>`, '#fef3c7', '#b45309');
+          return go('underpay.html?order=' + o.code, 1200);
         }
-      } catch (e) {
-        alert('Đã hết thời gian giữ vé và thanh toán (10 phút). Đang chuyển về trang chủ...');
-        location.href = 'home.html';
+        // BR-07: hiển thị trạng thái rà soát ngầm của Tầng 1
+        setRadar(`<div class="radar-dot"></div><span><strong>${o.status_label}</strong> · ${o.status_sublabel}</span>`);
+        if (o.seconds_since_created >= 120) unlockReportButton();
+        return;
       }
+      if (o.has_ticket) {
+        setRadar(`✓ <span>${o.status === 'CONFIRMED_LATE' ? 'Đối soát thành công – đã cấp vé bù' : 'Thanh toán thành công – đang xuất vé điện tử'}...</span>`, '#d1fae5', '#065f46');
+        return go(Pay.routeFor(o));
+      }
+      // EXPIRED / CANCELLED / REFUND_REQUESTED / REFUNDED / MANUAL_REVIEW
+      setRadar(`ℹ️ <span>${o.status_label}. Đang chuyển sang trang theo dõi đơn...</span>`, '#e0f2fe', '#075985');
+      go('order.html?code=' + o.code, 1500);
     }
 
-    // =========================================================================
-    // 2. LẮNG NGHE WEBHOOK SEPAY REALTIME (TỰ ĐỘNG 100% NHƯ WEB THẬT)
-    // =========================================================================
-    Pay.watch(orderCode, (order) => {
-      if (!order || hasRedirected) return;
-      console.log('[SePay Webhook Status]:', order.status, order);
-
-      const paidNum = Number(order.paid_amount || 0);
-      const totalNum = Number(order.total || total || 0);
-
-      const baseQuery = new URLSearchParams({
-        order: order.code || orderCode,
-        movie: movie,
-        cinema: cinema,
-        seats: seats,
-        combos: combos,
-        total: totalNum,
-        date: date,
-        time: time
-      });
-
-      // TÌNH HUỐNG 1: KHÁCH TRẢ THIẾU TIỀN (PARTIAL)
-      if (order.status === 'PARTIAL' || (paidNum > 0 && paidNum < totalNum)) {
-        hasRedirected = true;
-        if (countdownInterval) clearInterval(countdownInterval);
-
-        const remain = totalNum - paidNum;
-        const radar = document.querySelector('.pulse-radar');
-        if (radar) {
-          radar.style.background = '#fef3c7';
-          radar.style.color = '#b45309';
-          radar.innerHTML = `⚠️ <span>Phát hiện thanh toán thiếu! Đã nhận <strong>${Pay.vnd(paidNum)}</strong>. Còn thiếu <strong>${Pay.vnd(remain)}</strong>. Đang chuyển sang trang thanh toán bù...</span>`;
-        }
-
-        setTimeout(() => {
-          baseQuery.set('paid', paidNum);
-          baseQuery.set('remaining', remain);
-          location.href = `underpay.html?${baseQuery.toString()}`;
-        }, 1200);
-        return;
+    // Đồng hồ chạy từng giây ở trình duyệt, được hiệu chỉnh lại theo máy chủ mỗi lần cập nhật
+    setInterval(() => {
+      if (hasRedirected || !order || order.status !== 'PENDING') return;
+      secondsLeft = Math.max(0, secondsLeft - 1);
+      document.getElementById('gateway-countdown').textContent = fmt(secondsLeft);
+      const sinceStart = order.seconds_since_created + (order.seconds_left - secondsLeft);
+      const unlockIn = Math.max(0, 120 - sinceStart);
+      if (!isReportUnlocked) {
+        document.getElementById('btn-report-timer').textContent = fmt(unlockIn);
+        document.getElementById('report-unlock-time').textContent = fmt(unlockIn);
+        if (unlockIn === 0) unlockReportButton();
       }
+    }, 1000);
 
-      // TÌNH HUỐNG 2: KHÁCH TRẢ THỪA TIỀN (EXCESS)
-      if (order.status === 'EXCESS' || (order.excess_amount && order.excess_amount > 0) || (paidNum > totalNum)) {
-        hasRedirected = true;
-        if (countdownInterval) clearInterval(countdownInterval);
-
-        const excessAmount = order.excess_amount || (paidNum - totalNum);
-        const radar = document.querySelector('.pulse-radar');
-        if (radar) {
-          radar.style.background = '#e0f2fe';
-          radar.style.color = '#0284c7';
-          radar.innerHTML = `💰 <span>Đã nhận thanh toán thừa (${Pay.vnd(paidNum)})! Đang chuyển hướng xuất vé và hoàn ${Pay.vnd(excessAmount)} tiền thừa...</span>`;
-        }
-
-        setTimeout(() => {
-          baseQuery.set('paid', paidNum);
-          baseQuery.set('excess', excessAmount);
-          location.href = `overpay.html?${baseQuery.toString()}`;
-        }, 1200);
-        return;
-      }
-
-      // TÌNH HUỐNG THÀNH CÔNG: KHÁCH TRẢ ĐỦ TIỀN (PAID)
-      if (order.status === 'PAID') {
-        hasRedirected = true;
-        if (countdownInterval) clearInterval(countdownInterval);
-
-        const radar = document.querySelector('.pulse-radar');
-        if (radar) {
-          radar.style.background = '#d1fae5';
-          radar.style.color = '#065f46';
-          radar.innerHTML = `✓ <span>Thanh toán thành công qua SePay! Đang xuất vé điện tử...</span>`;
-        }
-
-        setTimeout(() => {
-          location.href = `ticket.html?${baseQuery.toString()}`;
-        }, 1200);
-        return;
-      }
-
-      // TÌNH HUỐNG HẾT HẠN GIỮ GHẾ TỪ SERVER
-      if (order.status === 'EXPIRED') {
-        if (countdownInterval) clearInterval(countdownInterval);
-        handleTimeout();
-        return;
-      }
-    });
-
-    // =========================================================================
-    // 3. MÔ PHỎNG SANDBOX DÀNH CHO BÀI TẬP / HỘI ĐỒNG CHẤM ĐIỂM
-    // =========================================================================
-    async function triggerSimulation(scenario) {
-      const baseQuery = new URLSearchParams({
-        order: orderCode,
-        movie: movie,
-        cinema: cinema,
-        seats: seats,
-        combos: combos,
-        total: total,
-        date: date,
-        time: time
-      });
-
+    async function triggerSimulation(scenario, extra = {}) {
+      const out = document.getElementById('sandbox-result');
       try {
-        const res = await Pay.simulate(scenario, orderCode, null, { total, movie, cinema, date, time, seats, combos });
-
-        if (scenario === 'OK') {
-          hasRedirected = true;
-          const radar = document.querySelector('.pulse-radar');
-          if (radar) {
-            radar.style.background = '#d1fae5';
-            radar.style.color = '#065f46';
-            radar.innerHTML = `✓ <span>Thanh toán thành công! Đang chuyển hướng xuất vé...</span>`;
-          }
-          setTimeout(() => {
-            location.href = `ticket.html?${baseQuery.toString()}`;
-          }, 800);
-          return;
-        }
-
-        if (scenario === 'SHORT') {
-          hasRedirected = true;
-          const shortPaid = Math.max(50000, Number(total) - 79000);
-          const remain = Number(total) - shortPaid;
-          baseQuery.set('paid', shortPaid);
-          baseQuery.set('remaining', remain);
-          location.href = `underpay.html?${baseQuery.toString()}`;
-          return;
-        }
-
-        if (scenario === 'EXCESS') {
-          hasRedirected = true;
-          const excessPaid = Number(total) + 21000;
-          baseQuery.set('paid', excessPaid);
-          baseQuery.set('excess', 21000);
-          location.href = `overpay.html?${baseQuery.toString()}`;
-          return;
-        }
-
-        if (scenario === 'LATE') {
-          hasRedirected = true;
-          const radar = document.querySelector('.pulse-radar');
-          if (radar) {
-            radar.style.background = '#fee2e2';
-            radar.style.color = '#991b1b';
-            radar.innerHTML = `❌ <span>Đơn hàng đã hết hạn giữ ghế (10 phút). Đang chuyển hướng sang nhận hoàn tiền...</span>`;
-          }
-          setTimeout(() => {
-            baseQuery.set('reason', 'LATE');
-            location.href = `refund.html?${baseQuery.toString()}`;
-          }, 900);
-          return;
-        }
-
-        if (scenario === 'NETWORK_LAG') {
-          const ref = (res && res.reference_code) ? res.reference_code : ('FT' + Math.floor(10000000 + Math.random() * 90000000));
-          alert(`[MÔ PHỎNG LỖI 3B THÀNH CÔNG]\n\nTiền đã trừ tại ngân hàng (Mã GD: ${ref}), nhưng website chưa nhận được do sự cố mạng.\n\nHãy nhấn OK để chuyển sang BetaBot AI và nhập mã ${ref} đối soát!`);
-          baseQuery.set('ref', ref);
-          location.href = `betabot.html?${baseQuery.toString()}`;
-          return;
-        }
-      } catch (err) {
-        console.warn('[triggerSimulation fallback]:', err.message);
-        if (scenario === 'SHORT') location.href = `underpay.html?${baseQuery.toString()}&paid=${Math.max(50000, Number(total) - 79000)}&remaining=79000`;
-        else if (scenario === 'EXCESS') location.href = `overpay.html?${baseQuery.toString()}&paid=${Number(total) + 21000}&excess=21000`;
-        else if (scenario === 'LATE') location.href = `refund.html?${baseQuery.toString()}&reason=LATE`;
-        else location.href = `ticket.html?${baseQuery.toString()}`;
+        const r = await Pay.simulate(scenario, orderCode, null, extra);
+        out.textContent = '✓ ' + r.description;
+        if (r.order) render(r.order);
+      } catch (e) {
+        out.textContent = '✗ ' + e.message;
       }
+    }
+    window.triggerSimulation = triggerSimulation;
+
+    if (!orderCode) {
+      setRadar('⚠️ <span>Thiếu mã đơn hàng. Vui lòng đặt vé lại từ bước chọn ghế.</span>', '#fee2e2', '#991b1b');
+    } else {
+      Pay.watch(orderCode, render, 3000);
     }
   </script>
 </body>
