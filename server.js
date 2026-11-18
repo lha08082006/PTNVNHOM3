@@ -39,14 +39,15 @@ const apiRoutes = {
   '/api/seats': require('./api/seats'),
   '/api/cron': require('./api/cron'),
   '/api/admin': require('./api/admin'),
-  '/api/simulate-payment': require('./api/simulate-payment')
+  '/api/simulate-payment': require('./api/simulate-payment'),
+  '/api/sitemap': require('./api/sitemap')
 };
 
 const MAX_BODY_BYTES = 8 * 1024 * 1024; // đủ cho ảnh biên lai 5 MB (base64)
 
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  const pathname = parsedUrl.pathname;
+  let pathname = parsedUrl.pathname;
 
   // Thêm helper status() và json() cho res tương thích Vercel
   res.status = function (code) {
@@ -71,6 +72,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 1. Xử lý API Routes
+  // Giống rewrite trên Vercel: /sitemap.xml, /robots.txt do api/sitemap.js sinh ra
+  if (pathname === '/sitemap.xml') pathname = '/api/sitemap';
+  if (pathname === '/robots.txt') { pathname = '/api/sitemap'; parsedUrl.query = { ...(parsedUrl.query || {}), robots: '1' }; }
+
   if (pathname.startsWith('/api/')) {
     const handler = apiRoutes[pathname];
     if (handler) {

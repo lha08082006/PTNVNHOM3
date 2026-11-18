@@ -1088,11 +1088,34 @@ textarea {
     gap: 12px;
   }
 
+  /* nav bọc menu phải co theo màn hình, nếu không menu giãn và làm cả trang tràn ngang */
+  .header-row > nav {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Ô lưới/flex mặc định min-width:auto -> cột 1fr giãn theo nội dung dài và tràn ngang.
+     Cho phép co lại trên màn hình nhỏ. */
+  [class$="-grid"] > *,
+  [class*="-grid "] > *,
+  .sch-movie-row > *,
+  .od-wrap > * {
+    min-width: 0;
+  }
+
+  img, video, iframe {
+    max-width: 100%;
+  }
+
   .main-menu-official {
     overflow-x: auto;
     width: 100%;
+    max-width: 100%;
     padding-bottom: 8px;
     gap: 18px;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
   }
 
   .footer-official-grid {
@@ -1133,6 +1156,14 @@ textarea {
 
   .section-title {
     font-size: 20px;
+  }
+
+  /* Lưới nhiều cột viết inline (style="grid-template-columns: 1fr 1fr") -> 1 cột trên điện thoại */
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="grid-template-columns:1fr 1fr"],
+  [style*="grid-template-columns: repeat(2"],
+  [style*="grid-template-columns: repeat(3"] {
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 
