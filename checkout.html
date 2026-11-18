@@ -533,6 +533,7 @@
       <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
     </nav>
   </div>
+  <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
   <!-- Script quản lý giỏ hàng bắp nước, voucher, URL params và thanh toán -->
@@ -718,13 +719,14 @@
           seats: seatArray,
           combos: combosPayload,
           voucher: discountAmount > 0 ? 'BETAVIP' : null,
-          total: finalTotal,
-          phone: '0987654321',
-          customer_name: 'LƯƠNG HỒNG ANH',
-          email: 'luonghonganh.cinema@gmail.com'
+          total: finalTotal
         });
       } catch (err) {
         console.error('[Checkout] Không tạo được đơn:', err);
+        if (err.status === 401) {
+          location.href = BetaAuth.loginUrl();
+          return;
+        }
         if (err.status === 409) {
           alert(err.message + ' Bạn sẽ được đưa về sơ đồ ghế để chọn lại.');
           location.href = 'seats.html?' + new URLSearchParams({ movie: currentMovie, cinema: currentCinema, date: currentDate, time: currentTime }).toString();
@@ -737,6 +739,8 @@
 
 
     parseParams();
+    // Đặt vé cần tài khoản thành viên: đơn và e-ticket gắn với hồ sơ thật
+    if (window.BetaAuth) BetaAuth.requireLogin();
   </script>
 </body>
 </html>

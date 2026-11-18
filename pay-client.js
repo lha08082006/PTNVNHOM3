@@ -71,6 +71,10 @@ const Pay = {
     const cleanPath = path.replace(/^\/api\//, '').replace(/^\//, '');
     const apiBase = Pay.getApiBase();
     let url = apiBase + cleanPath;
+    // Gửi kèm phiên đăng nhập thành viên (auth-client.js) để máy chủ biết đơn của ai
+    let token = null;
+    try { token = localStorage.getItem('BETA_AUTH_TOKEN'); } catch (e) {}
+    if (token) opts = { ...opts, headers: { ...(opts.headers || {}), Authorization: 'Bearer ' + token } };
 
     try {
       let r = null;

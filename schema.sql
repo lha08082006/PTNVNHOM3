@@ -6,11 +6,22 @@
 -- =====================================================================
 create extension if not exists pgcrypto;
 
+-- 0) Thành viên Beta Club (email/SĐT + mật khẩu băm scrypt, xem lib/auth.js)
+create table if not exists customers (
+  id            uuid primary key default gen_random_uuid(),
+  email         text unique not null,
+  phone         text unique,
+  full_name     text not null,
+  birthday      date,
+  password_hash text not null,
+  created_at    timestamptz not null default now()
+);
+
 -- 1) Đơn đặt vé ---------------------------------------------------------
 create table if not exists orders (
   id              uuid primary key default gen_random_uuid(),
   code            text unique not null,               -- BC2610289854: cũng là nội dung chuyển khoản
-  user_id         uuid references auth.users(id),
+  user_id         uuid references customers(id),
   phone           text,
   email           text,
   customer_name   text,
@@ -44,6 +55,7 @@ create table if not exists orders (
   created_at      timestamptz not null default now()
 );
 create index if not exists orders_status_idx on orders(status);
+create index if not exists orders_user_idx on orders(user_id);
 
 -- 2) Ghế đang giữ / đã bán: khóa chính (suất, ghế) bảo đảm 0 trùng ghế (NFR-05)
 create table if not exists seat_holds (
@@ -156,6 +168,7 @@ create index if not exists gateway_logs_order_idx on gateway_logs(order_code);
 
 -- 8) Bảo mật: bật RLS, không tạo policy => trình duyệt (anon key) không đọc được gì.
 --    Chỉ /api (service_role key phía máy chủ) mới truy cập được.
+alter table customers         enable row level security;
 alter table orders            enable row level security;
 alter table seat_holds        enable row level security;
 alter table bank_transactions enable row level security;

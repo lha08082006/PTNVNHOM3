@@ -422,7 +422,7 @@
         <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
       </div>
       <div class="top-auth-links">
-        <span style="color: #005198;">Xin chào, <strong>LƯƠNG HỒNG ANH</strong></span>
+        
         <span>|</span>
         <a href="auth.html#login">Đăng xuất</a>
         <span>|</span>
@@ -481,10 +481,10 @@
           <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png"
             onerror="this.onerror=null; this.src='images/logo-white-official.png';" alt="Beta Cinemas"
             style="height: 45px;">
-          <span class="card-rank-badge">HẠNG GOLD MEMBER</span>
+          <span class="card-rank-badge">THÀNH VIÊN BETA CLUB</span>
         </div>
         <div style="font-family: monospace; font-size: 16px; opacity: 0.9; letter-spacing: 2px;">
-          CARD ID: 8899-2610-9854
+          CARD ID: <span id="member-card-id">----</span>
         </div>
       </div>
 
@@ -492,19 +492,17 @@
         <div>
           <div style="font-size: 12px; opacity: 0.8; text-transform: uppercase;">Chủ Thẻ Thành Viên</div>
           <div style="font-family: var(--font-display); font-size: 22px; font-weight: 900; margin-top: 2px;">
-            LƯƠNG HỒNG ANH
+            <span data-user="full_name"></span>
           </div>
           <div style="font-size: 12.5px; opacity: 0.8; margin-top: 4px;">
-            Rạp quen thuộc: <strong>Beta Thanh Xuân (Hà Nội)</strong>
+            Thành viên từ: <strong id="member-since">—</strong>
           </div>
         </div>
 
         <div style="text-align: right;">
-          <div style="font-size: 12px; opacity: 0.8; text-transform: uppercase;">Điểm Thưởng Tích Lũy</div>
-          <div style="font-family: var(--font-display); font-size: 32px; font-weight: 900; color: #fde047;">
-            450 <span style="font-size: 16px; color: white;">Points</span>
-          </div>
-          <div style="font-size: 11.5px; opacity: 0.8;">(Tương đương 45.000 đ giảm giá)</div>
+          <div style="font-size: 12px; opacity: 0.8; text-transform: uppercase;">Tổng Chi Tiêu</div>
+          <div style="font-family: var(--font-display); font-size: 28px; font-weight: 900; color: #fde047;" id="member-spend">0 đ</div>
+          <div style="font-size: 11.5px; opacity: 0.8;"><span id="member-paid-count">0</span> đơn đã xuất vé</div>
         </div>
       </div>
     </div>
@@ -522,10 +520,6 @@
         <button class="account-nav-btn" id="btn-tab-password" onclick="switchAccountTab('password')">
           <span>🔒</span> Đổi Mật Khẩu
         </button>
-        <button class="account-nav-btn"
-          onclick="alert('Bạn đang có 2 Voucher còn hiệu lực: BETADAY20 (-20k) và BIRTHDAYGIFT (Vé 2D miễn phí)!')">
-          <span>🎁</span> Kho Voucher Của Tôi (2)
-        </button>
         <div style="border-top: 1px solid #f1f5f9; margin: 12px 0;"></div>
         <a href="support.html" class="account-nav-btn" style="color: var(--beta-navy);">
           <span>💬</span> Khiếu Nại & CSKH
@@ -541,7 +535,7 @@
             Lịch Sử Giao Dịch Xem Phim
           </h3>
           <span style="font-size: 13px; color: #64748b;">
-            Tổng cộng: <strong id="total-orders-count" style="color: var(--beta-navy);">6</strong> đơn hàng
+            Tổng cộng: <strong id="total-orders-count" style="color: var(--beta-navy);">0</strong> đơn hàng
           </span>
         </div>
 
@@ -550,28 +544,28 @@
           <div class="filter-tabs-group">
             <button class="filter-tab-btn active" data-filter="all" onclick="applyOrderFilter('all', this)">
               <span>Tất cả</span>
-              <span class="filter-tab-count" id="count-all">6</span>
+              <span class="filter-tab-count" id="count-all">0</span>
             </button>
             <button class="filter-tab-btn" data-filter="upcoming" onclick="applyOrderFilter('upcoming', this)">
               <span>Đã thanh toán</span>
-              <span class="filter-tab-count" id="count-upcoming">2</span>
+              <span class="filter-tab-count" id="count-upcoming">0</span>
             </button>
             <button class="filter-tab-btn" data-filter="completed" onclick="applyOrderFilter('completed', this)">
               <span>Đã xem</span>
-              <span class="filter-tab-count" id="count-completed">1</span>
+              <span class="filter-tab-count" id="count-completed">0</span>
             </button>
             <button class="filter-tab-btn" data-filter="cancelled" onclick="applyOrderFilter('cancelled', this)">
               <span>Đã hủy</span>
-              <span class="filter-tab-count" id="count-cancelled">1</span>
+              <span class="filter-tab-count" id="count-cancelled">0</span>
             </button>
             <button class="filter-tab-btn" data-filter="unrefunded" onclick="applyOrderFilter('unrefunded', this)"
               style="border-color: #fde68a;">
               <span style="color: #b45309; font-weight: 700;">Chưa hoàn tiền</span>
-              <span class="filter-tab-count" id="count-unrefunded" style="background: #fef3c7; color: #b45309;">1</span>
+              <span class="filter-tab-count" id="count-unrefunded" style="background: #fef3c7; color: #b45309;">0</span>
             </button>
             <button class="filter-tab-btn" data-filter="refunded" onclick="applyOrderFilter('refunded', this)" style="border-color: #bfdbfe;">
               <span style="color: #1e40af; font-weight: 700;">🎉 Đã hoàn tiền</span>
-              <span class="filter-tab-count" id="count-refunded" style="background: #dbeafe; color: #1e40af;">1</span>
+              <span class="filter-tab-count" id="count-refunded" style="background: #dbeafe; color: #1e40af;">0</span>
             </button>
           </div>
 
@@ -587,270 +581,7 @@
 
         <div id="orders-list-wrapper">
 
-          <!-- Đơn hàng (ĐÃ THANH TOÁN - CẤP BÙ VÉ): QUỶ ĂN TẠNG 4 - Đặt lúc: 05/11/2026 21:56:43 -->
-          <div class="order-history-item" data-status="upcoming" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
-            data-code="BC2885539882" data-created="2026-11-05T21:56:43" onclick="openInvoiceModal('BC2885539882')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #10b981; background: #fafdfc;">
-            <img class="order-item-poster" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg"
-              alt="Quỷ Ăn Tạng 4" onerror="this.src='images/400x633-145627-230926-40.jpg'">
-            <div style="flex: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <div>
-                  <span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-size: 11px; font-weight: 800;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>
-                  <h4
-                    style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">
-                    QUỶ ĂN TẠNG 4: LỜI NGUYỄN TRỞ LẠI
-                  </h4>
-                </div>
-                <div style="text-align: right;">
-                  <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-                  <strong
-                    style="font-family: monospace; font-size: 14px; color: var(--beta-navy);">BC2885539882</strong>
-                </div>
-              </div>
-
-              <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
-                📍 Rạp: <strong>Beta Thanh Xuân</strong><br>
-                🕒 Suất: <strong>12:15 • T5 05/11</strong><br>
-                📅 Thời gian đặt vé: <strong>21:56:43 5/11/2026</strong><br>
-                💺 Ghế: <strong>D5</strong><br>
-                💳 Thanh toán: <strong>45.000 đ</strong> (Qua SePay VietQR - MSB)
-              </div>
-
-              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="ticket.html?order=BC2885539882" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
-                  <span>🎟️</span> Xem Lại Tình Trạng Vé
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Đơn hàng 1 (Mới nhất - Sắp chiếu): LINH GIỚI ĐẠI CHIẾN - Đặt lúc: 27/10/2026 18:14:02 -->
-          <div class="order-history-item" data-status="upcoming" data-title="Linh Giới Đại Chiến: Thần Sư Chung Quỳ"
-            data-code="BC2610279854" data-created="2026-10-27T18:14:02" onclick="openInvoiceModal('BC2610279854')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid var(--color-success);">
-            <img class="order-item-poster" src="images/400x633-145627-230926-40.jpg" alt="Linh Giới Đại Chiến">
-            <div style="flex: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <div>
-                  <span class="badge" style="background: #d1fae5; color: #065f46; font-size: 11px;">✓ ĐÃ THANH TOÁN (SẮP
-                    CHIẾU)</span>
-                  <h4
-                    style="font-family: var(--font-display); font-size: 17px; font-weight: 900; color: #0f172a; margin-top: 6px;">
-                    Linh Giới Đại Chiến: Thần Sư Chung Quỳ
-                  </h4>
-                </div>
-                <div style="text-align: right;">
-                  <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-                  <strong
-                    style="font-family: monospace; font-size: 14px; color: var(--beta-navy);">BC2610279854</strong>
-                </div>
-              </div>
-
-              <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
-                📍 Rạp: <strong>Beta Thanh Xuân (HN)</strong> • Phòng 01<br>
-                🕒 Suất chiếu: <strong>18:30 • Hôm nay (29/10/2026)</strong><br>
-                📅 Thời gian đặt vé: <strong>18:14:02 (27/10/2026)</strong><br>
-                💺 Ghế: <strong>F07, F08 (VIP)</strong> • Combo: 1x Combo Solo<br>
-                💳 Thanh toán: <strong>179.000 đ</strong> (Qua SePay VietQR)
-              </div>
-
-              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="ticket.html?order=BC2610279854" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
-                  <span>🎟️</span> Xem Lại Tình Trạng Vé
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Đơn hàng 2 (ĐÃ HỦY): ÚT LAN 2 - Đặt lúc: 24/10/2026 18:28:44 -->
-          <div class="order-history-item" data-status="cancelled" data-title="Út Lan 2"
-            data-code="BC2610264412" data-created="2026-10-24T18:28:44" onclick="openInvoiceModal('BC2610264412')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #f59e0b; background: #fffdf5;">
-            <img class="order-item-poster" src="images/ul2-main-dam-hoi-digital-094550-140926-42.jpg"
-              alt="Út Lan 2" onerror="this.src='images/400x633-145627-230926-40.jpg'">
-            <div style="flex: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <div>
-                  <span class="badge"
-                    style="background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; font-size: 11px; font-weight: 800;">
-                    ⚠️ ĐÃ HỦY
-                  </span>
-                  <h4
-                    style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #1e293b; margin-top: 6px;">
-                    Út Lan 2
-                  </h4>
-                </div>
-                <div style="text-align: right;">
-                  <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-                  <strong style="font-family: monospace; font-size: 14px; color: #b45309;">BC2610264412</strong>
-                </div>
-              </div>
-
-              <div style="font-size: 13px; color: #64748b; margin-bottom: 12px; line-height: 1.6;">
-                📍 Rạp: <strong>Beta Trần Quang Khải (HN)</strong> • Phòng 01<br>
-                🕒 Suất chiếu: <strong>18:30 (24/10/2026)</strong> • Ghế: <strong>E07, E08 (Ghế Thường)</strong><br>
-                📅 Thời gian đặt vé: <strong>18:28:44 (24/10/2026)</strong><br>
-                💸 Số tiền bị trừ: <strong>150.000 đ</strong> • <span style="color: #b45309; font-weight: 800;">Chưa
-                  nhận được hoàn tiền (Cần đối soát)</span>
-              </div>
-
-              <div
-                style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #92400e;">
-                <div
-                  style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; gap: 6px;">
-                  <span><strong>⚠️ Tình trạng:</strong> Tài khoản đã bị trừ tiền nhưng giao diện thanh toán báo lỗi quá
-                    hạn giữ ghế.</span>
-                  <span
-                    style="background: #fef3c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; border: 1px solid #fcd34d;">Chưa
-                    xử lý hoàn tiền</span>
-                </div>
-                <div style="color: #78350f;">Vui lòng bấm nút bên dưới để điền form đối soát hoặc nhắn mã đơn cho
-                  BetaBot xử lý hoàn tiền.</div>
-              </div>
-
-              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610264412');" style="border-color: #005198; color: #005198; font-weight: 700;"><span>🧾</span> Chi Tiết Hóa Đơn</button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); reportOrderIssue('BC2610264412');" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Cáo Lỗi</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Đơn hàng 3 (ĐÃ HỦY - ĐANG XỬ LÝ HOÀN TIỀN): ÁN MẠNG KARAOKE - Đặt lúc: 22/10/2026 19:40:55 -->
-          <div class="order-history-item" data-status="cancelled" data-refund="unrefunded" data-title="Án Mạng Karaoke"
-            data-code="BC2610227189" data-created="2026-10-22T19:40:55" onclick="openInvoiceModal('BC2610227189')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #3b82f6; background: #f8fafc;">
-            <img class="order-item-poster" src="images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg"
-              alt="Án Mạng Karaoke" onerror="this.src='images/400x633-145627-230926-40.jpg'">
-            <div style="flex: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <div>
-                  <span class="badge"
-                    style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">
-                    ⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)
-                  </span>
-                  <h4
-                    style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #1e293b; margin-top: 6px;">
-                    Án Mạng Karaoke
-                  </h4>
-                </div>
-                <div style="text-align: right;">
-                  <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-                  <strong style="font-family: monospace; font-size: 14px; color: #1e40af;">BC2610227189</strong>
-                </div>
-              </div>
-
-              <div style="font-size: 13px; color: #64748b; margin-bottom: 12px; line-height: 1.6;">
-                📍 Rạp: <strong>Beta Mỹ Đình (HN)</strong> • Phòng 03<br>
-                🕒 Suất chiếu: <strong>20:00 (22/10/2026)</strong> • Ghế: <strong>F11, F12 (VIP)</strong> + 1x Bắp Phô
-                Mai<br>
-                📅 Thời gian đặt vé: <strong>19:40:55 (22/10/2026)</strong><br>
-                Mai<br>
-                💸 Tiền vé: <strong>210.000 đ</strong> • <span style="color: #2563eb; font-weight: 800;">Đã gửi yêu cầu
-                  • Ngân hàng đang xử lý giải ngân</span>
-              </div>
-
-              <div
-                style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-                <span>Yêu cầu hoàn tiền đã tiếp nhận ngày 22/10/2026. Tiến trình hiện tại: <strong>Bước 3/5 (Hệ thống tự động chuyển tiền)</strong>.</span>
-                <span
-                  style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">Mã
-                  hồ sơ: REF-2610-915</span>
-              </div>
-
-              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610227189');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
-                  <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Đơn hàng 4 (ĐÃ HOÀN TIỀN): TRẠI BUÔN NGƯỜI - Giao diện theo đúng mockup TicketRefunded -->
-          <div class="order-history-item" data-status="refunded" data-refund="refunded"
-            data-title="Trại Buôn Người: Vùng Cấm Biên Giới" data-code="BC2610208819" data-created="2026-10-20T17:30:10" onclick="window.location.href='ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889'" title="Bấm vào đơn để xem chi tiết đơn đã hoàn tiền"
-            style="border-left: 4px solid rgb(106, 166, 255); background: #fafcff; cursor: pointer;">
-            <img class="order-item-poster" src="images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg"
-              alt="Trại Buôn Người" onerror="this.src='images/400x633-145627-230926-40.jpg'">
-            <div style="flex: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <div>
-                  <span class="badge"
-                    style="background: rgb(106, 166, 255); color: rgb(18, 20, 28); font-size: 11.5px; font-weight: 800; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.3px;">
-                    ĐÃ HOÀN TIỀN
-                  </span>
-                  <h4
-                    style="font-family: var(--font-display); font-size: 17.5px; font-weight: 800; color: #0f172a; margin-top: 6px;">
-                    Trại Buôn Người: Vùng Cấm Biên Giới
-                  </h4>
-                </div>
-                <div style="text-align: right;">
-                  <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-                  <strong style="font-family: monospace; font-size: 14.5px; color: #005198;">BC2610208819</strong>
-                </div>
-              </div>
-
-              <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
-                📍 Rạp: <strong>Beta Thanh Xuân (HN)</strong> • Phòng 02<br>
-                🕒 Suất chiếu: <strong>21:00 (20/10/2026)</strong> • Ghế: <strong>G09, G10 (VIP)</strong><br>
-                📅 Thời gian đặt vé: <strong>17:30:10 (20/10/2026)</strong><br>
-                💳 Tiền vé: <strong>180.000 đ</strong> • <span
-                  style="color: #059669; font-weight: 800;">✓ Đã hoàn 100% (180.000 đ) về STK MB Bank</span>
-              </div>
-
-              <div
-                style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 12.5px; color: #065f46; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-                <div>
-                  <strong>✓ Đã hoàn tiền thành công</strong> (Số tiền 180.000 đ đã chuyển về tài khoản MB Bank ****4321).
-                </div>
-                <div style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">
-                  Mã đối soát: REF-2610-889
-                </div>
-              </div>
-
-              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; text-decoration: none;">
-                  <span>🧾</span> Xem Chi Tiết Đơn Hàng
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Đơn hàng 5 (Đã xem hoàn tất): QUỶ ĂN TẠNG 4 - Đặt lúc: 15/10/2026 19:42:15 -->
-          <div class="order-history-item" data-status="completed" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
-            data-code="BC2610153321" data-created="2026-10-15T19:42:15" onclick="openInvoiceModal('BC2610153321')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #94a3b8; opacity: 0.9;">
-            <img class="order-item-poster"
-              src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg" alt="Quỷ Ăn Tạng">
-            <div style="flex: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <div>
-                  <span class="badge" style="background: #e2e8f0; color: #475569; font-size: 11px;">ĐÃ XEM HOÀN
-                    TẤT</span>
-                  <h4
-                    style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">
-                    Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại
-                  </h4>
-                </div>
-                <div style="text-align: right;">
-                  <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-                  <strong style="font-family: monospace; font-size: 14px; color: #64748b;">BC2610153321</strong>
-                </div>
-              </div>
-
-              <div style="font-size: 13px; color: #64748b; margin-bottom: 12px; line-height: 1.6;">
-                📍 Beta Giải Phóng • Suất: <strong>20:15 (15/10/2026)</strong> • 2 Ghế VIP (D05, D06)<br>
-                📅 Thời gian đặt vé: <strong>19:42:15 (15/10/2026)</strong><br>
-                💳 Tổng tiền: <strong>130.000 đ</strong>
-              </div>
-
-              <div style="margin-bottom: 12px;">
-                <span style="font-size: 12px; color: #10b981; font-weight: 700;">✓ Đã tích lũy +35 Beta Points</span>
-              </div>
-
-              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('BC2610153321');" style="border-color: #005198; color: #005198; font-weight: 700;">
-                  <span>🧾</span> Chi Tiết Hóa Đơn
-                </button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); reportOrderIssue('BC2610153321');" style="border-color: #fca5a5; color: #b91c1c; font-weight: 700;">⚠️ Báo Cáo Lỗi</button>
-              </div>
-            </div>
-          </div>
+          <div id="orders-loading" style="text-align: center; padding: 32px; color: #64748b;">Đang tải lịch sử đơn hàng...</div>
 
           <!-- Empty State (Khi lọc không có kết quả) -->
           <div id="orders-empty-state"
@@ -879,37 +610,29 @@
             style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--beta-navy); margin-bottom: 20px;">
             Cập Nhật Thông Tin Cá Nhân
           </h3>
-          <form onsubmit="event.preventDefault(); alert('Lưu thông tin thành công!');">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+          <form id="profile-form" onsubmit="event.preventDefault(); saveProfile();">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px;">
               <div>
-                <label class="form-label">Họ và tên</label>
-                <input type="text" class="form-input" value="LƯƠNG HỒNG ANH">
+                <label class="form-label" for="pf-name">Họ và tên</label>
+                <input type="text" class="form-input" id="pf-name" data-user="full_name" required>
               </div>
               <div>
-                <label class="form-label">Số điện thoại</label>
-                <input type="tel" class="form-input" value="0987654321" readonly style="background: #f1f5f9;">
-              </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-              <div>
-                <label class="form-label">Email tài khoản</label>
-                <input type="email" class="form-input" value="luonghonganh.cinema@gmail.com">
-              </div>
-              <div>
-                <label class="form-label">Ngày sinh (Để nhận quà sinh nhật)</label>
-                <input type="date" class="form-input" value="1998-05-18">
+                <label class="form-label" for="pf-phone">Số điện thoại</label>
+                <input type="tel" class="form-input" id="pf-phone" data-user="phone" required>
               </div>
             </div>
-            <div style="margin-bottom: 24px;">
-              <label class="form-label">Cụm rạp Beta yêu thích</label>
-              <select class="form-input">
-                <option selected>Beta Thanh Xuân (Hà Nội)</option>
-                <option>Beta Giải Phóng (Hà Nội)</option>
-                <option>Beta Mỹ Đình (Hà Nội)</option>
-                <option>Beta Quang Trung (TP.HCM)</option>
-              </select>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px;">
+              <div>
+                <label class="form-label" for="pf-email">Email tài khoản (dùng để đăng nhập)</label>
+                <input type="email" class="form-input" id="pf-email" data-user="email" readonly style="background: #f1f5f9;">
+              </div>
+              <div>
+                <label class="form-label" for="pf-birthday">Ngày sinh</label>
+                <input type="date" class="form-input" id="pf-birthday" data-user="birthday">
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary">
+            <p id="profile-msg" role="status" style="display: none; font-size: 14px; margin-bottom: 12px;"></p>
+            <button type="submit" class="btn btn-primary" id="btn-save-profile">
               Lưu Thay Đổi
             </button>
           </form>
@@ -923,20 +646,21 @@
             style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--beta-navy); margin-bottom: 20px;">
             Đổi Mật Khẩu Tài Khoản
           </h3>
-          <form onsubmit="event.preventDefault(); alert('Cập nhật mật khẩu mới thành công!');">
+          <form id="password-form" onsubmit="event.preventDefault(); savePassword();">
             <div class="form-group">
-              <label class="form-label">Mật khẩu hiện tại</label>
-              <input type="password" class="form-input" placeholder="••••••••" required>
+              <label class="form-label" for="pw-current">Mật khẩu hiện tại</label>
+              <input type="password" class="form-input" id="pw-current" autocomplete="current-password" required>
             </div>
             <div class="form-group">
-              <label class="form-label">Mật khẩu mới (Tối thiểu 6 ký tự)</label>
-              <input type="password" class="form-input" placeholder="••••••••" required>
+              <label class="form-label" for="pw-new">Mật khẩu mới (tối thiểu 8 ký tự)</label>
+              <input type="password" class="form-input" id="pw-new" autocomplete="new-password" minlength="8" required>
             </div>
             <div class="form-group">
-              <label class="form-label">Xác nhận mật khẩu mới</label>
-              <input type="password" class="form-input" placeholder="••••••••" required>
+              <label class="form-label" for="pw-new2">Xác nhận mật khẩu mới</label>
+              <input type="password" class="form-input" id="pw-new2" autocomplete="new-password" minlength="8" required>
             </div>
-            <button type="submit" class="btn btn-primary">
+            <p id="password-msg" role="status" style="display: none; font-size: 14px; margin-bottom: 12px;"></p>
+            <button type="submit" class="btn btn-primary" id="btn-save-password">
               Cập Nhật Mật Khẩu
             </button>
           </form>
@@ -1035,281 +759,6 @@
   </footer>
 
 
-  <!-- ========================================================================= -->
-  <!-- MODAL CHI TIẾT HÓA ĐƠN ĐIỆN TỬ (E-INVOICE MODAL) -->
-  <!-- ========================================================================= -->
-  <div id="invoice-modal" class="invoice-modal-backdrop" onclick="handleInvoiceBackdropClick(event)">
-    <div class="invoice-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="inv-modal-title">
-      <!-- Modal Header -->
-      <div class="invoice-modal-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <img src="https://betacinemas.vn/Assets/Common/logo/logo.png" onerror="this.src='images/logo-official.png'" alt="Beta Cinemas" style="height: 38px;">
-          <div>
-            <h3 id="inv-modal-title" style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; color: #005198;">
-              CHI TIẾT HÓA ĐƠN ĐIỆN TỬ
-            </h3>
-            <span style="font-size: 11.5px; color: #64748b;">Công ty Cổ phần Beta Media • MST: 0106633482</span>
-          </div>
-        </div>
-        <button type="button" class="invoice-modal-close" onclick="closeInvoiceModal()" aria-label="Đóng hóa đơn" title="Đóng (Esc)">
-          ✕
-        </button>
-      </div>
-
-      <!-- Modal Body (Printable Invoice Area) -->
-      <div class="invoice-modal-body" id="invoice-printable-content">
-        <!-- Top Status Bar & Code -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 1px dashed #cbd5e1; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-          <div>
-            <div style="font-size: 12px; color: #64748b;">MÃ ĐƠN HÀNG: <strong id="inv-order-code" style="color: #005198; font-family: monospace; font-size: 15px;">BC2610279854</strong></div>
-            <div style="font-size: 12px; color: #64748b; margin-top: 3px;">Số HĐ: <strong id="inv-number" style="font-family: monospace;">HD-2026-008921</strong> • Ký hiệu: <strong id="inv-symbol">1C26TBB</strong></div>
-          </div>
-          <div style="text-align: right;">
-            <div id="inv-status-badge"></div>
-            <div id="inv-created-at" style="font-size: 11.5px; color: #64748b; margin-top: 4px;">27/10/2026 18:14:02</div>
-          </div>
-        </div>
-
-        <!-- Thông tin khách hàng & thành viên -->
-        <div class="invoice-paper-box" style="background: #f8fafc;">
-          <div style="font-size: 12px; font-weight: 800; color: #005198; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
-            👤 Thông Tin Khách Hàng & Thành Viên
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12.5px;">
-            <div>Khách hàng: <strong id="inv-customer-name">LƯƠNG HỒNG ANH</strong></div>
-            <div>Số điện thoại: <strong id="inv-customer-phone">0912 345 678</strong></div>
-            <div>Email: <span id="inv-customer-email">luonghonganh@email.com</span></div>
-            <div>Thẻ thành viên: <strong id="inv-member-id" style="color: #ff5400;">BM-99281 (Beta VIP Gold)</strong></div>
-          </div>
-        </div>
-
-        <!-- Thông tin phim & Suất chiếu -->
-        <div class="invoice-paper-box">
-          <div style="display: flex; gap: 16px; align-items: center;">
-            <img id="inv-movie-poster" src="" alt="Poster" style="width: 65px; height: 95px; border-radius: 8px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-            <div style="flex: 1; min-width: 0;">
-              <h4 id="inv-movie-title" style="font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0;">
-                TÊN PHIM
-              </h4>
-              <div style="font-size: 12.5px; color: #475569; line-height: 1.5;">
-                <div>📍 Rạp: <strong id="inv-cinema">Beta Thanh Xuân (HN)</strong> • <span id="inv-room">Phòng 01</span></div>
-                <div>🕒 Suất chiếu: <strong id="inv-showtime">18:30 • 27/10/2026</strong></div>
-                <div>💺 Ghế: <strong id="inv-seats" style="color: #ff5400;">F07, F08 (VIP)</strong> • Định dạng: <span id="inv-format">2D Phụ Đề</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bảng kê dịch vụ chi tiết -->
-        <div style="margin-bottom: 16px;">
-          <div style="font-size: 12px; font-weight: 800; color: #005198; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">
-            📋 Chi Tiết Các Khoản Thanh Toán
-          </div>
-          <table class="invoice-table">
-            <thead>
-              <tr>
-                <th style="width: 50%;">Nội dung thanh toán</th>
-                <th style="text-align: center; width: 12%;">SL</th>
-                <th style="text-align: right; width: 18%;">Đơn giá</th>
-                <th style="text-align: right; width: 20%;">Thành tiền</th>
-              </tr>
-            </thead>
-            <tbody id="inv-items-table-body">
-              <!-- Render dynamically -->
-            </tbody>
-          </table>
-
-          <!-- Tính tiền & Tổng cộng -->
-          <div style="background: #f8fafc; border-radius: 10px; padding: 12px 16px; border: 1px solid #e2e8f0; font-size: 13px;">
-            <div class="invoice-meta-row">
-              <span>Tiền hàng (chưa gồm thuế VAT):</span>
-              <strong id="inv-subtotal">165.741 đ</strong>
-            </div>
-            <div class="invoice-meta-row">
-              <span>Thuế GTGT (VAT 8%):</span>
-              <strong id="inv-vat">13.259 đ</strong>
-            </div>
-            <div class="invoice-meta-row">
-              <span>Khuyến mãi / Giảm trừ thành viên:</span>
-              <strong id="inv-discount" style="color: #10b981;">0 đ</strong>
-            </div>
-            <div style="height: 1px; background: #cbd5e1; margin: 8px 0;"></div>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 900; color: #005198;">
-              <span>TỔNG TIỀN THANH TOÁN:</span>
-              <span id="inv-total" style="font-size: 20px; color: #ff5400;">179.000 đ</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Phương thức thanh toán & Ghi chú -->
-        <div class="invoice-paper-box" style="background: #fafafa; font-size: 12.5px;">
-          <div class="invoice-meta-row">
-            <span>Phương thức thanh toán:</span>
-            <strong id="inv-payment-method">VietQR / SePay</strong>
-          </div>
-          <div class="invoice-meta-row">
-            <span>Mã giao dịch / Ký hiệu chuẩn chi:</span>
-            <strong id="inv-bank-code" style="font-family: monospace;">VQR-261027-88291</strong>
-          </div>
-          <div id="inv-status-note" style="margin-top: 8px; padding: 8px 10px; background: white; border-radius: 6px; border: 1px solid #e2e8f0; color: #475569; font-size: 12px;">
-          </div>
-        </div>
-
-        <!-- TIẾN TRÌNH CÁC BƯỚC XỬ LÝ HOÀN TIỀN (Hiển thị khi đơn đang xử lý hoàn tiền) -->
-        <div id="inv-refund-steps-section" style="display: none; background: #f8fafc; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 18px 20px; margin: 16px 0;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 20px;">⏱️</span>
-              <h4 style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #1e40af;">
-                TIẾN TRÌNH CÁC BƯỚC XỬ LÝ HOÀN TIỀN
-              </h4>
-            </div>
-            <span id="inv-refund-steps-badge" class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px;">
-              ⏳ ĐANG DIỄN RA: BƯỚC 3/5
-            </span>
-          </div>
-
-          <ol class="timeline-list" style="margin-left: 6px;">
-            <!-- Bước 1 -->
-            <li class="timeline-item">
-              <i class="timeline-dot done"></i>
-              <div>
-                <div style="font-weight: 800; font-size: 13.5px; color: #0f172a;">1. Tiếp nhận báo cáo sự cố & yêu cầu hoàn tiền</div>
-                <div style="font-size: 12px; color: #10b981; font-weight: 700; margin-top: 1px;">✓ Đã tiếp nhận thành công</div>
-                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
-                  Hệ thống CSKH Beta Cinemas đã ghi nhận yêu cầu báo lỗi thanh toán từ khách hàng.
-                </div>
-              </div>
-            </li>
-
-            <!-- Bước 2 -->
-            <li class="timeline-item">
-              <i class="timeline-dot done"></i>
-              <div>
-                <div style="font-weight: 800; font-size: 13.5px; color: #0f172a;">2. Đối soát dữ liệu thanh toán ngân hàng</div>
-                <div style="font-size: 12px; color: #10b981; font-weight: 700; margin-top: 1px;">✓ Đã đối soát & khớp tiền trừ</div>
-                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
-                  Khớp giao dịch ngân hàng thành công. Xác nhận tài khoản đã trừ tiền nhưng chưa được cấp vé hợp lệ.
-                </div>
-              </div>
-            </li>
-
-            <!-- Bước 3 -->
-            <li class="timeline-item" id="timeline-step-3">
-              <i class="timeline-dot active" id="timeline-step-3-dot"></i>
-              <div>
-                <div id="timeline-step-3-title" style="font-weight: 800; font-size: 13.5px; color: #2563eb;">3. Hệ thống tự động chuyển tiền (Tối đa 24h)</div>
-                <div id="timeline-step-3-badge" style="font-size: 12px; color: #2563eb; font-weight: 700; margin-top: 1px;">● Đang phát lệnh chuyển tiền tự động qua API ngân hàng</div>
-                <div id="timeline-step-3-desc" style="font-size: 12px; color: #64748b; margin-top: 2px;">
-                  Lệnh chuyển tiền tự động đang được kết nối trực tiếp đến ngân hàng của bạn. Nếu sau 24h không thành công, hệ thống sẽ tự động chuyển giao Kế toán rạp xử lý.
-                </div>
-              </div>
-            </li>
-
-            <!-- Bước 4: Chuyển qua nhân viên xử lý -->
-            <li class="timeline-item" id="timeline-step-4">
-              <i class="timeline-dot pending" id="timeline-step-4-dot"></i>
-              <div>
-                <div id="timeline-step-4-title" style="font-weight: 800; font-size: 13.5px; color: #64748b;">4. Chuyển qua nhân viên xử lý</div>
-                <div id="timeline-step-4-badge" style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Dự phòng (Khi tự động gián đoạn hoặc quá 24h)</div>
-                <div id="timeline-step-4-desc" style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
-                  Nhân viên Kế toán rạp sẽ tiếp nhận đối soát thủ công và thực hiện chuyển tiền nếu hệ thống tự động không thành công.
-                </div>
-              </div>
-            </li>
-
-            <!-- Bước 5: Hoàn tất nhận tiền về tài khoản -->
-            <li class="timeline-item" id="timeline-step-5">
-              <i class="timeline-dot pending" id="timeline-step-5-dot"></i>
-              <div>
-                <div id="timeline-step-5-title" style="font-weight: 800; font-size: 13.5px; color: #64748b;">5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)</div>
-                <div id="timeline-step-5-badge" style="font-size: 12px; color: #94a3b8; margin-top: 1px;">Chờ ngân hàng ghi có biến động số dư</div>
-                <div id="timeline-step-5-desc" style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
-                  Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng của bạn.
-                </div>
-              </div>
-            </li>
-          </ol>
-
-          <!-- Thông tin tài khoản nhận hoàn tiền từ form refund.html -->
-          <div id="inv-refund-bank-info" style="display: none; background: white; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-top: 14px;">
-            <div style="font-weight: 800; font-size: 13px; color: #1e40af; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-              <span>🏦</span> THÔNG TIN TÀI KHOẢN NHẬN HOÀN TIỀN
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12.5px;">
-              <div>
-                <span style="color: #64748b;">Ngân hàng thụ hưởng:</span><br>
-                <strong id="inv-refund-bank-name" style="color: #0f172a;">MB Bank</strong>
-              </div>
-              <div>
-                <span style="color: #64748b;">Số tài khoản nhận:</span><br>
-                <strong id="inv-refund-bank-acc" style="font-family: monospace; color: #005198; font-size: 13.5px;">0987654321</strong>
-              </div>
-              <div>
-                <span style="color: #64748b;">Tên chủ tài khoản:</span><br>
-                <strong id="inv-refund-bank-owner" style="color: #0f172a; text-transform: uppercase;">NGUYEN HOANG NAM</strong>
-              </div>
-              <div>
-                <span style="color: #64748b;">Thời gian giải ngân dự kiến:</span><br>
-                <strong id="inv-refund-sla-text" style="color: #2563eb;">Tối đa 24 giờ (Tự động chuyển trả)</strong>
-              </div>
-            </div>
-          </div>
-
-          <div style="background: white; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-top: 16px; font-size: 12.5px; color: #1e40af; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-            <div>
-              Mã hồ sơ đối soát: <strong id="inv-refund-ref-code" style="font-family: monospace; font-size: 13.5px; color: #005198;">REF-2610-915</strong>
-            </div>
-            <a href="betabot.html" class="btn btn-outline btn-sm" style="border-color: #93c5fd; color: #1e40af; padding: 4px 10px; font-size: 12px; font-weight: 700;">
-              💬 Nhắn BetaBot Hỗ Trợ 24/7
-            </a>
-          </div>
-        </div>
-
-        <!-- Barcode Tra cứu hóa đơn điện tử -->
-        <div id="inv-barcode-section" style="text-align: center; margin-top: 16px; padding-top: 14px; border-top: 1px dashed #cbd5e1;">
-          <div style="max-width: 320px; margin: 0 auto 6px;">
-            <svg class="barcode-svg" viewBox="0 0 380 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 42px; display: block;">
-              <g fill="#0f172a">
-                <rect x="0" y="0" width="3" height="50"/><rect x="6" y="0" width="2" height="50"/><rect x="11" y="0" width="4" height="50"/><rect x="18" y="0" width="2" height="50"/><rect x="23" y="0" width="5" height="50"/><rect x="31" y="0" width="2" height="50"/><rect x="36" y="0" width="3" height="50"/><rect x="42" y="0" width="4" height="50"/><rect x="49" y="0" width="2" height="50"/><rect x="54" y="0" width="5" height="50"/><rect x="62" y="0" width="3" height="50"/><rect x="68" y="0" width="2" height="50"/><rect x="73" y="0" width="4" height="50"/><rect x="80" y="0" width="3" height="50"/><rect x="86" y="0" width="2" height="50"/><rect x="91" y="0" width="5" height="50"/><rect x="99" y="0" width="2" height="50"/><rect x="104" y="0" width="4" height="50"/><rect x="111" y="0" width="3" height="50"/><rect x="117" y="0" width="2" height="50"/><rect x="122" y="0" width="5" height="50"/><rect x="130" y="0" width="3" height="50"/><rect x="136" y="0" width="2" height="50"/><rect x="141" y="0" width="4" height="50"/><rect x="148" y="0" width="3" height="50"/><rect x="154" y="0" width="2" height="50"/><rect x="159" y="0" width="5" height="50"/><rect x="167" y="0" width="2" height="50"/><rect x="172" y="0" width="4" height="50"/><rect x="179" y="0" width="3" height="50"/><rect x="185" y="0" width="2" height="50"/><rect x="190" y="0" width="5" height="50"/><rect x="198" y="0" width="3" height="50"/><rect x="204" y="0" width="2" height="50"/><rect x="209" y="0" width="4" height="50"/><rect x="216" y="0" width="3" height="50"/><rect x="222" y="0" width="2" height="50"/><rect x="227" y="0" width="5" height="50"/><rect x="235" y="0" width="2" height="50"/><rect x="240" y="0" width="4" height="50"/><rect x="247" y="0" width="3" height="50"/><rect x="253" y="0" width="2" height="50"/><rect x="258" y="0" width="5" height="50"/><rect x="266" y="0" width="3" height="50"/><rect x="272" y="0" width="2" height="50"/><rect x="277" y="0" width="4" height="50"/><rect x="284" y="0" width="3" height="50"/><rect x="290" y="0" width="2" height="50"/><rect x="295" y="0" width="5" height="50"/><rect x="303" y="0" width="2" height="50"/><rect x="308" y="0" width="4" height="50"/><rect x="315" y="0" width="3" height="50"/><rect x="321" y="0" width="2" height="50"/><rect x="326" y="0" width="5" height="50"/><rect x="334" y="0" width="3" height="50"/><rect x="340" y="0" width="2" height="50"/><rect x="345" y="0" width="4" height="50"/><rect x="352" y="0" width="3" height="50"/><rect x="358" y="0" width="2" height="50"/><rect x="363" y="0" width="5" height="50"/><rect x="371" y="0" width="2" height="50"/><rect x="376" y="0" width="4" height="50"/>
-              </g>
-            </svg>
-          </div>
-          <div id="inv-barcode-text" style="font-family: monospace; font-size: 13px; font-weight: 700; color: #334155; letter-spacing: 2px;">
-            BC2610279854
-          </div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
-            Tra cứu hóa đơn điện tử trực tuyến tại: <span style="color: #005198;">https://einvoice.betacinemas.vn</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Footer Controls -->
-      <div class="invoice-modal-footer">
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <a id="inv-view-ticket-btn" href="ticket.html" class="btn btn-primary btn-sm" style="background: #005198; border-color: #005198; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-            <span>🎟️</span> Xem Lại Vé Điện Tử
-          </a>
-          <a id="inv-report-issue-btn" href="betabot.html" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #fca5a5; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-            ⚠️ Báo Cáo Lỗi
-          </a>
-        <button type="button" class="btn btn-primary btn-sm" onclick="printInvoice()" style="background: #005198; border-color: #005198; font-weight: 700;">
-            🖨️ In Hóa Đơn
-          </button>
-          <button type="button" class="btn btn-outline btn-sm" onclick="downloadInvoicePDF()" style="color: #475569;">
-            📥 Tải Hóa Đơn PDF
-          </button>
-          <a id="inv-standalone-link" href="#" target="_blank" class="btn btn-outline btn-sm" style="color: #005198; border-color: #cbd5e1;">
-            ↗ Mở Trang Riêng
-          </a>
-        </div>
-        <button type="button" class="btn btn-outline btn-sm" onclick="closeInvoiceModal()" style="color: #64748b;">
-          Đóng (Esc)
-        </button>
-      </div>
-    </div>
-  </div>
-
       <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
@@ -1326,1760 +775,216 @@
       <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
     </nav>
   </div>
+  <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
+  <script src="pay-client.js"></script>
   <script>
-    // Filter & Search Orders Logic
+    // =========================================================================
+    // TRANG THÀNH VIÊN: hồ sơ thật (BetaAuth) + lịch sử đơn thật (/api/orders)
+    // =========================================================================
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
     let currentFilter = 'all';
     let searchQuery = '';
+    let ORDERS = [];
+
+    // Nhóm bộ lọc theo trạng thái thật của đơn
+    const STATUS_STYLE = {
+      PENDING:          { group: 'cancelled',  bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '⏳' },
+      EXPIRED:          { group: 'unrefunded', bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '🔎' },
+      CONFIRMED:        { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '✓' },
+      CONFIRMED_LATE:   { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '✓' },
+      REFUND_REQUESTED: { group: 'unrefunded', bg: '#dbeafe', fg: '#1e40af', bd: '#bfdbfe', bar: '#3b82f6', icon: '💸' },
+      MANUAL_REVIEW:    { group: 'unrefunded', bg: '#fee2e2', fg: '#991b1b', bd: '#fca5a5', bar: '#ef4444', icon: '📝' },
+      REFUNDED:         { group: 'refunded',   bg: '#e0e7ff', fg: '#3730a3', bd: '#c7d2fe', bar: '#6366f1', icon: '✓' },
+      CANCELLED:        { group: 'cancelled',  bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '✕' },
+      FAILED:           { group: 'cancelled',  bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '✕' }
+    };
+
+    function groupOf(o) {
+      const g = (STATUS_STYLE[o.status] || STATUS_STYLE.CANCELLED).group;
+      if (g === 'upcoming' && o.show_at && new Date(o.show_at) < new Date()) return 'completed';
+      return g;
+    }
 
     function applyOrderFilter(filterType, btnEl) {
       currentFilter = filterType;
-
-      // Update active tab style
       document.querySelectorAll('.filter-tab-btn').forEach(btn => btn.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
-
-      filterOrdersList();
+      renderOrders();
     }
 
     function searchOrders(query) {
       searchQuery = query.trim().toLowerCase();
-      filterOrdersList();
+      renderOrders();
     }
 
-    function isOrderPendingPayment(item) {
-      if (!item) return false;
-      const text = (item.textContent || '').toLowerCase();
-      return text.includes('chờ thanh toán');
+    function orderActions(o) {
+      const c = encodeURIComponent(o.code);
+      const stop = 'onclick="event.stopPropagation();"';
+      let html = '';
+      if (o.has_ticket) {
+        html += `<a href="ticket.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #005198; border-color: #005198; font-weight: 700;">🎟️ Xem vé</a>`;
+        html += `<a href="invoice.html?order=${c}" class="btn btn-outline btn-sm" ${stop} style="font-weight: 700;">🧾 Hóa đơn</a>`;
+      } else if (o.status === 'PENDING') {
+        html += `<a href="${Pay.routeFor(o)}" class="btn btn-primary btn-sm" ${stop} style="background: #ea580c; border-color: #ea580c; font-weight: 700;">📱 Tiếp tục thanh toán</a>`;
+      } else if (o.refund && o.refund.needs_form) {
+        html += `<a href="refund.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #dc2626; border-color: #dc2626; font-weight: 700;">📝 Điền biểu mẫu nhận hoàn tiền</a>`;
+      }
+      html += `<a href="order.html?code=${c}" class="btn btn-outline btn-sm" ${stop} style="border-color: #005198; color: #005198; font-weight: 700;">📈 Theo dõi đơn hàng</a>`;
+      return html;
     }
 
-    function isOrderRefunding(item) {
-      if (!item) return false;
-      const ref = item.getAttribute('data-refund');
-      const st = item.getAttribute('data-status');
-      const code = (item.getAttribute('data-code') || '').toUpperCase();
-      if (ref === 'unrefunded' || st === 'unrefunded' || st === 'refunding') return true;
-      if (typeof isOrderInRefundList === 'function' && isOrderInRefundList(code)) return true;
-      if (item.querySelector('.refund-in-progress-box')) return true;
-      const badge = item.querySelector('.badge');
-      if (badge && badge.textContent.includes('ĐANG XỬ LÝ')) return true;
-      return false;
+    function refundMini(o) {
+      const r = o.refund;
+      if (!r) return '';
+      const dots = r.steps.map(s => `<span title="${esc(s.label)}" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: ${s.done ? '#166534' : '#94a3b8'}; font-weight: ${s.done ? 700 : 500};"><span style="width: 14px; height: 14px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 9px; background: ${s.done ? '#16a34a' : '#e2e8f0'}; color: #fff;">${s.done ? '✓' : ''}</span>${esc(s.label)}</span>`).join('<span style="color: #cbd5e1;">—</span>');
+      return `<div style="margin: -4px 0 12px; padding: 8px 10px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
+        <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">💸 Hoàn <strong>${Pay.vnd(r.amount)}</strong> · ${esc(r.reason_label)}${r.is_manual ? ' · thủ công' : ' · tự động'}</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">${dots}</div>
+      </div>`;
     }
 
-    function isOrderRefunded(item) {
-      if (!item) return false;
-      const ref = item.getAttribute('data-refund');
-      const st = item.getAttribute('data-status');
-      if (ref === 'refunded' || st === 'refunded') return true;
-      const badge = item.querySelector('.badge');
-      if (badge && badge.textContent.includes('ĐÃ HOÀN TIỀN') && !badge.textContent.includes('ĐANG XỬ LÝ')) return true;
-      return false;
-    }
-
-    function updateOrderCounts() {
-      const items = document.querySelectorAll('.order-history-item');
-      let counts = { all: items.length, upcoming: 0, completed: 0, cancelled: 0, unrefunded: 0, refunded: 0 };
-      items.forEach(item => {
-        const itemStatus = item.getAttribute('data-status');
-        const pendingPayment = isOrderPendingPayment(item);
-
-        if (isOrderRefunded(item)) {
-          counts.refunded++;
-        } else if (isOrderRefunding(item)) {
-          counts.unrefunded++;
-        } else if (itemStatus === 'cancelled' || pendingPayment) {
-          counts.cancelled++;
-        } else if (itemStatus === 'upcoming' && !pendingPayment) {
-          counts.upcoming++;
-        } else if (itemStatus === 'completed') {
-          counts.completed++;
-        }
-      });
-      if (document.getElementById('count-all')) document.getElementById('count-all').textContent = counts.all;
-      if (document.getElementById('count-upcoming')) document.getElementById('count-upcoming').textContent = counts.upcoming;
-      if (document.getElementById('count-completed')) document.getElementById('count-completed').textContent = counts.completed;
-      if (document.getElementById('count-cancelled')) document.getElementById('count-cancelled').textContent = counts.cancelled;
-      if (document.getElementById('count-unrefunded')) document.getElementById('count-unrefunded').textContent = counts.unrefunded;
-      if (document.getElementById('count-refunded')) document.getElementById('count-refunded').textContent = counts.refunded;
-      if (document.getElementById('total-orders-count')) document.getElementById('total-orders-count').textContent = counts.all;
-    }
-
-        // Sắp xếp các đơn hàng theo thời gian đặt vé mới nhất lên đầu
-    function sortOrderCardsByBookingTimeDesc() {
-      const wrapper = document.getElementById('orders-list-wrapper');
-      if (!wrapper) return;
-      const emptyEl = document.getElementById('orders-empty-state');
-      const items = Array.from(wrapper.querySelectorAll('.order-history-item'));
-      items.sort((a, b) => {
-        const timeA = new Date(a.getAttribute('data-created') || 0).getTime();
-        const timeB = new Date(b.getAttribute('data-created') || 0).getTime();
-        return timeB - timeA; // Mới nhất lên đầu
-      });
-      items.forEach(item => wrapper.insertBefore(item, emptyEl));
-    }
-
-    function filterOrdersList() {
-      const items = document.querySelectorAll('.order-history-item');
-      let visibleCount = 0;
-
-      items.forEach(item => {
-        const itemStatus = item.getAttribute('data-status');
-        const itemTitle = (item.getAttribute('data-title') || '').toLowerCase();
-        const itemCode = (item.getAttribute('data-code') || '').toLowerCase();
-        const textContent = item.textContent.toLowerCase();
-
-        const refunding = isOrderRefunding(item);
-        const refunded = isOrderRefunded(item);
-        const pendingPayment = isOrderPendingPayment(item);
-
-        let matchStatus = false;
-        if (currentFilter === 'all') {
-          matchStatus = true;
-        } else if (currentFilter === 'unrefunded') {
-          // Đơn chưa hoàn tiền: CHỈ gồm đơn đang xử lý hoàn tiền
-          matchStatus = refunding && !refunded;
-        } else if (currentFilter === 'refunded') {
-          // Đã hoàn tiền: CHỈ gồm đơn đã hoàn tiền thành công
-          matchStatus = refunded;
-        } else if (currentFilter === 'cancelled') {
-          // Đơn đã hủy: gồm đơn đã hủy và đơn chờ thanh toán (loại trừ tuyệt đối đơn đang xử lý hoàn tiền và đơn đã hoàn tiền)
-          matchStatus = (itemStatus === 'cancelled' || pendingPayment || textContent.includes('chờ thanh toán') || textContent.includes('đã hủy')) && !refunding && !refunded;
-        } else if (currentFilter === 'upcoming') {
-          // Đã thanh toán: CHỈ gồm các đơn đã thanh toán thành công (loại trừ đơn chờ thanh toán, đơn hoàn tiền)
-          matchStatus = (itemStatus === 'upcoming') && !pendingPayment && !refunding && !refunded;
-        } else {
-          matchStatus = (itemStatus === currentFilter) && !pendingPayment && !refunding && !refunded;
-        }
-
-        const matchSearch = !searchQuery || itemTitle.includes(searchQuery) || itemCode.includes(searchQuery) || textContent.includes(searchQuery);
-
-        if (matchStatus && matchSearch) {
-          item.style.display = 'flex';
-          visibleCount++;
-        } else {
-          item.style.display = 'none';
-        }
-      });
-
-      const emptyEl = document.getElementById('orders-empty-state');
-      if (emptyEl) {
-        emptyEl.style.display = visibleCount === 0 ? 'block' : 'none';
-      }
-    }
-
-    // Tự động đồng bộ số lượng ban đầu
-    updateOrderCounts();
-
-    function switchAccountTab(tab) {
-      document.querySelectorAll('.account-nav-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('panel-orders').style.display = 'none';
-      document.getElementById('panel-profile').style.display = 'none';
-      document.getElementById('panel-password').style.display = 'none';
-
-      if (tab === 'orders') {
-        document.getElementById('btn-tab-orders').classList.add('active');
-        document.getElementById('panel-orders').style.display = 'block';
-      } else if (tab === 'profile') {
-        document.getElementById('btn-tab-profile').classList.add('active');
-        document.getElementById('panel-profile').style.display = 'block';
-      } else if (tab === 'password') {
-        document.getElementById('btn-tab-password').classList.add('active');
-        document.getElementById('panel-password').style.display = 'block';
-      }
-    }
-  
-    // =========================================================================
-    // DỮ LIỆU CHI TIẾT HÓA ĐƠN ĐIỆN TỬ (INVOICE DATA)
-    // =========================================================================
-    const INVOICES_DATA = {
-      'BC2885539882': {
-        code: 'BC2885539882',
-        invoiceNumber: 'HD-2026-009140',
-        symbol: '1C26TBB',
-        createdAt: '05/11/2026 21:56:43',
-        movieTitle: 'QUỶ ĂN TẠNG 4: LỜI NGUYỄN TRỞ LẠI',
-        moviePoster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
-        movieAge: 'C18',
-        format: '2D Phụ Đề',
-        cinema: 'Beta Thanh Xuân (Hà Nội)',
-        room: 'Phòng chiếu 02',
-        showtime: '12:15 • Thứ 5 (05/11/2026)',
-        seats: 'D5 (Ghế VIP)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VietQR / SePay (Cấp bù vé)',
-        bankTransCode: 'VQR-261105-39882',
-        statusBadge: '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>',
-        statusNote: 'Hóa đơn đã được đối soát thành công và cấp bù vé mới theo chính sách bồi hoàn sự cố thanh toán. Vé hợp lệ vào phòng chiếu.',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế D5) - Cấp bù vé', qty: 1, price: 45000, amount: 45000 }
-        ],
-        subtotal: 41667,
-        vat: 3333,
-        discount: 0,
-        total: 45000
-      },
-
-      'BC2610279854': {
-        code: 'BC2610279854',
-        invoiceNumber: 'HD-2026-008921',
-        symbol: '1C26TBB',
-        createdAt: '27/10/2026 18:14:02',
-        movieTitle: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
-        moviePoster: 'images/400x633-145627-230926-40.jpg',
-        movieAge: 'C18',
-        format: '2D Phụ Đề (IMAX Sound)',
-        cinema: 'Beta Thanh Xuân (Hà Nội)',
-        room: 'Phòng chiếu 01',
-        showtime: '18:30 • Hôm nay (29/10/2026)',
-        seats: 'F07, F08 (Ghế VIP)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VietQR / SePay (Tài khoản ngân hàng)',
-        bankTransCode: 'VQR-261027-88291',
-        statusBadge: '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (HỢP LỆ)</span>',
-        statusNote: 'Hóa đơn đã được thanh toán đầy đủ và hợp lệ. Vé sẵn sàng quét mã vào cửa tại cụm rạp Beta Thanh Xuân.',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế F07, F08)', qty: 2, price: 65000, amount: 130000 },
-          { name: 'Combo Solo (1 Bắp ngọt lớn + 1 Nước ngọt 32oz)', qty: 1, price: 49000, amount: 49000 }
-        ],
-        subtotal: 165741,
-        vat: 13259,
-        discount: 0,
-        total: 179000
-      },
-      'BC2610264412': {
-        code: 'BC2610264412',
-        invoiceNumber: 'HD-2026-008650',
-        symbol: '1C26TBB',
-        createdAt: '24/10/2026 18:28:44',
-        movieTitle: 'ÚT LAN 2',
-        moviePoster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg',
-        movieAge: 'C16',
-        format: '2D Phụ Đề',
-        cinema: 'Beta Trần Quang Khải (Hà Nội)',
-        room: 'Phòng chiếu 01',
-        showtime: '18:30 • 24/10/2026',
-        seats: 'E07, E08 (Ghế Thường)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VietQR Chuyển khoản',
-        bankTransCode: 'ERR-TIMEOUT-4412',
-        statusBadge: '<span class="badge" style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 11px;">⚠️ ĐÃ HỦY (CHƯA HOÀN TIỀN)</span>',
-        statusNote: 'Giao dịch bị lỗi timeout giữ ghế rạp nhưng tài khoản ngân hàng đã bị trừ tiền 150.000 đ. Đơn hàng đang chờ khách hàng gửi form yêu cầu hoàn tiền hoặc nhờ BetaBot đối soát.',
-        items: [
-          { name: 'Vé xem phim 2D Thường (Ghế E07, E08)', qty: 2, price: 75000, amount: 150000 }
-        ],
-        subtotal: 138889,
-        vat: 11111,
-        discount: 0,
-        total: 150000
-      },
-      'BC2610227189': {
-        code: 'BC2610227189',
-        invoiceNumber: 'HD-2026-008339',
-        symbol: '1C26TBB',
-        createdAt: '22/10/2026 19:40:55',
-        movieTitle: 'ÁN MẠNG KARAOKE',
-        moviePoster: 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg',
-        movieAge: 'C16',
-        format: '2D Phụ Đề',
-        cinema: 'Beta Mỹ Đình (Hà Nội)',
-        room: 'Phòng chiếu 03',
-        showtime: '20:00 • 22/10/2026',
-        seats: 'F11, F12 (Ghế VIP) + 1x Bắp Phô Mai',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'SePay VietQR',
-        bankTransCode: 'REF-2610-915',
-        statusBadge: '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>',
-        statusNote: 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Hệ thống phát lệnh tự động chuyển tiền hoàn lại, nếu quá 24h sẽ chuyển sang Bước 4: Nhân viên xử lý).',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế F11, F12)', qty: 2, price: 80000, amount: 160000 },
-          { name: 'Bắp Rang Phô Mai Lớn', qty: 1, price: 50000, amount: 50000 }
-        ],
-        subtotal: 194444,
-        vat: 15556,
-        discount: 0,
-        total: 210000
-      },
-      'BC2610208819': {
-        code: 'BC2610208819',
-        invoiceNumber: 'HD-2026-008105',
-        symbol: '1C26TBB',
-        createdAt: '20/10/2026 17:30:10',
-        movieTitle: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
-        moviePoster: 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg',
-        movieAge: 'C16',
-        format: '2D Phụ Đề Tiếng Anh',
-        cinema: 'Beta Thanh Xuân (Hà Nội)',
-        room: 'Phòng chiếu 02',
-        showtime: '21:00 • 20/10/2026',
-        seats: 'G09, G10 (Ghế VIP)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VietQR (Đã hoàn tiền 100%)',
-        bankTransCode: 'REF-2610-889',
-        statusBadge: '<span class="badge" style="background: rgb(106, 166, 255); color: rgb(18, 20, 28); font-weight: 800; font-size: 11px;">ĐÃ HOÀN TIỀN</span>',
-        statusNote: 'Hóa đơn đã hủy theo yêu cầu của khách hàng trước giờ chiếu 120 phút. Đã giải ngân hoàn tiền 100% (180.000 đ) qua VietQR ngày 20/10/2026.',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế G09, G10)', qty: 2, price: 90000, amount: 180000 }
-        ],
-        subtotal: 166667,
-        vat: 13333,
-        discount: 0,
-        total: 180000
-      },
-      'BC2610153321': {
-        code: 'BC2610153321',
-        invoiceNumber: 'HD-2026-007412',
-        symbol: '1C26TBB',
-        createdAt: '15/10/2026 19:42:15',
-        movieTitle: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
-        moviePoster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
-        movieAge: 'C18',
-        format: '2D Phụ Đề',
-        cinema: 'Beta Giải Phóng (Hà Nội)',
-        room: 'Phòng chiếu 02',
-        showtime: '20:15 • 15/10/2026',
-        seats: 'D05, D06 (Ghế VIP)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VNPAY-QR',
-        bankTransCode: 'VNP-261015-33210',
-        statusBadge: '<span class="badge" style="background: #e2e8f0; color: #475569; font-weight: 800; font-size: 11px;">✓ ĐÃ XEM HOÀN TẤT</span>',
-        statusNote: 'Suất chiếu đã kết thúc. Hóa đơn điện tử đã được đối soát và lưu trữ vào sổ sách kế toán điện tử.',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế D05, D06)', qty: 2, price: 65000, amount: 130000 }
-        ],
-        subtotal: 120370,
-        vat: 9630,
-        discount: 0,
-        total: 130000
-      }
-    };
-
-    let activeInvoiceOrderCode = '';
-
-    /**
-     * Mở modal chi tiết hóa đơn điện tử cho đơn hàng bất kỳ
-     */
-    // Quản lý danh sách đơn hàng đang xử lý hoàn tiền
-    function getRefundOrdersList() {
-      let list = ['BC2610227189']; // Đơn hàng 5 mặc định
-      try {
-        const stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
-        if (Array.isArray(stored)) {
-          // Loại trừ BC2610208819 vì đơn này đã hoàn tiền thành công 100%
-          stored.forEach(c => { if (!list.includes(c) && c !== 'BC2610208819') list.push(c); });
-        }
-      } catch(e) {}
-      return list;
-    }
-
-    function isOrderInRefundList(orderCode) {
-      if (!orderCode) return false;
-      return getRefundOrdersList().includes(orderCode);
-    }
-
-    function markOrderAsRefunding(orderCode) {
-      if (!orderCode) return;
-      try {
-        let stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
-        if (!stored.includes(orderCode)) {
-          stored.push(orderCode);
-          localStorage.setItem('reported_refund_orders', JSON.stringify(stored));
-        }
-      } catch (e) {}
-      applyRefundStatusToCard(orderCode);
-    }
-
-    function reportOrderIssue(orderCode) {
-      markOrderAsRefunding(orderCode);
-      window.location.href = 'betabot.html?order=' + encodeURIComponent(orderCode);
-    }
-
-    function applyRefundStatusToCard(orderCode) {
-      const card = document.querySelector(`.order-history-item[data-code="${orderCode}"]`);
-      if (!card) return;
-
-      // ĐẶC BIỆT: Nếu đơn này đã hoàn tiền (BC2610208819 hoặc data-refund="refunded")
-      if (card.getAttribute('data-refund') === 'refunded' || orderCode === 'BC2610208819') {
-        card.setAttribute('data-status', 'refunded');
-        card.setAttribute('data-refund', 'refunded');
-        card.style.borderLeft = '4px solid rgb(106, 166, 255)';
-        card.style.background = '#fafcff';
-
-        const badgeEl = card.querySelector('.badge');
-        if (badgeEl) {
-          badgeEl.style.background = 'rgb(106, 166, 255)';
-          badgeEl.style.color = 'rgb(18, 20, 28)';
-          badgeEl.style.border = 'none';
-          badgeEl.style.fontSize = '11.5px';
-          badgeEl.style.fontWeight = '800';
-          badgeEl.textContent = 'ĐÃ HOÀN TIỀN';
-        }
-
-        // Xóa hoàn toàn hộp thông báo đang xử lý bước 3/5
-        const inProgBoxes = card.querySelectorAll('.refund-in-progress-box, div[style*="background: #eff6ff"]');
-        inProgBoxes.forEach(b => b.remove());
-
-        // Đảm bảo nút là "Xem Chi Tiết Đơn Hàng"
-        const btnsContainer = card.querySelector('div[style*="display: flex; gap: 10px"]') || card.querySelector('div[style*="display: flex; gap: 8px"]');
-        if (btnsContainer) {
-          btnsContainer.innerHTML = `
-            <a href="ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; text-decoration: none;">
-              <span>🧾</span> Xem Chi Tiết Đơn Hàng
-            </a>
-          `;
-        }
-
-        if (INVOICES_DATA[orderCode]) {
-          INVOICES_DATA[orderCode].statusBadge = '<span class="badge" style="background: rgb(106, 166, 255); color: rgb(18, 20, 28); font-weight: 800; font-size: 11px;">ĐÃ HOÀN TIỀN</span>';
-          INVOICES_DATA[orderCode].statusNote = 'Hóa đơn đã hoàn tiền 100% (180.000 đ) qua VietQR ngày 20/10/2026. Mã đối soát: REF-2610-889.';
-          INVOICES_DATA[orderCode].isRefunding = false;
-        }
-        return;
-      }
-
-      // 1. Cập nhật viền & nền card cho đơn ĐANG XỬ LÝ
-      card.style.borderLeft = '4px solid #3b82f6';
-      card.style.background = '#f8fafc';
-      card.setAttribute('data-status', 'unrefunded');
-      card.setAttribute('data-refund', 'unrefunded');
-
-      // 2. Cập nhật Badge
-      const badgeEl = card.querySelector('.badge');
-      if (badgeEl) {
-        badgeEl.style.background = '#dbeafe';
-        badgeEl.style.color = '#1e40af';
-        badgeEl.style.border = '1px solid #bfdbfe';
-        badgeEl.style.fontSize = '11px';
-        badgeEl.style.fontWeight = '800';
-        badgeEl.textContent = '⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)';
-      }
-
-      // 3. Cập nhật khung thông báo hoàn tiền
-      const oldWarningBox = card.querySelector('div[style*="background: #fffbeb"]');
-      if (oldWarningBox) {
-        oldWarningBox.outerHTML = `
-          <div class="refund-in-progress-box" style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-            <span>Yêu cầu hoàn tiền đã tiếp nhận. Tiến trình hiện tại: <strong>Bước 3/5 (Hệ thống tự động chuyển tiền)</strong>.</span>
-            <span style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">Mã hồ sơ: REF-${orderCode.slice(-6)}</span>
-          </div>
-        `;
-      } else if (!card.querySelector('.refund-in-progress-box') && !card.querySelector('div[style*="background: #eff6ff"]')) {
-        const btnsDiv = card.querySelector('div[style*="display: flex; gap: 10px"]') || card.querySelector('div[style*="display: flex; gap: 8px"]');
-        if (btnsDiv) {
-          const newBox = document.createElement('div');
-          newBox.className = 'refund-in-progress-box';
-          newBox.style.cssText = 'background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;';
-          newBox.innerHTML = `
-            <span>Yêu cầu hoàn tiền đã tiếp nhận. Tiến trình hiện tại: <strong>Bước 3/5 (Hệ thống tự động chuyển tiền)</strong>.</span>
-            <span style="font-family: monospace; font-weight: 700; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">Mã hồ sơ: REF-${orderCode.slice(-6)}</span>
-          `;
-          btnsDiv.parentNode.insertBefore(newBox, btnsDiv);
-        }
-      }
-
-      // 4. CẬP NHẬT ĐÚNG 1 NÚT DUY NHẤT: "Theo Dõi Tình Trạng Hoàn Tiền"
-      const btnsContainer = card.querySelector('div[style*="display: flex; gap: 10px"]') || card.querySelector('div[style*="display: flex; gap: 8px"]');
-      if (btnsContainer) {
-        btnsContainer.innerHTML = `
-          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${orderCode}');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
-            <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
-          </button>
-        `;
-      }
-
-      // 5. Cập nhật dữ liệu INVOICES_DATA
-      if (INVOICES_DATA[orderCode]) {
-        INVOICES_DATA[orderCode].statusBadge = '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
-        INVOICES_DATA[orderCode].statusNote = 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Hệ thống phát lệnh tự động chuyển tiền hoàn lại, nếu quá 24h sẽ chuyển sang Bước 4: Nhân viên xử lý).';
-        INVOICES_DATA[orderCode].isRefunding = true;
-      }
-    }
-
-    function applyAllRefundStatuses() {
-      const list = getRefundOrdersList();
-      list.forEach(code => applyRefundStatusToCard(code));
-    }
-
-    function openInvoiceModal(orderCode) {
-      if (isOrderInRefundList(orderCode) && INVOICES_DATA[orderCode]) {
-        INVOICES_DATA[orderCode].statusBadge = '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
-        INVOICES_DATA[orderCode].statusNote = 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Hệ thống phát lệnh tự động chuyển tiền hoàn lại, nếu quá 24h sẽ chuyển sang Bước 4: Nhân viên xử lý).';
-        INVOICES_DATA[orderCode].isRefunding = true;
-      }
-      let data = INVOICES_DATA[orderCode];
-      if (!data) {
-        // Fallback: Tự động trích xuất thông tin hóa đơn từ thẻ đơn hàng trên giao diện nếu chưa có trong DB tĩnh
-        const card = document.querySelector(`.order-history-item[data-code="${orderCode}"]`);
-        if (card) {
-          const title = card.getAttribute('data-title') || card.querySelector('h4')?.textContent?.trim() || 'Vé Xem Phim Beta';
-          const poster = card.querySelector('img.order-item-poster')?.src || 'images/400x633-145627-230926-40.jpg';
-          const badgeEl = card.querySelector('.badge');
-          const badgeHtml = badgeEl ? badgeEl.outerHTML : '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN</span>';
-          
-          const text = card.innerText || '';
-          let cinema = 'Beta Thanh Xuân (Hà Nội)';
-          let showtime = '12:15 • 05/11/2026';
-          let seats = 'D5 (Ghế VIP)';
-          let total = 45000;
-
-          const cinemaMatch = text.match(/Rạp:\s*([^\n\r•]+)/i);
-          if (cinemaMatch) cinema = cinemaMatch[1].trim();
-          const showMatch = text.match(/Suất:\s*([^\n\r•]+)/i) || text.match(/Suất chiếu:\s*([^\n\r•]+)/i);
-          if (showMatch) showtime = showMatch[1].trim();
-          const seatMatch = text.match(/Ghế:\s*([^\n\r•]+)/i);
-          if (seatMatch) seats = seatMatch[1].trim();
-          const totalMatch = text.match(/Thanh toán:\s*([\d\.]+)\s*đ/i) || text.match(/Tiền vé:\s*([\d\.]+)\s*đ/i) || text.match(/Tổng tiền:\s*([\d\.]+)\s*đ/i);
-          if (totalMatch) {
-            total = parseInt(totalMatch[1].replace(/\./g, '')) || 45000;
-          }
-
-          const vat = Math.round(total * 0.08 / 1.08);
-          const subtotal = total - vat;
-
-          data = {
-            code: orderCode,
-            invoiceNumber: 'HD-2026-00' + (orderCode.length >= 4 ? orderCode.slice(-4) : '9140'),
-            symbol: '1C26TBB',
-            createdAt: card.getAttribute('data-created') ? new Date(card.getAttribute('data-created')).toLocaleString('vi-VN') : '05/11/2026 21:56:43',
-            movieTitle: title,
-            moviePoster: poster,
-            movieAge: 'C18',
-            format: '2D Phụ Đề',
-            cinema: cinema,
-            room: 'Phòng chiếu 02',
-            showtime: showtime,
-            seats: seats,
-            customerName: 'LƯƠNG HỒNG ANH',
-            customerPhone: '0912 345 678',
-            customerEmail: 'luonghonganh@email.com',
-            memberId: 'BM-99281 (Beta VIP Gold)',
-            paymentMethod: 'VietQR / SePay',
-            bankTransCode: 'VQR-' + (orderCode.length >= 6 ? orderCode.slice(-6) : '39882'),
-            statusBadge: badgeHtml,
-            statusNote: 'Hóa đơn đã được xác nhận thanh toán hợp lệ và lưu trữ vào sổ sách điện tử.',
-            items: [
-              { name: `Vé xem phim 2D (${seats})`, qty: 1, price: total, amount: total }
-            ],
-            subtotal: subtotal,
-            vat: vat,
-            discount: 0,
-            total: total
-          };
-          INVOICES_DATA[orderCode] = data;
-        }
-      }
-
-      if (!data) {
-        alert('Không tìm thấy thông tin hóa đơn cho đơn hàng: ' + orderCode);
-        return;
-      }
-
-      activeInvoiceOrderCode = orderCode;
-
-      // Fill header data
-      document.getElementById('inv-order-code').textContent = data.code;
-    const reportBtn = document.getElementById('inv-report-issue-btn');
-    if (reportBtn) reportBtn.href = 'betabot.html?order=' + encodeURIComponent(data.code);
-      document.getElementById('inv-number').textContent = data.invoiceNumber;
-      document.getElementById('inv-symbol').textContent = data.symbol;
-      document.getElementById('inv-created-at').textContent = data.createdAt;
-      document.getElementById('inv-status-badge').innerHTML = data.statusBadge;
-
-      // Customer info
-      document.getElementById('inv-customer-name').textContent = data.customerName;
-      document.getElementById('inv-customer-phone').textContent = data.customerPhone;
-      document.getElementById('inv-customer-email').textContent = data.customerEmail;
-      document.getElementById('inv-member-id').textContent = data.memberId;
-
-      // Movie info
-      document.getElementById('inv-movie-title').textContent = data.movieTitle;
-      document.getElementById('inv-movie-poster').src = data.moviePoster;
-      document.getElementById('inv-cinema').textContent = data.cinema;
-      document.getElementById('inv-room').textContent = data.room;
-      document.getElementById('inv-showtime').textContent = data.showtime;
-      document.getElementById('inv-seats').textContent = data.seats;
-      document.getElementById('inv-format').textContent = data.format;
-
-      // Cost table items
-      const tbody = document.getElementById('inv-items-table-body');
-      tbody.innerHTML = '';
-      data.items.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${index + 1}. ${item.name}</strong></td>
-          <td style="text-align: center;">${item.qty}</td>
-          <td style="text-align: right;">${item.price.toLocaleString('vi-VN')} đ</td>
-          <td style="text-align: right; font-weight: 700;">${item.amount.toLocaleString('vi-VN')} đ</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      // Totals
-      document.getElementById('inv-subtotal').textContent = data.subtotal.toLocaleString('vi-VN') + ' đ';
-      document.getElementById('inv-vat').textContent = data.vat.toLocaleString('vi-VN') + ' đ';
-      document.getElementById('inv-discount').textContent = (data.discount ? ('-' + data.discount.toLocaleString('vi-VN') + ' đ') : '0 đ');
-      document.getElementById('inv-total').textContent = data.total.toLocaleString('vi-VN') + ' đ';
-
-      // Payment details
-      document.getElementById('inv-payment-method').textContent = data.paymentMethod;
-      document.getElementById('inv-bank-code').textContent = data.bankTransCode;
-      document.getElementById('inv-status-note').innerHTML = '<strong>Ghi chú:</strong> ' + data.statusNote;
-      document.getElementById('inv-barcode-text').textContent = data.code;
-
-      // Standalone link
-      const standaloneLink = document.getElementById('inv-standalone-link');
-      if (standaloneLink) {
-        standaloneLink.href = 'invoice.html?order=' + encodeURIComponent(orderCode);
-      }
-
-      // Kiểm tra trạng thái thanh toán & hoàn tiền
-      const isPaid = (data.rawStatus === 'PAID') || 
-                     (data.status === 'PAID') || 
-                     (data.code === 'BC2610279854') || 
-                     (data.statusBadge && (data.statusBadge.includes('ĐÃ THANH TOÁN') || data.statusBadge.includes('SẮP CHIẾU')));
-
-      const isRefunding = data.isRefunding || 
-                          (data.code === 'BC2610227189') || 
-                          (data.status === 'REFUNDING') || 
-                          (data.statusBadge && data.statusBadge.includes('ĐANG XỬ LÝ HOÀN TIỀN')) ||
-                          isOrderInRefundList(data.code);
-
-      const barcodeSec = document.getElementById('inv-barcode-section');
-      const viewTicketBtn = document.getElementById('inv-view-ticket-btn');
-      const reportIssueBtn = document.getElementById('inv-report-issue-btn');
-      const refundStepsSec = document.getElementById('inv-refund-steps-section');
-
-      if (isPaid) {
-        if (barcodeSec) barcodeSec.style.display = 'block';
-        if (viewTicketBtn) {
-          viewTicketBtn.style.display = 'inline-flex';
-          viewTicketBtn.href = 'ticket.html?order=' + encodeURIComponent(data.code);
-        }
-        if (reportIssueBtn) reportIssueBtn.style.display = 'none';
-        if (refundStepsSec) refundStepsSec.style.display = 'none';
-      } else if (isRefunding) {
-        // ĐANG XỬ LÝ HOÀN TIỀN: Ẩn barcode, ẩn nút xem vé, ẨN NÚT BÁO CÁO LỖI, HIỂN THỊ CÁC BƯỚC XỬ LÝ HOÀN TIỀN
-        if (barcodeSec) barcodeSec.style.display = 'none';
-        if (viewTicketBtn) viewTicketBtn.style.display = 'none';
-        if (reportIssueBtn) reportIssueBtn.style.display = 'none';
-        if (refundStepsSec) {
-          refundStepsSec.style.display = 'block';
-
-          // Kiểm tra xem Lớp 2 có đang chạy hay đã hoàn thành
-          const modalL2Banner = document.getElementById('modal-layer2-banner');
-          const outcome = localStorage.getItem('layer2_outcome_' + data.code);
-          if (modalL2Banner) {
-            if (outcome === 'PAID' || outcome === 'EXPIRED') {
-              modalL2Banner.style.display = 'none';
-            } else {
-              modalL2Banner.style.display = 'block';
-            }
-          }
-          const refEl = document.getElementById('inv-refund-ref-code');
-          if (refEl) refEl.textContent = 'REF-' + (data.code || '').slice(-6);
-
-          // Cập nhật giao diện tự động hoàn tiền 24h
-          updateAutoRefundUI(data.code);
-          startAutoRefundCountdown(data.code);
-        }
-      } else {
-        // Đơn lỗi / chưa hoàn tiền: Chưa báo cáo lỗi thì hiển thị nút Báo Cáo Lỗi
-        if (barcodeSec) barcodeSec.style.display = 'none';
-        if (viewTicketBtn) viewTicketBtn.style.display = 'none';
-        if (refundStepsSec) refundStepsSec.style.display = 'none';
-        if (reportIssueBtn) {
-          reportIssueBtn.style.display = 'inline-flex';
-          reportIssueBtn.onclick = (e) => {
-            e.preventDefault();
-            reportOrderIssue(data.code);
-          };
-        }
-      }
-
-      // Show modal & disable scroll
-      const modal = document.getElementById('invoice-modal');
-      if (modal) {
-        modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      }
-    }
-
-    /**
-     * Đóng modal hóa đơn
-     */
-    function closeInvoiceModal() {
-      const modal = document.getElementById('invoice-modal');
-      if (modal) {
-        modal.classList.remove('open');
-        document.body.style.overflow = '';
-      }
-    }
-
-    function handleInvoiceBackdropClick(e) {
-      if (e.target.id === 'invoice-modal') {
-        closeInvoiceModal();
-      }
-    }
-
-    // In hóa đơn trực tiếp
-    function printInvoice() {
-      window.print();
-    }
-
-    // Tải hóa đơn PDF
-    function downloadInvoicePDF() {
-      alert('Đang tạo và tải tệp hóa đơn điện tử PDF cho mã đơn: ' + activeInvoiceOrderCode + '...');
-    }
-
-    // Phím ESC đóng modal hóa đơn
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        const modal = document.getElementById('invoice-modal');
-        if (modal && modal.classList.contains('open')) {
-          closeInvoiceModal();
-        }
-      }
-    });
-
-  
-  // =========================================================================
-  // ĐỒNG BỘ ĐƠN HÀNG THỰC TẾ TỪ SUPABASE & LOCALSTORAGE VÀO LỊCH SỬ
-  // =========================================================================
-  const POSTER_MAP = {
-    'linh-gioi-dai-chien': 'images/400x633-145627-230926-40.jpg',
-    'quy-an-tang-4': 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
-    'trai-buon-nguoi': 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg',
-    'robinson': 'images/robinson-and-the-golden-fish-official-poster-135832-220926-80.jpg',
-    'an-mang-karaoke': 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg',
-    'me-min': 'images/400x633-145627-230926-40.jpg',
-    'shaun-the-sheep': 'images/400x633-145627-230926-40.jpg',
-    'ca-voi-nuot-chung': 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg'
-  };
-
-  // Đồng bộ đơn hàng THẬT từ máy chủ (US-03): nhãn trạng thái theo vòng đời đơn + tiến trình hoàn tiền 4 mốc.
-  // Mỗi lần đồng bộ cũng "đẩy" Job đối soát cho các đơn đang chờ, nên trạng thái luôn mới nhất.
-  const REAL_STATUS_STYLE = {
-    PENDING:          { tab: 'cancelled', refund: null,         bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '⏳' },
-    EXPIRED:          { tab: 'cancelled', refund: 'unrefunded', bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '🔎' },
-    CONFIRMED:        { tab: 'upcoming',  refund: null,         bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '✓' },
-    CONFIRMED_LATE:   { tab: 'upcoming',  refund: null,         bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '✓' },
-    REFUND_REQUESTED: { tab: 'cancelled', refund: 'unrefunded', bg: '#dbeafe', fg: '#1e40af', bd: '#bfdbfe', bar: '#3b82f6', icon: '💸' },
-    MANUAL_REVIEW:    { tab: 'cancelled', refund: 'unrefunded', bg: '#fee2e2', fg: '#991b1b', bd: '#fca5a5', bar: '#ef4444', icon: '📝' },
-    REFUNDED:         { tab: 'cancelled', refund: 'refunded',   bg: '#e0e7ff', fg: '#3730a3', bd: '#c7d2fe', bar: '#6366f1', icon: '✓' },
-    CANCELLED:        { tab: 'cancelled', refund: null,         bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '✕' },
-    FAILED:           { tab: 'cancelled', refund: null,         bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '✕' }
-  };
-
-  function realOrderActions(ord) {
-    const c = encodeURIComponent(ord.code);
-    const track = `<a href="order.html?code=${c}" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="border-color: #005198; color: #005198; font-weight: 700;">📈 Theo dõi đơn hàng</a>`;
-    if (ord.has_ticket) {
-      return `<a href="ticket.html?order=${c}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">🎟️ Xem vé</a>` + track;
-    }
-    if (ord.status === 'PENDING') {
-      return `<a href="${Pay.routeFor(ord)}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #ea580c; border-color: #ea580c; font-weight: 700;">📱 Tiếp tục thanh toán</a>` + track;
-    }
-    if (ord.refund && ord.refund.needs_form) {
-      return `<a href="refund.html?order=${c}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #dc2626; border-color: #dc2626; font-weight: 700;">📝 Điền biểu mẫu nhận hoàn tiền</a>` + track;
-    }
-    return track;
-  }
-
-  function realRefundMini(ord) {
-    const r = ord.refund;
-    if (!r) return '';
-    const dots = r.steps.map(s => `<span title="${s.label}" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: ${s.done ? '#166534' : '#94a3b8'}; font-weight: ${s.done ? 700 : 500};"><span style="width: 14px; height: 14px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 9px; background: ${s.done ? '#16a34a' : '#e2e8f0'}; color: #fff;">${s.done ? '✓' : ''}</span>${s.label}</span>`).join('<span style="color: #cbd5e1;">—</span>');
-    return `<div style="margin: -4px 0 12px; padding: 8px 10px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
-      <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">💸 Hoàn <strong>${Pay.vnd(r.amount)}</strong> · ${r.reason_label}${r.is_manual ? ' · thủ công' : ' · tự động'}</div>
-      <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">${dots}</div>
-    </div>`;
-  }
-
-  async function syncRealOrdersToUI() {
-    if (!window.Pay || !Pay.getOrders) return;
-    try {
-      const realOrders = await Pay.getOrders({ limit: 20 });
-      const wrapper = document.getElementById('orders-list-wrapper');
-      if (!wrapper || !realOrders.length) return;
-
-      realOrders.slice().reverse().forEach(ord => {
-        const st = REAL_STATUS_STYLE[ord.status] || REAL_STATUS_STYLE.CANCELLED;
-        const movieObj = Pay.getMovie(ord.movie_key);
-        const poster = movieObj.poster || POSTER_MAP[ord.movie_key] || 'images/400x633-145627-230926-40.jpg';
-        const seatsStr = (ord.seats || []).join(', ');
-        const showTimeStr = (ord.show_time || '') + ' • ' + (ord.show_date || '');
-        const badgeHtml = `<span class="badge" style="background: ${st.bg}; color: ${st.fg}; border: 1px solid ${st.bd}; font-size: 11px; font-weight: 800;">${st.icon} ${ord.status_label.toUpperCase()}</span>`;
-
-        const old = wrapper.querySelector(`.order-history-item[data-code="${ord.code}"]`);
-        const card = document.createElement('div');
-        card.className = 'order-history-item';
-        card.setAttribute('data-status', st.tab);
-        if (st.refund) card.setAttribute('data-refund', st.refund);
-        card.setAttribute('data-title', movieObj.title);
-        card.setAttribute('data-code', ord.code);
-        card.setAttribute('data-created', ord.created_at || new Date().toISOString());
-        card.setAttribute('data-real', '1');
-        card.style.cssText = `border-left: 4px solid ${st.bar}; background: #fff;`;
-        card.title = 'Bấm để theo dõi đơn hàng';
-        card.onclick = () => { location.href = 'order.html?code=' + encodeURIComponent(ord.code); };
-        card.innerHTML = `
-          <img class="order-item-poster" src="${poster}" alt="" onerror="this.src='images/400x633-145627-230926-40.jpg'">
-          <div style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-              <div>
-                ${badgeHtml}
-                <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">${movieObj.title}</h4>
-                ${ord.status_sublabel ? `<div style="font-size: 12px; color: #64748b;">${ord.status_sublabel}</div>` : ''}
-              </div>
-              <div style="text-align: right;">
-                <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-                <strong style="font-family: monospace; font-size: 14px; color: #005198;">${ord.code}</strong>
-              </div>
-            </div>
-            <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
-              📍 Rạp: <strong>${ord.cinema || ''}</strong><br>
-              🕒 Suất: <strong>${showTimeStr}</strong><br>
-              📅 Thời gian đặt vé: <strong>${new Date(ord.created_at).toLocaleString('vi-VN')}</strong><br>
-              💺 Ghế: <strong>${seatsStr}</strong><br>
-              💳 Giá trị đơn: <strong>${Pay.vnd(ord.total)}</strong> · Đã nhận: <strong>${Pay.vnd(ord.paid_amount)}</strong> (VietQR - MSB)
-            </div>
-            ${realRefundMini(ord)}
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">${realOrderActions(ord)}</div>
-          </div>`;
-        if (old) old.replaceWith(card);
-        else wrapper.insertBefore(card, wrapper.firstChild);
-      });
-
-      if (typeof sortOrderCardsByBookingTimeDesc === 'function') sortOrderCardsByBookingTimeDesc();
-      updateOrderCounts();
-      filterOrdersList();
-    } catch (e) {
-      console.warn('Lỗi đồng bộ đơn hàng thật:', e.message);
-    }
-  }
-  setInterval(() => { if (!document.hidden) syncRealOrdersToUI(); }, 20000);
-
-  // Tự động gọi đồng bộ ngay khi trang tải xong
-  
-  // =========================================================================
-  // LOGIC QUY TRÌNH RÀ SOÁT LỚP 2 (ĐẾM NGƯỢC GIỮ GHẾ & 2 KỊCH BẢN TỰ ĐỘNG)
-  // =========================================================================
-  const layer2Timers = {};
-
-  function formatTimeMinSec(sec) {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
-  }
-
-  function getRefundDetail(ordCode) {
-    try {
-      const s = localStorage.getItem('refund_detail_' + ordCode);
-      if (s) return JSON.parse(s);
-    } catch (e) {}
-    return null;
-  }
-
-  // KỊCH BẢN 2A: TIỀN VỀ KỊP TRONG THỜI GIAN GIỮ GHẾ -> XUẤT VÉ THÀNH CÔNG
-  function triggerLayer2Success(ordCode) {
-    if (!ordCode) return;
-    if (layer2Timers[ordCode]) {
-      clearInterval(layer2Timers[ordCode]);
-    }
-    localStorage.setItem('layer2_outcome_' + ordCode, 'PAID');
-
-    alert('🎉 [RÀ SOÁT LỚP 2 THÀNH CÔNG]\n\nĐã nhận được tiền từ ngân hàng cho đơn hàng ' + ordCode + '!\nGhế vẫn còn hiệu lực trong thời gian giữ vé.\n\n→ Vé xem phim E-Ticket đã được xuất thành công!\n→ Yêu cầu hoàn tiền đã tự động được hủy.');
-
-    // Cập nhật thẻ đơn hàng trên giao diện Lịch Sử Đặt Vé
-    const card = document.querySelector(`.order-history-item[data-code="${ordCode}"]`);
-    if (card) {
-      card.style.borderLeft = '4px solid #10b981';
-      card.style.background = '#fafdfc';
-      card.setAttribute('data-status', 'upcoming');
-
-      const badge = card.querySelector('.badge');
-      if (badge) {
-        badge.style.background = '#d1fae5';
-        badge.style.color = '#065f46';
-        badge.style.border = '1px solid #a7f3d0';
-        badge.textContent = '✓ ĐÃ THANH TOÁN (SEPAY THÀNH CÔNG)';
-      }
-
-      const l2Box = card.querySelector(`#layer2-box-${ordCode}`) || card.querySelector('.refund-in-progress-box');
-      if (l2Box) {
-        l2Box.outerHTML = `
-          <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; color: #065f46; font-size: 12.5px; font-weight: 700;">
-            ✓ Tiền đã khớp trong thời gian giữ ghế. Vé đã xuất thành công, mã QR vào rạp đã sẵn sàng!
-          </div>
-        `;
-      }
-
-      const sb = card.querySelector('.sandbox-layer2-panel');
-      if (sb) sb.style.display = 'none';
-
-      const btns = card.querySelector('div[style*="display: flex; gap: 10px"]');
-      if (btns) {
-        btns.innerHTML = `
-          <a href="ticket.html?order=${ordCode}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
-            <span>🎟️</span> Xem Lại Tình Trạng Vé
-          </a>
-          <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="border-color: #005198; color: #005198; font-weight: 700;">
-            <span>🧾</span> Chi Tiết Hóa Đơn
-          </button>
-        `;
-      }
-    }
-
-    // Cập nhật dữ liệu INVOICES_DATA
-    if (INVOICES_DATA[ordCode]) {
-      INVOICES_DATA[ordCode].rawStatus = 'PAID';
-      INVOICES_DATA[ordCode].status = 'PAID';
-      INVOICES_DATA[ordCode].isRefunding = false;
-      INVOICES_DATA[ordCode].statusBadge = '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (SEPAY THÀNH CÔNG)</span>';
-      INVOICES_DATA[ordCode].statusNote = 'Giao dịch thanh toán đã khớp thành công trong thời gian giữ ghế Lớp 2. Vé sẵn sàng quét mã vào rạp.';
-    }
-
-    // Nếu Modal chi tiết hóa đơn đang mở, refresh lại
-    const modal = document.getElementById('invoice-modal');
-    if (modal && modal.classList.contains('open') && activeInvoiceOrderCode === ordCode) {
-      openInvoiceModal(ordCode);
-    }
-  }
-  window.triggerLayer2Success = triggerLayer2Success;
-
-  // KỊCH BẢN 2B: HẾT GIỜ GIỮ GHẾ MÀ CHƯA CÓ TIỀN -> NHẢ GHẾ & CHUYỂN KẾ TOÁN HOÀN TIỀN
-  function triggerLayer2Expired(ordCode) {
-    if (!ordCode) return;
-    if (layer2Timers[ordCode]) {
-      clearInterval(layer2Timers[ordCode]);
-    }
-    localStorage.setItem('layer2_outcome_' + ordCode, 'EXPIRED');
-
-    alert('⏱️ [HẾT THỜI GIAN GIỮ GHẾ - LỚP 2 KẾT THÚC]\n\nĐã hết thời gian giữ ghế mà chưa nhận được tiền từ ngân hàng.\n\n→ Hệ thống đã tự động NHẢ GHẾ để mở bán lại cho khán giả khác.\n→ KÍCH HOẠT CƠ CHẾ HOÀN TIỀN TỰ ĐỘNG:\n  1. Cấp 1 (Tự động trong 24h): Hệ thống tự động phát lệnh hoàn tiền về tài khoản ngân hàng của bạn mà không cần nhân viên can thiệp.\n  2. Cấp 2 (Dự phòng): Nếu sau 24h hệ thống không thể chuyển trả, hồ sơ sẽ tự động chuyển giao sang Nhân viên Kế toán xử lý thủ công (3 - 7 ngày).');
-
-    const card = document.querySelector(`.order-history-item[data-code="${ordCode}"]`);
-    const det = getRefundDetail(ordCode);
-    const refundCode = det ? det.refund_code : ('REF-' + ordCode.slice(-6));
-    const bank = det ? det.bank : 'MB Bank';
-    const acc = det ? det.acc : '0987654321';
-    const seats = det ? det.seats : 'D5, D6';
-
-    if (card) {
-      card.style.borderLeft = '4px solid #ef4444';
-      card.style.background = '#fffdfd';
-      card.setAttribute('data-status', 'cancelled');
-
-      const badge = card.querySelector('.badge');
-      if (badge) {
-        badge.style.background = '#fee2e2';
-        badge.style.color = '#991b1b';
-        badge.style.border = '1px solid #fca5a5';
-        badge.textContent = '❌ ĐÃ HỦY - ĐANG TỰ ĐỘNG HOÀN TIỀN (24H)';
-      }
-
-      const l2Box = card.querySelector(`#layer2-box-${ordCode}`) || card.querySelector('.refund-in-progress-box');
-      if (l2Box) {
-        l2Box.outerHTML = `
-          <div class="refund-in-progress-box" id="autorefund-box-${ordCode}" style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 12.5px; color: #1e40af;">
-            <div style="font-weight: 800; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 4px;">
-              <span>🤖 HỆ THỐNG ĐANG TỰ ĐỘNG HOÀN TIỀN (TRONG 24H)</span>
-              <span style="font-size: 12px; color: #1d4ed8;">⏱️ Còn: <strong id="autorefund-timer-${ordCode}" style="font-family: monospace;">23:58:45</strong></span>
-            </div>
-            <div>Đã tự động nhả ghế ${seats}. Đang phát lệnh hoàn trả tự động về: <strong>${bank} - ${acc}</strong>.</div>
-            <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">Nếu sau 24h không chuyển được, hệ thống sẽ tự động chuyển giao Nhân viên Kế toán rạp xử lý thủ công.</div>
-          </div>
-        `;
-      }
-
-      const sb = card.querySelector('.sandbox-layer2-panel');
-      if (sb) sb.style.display = 'none';
-
-      const btns = card.querySelector('div[style*="display: flex; gap: 10px"]');
-      if (btns) {
-        btns.innerHTML = `
-          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #e11d48; border-color: #e11d48; font-weight: 700;">
-            <span>⏱️</span> Xem Tiến Trình Hoàn Tiền (Bước 3/5)
-          </button>
-        `;
-      }
-    }
-
-    if (INVOICES_DATA[ordCode]) {
-      INVOICES_DATA[ordCode].rawStatus = 'CANCELLED';
-      INVOICES_DATA[ordCode].status = 'CANCELLED';
-      INVOICES_DATA[ordCode].isRefunding = true;
-      INVOICES_DATA[ordCode].statusBadge = '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">❌ ĐÃ HỦY - TỰ ĐỘNG HOÀN TIỀN (24H)</span>';
-      INVOICES_DATA[ordCode].statusNote = 'Đơn hàng đã hết thời gian giữ ghế. Hệ thống đang tự động hoàn tiền trong 24h về STK ngân hàng của bạn. Nếu sau 24h không thành công, hệ thống sẽ tự động chuyển giao Kế toán rạp xử lý.';
-    }
-
-    const modal = document.getElementById('invoice-modal');
-    if (modal && modal.classList.contains('open') && activeInvoiceOrderCode === ordCode) {
-      openInvoiceModal(ordCode);
-    }
-  }
-  window.triggerLayer2Expired = triggerLayer2Expired;
-
-  
-  // ==========================================
-  // CƠ CHẾ HOÀN TIỀN TỰ ĐỘNG (AUTO-REFUND TRONG 24H)
-  // ==========================================
-  let autoRefundTimers = {};
-
-  function formatTimeHMS(totalSec) {
-    if (totalSec <= 0) return '00:00:00';
-    const h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
-    const m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
-    const s = (totalSec % 60).toString().padStart(2, '0');
-    return h + ':' + m + ':' + s;
-  }
-
-  function startAutoRefundCountdown(ordCode) {
-    if (!ordCode) return;
-    if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
-
-    let sec = parseInt(localStorage.getItem('autorefund_sec_' + ordCode) || '86340', 10);
-    const timerEl = document.getElementById('auto-refund-timer-val');
-    const cardTimerEl = document.getElementById('autorefund-timer-' + ordCode);
-
-    if (timerEl) timerEl.textContent = formatTimeHMS(sec);
-    if (cardTimerEl) cardTimerEl.textContent = formatTimeHMS(sec);
-
-    autoRefundTimers[ordCode] = setInterval(() => {
-      const state = localStorage.getItem('autorefund_state_' + ordCode);
-      if (state) {
-        clearInterval(autoRefundTimers[ordCode]);
-        return;
-      }
-      sec--;
-      if (sec <= 0) {
-        clearInterval(autoRefundTimers[ordCode]);
-        triggerAutoRefundFallback(ordCode, true);
-        return;
-      }
-      localStorage.setItem('autorefund_sec_' + ordCode, sec);
-      const curTimerEl = document.getElementById('auto-refund-timer-val');
-      const curCardTimerEl = document.getElementById('autorefund-timer-' + ordCode);
-      if (curTimerEl) curTimerEl.textContent = formatTimeHMS(sec);
-      if (curCardTimerEl) curCardTimerEl.textContent = formatTimeHMS(sec);
-    }, 1000);
-  }
-
-  function updateAutoRefundUI(ordCode) {
-    if (!ordCode) return;
-    const state = localStorage.getItem('autorefund_state_' + ordCode);
-    const det = getRefundDetail(ordCode);
-    const bank = det ? det.bank : 'MB Bank';
-    const acc = det ? det.acc : '0987654321';
-    const total = det ? (window.Pay ? Pay.vnd(det.total) : '179.000 đ') : '179.000 đ';
-
-    const banner = document.getElementById('modal-auto-refund-banner');
-    const badge = document.getElementById('auto-refund-badge');
-    const timerRow = document.getElementById('auto-refund-timer-row');
-    const descBox = document.getElementById('auto-refund-desc-box');
-    const fallbackNotice = document.getElementById('auto-refund-fallback-notice');
-
-    const step3Title = document.getElementById('timeline-step-3-title');
-    const step3Badge = document.getElementById('timeline-step-3-badge');
-    const step3Desc = document.getElementById('timeline-step-3-desc');
-    const step3Dot = document.getElementById('timeline-step-3-dot');
-
-    const step4Title = document.getElementById('timeline-step-4-title');
-    const step4Badge = document.getElementById('timeline-step-4-badge');
-    const step4Desc = document.getElementById('timeline-step-4-desc');
-    const step4Dot = document.getElementById('timeline-step-4-dot');
-
-    const step5Title = document.getElementById('timeline-step-5-title');
-    const step5Badge = document.getElementById('timeline-step-5-badge');
-    const step5Desc = document.getElementById('timeline-step-5-desc');
-    const step5Dot = document.getElementById('timeline-step-5-dot');
-
-    const slaText = document.getElementById('inv-refund-sla-text');
-    const headerStepsBadge = document.getElementById('inv-refund-steps-badge');
-
-    const card = document.querySelector('.order-history-item[data-code="' + ordCode + '"]');
-    const cardBadge = card ? card.querySelector('.badge') : null;
-    const cardBox = card ? (card.querySelector('#autorefund-box-' + ordCode) || card.querySelector('.refund-in-progress-box')) : null;
-
-    if (state === 'SUCCESS') {
-      // 1. KỊCH BẢN 1: HỆ THỐNG TỰ ĐỘNG CHUYỂN TRẢ THÀNH CÔNG
-      if (banner) {
-        banner.style.background = '#ecfdf5';
-        banner.style.borderColor = '#86efac';
-      }
-      if (badge) {
-        badge.style.background = '#d1fae5';
-        badge.style.color = '#065f46';
-        badge.style.borderColor = '#a7f3d0';
-        badge.textContent = '✓ HỆ THỐNG ĐÃ TỰ ĐỘNG HOÀN TIỀN THÀNH CÔNG';
-      }
-      if (timerRow) timerRow.style.display = 'none';
-      if (descBox) {
-        descBox.innerHTML = '✓ <strong>Lệnh hoàn tiền tự động (API Auto-Payout) đã được thực thi thành công!</strong><br>Số tiền <strong>' + total + '</strong> đã được hoàn trả về tài khoản <strong>' + bank + ' - ' + acc + '</strong>. Giao dịch đã hoàn tất tự động mà không cần nhân viên can thiệp.<div style="margin-top: 10px;"><a href="ticket-refunded.html?order=' + encodeURIComponent(ordCode) + '" class="btn btn-primary btn-sm" style="background: rgb(106, 166, 255); border-color: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;"><span>🎉</span> Xem Giao Diện Chi Tiết Đơn Đã Hoàn (Mockup)</a></div>';
-        descBox.style.color = '#065f46';
-      }
-      if (fallbackNotice) fallbackNotice.style.display = 'none';
-
-      if (step3Title) {
-        step3Title.textContent = '3. Hệ thống tự động chuyển tiền (Tối đa 24h)';
-        step3Title.style.color = '#059669';
-      }
-      if (step3Badge) {
-        step3Badge.textContent = '✓ Đã hoàn tất chuyển tiền tự động qua API ngân hàng';
-        step3Badge.style.color = '#059669';
-      }
-      if (step3Desc) step3Desc.textContent = 'Tiền đã được chuyển trả trực tiếp vào STK của bạn trong cam kết 24h.';
-      if (step3Dot) {
-        step3Dot.className = 'timeline-dot done';
-      }
-
-      if (step4Title) {
-        step4Title.textContent = '4. Chuyển qua nhân viên xử lý';
-        step4Title.style.color = '#059669';
-      }
-      if (step4Badge) {
-        step4Badge.textContent = '✓ Bỏ qua (Tự động thành công, không cần nhân viên can thiệp)';
-        step4Badge.style.color = '#059669';
-      }
-      if (step4Desc) step4Desc.textContent = 'Hệ thống tự động đã xử lý thành công toàn bộ, không cần chuyển giao nhân viên.';
-      if (step4Dot) {
-        step4Dot.className = 'timeline-dot done';
-      }
-
-      if (step5Title) {
-        step5Title.textContent = '5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)';
-        step5Title.style.color = '#059669';
-      }
-      if (step5Badge) {
-        step5Badge.textContent = '✓ Ngân hàng đã ghi có biến động số dư (Hoàn thành công 100%)';
-        step5Badge.style.color = '#059669';
-      }
-      if (step5Desc) step5Desc.textContent = 'Giao dịch hoàn tất 100%. Tiền đã được hoàn về tài khoản thành công!';
-      if (step5Dot) {
-        step5Dot.className = 'timeline-dot done';
-      }
-
-      if (slaText) {
-        slaText.textContent = '✓ Đã hoàn tất tự động (Hoàn thành công)';
-        slaText.style.color = '#059669';
-      }
-      if (headerStepsBadge) {
-        headerStepsBadge.style.background = '#d1fae5';
-        headerStepsBadge.style.color = '#065f46';
-        headerStepsBadge.style.borderColor = '#a7f3d0';
-        headerStepsBadge.textContent = '✓ HOÀN TẤT: BƯỚC 5/5';
-      }
-
-      // Card ngoài danh sách
-      if (cardBadge) {
-        cardBadge.style.background = '#d1fae5';
-        cardBadge.style.color = '#065f46';
-        cardBadge.style.borderColor = '#a7f3d0';
-        cardBadge.textContent = '✓ ĐÃ HOÀN TIỀN TỰ ĐỘNG';
-      }
-      if (cardBox) {
-        cardBox.style.background = '#ecfdf5';
-        cardBox.style.borderColor = '#a7f3d0';
-        cardBox.style.color = '#065f46';
-        cardBox.innerHTML = '<strong>✓ Hệ thống đã tự động hoàn tiền thành công (' + total + ')</strong> về: ' + bank + ' - ' + acc + '. Giao dịch hoàn tất không cần nhân viên can thiệp.<div style="margin-top: 8px;"><a href="ticket-refunded.html?order=' + encodeURIComponent(ordCode) + '" class="btn btn-sm" style="background: rgb(106, 166, 255); color: #12141c; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; text-decoration: none;"><span>🎉</span> Xem Đơn Đã Hoàn</a></div>';
-      }
-
-    } else if (state === 'FALLBACK_STAFF') {
-      // 2. KỊCH BẢN 2: TỰ ĐỘNG LỖI / QUÁ 24H -> CHUYỂN GIAO NHÂN VIÊN
-      if (banner) {
-        banner.style.background = '#fffbeb';
-        banner.style.borderColor = '#fcd34d';
-      }
-      if (badge) {
-        badge.style.background = '#fef3c7';
-        badge.style.color = '#b45309';
-        badge.style.borderColor = '#fde68a';
-        badge.textContent = '👤 CẤP 2: ĐÃ CHUYỂN GIAO NHÂN VIÊN KẾ TOÁN';
-      }
-      if (timerRow) timerRow.style.display = 'none';
-      if (descBox) {
-        descBox.innerHTML = '⚠️ <strong>Lệnh hoàn tiền tự động trong 24h bị gián đoạn</strong> do cổng ngân hàng gián đoạn hoặc sai STK.<br>Hệ thống đã <strong>tự động chuyển giao toàn bộ hồ sơ sang Bước 4: Nhân viên Kế toán rạp</strong> để đối soát và chuyển tiền thủ công cho bạn.';
-        descBox.style.color = '#92400e';
-      }
-      if (fallbackNotice) {
-        fallbackNotice.style.display = 'block';
-        fallbackNotice.innerHTML = '📌 <strong>Kế toán rạp đang xử lý:</strong> Hồ sơ đang ở <strong>Bước 4/5: Chuyển qua nhân viên xử lý</strong>. Dự kiến nhân viên sẽ đối soát và thực hiện hoàn tiền trong vòng <strong>3 - 7 ngày làm việc</strong> theo chu kỳ chuyển tiền liên ngân hàng.';
-      }
-
-      if (step3Title) {
-        step3Title.textContent = '3. Hệ thống tự động chuyển tiền (Quá hạn 24h)';
-        step3Title.style.color = '#64748b';
-      }
-      if (step3Badge) {
-        step3Badge.textContent = '⚠️ Tự động không thành công (Hết hạn 24h / Cổng thanh toán gián đoạn)';
-        step3Badge.style.color = '#b45309';
-      }
-      if (step3Desc) step3Desc.textContent = 'Hệ thống tự động không hoàn được tiền sau 24h nên đã chuyển giao hồ sơ sang nhân viên.';
-      if (step3Dot) {
-        step3Dot.className = 'timeline-dot done';
-      }
-
-      if (step4Title) {
-        step4Title.textContent = '4. Chuyển qua nhân viên xử lý (Đang đối soát)';
-        step4Title.style.color = '#d97706';
-      }
-      if (step4Badge) {
-        step4Badge.textContent = '● Nhân viên Kế toán rạp đang đối soát & xử lý thủ công';
-        step4Badge.style.color = '#d97706';
-      }
-      if (step4Desc) step4Desc.textContent = 'Hồ sơ đã được chuyển giao cho nhân viên Kế toán rạp can thiệp đối soát và chuyển tiền thủ công (dự kiến 3 - 7 ngày làm việc).';
-      if (step4Dot) {
-        step4Dot.className = 'timeline-dot active';
-      }
-
-      if (step5Title) {
-        step5Title.textContent = '5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)';
-        step5Title.style.color = '#64748b';
-      }
-      if (step5Badge) {
-        step5Badge.textContent = 'Chờ nhân viên kế toán duyệt lệnh chuyển khoản';
-        step5Badge.style.color = '#94a3b8';
-      }
-      if (step5Desc) step5Desc.textContent = 'Tiền sẽ được nhân viên kế toán chuyển trực tiếp vào tài khoản ngân hàng của bạn.';
-      if (step5Dot) {
-        step5Dot.className = 'timeline-dot pending';
-      }
-
-      if (slaText) {
-        slaText.textContent = '3 - 7 ngày làm việc (Nhân viên kế toán đối soát)';
-        slaText.style.color = '#d97706';
-      }
-      if (headerStepsBadge) {
-        headerStepsBadge.style.background = '#fef3c7';
-        headerStepsBadge.style.color = '#b45309';
-        headerStepsBadge.style.borderColor = '#fde68a';
-        headerStepsBadge.textContent = '👤 ĐANG DIỄN RA: BƯỚC 4/5';
-      }
-
-      // Card ngoài danh sách
-      if (cardBadge) {
-        cardBadge.style.background = '#fef3c7';
-        cardBadge.style.color = '#b45309';
-        cardBadge.style.borderColor = '#fde68a';
-        cardBadge.textContent = '👤 CHỜ NHÂN VIÊN HOÀN TIỀN';
-      }
-      if (cardBox) {
-        cardBox.style.background = '#fffbeb';
-        cardBox.style.borderColor = '#fde68a';
-        cardBox.style.color = '#92400e';
-        cardBox.innerHTML = '<strong>⚠️ Tự động hoàn tiền trong 24h không thành công.</strong> Hồ sơ đã tự động chuyển sang <strong>Bước 4: Nhân viên Kế toán rạp</strong> xử lý thủ công về: ' + bank + ' - ' + acc + ' (Dự kiến 3 - 7 ngày).';
-      }
-
-    } else {
-      // 3. MẶC ĐỊNH: ĐANG TỰ ĐỘNG HOÀN TIỀN (TRONG 24H)
-      if (banner) {
-        banner.style.background = '#eff6ff';
-        banner.style.borderColor = '#bfdbfe';
-      }
-      if (badge) {
-        badge.style.background = '#dbeafe';
-        badge.style.color = '#1e40af';
-        badge.style.borderColor = '#bfdbfe';
-        badge.textContent = '⏳ CẤP 1: HỆ THỐNG ĐANG TỰ ĐỘNG XỬ LÝ (TRONG 24H)';
-      }
-      if (timerRow) timerRow.style.display = 'flex';
-      if (descBox) {
-        descBox.innerHTML = 'Hệ thống thanh toán đang phát lệnh hoàn tiền tự động qua API liên ngân hàng về số tài khoản của bạn. <strong>Khách hàng không cần thao tác thêm, nhân viên không cần can thiệp.</strong>';
-        descBox.style.color = '#1e293b';
-      }
-      if (fallbackNotice) {
-        fallbackNotice.style.display = 'block';
-        fallbackNotice.innerHTML = '📌 <strong>Quy định chuyển tiếp:</strong> Hệ thống tự động thực hiện hoàn tiền trong tối đa <strong>24 giờ</strong>. Nếu sau 24h hệ thống không thể chuyển trả (do ngân hàng gián đoạn hoặc lỗi số tài khoản), hệ thống sẽ <strong>tự động chuyển giao sang Bước 4: Nhân viên Kế toán rạp</strong> để đối soát và xử lý thủ công (3 - 7 ngày).';
-      }
-
-      if (step3Title) {
-        step3Title.textContent = '3. Hệ thống tự động chuyển tiền (Tối đa 24h)';
-        step3Title.style.color = '#2563eb';
-      }
-      if (step3Badge) {
-        step3Badge.textContent = '● Đang phát lệnh chuyển tiền tự động qua API ngân hàng';
-        step3Badge.style.color = '#2563eb';
-      }
-      if (step3Desc) step3Desc.textContent = 'Lệnh chuyển tiền tự động đang được kết nối trực tiếp đến ngân hàng của bạn. Nếu sau 24h không thành công, hệ thống sẽ tự động chuyển giao Kế toán rạp xử lý.';
-      if (step3Dot) {
-        step3Dot.className = 'timeline-dot active';
-      }
-
-      if (step4Title) {
-        step4Title.textContent = '4. Chuyển qua nhân viên xử lý';
-        step4Title.style.color = '#64748b';
-      }
-      if (step4Badge) {
-        step4Badge.textContent = 'Dự phòng (Khi tự động gián đoạn hoặc quá 24h)';
-        step4Badge.style.color = '#94a3b8';
-      }
-      if (step4Desc) step4Desc.textContent = 'Nhân viên Kế toán rạp sẽ tiếp nhận đối soát thủ công và thực hiện chuyển tiền nếu hệ thống tự động không thành công.';
-      if (step4Dot) {
-        step4Dot.className = 'timeline-dot pending';
-      }
-
-      if (step5Title) {
-        step5Title.textContent = '5. Hoàn tất nhận tiền về tài khoản (Hoàn thành công)';
-        step5Title.style.color = '#64748b';
-      }
-      if (step5Badge) {
-        step5Badge.textContent = 'Chờ ngân hàng ghi có biến động số dư';
-        step5Badge.style.color = '#94a3b8';
-      }
-      if (step5Desc) step5Desc.textContent = 'Tiền sẽ được cộng trực tiếp vào số dư tài khoản ngân hàng của bạn.';
-      if (step5Dot) {
-        step5Dot.className = 'timeline-dot pending';
-      }
-
-      if (slaText) {
-        slaText.textContent = 'Tối đa 24 giờ (Tự động chuyển trả)';
-        slaText.style.color = '#2563eb';
-      }
-      if (headerStepsBadge) {
-        headerStepsBadge.style.background = '#dbeafe';
-        headerStepsBadge.style.color = '#1e40af';
-        headerStepsBadge.style.borderColor = '#bfdbfe';
-        headerStepsBadge.textContent = '⏳ ĐANG DIỄN RA: BƯỚC 3/5';
-      }
-
-      // Card ngoài danh sách
-      if (cardBadge) {
-        cardBadge.style.background = '#dbeafe';
-        cardBadge.style.color = '#1e40af';
-        cardBadge.style.borderColor = '#bfdbfe';
-        cardBadge.textContent = '🤖 ĐANG TỰ ĐỘNG HOÀN TIỀN (24H)';
-      }
-      if (cardBox) {
-        cardBox.style.background = '#eff6ff';
-        cardBox.style.borderColor = '#bfdbfe';
-        cardBox.style.color = '#1e40af';
-        cardBox.innerHTML = `
-          <div style="font-weight: 800; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 4px;">
-            <span>🤖 HỆ THỐNG ĐANG TỰ ĐỘNG HOÀN TIỀN (TRONG 24H)</span>
-            <span style="font-size: 12px; color: #1d4ed8;">⏱️ Còn: <strong id="autorefund-timer-${ordCode}" style="font-family: monospace;">23:58:45</strong></span>
-          </div>
-          <div>Đang phát lệnh hoàn trả tự động về: <strong>${bank} - ${acc}</strong> (${total}).</div>
-          <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">Nếu sau 24h không chuyển được, hệ thống sẽ tự động chuyển giao Nhân viên Kế toán rạp xử lý thủ công.</div>
-        `;
-      }
-    }
-  }
-  window.updateAutoRefundUI = updateAutoRefundUI;
-
-  // Kịch bản 1: Hệ thống tự động chuyển trả thành công
-  function triggerAutoRefundSuccess(ordCode) {
-    if (!ordCode) return;
-    if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
-    localStorage.setItem('autorefund_state_' + ordCode, 'SUCCESS');
-
-    const det = getRefundDetail(ordCode);
-    const bank = det ? det.bank : 'MB Bank';
-    const acc = det ? det.acc : '0987654321';
-    const total = det ? (window.Pay ? Pay.vnd(det.total) : '179.000 đ') : '179.000 đ';
-
-    alert('🎉 [HỆ THỐNG TỰ ĐỘNG HOÀN TIỀN THÀNH CÔNG]\n\nLệnh chuyển tiền tự động (API Auto-Payout) đã được thực thi thành công!\n\n→ Số tiền: ' + total + '\n→ Đã hoàn trực tiếp về STK: ' + bank + ' - ' + acc + '\n→ Thời gian thực hiện: Trong 24h cam kết\n→ Trạng thái: Hệ thống tự động hoàn tất 100% (Không cần nhân viên).');
-
-    updateAutoRefundUI(ordCode);
-  }
-  window.triggerAutoRefundSuccess = triggerAutoRefundSuccess;
-
-  // Kịch bản 2: Hệ thống tự động không chuyển trả được -> Chuyển nhân viên
-  function triggerAutoRefundFallback(ordCode, isAutoTimeout) {
-    if (!ordCode) return;
-    if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
-    localStorage.setItem('autorefund_state_' + ordCode, 'FALLBACK_STAFF');
-
-    const det = getRefundDetail(ordCode);
-    const bank = det ? det.bank : 'MB Bank';
-    const acc = det ? det.acc : '0987654321';
-
-    const reason = isAutoTimeout 
-      ? 'Đã hết thời hạn 24 giờ mà giao dịch chuyển tiền tự động chưa thành công từ phía ngân hàng.' 
-      : 'Hệ thống tự động phát hiện ngân hàng đích bảo trì / STK thụ hưởng cần xác minh bổ sung.';
-
-    alert('⚠️ [HỆ THỐNG TỰ ĐỘNG CHUYỂN GIAO SANG NHÂN VIÊN]\n\n' + reason + '\n\n→ Hệ thống đã TỰ ĐỘNG CHUYỂN GIAO hồ sơ sang Kế toán rạp & CSKH.\n→ Nhân viên sẽ trực tiếp đối soát và chuyển tiền thủ công về: ' + bank + ' - ' + acc + ' trong vòng 3 - 7 ngày làm việc.');
-
-    updateAutoRefundUI(ordCode);
-  }
-  window.triggerAutoRefundFallback = triggerAutoRefundFallback;
-
-  // Reset về trạng thái tự động ban đầu
-  function resetAutoRefundStatus(ordCode) {
-    if (!ordCode) return;
-    localStorage.removeItem('autorefund_state_' + ordCode);
-    localStorage.setItem('autorefund_sec_' + ordCode, '86340');
-    alert('🔄 Đã đặt lại trạng thái: Hệ thống đang tự động hoàn tiền trong 24h (Kịch bản ban đầu).');
-    updateAutoRefundUI(ordCode);
-    startAutoRefundCountdown(ordCode);
-  }
-  window.resetAutoRefundStatus = resetAutoRefundStatus;
-
-  // BỘ ĐẾM THỜI GIAN THỰC LỚP 2
-  function startLayer2Countdown(ordCode, initialSec) {
-    if (layer2Timers[ordCode]) clearInterval(layer2Timers[ordCode]);
-
-    let secLeft = initialSec > 0 ? initialSec : 420; // Mặc định 7 phút
-    const timerEl = document.getElementById(`layer2-timer-${ordCode}`);
-    const modalTimerEl = document.getElementById('modal-layer2-timer');
-
-    if (timerEl) timerEl.textContent = formatTimeMinSec(secLeft);
-    if (modalTimerEl) modalTimerEl.textContent = formatTimeMinSec(secLeft);
-
-    layer2Timers[ordCode] = setInterval(() => {
-      // Nếu đã có kết quả 2A hoặc 2B thì hủy đếm
-      const outcome = localStorage.getItem('layer2_outcome_' + ordCode);
-      if (outcome) {
-        clearInterval(layer2Timers[ordCode]);
-        return;
-      }
-
-      secLeft--;
-      localStorage.setItem('hold_sec_' + ordCode, secLeft);
-
-      const curTimerEl = document.getElementById(`layer2-timer-${ordCode}`);
-      const curModalTimerEl = document.getElementById('modal-layer2-timer');
-      if (curTimerEl) curTimerEl.textContent = formatTimeMinSec(secLeft);
-      if (curModalTimerEl) curModalTimerEl.textContent = formatTimeMinSec(secLeft);
-
-      if (secLeft <= 0) {
-        clearInterval(layer2Timers[ordCode]);
-        triggerLayer2Expired(ordCode);
-      }
-    }, 1000);
-  }
-
-  function registerRefundOrderToUI(det) {
-    if (!det || !det.order) return;
-    const ordCode = det.order;
-    const movieKey = det.movie || 'quy-an-tang-4';
-    const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
-    let movieTitle = (movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4';
-    if (movieKey === 'quy-an-tang-4') movieTitle = 'Quỷ Ăn Tạng 4';
-    else if (movieKey === 'trai-buon-nguoi') movieTitle = 'Trại Buôn Người: Vùng Cấm Biên Giới';
-
-    const poster = POSTER_MAP[movieKey] || (movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg';
-    const cinema = det.cinema || 'Beta Thanh Xuân (Hà Nội)';
-    const seats = det.seats || 'D5, D6';
-    const time = det.time || '18:30';
-    const date = det.date || 'Hôm nay';
-    const total = Number(det.total) || 90000;
-    const bank = det.bank || 'MB Bank (Ngân hàng Quân Đội)';
-    const acc = det.acc || '0987654321';
-    const owner = det.owner || 'NGUYEN HOANG NAM';
-    const refundCode = det.refund_code || ('REF-' + ordCode.slice(-6));
-    const showTimeStr = time + ' • ' + date;
-    const totalFormatted = (window.Pay ? Pay.vnd(total) : total.toLocaleString('vi-VN') + ' đ');
-
-    // Kiểm tra kết quả trước đó của Lớp 2 nếu có
-    const outcome = localStorage.getItem('layer2_outcome_' + ordCode);
-
-    // Cập nhật vào danh sách hoàn tiền
-    markOrderAsRefunding(ordCode);
-
-    // Cập nhật hoặc thêm vào INVOICES_DATA
-    const subtotal = Math.round(total / 1.08);
-    const vat = total - subtotal;
-    INVOICES_DATA[ordCode] = {
-      code: ordCode,
-      rawStatus: outcome === 'PAID' ? 'PAID' : (outcome === 'EXPIRED' ? 'CANCELLED' : 'REFUNDING'),
-      status: outcome === 'PAID' ? 'PAID' : (outcome === 'EXPIRED' ? 'CANCELLED' : 'REFUNDING'),
-      invoiceNumber: 'HD-2026-' + ordCode.slice(-6),
-      symbol: '1C26TBB',
-      createdAt: new Date().toLocaleString('vi-VN'),
-      movieTitle: movieTitle,
-      moviePoster: poster,
-      movieAge: 'C18',
-      format: '2D Phụ Đề',
-      cinema: cinema,
-      room: 'Phòng chiếu 01',
-      showtime: showTimeStr,
-      seats: seats,
-      customerName: owner,
-      customerPhone: '0987 654 321',
-      customerEmail: 'khachhang@email.com',
-      memberId: 'BM-2026-VIP',
-      paymentMethod: 'VietQR / SePay (Ngân hàng MSB)',
-      bankTransCode: 'FT' + ordCode.slice(-8),
-      statusBadge: outcome === 'PAID' 
-        ? '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (SEPAY THÀNH CÔNG)</span>'
-        : (outcome === 'EXPIRED' 
-          ? '<span class="badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 11px; font-weight: 800;">❌ ĐÃ HỦY - CHỜ KẾ TOÁN HOÀN TIỀN</span>'
-          : '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐANG RÀ SOÁT LỚP 2 (GIỮ GHẾ)</span>'),
-      statusNote: outcome === 'PAID' 
-        ? 'Giao dịch thanh toán đã khớp thành công trong thời gian giữ ghế. Vé xem phim đã được kích hoạt hợp lệ.'
-        : `Hồ sơ hoàn tiền ${refundCode} đã được kế toán rạp duyệt hợp lệ. Số tiền ${totalFormatted} đang được giải ngân về STK ${bank} - ${acc} (${owner}) trong 3 - 7 ngày làm việc.`,
-      items: [
-        { name: 'Vé xem phim 2D VIP (Ghế ' + seats + ')', qty: seats.includes(',') ? seats.split(',').length : 1, price: Math.round(total / (seats.includes(',') ? seats.split(',').length : 1)), amount: total }
-      ],
-      subtotal: subtotal,
-      vat: vat,
-      discount: 0,
-      total: total,
-      isRefunding: outcome !== 'PAID',
-      refundBank: bank,
-      refundAcc: acc,
-      refundOwner: owner,
-      refundCode: refundCode
-    };
-
-    // Kiểm tra thẻ đơn hàng trên giao diện Lịch Sử Đặt Vé
-    let card = document.querySelector(`.order-history-item[data-code="${ordCode}"]`);
-    const wrapper = document.getElementById('orders-list-wrapper');
-
-    if (!card && wrapper) {
-      card = document.createElement('div');
+    function orderCard(o) {
+      const st = STATUS_STYLE[o.status] || STATUS_STYLE.CANCELLED;
+      const m = Pay.getMovie(o.movie_key);
+      const card = document.createElement('div');
       card.className = 'order-history-item';
-      card.setAttribute('data-code', ordCode);
-
-      if (outcome === 'PAID') {
-        card.setAttribute('data-status', 'upcoming');
-        card.style.cssText = 'border-left: 4px solid #10b981; background: #fafdfc;';
-      } else if (outcome === 'EXPIRED') {
-        card.setAttribute('data-status', 'cancelled');
-        card.style.cssText = 'border-left: 4px solid #ef4444; background: #fffdfd;';
-      } else {
-        card.setAttribute('data-status', 'unrefunded');
-        card.setAttribute('data-refund', 'unrefunded');
-        card.style.cssText = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
-      }
-      card.title = 'Bấm vào đơn để xem chi tiết hóa đơn & hoàn tiền';
-      card.onclick = () => openInvoiceModal(ordCode);
-
-      // Cấu hình nội dung hộp trạng thái & nút bấm
-      let statusContentHtml = '';
-      let sandboxPanelHtml = '';
-      let actionButtonsHtml = '';
-
-      if (outcome === 'PAID') {
-        statusContentHtml = `
-          <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; color: #065f46; font-size: 12.5px; font-weight: 700;">
-            ✓ Tiền đã khớp trong thời gian giữ ghế. Vé đã xuất thành công, mã QR vào rạp đã sẵn sàng!
-          </div>
-        `;
-        actionButtonsHtml = `
-          <a href="ticket.html?order=${ordCode}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #005198; border-color: #005198; font-weight: 700;">
-            <span>🎟️</span> Xem Lại Tình Trạng Vé
-          </a>
-          <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="border-color: #005198; color: #005198; font-weight: 700;">
-            <span>🧾</span> Chi Tiết Hóa Đơn
-          </button>
-        `;
-      } else if (outcome === 'EXPIRED') {
-        statusContentHtml = `
-          <div class="refund-in-progress-box" style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #9f1239;">
-            <div style="font-weight: 700; margin-bottom: 2px;">⚠️ Đã tự động nhả ghế ${seats} do hết 10 phút giữ ghế.</div>
-            <div>Hồ sơ số <strong>${refundCode}</strong> đang được Kế toán rạp xử lý hoàn tiền về: <strong>${bank} - ${acc}</strong> (Dự kiến 3 - 7 ngày).</div>
-          </div>
-        `;
-        actionButtonsHtml = `
-          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #e11d48; border-color: #e11d48; font-weight: 700;">
-            <span>⏱️</span> Xem Tiến Trình Hoàn Tiền (Bước 3/5)
-          </button>
-        `;
-      } else {
-        // LỚP 2 ĐANG CHẠY: HIỂN THỊ ĐỒNG HỒ ĐẾM NGƯỢC GIỮ GHẾ & PANEL SANDBOX
-        statusContentHtml = `
-          <div class="layer2-active-box" id="layer2-box-${ordCode}" style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
-              <div style="font-weight: 800; font-size: 13px; color: #1e40af; display: flex; align-items: center; gap: 6px;">
-                <span class="pulse-dot">●</span> ⏳ ĐANG RÀ SOÁT LỚP 2 VỚI NGÂN HÀNG
-              </div>
-              <div style="font-size: 12px; color: #dc2626; font-weight: 800;">
-                Giữ ghế còn lại: <span id="layer2-timer-${ordCode}" style="font-family: monospace; font-size: 14.5px;">06:45</span>
-              </div>
-            </div>
-            <div style="font-size: 12.5px; color: #475569; line-height: 1.5;">
-              Hệ thống đang quét ngầm với ngân hàng. Nếu nhận được tiền trước khi hết giờ giữ ghế, <strong>vé sẽ được xuất ngay và hủy yêu cầu hoàn tiền</strong>.
-            </div>
-            <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">
-              Hồ sơ hoàn tiền dự phòng: <strong style="font-family: monospace;">${refundCode}</strong> · Hoàn về: <strong>${bank} - ${acc}</strong> nếu hết thời gian giữ ghế.
-            </div>
-          </div>
-        `;
-
-        sandboxPanelHtml = `
-          <div class="sandbox-layer2-panel" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 12px;">
-            <span style="color: #475569; font-weight: 700;">🧪 THỬ NGHIỆM TIẾN TRÌNH:</span>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerLayer2Success('${ordCode}')" style="background: #10b981; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
-                🟢 Test 2A: Tiền về kịp
-              </button>
-              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerLayer2Expired('${ordCode}')" style="background: #ef4444; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;">
-                🔴 Test 2B: Hết giữ ghế
-              </button>
-              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerAutoRefundSuccess('${ordCode}')" style="background: #059669; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;" title="Giả lập tự động hoàn tiền thành công">
-                🤖 Auto-Refund Xong
-              </button>
-              <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); triggerAutoRefundFallback('${ordCode}')" style="background: #f59e0b; color: white; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer;" title="Giả lập tự động lỗi -> chuyển nhân viên">
-                👤 Chuyển Nhân Viên
-              </button>
-            </div>
-          </div>
-        `;
-
-        actionButtonsHtml = `
-          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ordCode}');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
-            <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
-          </button>
-        `;
-      }
-
+      card.dataset.code = o.code;
+      card.style.cssText = `border-left: 4px solid ${st.bar}; background: #fff;`;
+      card.title = 'Bấm để theo dõi đơn hàng';
+      card.onclick = () => { location.href = 'order.html?code=' + encodeURIComponent(o.code); };
       card.innerHTML = `
-        <img class="order-item-poster" src="${poster}" alt="${movieTitle}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
-        <div style="flex: 1;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+        <img class="order-item-poster" src="${esc(m.poster)}" alt="" onerror="this.src='images/400x633-145627-230926-40.jpg'">
+        <div style="flex: 1; min-width: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
             <div>
-              ${INVOICES_DATA[ordCode].statusBadge}
-              <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">
-                ${movieTitle}
-              </h4>
+              <span class="badge" style="background: ${st.bg}; color: ${st.fg}; border: 1px solid ${st.bd}; font-size: 11px; font-weight: 800;">${st.icon} ${esc(o.status_label).toUpperCase()}</span>
+              <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">${esc(m.title)}</h4>
+              ${o.status_sublabel ? `<div style="font-size: 12px; color: #64748b;">${esc(o.status_sublabel)}</div>` : ''}
             </div>
             <div style="text-align: right;">
               <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
-              <strong style="font-family: monospace; font-size: 14px; color: #005198;">${ordCode}</strong>
+              <strong style="font-family: monospace; font-size: 14px; color: #005198;">${esc(o.code)}</strong>
             </div>
           </div>
-
-          <div style="font-size: 13px; color: #475569; margin-bottom: 10px; line-height: 1.6;">
-            📍 Rạp: <strong>${cinema}</strong><br>
-            🕒 Suất: <strong>${showTimeStr}</strong><br>
-            💺 Ghế: <strong>${seats}</strong><br>
-            💳 Đã thanh toán: <strong>${totalFormatted}</strong> (Qua SePay VietQR)
+          <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
+            📍 Rạp: <strong>${esc(o.cinema)}</strong><br>
+            🕒 Suất: <strong>${esc(o.show_time)} • ${esc(o.show_date)}</strong><br>
+            📅 Thời gian đặt vé: <strong>${new Date(o.created_at).toLocaleString('vi-VN')}</strong><br>
+            💺 Ghế: <strong>${esc((o.seats || []).join(', '))}</strong><br>
+            💳 Giá trị đơn: <strong>${Pay.vnd(o.total)}</strong> · Đã nhận: <strong>${Pay.vnd(o.paid_amount)}</strong>
           </div>
-
-          ${statusContentHtml}
-          ${sandboxPanelHtml}
-
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            ${actionButtonsHtml}
-          </div>
-        </div>
-      `;
-
-      wrapper.insertBefore(card, wrapper.firstChild);
-
-      // Kích hoạt đồng hồ đếm ngược Lớp 2 nếu đang chạy
-      if (!outcome) {
-        const holdSec = parseInt(det.hold_time || localStorage.getItem('hold_sec_' + ordCode) || '420', 10);
-        startLayer2Countdown(ordCode, holdSec);
-      }
-    } else if (card) {
-      if (outcome === 'PAID') {
-        triggerLayer2Success(ordCode);
-      } else if (outcome === 'EXPIRED') {
-        triggerLayer2Expired(ordCode);
-      }
-    }
-  }
-  window.registerRefundOrderToUI = registerRefundOrderToUI;
-
-  // Tự động gọi đồng bộ ngay khi trang tải xong
-  window.addEventListener('DOMContentLoaded', () => {
-    // 1. Kiểm tra URL params
-    const pageParams = new URLSearchParams(window.location.search);
-    const tabParam = pageParams.get('tab');
-    if (tabParam) {
-      switchAccountTab(tabParam);
+          ${refundMini(o)}
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">${orderActions(o)}</div>
+        </div>`;
+      return card;
     }
 
-    const targetOrder = pageParams.get('order');
-    const openModalParam = pageParams.get('open_modal');
+    function renderOrders() {
+      const wrapper = document.getElementById('orders-list-wrapper');
+      const empty = document.getElementById('orders-empty-state');
+      wrapper.querySelectorAll('.order-history-item').forEach(el => el.remove());
 
-    // Dọn dẹp BC2610208819 khỏi danh sách đang xử lý hoàn tiền nếu có
-    try {
-      let storedList = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
-      if (storedList.includes('BC2610208819')) {
-        storedList = storedList.filter(c => c !== 'BC2610208819');
-        localStorage.setItem('reported_refund_orders', JSON.stringify(storedList));
-      }
-    } catch(e) {}
+      const counts = { all: ORDERS.length, upcoming: 0, completed: 0, cancelled: 0, unrefunded: 0, refunded: 0 };
+      ORDERS.forEach(o => { counts[groupOf(o)]++; });
+      Object.keys(counts).forEach(k => { const el = document.getElementById('count-' + k); if (el) el.textContent = counts[k]; });
+      document.getElementById('total-orders-count').textContent = counts.all;
 
-    // Dọn dẹp BC2610208819 khỏi danh sách đang xử lý hoàn tiền nếu có
-    try {
-      let storedList = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
-      if (storedList.includes('BC2610208819')) {
-        storedList = storedList.filter(c => c !== 'BC2610208819');
-        localStorage.setItem('reported_refund_orders', JSON.stringify(storedList));
-      }
-    } catch(e) {}
+      const visible = ORDERS
+        .filter(o => currentFilter === 'all' || groupOf(o) === currentFilter)
+        .filter(o => {
+          if (!searchQuery) return true;
+          const m = Pay.getMovie(o.movie_key);
+          return [m.title, m.shortTitle, o.code, o.cinema, (o.seats || []).join(' ')].join(' ').toLowerCase().includes(searchQuery);
+        })
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      visible.forEach(o => wrapper.insertBefore(orderCard(o), empty));
 
-    // Khởi tạo các đơn hoàn tiền từ localStorage
-    try {
-      const savedRefunds = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
-      savedRefunds.forEach(code => {
-        try {
-          const detailStr = localStorage.getItem('refund_detail_' + code);
-          if (detailStr) {
-            registerRefundOrderToUI(JSON.parse(detailStr));
-          }
-        } catch (e) {}
-      });
-    } catch (e) {}
+      empty.style.display = visible.length ? 'none' : 'block';
+      empty.querySelector('h4').textContent = ORDERS.length ? 'Không tìm thấy đơn hàng nào phù hợp' : 'Bạn chưa có đơn hàng nào';
+      empty.querySelector('p').textContent = ORDERS.length
+        ? 'Vui lòng thử lại với từ khóa khác hoặc chuyển sang tab "Tất cả".'
+        : 'Chọn phim và suất chiếu để đặt vé đầu tiên của bạn.';
 
-    // Nếu từ URL có thông tin đơn refund
-    if (targetOrder) {
-      let det = null;
+      // Thẻ thành viên: tổng chi tiêu từ các đơn đã xuất vé
+      const paid = ORDERS.filter(o => o.has_ticket);
+      document.getElementById('member-spend').textContent = Pay.vnd(paid.reduce((s, o) => s + (o.total || 0), 0));
+      document.getElementById('member-paid-count').textContent = paid.length;
+    }
+
+    async function loadOrders() {
+      const l = document.getElementById('orders-loading');
       try {
-        const detailStr = localStorage.getItem('refund_detail_' + targetOrder);
-        if (detailStr) det = JSON.parse(detailStr);
-      } catch (e) {}
-
-      if (!det) {
-        det = {
-          order: targetOrder,
-          movie: pageParams.get('movie') || 'quy-an-tang-4',
-          cinema: pageParams.get('cinema') || 'Beta Thanh Xuân (Hà Nội)',
-          seats: pageParams.get('seats') || 'D5, D6',
-          combos: pageParams.get('combos') || '',
-          total: Number(pageParams.get('total') || 90000),
-          date: pageParams.get('date') || 'Hôm nay',
-          time: pageParams.get('time') || '18:30',
-          bank: pageParams.get('bank') || 'MB Bank (Ngân hàng Quân Đội)',
-          acc: pageParams.get('acc') || '0987654321',
-          owner: pageParams.get('owner') || 'NGUYEN HOANG NAM',
-          refund_code: pageParams.get('refund_code') || ('REF-' + targetOrder.slice(-6))
-        };
-      }
-      registerRefundOrderToUI(det);
-
-      if (openModalParam === '1') {
-        setTimeout(() => {
-          openInvoiceModal(targetOrder);
-          const c = document.querySelector(`.order-history-item[data-code="${targetOrder}"]`);
-          if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
+        ORDERS = await Pay.getOrders({ limit: 50 });
+        l.style.display = 'none';
+        renderOrders();
+      } catch (e) {
+        l.style.display = 'block';
+        l.textContent = 'Không tải được lịch sử đơn hàng (' + e.message + '). Hệ thống sẽ tự thử lại.';
       }
     }
 
-    sortOrderCardsByBookingTimeDesc();
-    applyAllRefundStatuses();
-    syncRealOrdersToUI().then(() => {
-      sortOrderCardsByBookingTimeDesc();
-      applyAllRefundStatuses();
-      updateOrderCounts();
-      filterOrdersList();
-    });
-  });
+    function switchAccountTab(tab) {
+      if (!['orders', 'profile', 'password'].includes(tab)) tab = 'orders';
+      document.querySelectorAll('.account-nav-btn').forEach(btn => btn.classList.remove('active'));
+      ['orders', 'profile', 'password'].forEach(t => {
+        document.getElementById('panel-' + t).style.display = t === tab ? 'block' : 'none';
+      });
+      document.getElementById('btn-tab-' + tab).classList.add('active');
+    }
 
-</script>
-<script src="pay-client.js"></script>
+    function showMsg(id, text, ok) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.style.color = ok ? '#15803d' : '#dc2626';
+      el.style.display = 'block';
+    }
+
+    async function saveProfile() {
+      const btn = document.getElementById('btn-save-profile');
+      btn.disabled = true;
+      try {
+        await BetaAuth.updateProfile({
+          full_name: document.getElementById('pf-name').value,
+          phone: document.getElementById('pf-phone').value,
+          birthday: document.getElementById('pf-birthday').value
+        });
+        showMsg('profile-msg', '✓ Đã lưu thông tin cá nhân.', true);
+      } catch (e) {
+        showMsg('profile-msg', e.message, false);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function savePassword() {
+      const cur = document.getElementById('pw-current').value;
+      const nw = document.getElementById('pw-new').value;
+      if (nw !== document.getElementById('pw-new2').value) return showMsg('password-msg', 'Mật khẩu xác nhận không khớp.', false);
+      const btn = document.getElementById('btn-save-password');
+      btn.disabled = true;
+      try {
+        await BetaAuth.changePassword(cur, nw);
+        document.getElementById('password-form').reset();
+        showMsg('password-msg', '✓ Đã đổi mật khẩu. Các thiết bị khác sẽ phải đăng nhập lại.', true);
+      } catch (e) {
+        showMsg('password-msg', e.message, false);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    (async function init() {
+      const u = await BetaAuth.requireLogin();
+      document.getElementById('member-card-id').textContent = String(u.id || '').replace(/-/g, '').slice(0, 12).toUpperCase().replace(/(.{4})(?=.)/g, '$1-');
+      document.getElementById('member-since').textContent = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '—';
+      switchAccountTab(new URLSearchParams(location.search).get('tab') || 'orders');
+      await loadOrders();
+      setInterval(() => { if (!document.hidden) loadOrders(); }, 20000);
+    })();
+  </script>
+
 </body>
 
 </html>

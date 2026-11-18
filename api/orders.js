@@ -1,17 +1,23 @@
 // api/orders.js - Lịch sử đơn hàng của khách (US-03: nhãn trạng thái + tiến trình hoàn tiền)
+//   Đã đăng nhập  -> các đơn của chính thành viên đó
+//   Chưa đăng nhập -> chỉ tra được theo ?codes=BC...,BC... (mã đơn khách đang giữ)
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
+const Auth = require('../lib/auth');
 const { fail, clean } = require('../lib/api-util');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method Not Allowed' });
   try {
     const limit = Math.min(50, Number(req.query.limit || 20));
+    const me = await Auth.currentCustomer(req);
+    const codes = clean(req.query.codes).toUpperCase().split(',').map(s => s.trim()).filter(Boolean).slice(0, 20);
     const filter = {};
-    if (clean(req.query.phone)) filter.phone = clean(req.query.phone);
-    if (clean(req.query.codes)) {
-      filter.code = { in: clean(req.query.codes).toUpperCase().split(',').map(s => s.trim()).filter(Boolean) };
-    }
+    if (me) filter.user_id = me.id;
+    else if (codes.length) filter.code = { in: codes };
+    else return res.status(401).json({ ok: false, error: 'Vui lòng đăng nhập để xem lịch sử đơn hàng' });
+    if (me && codes.length) filter.code = { in: codes };
+
     const rows = await Store.find('orders', filter, { limit });
     const out = [];
     for (let o of rows) {
