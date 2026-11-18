@@ -8,3 +8,4 @@ schema.sql
 server.js
 .env*
 .claude/
+showcase.html

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>Linh Giới Đại Chiến: Thần Sư Chung Quỳ - Beta Cinemas (Thiết Kế Mới 2026)</title>
+  <title>Chi tiết phim - Beta Cinemas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -356,56 +356,29 @@
     </div>
   </header>
 
-  <!-- Hero Backdrop -->
+  <!-- Hero Backdrop (dữ liệu phim lấy từ /api/catalog) -->
   <section class="movie-hero-backdrop">
     <div class="container">
       <div class="movie-hero-grid">
-        <!-- Poster -->
         <div class="detail-poster-box">
-          <img src="images/400x633-145627-230926-40.jpg" alt="Linh Giới Đại Chiến Poster">
+          <img id="md-poster" src="images/logo.png" alt="Poster phim">
         </div>
-
-        <!-- Info -->
         <div>
-          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-            <span class="badge badge-age-18">T18 - Người từ đủ 18 tuổi</span>
-            <span class="badge badge-format">2D Dolby Atmos</span>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+            <span class="badge badge-age-18" id="md-age" hidden></span>
+            <span class="badge badge-format" id="md-format" hidden></span>
+            <span class="badge badge-format" id="md-soon" hidden style="background:#f59e0b;color:#111">SẮP CHIẾU</span>
           </div>
-          <h1 class="movie-main-title">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</h1>
-          <div class="movie-sub-title">Realm of Spirits: Zhong Kui Master (2026)</div>
-
-          <div class="movie-stat-pills">
-            <div class="stat-pill">⭐ 9.4 / 10 IMDb</div>
-            <div class="stat-pill">⏱️ 128 Phút</div>
-            <div class="stat-pill">📅 Khởi chiếu: 25/10/2026</div>
-            <div class="stat-pill">🌐 Tiếng Trung - Phụ đề Tiếng Việt</div>
-          </div>
-
-          <p class="synopsis-text">
-            Chuyện phim xoay quanh trận quyết chiến kinh thiên động địa giữa hai cõi nhân - linh, nơi thần sư Chung Quỳ cùng các đồng môn dốc toàn lực bảo vệ phong ấn thượng cổ ngăn chặn ma thần thức tỉnh. Với kỹ xảo hoành tráng và những pha hành động mãn nhãn, bộ phim mang đến trải nghiệm điện ảnh đỉnh cao cho khán giả yêu mến dòng phim tiên hiệp kỳ ảo.
-          </p>
-
-          <div class="crew-list">
-            <div>
-              <div class="crew-label">Đạo Diễn</div>
-              <div class="crew-name">Bùi Thạc Chuyên</div>
-            </div>
-            <div>
-              <div class="crew-label">Diễn Viên Chính</div>
-              <div class="crew-name">Thái Hòa, Quang Tuấn, Diễm My</div>
-            </div>
-            <div>
-              <div class="crew-label">Thể Loại</div>
-              <div class="crew-name">Hành động, Giả tưởng, Thần thoại</div>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 16px;">
-            <a href="#booking-area" class="btn btn-primary btn-lg">
+          <h1 class="movie-main-title" id="md-title">Đang tải phim…</h1>
+          <div class="movie-sub-title" id="md-sub"></div>
+          <div class="movie-stat-pills" id="md-pills"></div>
+          <p class="synopsis-text" id="md-meta"></p>
+          <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="#booking-area" class="btn btn-primary btn-lg" id="md-book-btn">
               <span>🎟️</span> Đặt Suất Chiếu Nhanh
             </a>
-            <button class="btn btn-outline btn-lg" style="color: white; border-color: rgba(255,255,255,0.4);" onclick="openTrailerModal('linh-gioi-dai-chien', 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ')">
-              <span>▶</span> Xem Trailer Official
+            <button type="button" class="btn btn-outline btn-lg" id="md-trailer-btn" style="color: white; border-color: rgba(255,255,255,0.4);" hidden>
+              <span>▶</span> Xem Trailer
             </button>
           </div>
         </div>
@@ -413,7 +386,7 @@
     </div>
   </section>
 
-  <!-- Booking & Showtimes Area -->
+  <!-- Lịch chiếu thật theo rạp + ngày -->
   <main class="container movie-booking-section" id="booking-area">
     <div class="booking-wrapper-card">
       <div class="section-header">
@@ -423,63 +396,24 @@
         </div>
       </div>
 
-      <!-- Select Cinema & Date -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+      <div class="md-filter-grid">
         <div>
-          <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">1. Chọn Cụm Rạp Gần Bạn:</label>
-          <select class="qb-select" style="width: 100%; height: 48px; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 0 16px; font-weight: 600;">
-            <option>Beta Thanh Xuân (Golden West, Hà Nội)</option>
-            <option>Beta Giải Phóng (Hà Nội)</option>
-            <option>Beta Mỹ Đình (Hà Nội)</option>
-            <option>Beta Quang Trung (TP.HCM)</option>
-            <option>Beta Ung Văn Khiêm (TP.HCM)</option>
-          </select>
+          <label for="md-cinema" class="md-label">1. Chọn Cụm Rạp Gần Bạn:</label>
+          <select id="md-cinema" class="qb-select md-select"></select>
         </div>
         <div>
-          <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">2. Chọn Ngày Xem Phim:</label>
-          <select class="qb-select" style="width: 100%; height: 48px; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 0 16px; font-weight: 600;">
-            <option>Hôm nay - Thứ Ba, 27/10/2026 (Beta's Day đồng giá 45k)</option>
-            <option>Ngày mai - Thứ Tư, 28/10/2026</option>
-            <option>Thứ Năm, 29/10/2026</option>
-            <option>Thứ Sáu, 30/10/2026</option>
-          </select>
+          <label for="md-date" class="md-label">2. Chọn Ngày Xem Phim:</label>
+          <select id="md-date" class="qb-select md-select"></select>
         </div>
       </div>
 
-      <!-- Suất Chiếu Tại Rạp Beta Thanh Xuân -->
-      <div style="background: #f8fafc; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: var(--beta-navy);">
-            📍 RẠP BETA THANH XUÂN - 2D PHỤ ĐỀ (DOLBY 7.1)
-          </h4>
-          <span style="font-size: 12.5px; color: var(--beta-orange); font-weight: 700;">Vé chỉ từ 45.000đ</span>
+      <div class="md-slots-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 10px; flex-wrap: wrap;">
+          <h3 id="md-slots-title" style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: var(--beta-navy); margin:0;">📍 Suất chiếu</h3>
+          <span id="md-price-from" style="font-size: 12.5px; color: var(--beta-orange); font-weight: 700;"></span>
         </div>
-
-        <div style="display: flex; flex-wrap: wrap; gap: 14px;">
-          <a href="seats.html" class="btn btn-outline" style="background: white; border-color: #cbd5e1; flex-direction: column; padding: 12px 20px; align-items: flex-start;">
-            <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: var(--beta-navy);">13:15</span>
-            <span style="font-size: 11.5px; color: #64748b;">Phòng 01 • Còn 62 ghế</span>
-          </a>
-
-          <a href="seats.html" class="btn btn-outline" style="background: white; border-color: #cbd5e1; flex-direction: column; padding: 12px 20px; align-items: flex-start;">
-            <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: var(--beta-navy);">15:45</span>
-            <span style="font-size: 11.5px; color: #64748b;">Phòng 02 • Còn 48 ghế</span>
-          </a>
-
-          <a href="seats.html" class="btn btn-primary" style="flex-direction: column; padding: 12px 20px; align-items: flex-start;">
-            <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: white;">18:30</span>
-            <span style="font-size: 11.5px; color: #fed7aa;">Phòng 01 • Giờ Đẹp (Hot)</span>
-          </a>
-
-          <a href="seats.html" class="btn btn-outline" style="background: white; border-color: #cbd5e1; flex-direction: column; padding: 12px 20px; align-items: flex-start;">
-            <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: var(--beta-navy);">20:45</span>
-            <span style="font-size: 11.5px; color: #64748b;">Phòng VIP • Còn 28 ghế</span>
-          </a>
-
-          <a href="seats.html" class="btn btn-outline" style="background: white; border-color: #cbd5e1; flex-direction: column; padding: 12px 20px; align-items: flex-start;">
-            <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: var(--beta-navy);">22:30</span>
-            <span style="font-size: 11.5px; color: #64748b;">Phòng 03 • Suất đêm</span>
-          </a>
+        <div id="md-slots" style="display: flex; flex-wrap: wrap; gap: 14px;" aria-live="polite">
+          <p class="m">Đang tải suất chiếu…</p>
         </div>
       </div>
     </div>
@@ -788,61 +722,114 @@
       }
     });
   </script>
+  <style>
+    .md-filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+    .md-label { font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px; }
+    .md-select { width: 100%; height: 48px; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 0 16px; font-weight: 600; background: #fff; }
+    .md-slots-box { background: #f8fafc; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; }
+    .md-slot { background: white; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px 20px; display: flex; flex-direction: column; align-items: flex-start; text-decoration: none; min-width: 120px; transition: border-color .15s, transform .15s; }
+    .md-slot:hover, .md-slot:focus-visible { border-color: var(--beta-orange, #f97316); transform: translateY(-2px); outline: none; }
+    .md-slot b { font-family: var(--font-display); font-size: 18px; font-weight: 900; color: var(--beta-navy, #005198); }
+    .md-slot small { font-size: 11.5px; color: #64748b; }
+    .md-slot.full { opacity: .5; pointer-events: none; }
+    .md-group-title { width: 100%; font-size: 12.5px; font-weight: 800; color: #475569; letter-spacing: .3px; margin: 6px 0 -4px; }
+    @media (max-width: 640px) {
+      .md-filter-grid { grid-template-columns: 1fr; gap: 14px; }
+      .md-slots-box { padding: 16px; }
+      .md-slot { flex: 1 1 calc(50% - 14px); min-width: 0; }
+    }
+  </style>
+  <script src="catalog.js"></script>
+  <script src="pay-client.js"></script>
   <script>
-    // Synced with populateMovieDetailDates
-  </script>
-<script>
-    // Tự động tạo dropdown ngày chiếu thời gian thực cho trang chi tiết phim
-    function populateMovieDetailDates() {
-      const select = document.querySelector('select.qb-select:last-of-type') || document.querySelectorAll('select.qb-select')[1];
-      if (!select) return;
+    // Chi tiết phim: phim, rạp, suất chiếu lấy từ /api/catalog. Bấm suất -> seats.html?showtime=<id>
+    (async () => {
+      const $ = (id) => document.getElementById(id);
+      const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const params = new URLSearchParams(location.search);
+      let key = params.get('movie') || '';
+      let week = [];
 
-      const fullDaysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-      const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-      const now = new Date();
-      select.innerHTML = '';
-
-      for (let i = 0; i < 5; i++) {
-        const d = new Date(now);
-        d.setDate(now.getDate() + i);
-        const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
-        const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
-        const year = d.getFullYear();
-        const dow = daysOfWeek[d.getDay()];
-        const fullDow = fullDaysOfWeek[d.getDay()];
-        const shortDate = `${dow} ${day}/${month}`;
-
-        const opt = document.createElement('option');
-        opt.value = shortDate;
-        if (i === 0) {
-          opt.textContent = `Hôm nay - ${fullDow}, ${day}/${month}/${year} (Beta's Day)`;
-        } else if (i === 1) {
-          opt.textContent = `Ngày mai - ${fullDow}, ${day}/${month}/${year}`;
-        } else {
-          opt.textContent = `${fullDow}, ${day}/${month}/${year}`;
+      const renderMovie = (m) => {
+        document.title = (m.shortTitle || m.title) + ' - Lịch chiếu & đặt vé | Beta Cinemas';
+        $('md-title').textContent = m.title;
+        $('md-sub').textContent = m.format || '';
+        $('md-poster').src = m.poster || 'images/logo.png';
+        $('md-poster').alt = 'Poster phim ' + (m.shortTitle || m.title);
+        if (m.age) { $('md-age').hidden = false; $('md-age').textContent = m.age; }
+        if (m.badge) { $('md-format').hidden = false; $('md-format').textContent = m.badge; }
+        if (m.status === 'SOON') $('md-soon').hidden = false;
+        const parts = String(m.meta || '').split('·').map((x) => x.trim()).filter(Boolean);
+        $('md-pills').innerHTML = parts.slice(1).map((x) => '<div class="stat-pill">' + esc(x) + '</div>').join('');
+        $('md-meta').textContent = parts[0] ? 'Thể loại: ' + parts[0] : '';
+        const meta = document.querySelector('meta[name="description"]');
+        if (meta) meta.content = 'Xem lịch chiếu và đặt vé ' + (m.shortTitle || m.title) + ' tại Beta Cinemas. ' + (m.meta || '');
+        const trailer = m.trailer || (typeof MOVIE_TRAILERS !== 'undefined' && MOVIE_TRAILERS[m.key]);
+        if (trailer) {
+          if (typeof MOVIE_TRAILERS !== 'undefined') MOVIE_TRAILERS[m.key] = trailer;
+          $('md-trailer-btn').hidden = false;
+          $('md-trailer-btn').onclick = () => openTrailerModal(m.key, m.title);
         }
-        select.appendChild(opt);
+      };
+
+      const renderSlots = () => {
+        const cinema = $('md-cinema').value, date = $('md-date').value;
+        const list = week.filter((s) => s.cinema_id === cinema && s.date === date && !s.late);
+        const cName = ($('md-cinema').selectedOptions[0] || {}).textContent || '';
+        $('md-slots-title').textContent = '📍 ' + cName.toUpperCase();
+        const min = list.reduce((a, s) => Math.min(a, (s.prices && s.prices.standard) || Infinity), Infinity);
+        $('md-price-from').textContent = isFinite(min) ? 'Vé chỉ từ ' + Pay.vnd(min) : '';
+        if (!list.length) { $('md-slots').innerHTML = '<p class="m">Rạp chưa có suất chiếu phim này trong ngày đã chọn. Hãy chọn ngày hoặc rạp khác.</p>'; return; }
+        const byFormat = {};
+        list.forEach((s) => (byFormat[s.format || ''] = byFormat[s.format || ''] || []).push(s));
+        $('md-slots').innerHTML = Object.keys(byFormat).map((f) =>
+          (f ? '<div class="md-group-title">' + esc(f) + '</div>' : '') +
+          byFormat[f].map((s) => {
+            const full = s.seats_free === 0;
+            return '<a class="md-slot' + (full ? ' full' : '') + '" href="seats.html?showtime=' + encodeURIComponent(s.id) + '"' + (full ? ' aria-disabled="true" tabindex="-1"' : '') + '>' +
+              '<b>' + esc(s.time) + '</b><small>' + esc(s.room || '') + ' • ' + (full ? 'Hết ghế' : 'Còn ' + s.seats_free + ' ghế') + '</small></a>';
+          }).join('')).join('');
+      };
+
+      const fillDates = () => {
+        const cinema = $('md-cinema').value;
+        const dates = [];
+        week.forEach((s) => { if (s.cinema_id === cinema && !s.late && !dates.some((d) => d.date === s.date)) dates.push({ date: s.date, label: s.date_label }); });
+        dates.sort((a, b) => a.date.localeCompare(b.date));
+        $('md-date').innerHTML = dates.length ? dates.map((d) => '<option value="' + esc(d.date) + '">' + esc(d.label) + '</option>').join('') : '<option value="">Chưa có lịch chiếu</option>';
+        renderSlots();
+      };
+
+      try {
+        const [mv, cn] = await Promise.all([Pay.catalog('movies'), Pay.catalog('cinemas')]);
+        const movies = mv.movies || [];
+        const m = movies.find((x) => x.key === key) || (!key && movies[0]);
+        if (!m) {
+          $('md-title').textContent = 'Không tìm thấy phim';
+          $('md-slots').innerHTML = '<p class="m">Phim không tồn tại hoặc đã ngừng chiếu. <a href="schedule.html">Xem lịch chiếu các phim khác</a>.</p>';
+          return;
+        }
+        key = m.key;
+        renderMovie(m);
+        const wk = await Pay.catalog('showtimes', { movie: key, days: 7 });
+        week = wk.showtimes || [];
+        const has = new Set(week.filter((s) => !s.late).map((s) => s.cinema_id));
+        const cinemas = (cn.cinemas || []).filter((c) => has.has(c.id));
+        if (!cinemas.length) {
+          $('md-cinema').innerHTML = '<option>Chưa có rạp chiếu</option>';
+          $('md-date').innerHTML = '<option>—</option>';
+          $('md-slots').innerHTML = '<p class="m">' + (m.status === 'SOON' ? 'Phim sắp khởi chiếu, lịch chiếu sẽ được cập nhật sớm.' : 'Phim chưa có suất chiếu trong 7 ngày tới.') + '</p>';
+          return;
+        }
+        $('md-cinema').innerHTML = cinemas.map((c) => '<option value="' + esc(c.id) + '">' + esc(c.name + (c.city ? ' (' + c.city + ')' : '')) + '</option>').join('');
+        $('md-cinema').onchange = fillDates;
+        $('md-date').onchange = renderSlots;
+        fillDates();
+      } catch (e) {
+        if ($('md-title').textContent === 'Đang tải phim…') $('md-title').textContent = 'Không tải được thông tin phim';
+        $('md-slots').innerHTML = '<p class="m">Không kết nối được máy chủ. <button type="button" class="btn btn-outline btn-sm" onclick="location.reload()">Thử lại</button></p>';
       }
-
-      select.addEventListener('change', function() {
-        syncMovieDetailShowtimes(this.value);
-      });
-
-      syncMovieDetailShowtimes(select.value);
-    }
-
-    function syncMovieDetailShowtimes(selectedDateStr) {
-      const p = new URLSearchParams(window.location.search);
-      const m = p.get("movie") || "linh-gioi-dai-chien";
-      const dateVal = selectedDateStr || "Hôm nay";
-
-      // Chọn rạp, ngày và suất chiếu thật ở trang đặt vé
-      document.querySelectorAll("a[href*='seats.html']").forEach(a => {
-        a.href = 'booking.html?movie=' + encodeURIComponent(m);
-      });
-    }
-
-    window.addEventListener('DOMContentLoaded', populateMovieDetailDates);
-</script>
+    })();
+  </script>
 </body>
 </html>

@@ -526,8 +526,11 @@
       const code = p.get('code') || '';
       try {
         const o = code ? await Pay.getRefunds({ code }) : order ? await Pay.getRefunds({ order_code: order }) : null;
-        if (o && o.code) location.replace('order.html?code=' + encodeURIComponent(o.code));
+        if (o && o.code) return location.replace('order.html?code=' + encodeURIComponent(o.code));
       } catch (e) {}
+      // Không có đơn thật: chỉ giữ giao diện mẫu khi đang thiết kế (localhost / ?dev=1)
+      const dev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || p.has('dev');
+      if (!dev) location.replace(order ? 'order.html?code=' + encodeURIComponent(order) : 'account.html');
     })();
   </script>
 </body>

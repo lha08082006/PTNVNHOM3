@@ -1258,6 +1258,13 @@
             </div>`;
           grid.appendChild(card);
         });
+        // Tên phim + poster mở trang chi tiết; nút MUA VÉ vẫn vào thẳng trang đặt vé
+        grid.querySelectorAll('.movie-card').forEach(card => {
+          const buy = card.querySelector('a[href*="booking.html?movie="]');
+          const key = buy ? new URL(buy.href).searchParams.get('movie') : null;
+          const t = card.querySelector('.movie-title-official a');
+          if (key && t) t.href = 'movie-detail.html?movie=' + encodeURIComponent(key);
+        });
         const active = document.querySelector('.movie-tab-btn.active');
         if (typeof switchMovieTab === 'function') switchMovieTab(active ? active.id.replace('tab-', '') : 'now');
       } catch (e) {

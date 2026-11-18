@@ -112,7 +112,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 2. Xử lý Static Files (HTML, CSS, JS, Images)
-  let filePath = path.join(PUBLIC_DIR, decodeURIComponent(pathname === '/' ? 'index.html' : pathname));
+  let filePath = path.join(PUBLIC_DIR, decodeURIComponent(pathname === '/' ? 'home.html' : pathname));
   // Không phục vụ tệp ẩn (.env, .git...) hay tệp nằm ngoài thư mục dự án
   const rel = path.relative(PUBLIC_DIR, filePath);
   if (rel.startsWith('..') || rel.split(path.sep).some(p => p.startsWith('.')) || /^(lib|api|node_modules)([\\/]|$)/.test(rel)) {
