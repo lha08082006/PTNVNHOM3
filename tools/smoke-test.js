@@ -110,46 +110,97 @@ async function test(name, fn) {
     delete process.env.SEPAY_WEBHOOK_KEY;
   });
 
+  // Đăng nhập nhân viên demo (chế độ bộ nhớ trong tự tạo 4 tài khoản, mật khẩu beta-admin)
+  const staffLogin = async (email) => {
+    const r = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email, password: 'beta-admin' } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    return r.data.token;
+  };
+  const asStaff = (tok) => ({
+    post: (body) => call('admin', { method: 'POST', token: tok, body }),
+    get: (action) => call('admin', { token: tok, query: { action } })
+  });
+
+  await test('Nhân viên: đăng nhập riêng và phân quyền theo vai trò', async () => {
+    const wrong = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'cskh@beta.local', password: 'sai' } });
+    assert.strictEqual(wrong.status, 401);
+    const anon = await call('admin', { query: { action: 'overview' } });
+    assert.strictEqual(anon.status, 401);
+    // Token khách hàng không dùng được cho trang nội bộ
+    const customer = await call('admin', { token: tokB, query: { action: 'overview' } });
+    assert.strictEqual(customer.status, 401);
+
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const kt = asStaff(await staffLogin('ketoan@beta.local'));
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    assert.strictEqual((await cs.get('overview')).status, 200);
+    assert.strictEqual((await quay.get('overview')).status, 403);
+    assert.strictEqual((await quay.get('staff_list')).status, 403);
+    assert.strictEqual((await kt.get('staff_list')).status, 403);
+    assert.strictEqual((await cs.post({ action: 'accounting_paid', refund_code: 'X', refund_ref: 'FT' })).status, 403);
+    assert.strictEqual((await kt.post({ action: 'send_to_accounting', refund_codes: ['X'] })).status, 403);
+
+    // Quản lý tạo nhân viên mới, khóa tài khoản thì phiên của người đó hết hiệu lực
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const created = await ql.post({ action: 'staff_create', full_name: 'NV Tam Thoi', email: 'tam@beta.local', role: 'CS', password: 'matkhau123' });
+    assert.strictEqual(created.status, 200, JSON.stringify(created.data));
+    const r = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'tam@beta.local', password: 'matkhau123' } });
+    const tam = asStaff(r.data.token);
+    assert.strictEqual((await tam.get('me')).status, 200);
+    await ql.post({ action: 'staff_update', id: created.data.staff.id, active: false });
+    assert.strictEqual((await tam.get('me')).status, 401);
+    const self = await ql.post({ action: 'staff_update', id: (await ql.get('me')).data.staff.id, active: false });
+    assert.strictEqual(self.status, 400);
+  });
+
   await test('Hoàn tiền thủ công: gửi Kế toán → trả về → gửi lại → chi → hoàn tất', async () => {
     const Store = require('../lib/store');
-    const K = { 'x-admin-key': 'beta-admin' };
-    const admin = (body) => call('admin', { method: 'POST', headers: K, body });
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const kt = asStaff(await staffLogin('ketoan@beta.local'));
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
     const order = await Store.one('orders', { code });
     const mk = async (c) => Store.insert('refunds', {
       code: c, order_id: order.id, order_code: code, amount: 50000, reason: 'MISMATCH', status: 'FORM_SUBMITTED',
       idempotency_key: 'test-' + c, deadline_at: new Date().toISOString(), is_manual: true,
       bank_name: 'MB Bank', acc_number: '0123456789', acc_name: 'KHACH A', receipt_url: 'data:image/png;base64,AA==', form_submitted_at: new Date().toISOString()
     });
-    await mk('REF-T1'); await mk('REF-T2');
+    await mk('REF-T1'); await mk('REF-T2'); await mk('REF-T3');
 
-    const noActor = await admin({ action: 'send_to_accounting', refund_codes: ['REF-T1'] });
-    assert.strictEqual(noActor.status, 400);
-    const sent = await admin({ action: 'send_to_accounting', refund_codes: ['REF-T1', 'REF-T2', 'REF-KHONGCO'], actor: 'NV Lan' });
+    const sent = await cs.post({ action: 'send_to_accounting', refund_codes: ['REF-T1', 'REF-T2', 'REF-KHONGCO'] });
     assert.strictEqual(sent.data.sent, 2, JSON.stringify(sent.data));
     assert.strictEqual(sent.data.results.find(r => r.code === 'REF-KHONGCO').ok, false);
 
-    const noReason = await admin({ action: 'accounting_reject', refund_code: 'REF-T1', actor: 'KT Minh' });
+    const noReason = await kt.post({ action: 'accounting_reject', refund_code: 'REF-T1' });
     assert.strictEqual(noReason.status, 400);
-    const rej = await admin({ action: 'accounting_reject', refund_code: 'REF-T1', reason: 'WRONG_ACCOUNT', note: 'STK sai 1 số', actor: 'KT Minh' });
+    const rej = await kt.post({ action: 'accounting_reject', refund_code: 'REF-T1', reason: 'WRONG_ACCOUNT', note: 'STK sai 1 số' });
     assert.strictEqual(rej.status, 200, JSON.stringify(rej.data));
     assert.strictEqual(rej.data.refund.status, 'ACC_RETURNED');
     assert.strictEqual(rej.data.refund.returned_count, 1);
     // Hồ sơ đã trả về thì Kế toán không chi được nữa
-    const payReturned = await admin({ action: 'accounting_paid', refund_code: 'REF-T1', refund_ref: 'FT1', actor: 'KT Minh' });
-    assert.strictEqual(payReturned.status, 409);
+    assert.strictEqual((await kt.post({ action: 'accounting_paid', refund_code: 'REF-T1', refund_ref: 'FT1' })).status, 409);
 
-    const resend = await admin({ action: 'send_to_accounting', refund_codes: ['REF-T1'], note: 'Đã sửa STK theo khách xác nhận', actor: 'NV Lan' });
+    const resend = await cs.post({ action: 'send_to_accounting', refund_codes: ['REF-T1'], note: 'Đã sửa STK theo khách xác nhận' });
     assert.strictEqual(resend.data.sent, 1);
-    const pay = await admin({ action: 'accounting_paid', refund_code: 'REF-T1', refund_ref: 'FT999', actor: 'KT Minh' });
+    const pay = await kt.post({ action: 'accounting_paid', refund_code: 'REF-T1', refund_ref: 'FT999' });
     assert.strictEqual(pay.data.refund.status, 'PAID_OUT');
-    const done = await admin({ action: 'confirm_done', refund_code: 'REF-T1' });
+    const done = await cs.post({ action: 'confirm_done', refund_code: 'REF-T1' });
     assert.strictEqual(done.data.refund.status, 'DONE');
-    const log = done.data.refund.review_log.map(l => l.action);
-    assert.deepStrictEqual(log, ['Gửi Kế toán', 'Trả về nhân viên', 'Gửi lại Kế toán', 'Đạt – đã chi']);
+    const log = done.data.refund.review_log.map(l => `${l.action} (${l.actor})`);
+    assert.deepStrictEqual(log, ['Gửi Kế toán (CSKH Demo)', 'Trả về nhân viên (Kế Toán Demo)', 'Gửi lại Kế toán (CSKH Demo)', 'Đạt – đã chi (Kế Toán Demo)']);
 
-    const ov = await call('admin', { headers: K, query: { action: 'overview' } });
+    // Nguyên tắc 2 người: Quản lý tự gửi thì không tự duyệt chi được
+    await ql.post({ action: 'send_to_accounting', refund_codes: ['REF-T3'] });
+    assert.strictEqual((await ql.post({ action: 'accounting_paid', refund_code: 'REF-T3', refund_ref: 'FT3' })).status, 403);
+    assert.strictEqual((await kt.post({ action: 'accounting_paid', refund_code: 'REF-T3', refund_ref: 'FT3' })).status, 200);
+
+    const ov = await cs.get('overview');
     assert.ok(ov.data.refunds.some(r => r.code === 'REF-T2' && r.status === 'CS_APPROVED' && r.received > 0));
     assert.ok(ov.data.refunds.some(r => r.code === 'REF-T1' && r.status === 'DONE'));
+
+    // Mọi thao tác đều có trong nhật ký
+    const au = await ql.get('audit');
+    const acts = au.data.logs.map(l => l.action);
+    for (const a of ['login', 'send_to_accounting', 'accounting_reject', 'accounting_paid', 'confirm_done', 'staff_create', 'staff_update']) assert.ok(acts.includes(a), 'thiếu nhật ký ' + a);
   });
 
   for (const [ok, name] of results) console.log(ok, name);

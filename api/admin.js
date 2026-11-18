@@ -1,8 +1,10 @@
 // api/admin.js - Trang nội bộ: CSKH (hàng đợi MANUAL_REVIEW), Kế toán (chi hoàn + báo cáo đối soát),
-// IT/Dev (giám sát API, cảnh báo, chạy Job). Yêu cầu header x-admin-key = ADMIN_KEY.
+// Quản lý (nhân sự, nhật ký, công cụ IT). Đăng nhập bằng tài khoản nhân viên riêng (lib/staff.js),
+// mỗi thao tác kiểm tra quyền theo vai trò và được ghi vào audit_logs.
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
-const { fail, requireAdmin, clean } = require('../lib/api-util');
+const Staff = require('../lib/staff');
+const { fail, clean, adminKey } = require('../lib/api-util');
 
 const nowIso = () => new Date().toISOString();
 const vnd = (n) => new Intl.NumberFormat('vi-VN').format(n || 0) + 'đ';
@@ -23,12 +25,18 @@ const RETURN_REASONS = {
   OTHER: 'Khác'
 };
 
-// Người xử lý (tự khai trên trang nội bộ cho tới khi có tài khoản nhân viên riêng)
-const actorOf = (b) => clean(b.actor).slice(0, 60);
-
-// Ghi thêm một dòng vào nhật ký vòng duyệt Nhân viên <-> Kế toán của hồ sơ
+// Ghi thêm một dòng vào nhật ký vòng duyệt Nhân viên <-> Kế toán của hồ sơ (actor = nhân viên đăng nhập)
 const logEntry = (rf, role, actor, act, note) =>
-  [...(Array.isArray(rf.review_log) ? rf.review_log : []), { at: nowIso(), role, actor, action: act, note: note || null }];
+  [...(Array.isArray(rf.review_log) ? rf.review_log : []), { at: nowIso(), role, actor: actor.full_name, actor_id: actor.id, action: act, note: note || null }];
+
+// Quyền cần cho từng thao tác (null = chỉ cần đăng nhập; 'staff.manage' / 'system' = chỉ Quản lý)
+const NEED = {
+  overview: 'refund.view', order: 'order.view', report: 'report.view', run_job: 'system',
+  send_to_accounting: 'refund.send', decide: 'refund.decide', remind: 'refund.remind', confirm_done: 'refund.confirm',
+  accounting_paid: 'refund.pay', accounting_reject: 'refund.return', resolve_ticket: 'ticket.resolve',
+  staff_list: 'staff.manage', staff_create: 'staff.manage', staff_update: 'staff.manage', audit: 'staff.manage',
+  me: null, change_password: null
+};
 
 // Nhân viên gửi hồ sơ sang Kế toán (lần đầu hoặc gửi lại sau khi bị trả về)
 async function sendToAccounting(rf, order, note, actor) {
@@ -41,7 +49,7 @@ async function sendToAccounting(rf, order, note, actor) {
     review_log: logEntry(rf, 'NHÂN VIÊN', actor, resend ? 'Gửi lại Kế toán' : 'Gửi Kế toán', note)
   });
   if (!u) throw Object.assign(new Error('Hồ sơ vừa được người khác xử lý'), { http: 409 });
-  await Flow.addHistory(order, `Nhân viên (${actor}) ${resend ? 'gửi lại' : 'gửi'} hồ sơ ${rf.code} sang Kế toán chi hoàn ${vnd(rf.amount)}`);
+  await Flow.addHistory(order, `Nhân viên (${actor.full_name}) ${resend ? 'gửi lại' : 'gửi'} hồ sơ ${rf.code} sang Kế toán chi hoàn ${vnd(rf.amount)}`);
   await syncTickets(order, u, { status: 'WAITING_ACCOUNTING', decision: 'CAN_HOAN_TIEN' });
   return u;
 }
@@ -124,9 +132,67 @@ function toCsv(rep) {
 }
 
 module.exports = async function handler(req, res) {
-  if (!requireAdmin(req, res)) return;
   const action = clean((req.query && req.query.action) || (req.body && req.body.action));
+  const b0 = req.body || {};
   try {
+    await Staff.seedDemo();
+
+    // --- Công khai: trạng thái hệ thống, đăng nhập, tạo Quản lý đầu tiên ---
+    if (action === 'status') {
+      return res.status(200).json({ ok: true, live_db: Store.isLive(), needs_bootstrap: (await Staff.count()) === 0, roles: Staff.ROLES });
+    }
+    if (req.method === 'POST' && action === 'login') {
+      const r = await Staff.login(b0.email, b0.password);
+      await Staff.audit(r.staff, 'login', null);
+      return res.status(200).json({ ok: true, ...r });
+    }
+    // Chỉ khi CHƯA có nhân viên nào: dùng ADMIN_KEY để tạo tài khoản Quản lý đầu tiên
+    if (req.method === 'POST' && action === 'bootstrap') {
+      if (await Staff.count()) return res.status(409).json({ ok: false, error: 'Đã có tài khoản nhân viên – hãy đăng nhập' });
+      const key = adminKey();
+      if (!key || String(b0.admin_key || '') !== key) return res.status(401).json({ ok: false, error: 'Sai khóa ADMIN_KEY' });
+      const created = await Staff.create({ email: b0.email, full_name: b0.full_name, role: 'MANAGER', password: b0.password });
+      await Staff.audit(null, 'bootstrap_manager', created.email);
+      return res.status(200).json({ ok: true, staff: created });
+    }
+
+    if (!(action in NEED)) return res.status(400).json({ ok: false, error: 'Hành động không hỗ trợ: ' + action });
+    const me = await Staff.guard(req, res, NEED[action]);
+    if (!me) return;
+
+    // Mọi thao tác ghi (POST) thành công đều vào nhật ký
+    if (req.method === 'POST' && action !== 'change_password') {
+      const json = res.json.bind(res);
+      res.json = (data) => {
+        if ((res.statusCode || 200) < 400) {
+          const target = b0.refund_code || (Array.isArray(b0.refund_codes) ? b0.refund_codes.join(',') : null) || b0.ticket_code || b0.email || b0.id || null;
+          Staff.audit(me, action, target, { note: b0.note || undefined, reason: b0.reason || undefined, refund_ref: b0.refund_ref || undefined, role: b0.role || undefined, active: b0.active }).catch(() => {});
+        }
+        return json(data);
+      };
+    }
+
+    if (req.method === 'GET' && action === 'me') return res.status(200).json({ ok: true, staff: Staff.publicStaff(me) });
+    if (req.method === 'POST' && action === 'change_password') {
+      await Staff.changeOwnPassword(me, b0.current_password, b0.new_password);
+      await Staff.audit(me, 'change_password', me.email);
+      return res.status(200).json({ ok: true });
+    }
+
+    // --- Quản lý: nhân sự & nhật ký ---
+    if (req.method === 'GET' && action === 'staff_list') {
+      const rows = await Store.find('staff', {}, { order: 'created_at', asc: true, limit: 500 });
+      return res.status(200).json({ ok: true, staff: rows.map(Staff.publicStaff), roles: Staff.ROLES });
+    }
+    if (req.method === 'POST' && action === 'staff_create') {
+      return res.status(200).json({ ok: true, staff: await Staff.create(b0) });
+    }
+    if (req.method === 'POST' && action === 'staff_update') {
+      return res.status(200).json({ ok: true, staff: await Staff.update(clean(b0.id), { full_name: b0.full_name, role: b0.role, active: b0.active, password: b0.password || undefined }, me) });
+    }
+    if (req.method === 'GET' && action === 'audit') {
+      return res.status(200).json({ ok: true, logs: await Store.find('audit_logs', {}, { limit: 300 }) });
+    }
     if (req.method === 'GET' && action === 'overview') {
       const tickets = await Store.find('support_tickets', { status: { neq: 'RESOLVED' } }, { limit: 200 });
       const pipeline = await Store.find('refunds', { status: { in: ['MANUAL_REVIEW', 'FORM_SUBMITTED', 'CS_APPROVED', 'ACC_RETURNED', 'PAID_OUT', 'RETRYING', 'REQUESTED'] } }, { limit: 300 });
@@ -140,7 +206,7 @@ module.exports = async function handler(req, res) {
       const orders = await Store.find('orders', {}, { limit: 40 });
       const logs = await Store.find('gateway_logs', {}, { limit: 60 });
       return res.status(200).json({
-        ok: true, live_db: Store.isLive(), config: Flow.CONFIG, schedule: Flow.TIER1_SCHEDULE,
+        ok: true, live_db: Store.isLive(), me: Staff.publicStaff(me), config: Flow.CONFIG, schedule: Flow.TIER1_SCHEDULE,
         alerts: await alerts(),
         tickets: tickets.map(t => ({ ...t, context: undefined, has_context: !!t.context })),
         refunds: pipeline.map(r => ({ ...r, receipt_url: undefined, has_receipt: !!r.receipt_url })),
@@ -186,8 +252,7 @@ module.exports = async function handler(req, res) {
 
     // Nhân viên gửi NHIỀU hồ sơ sang Kế toán một lần (lọc ở màn hình "Hoàn tiền thủ công")
     if (action === 'send_to_accounting') {
-      const actor = actorOf(b);
-      if (!actor) return res.status(400).json({ error: 'Nhập tên người xử lý trước khi gửi Kế toán' });
+      const actor = me;
       const codes = (Array.isArray(b.refund_codes) ? b.refund_codes : []).map(clean).filter(Boolean).slice(0, 100);
       if (!codes.length) return res.status(400).json({ error: 'Chưa chọn hồ sơ nào' });
       const results = [];
@@ -205,8 +270,7 @@ module.exports = async function handler(req, res) {
 
     // Kế toán kiểm tra lại: KHÔNG ĐẠT -> trả hồ sơ về nhân viên kèm lý do
     if (action === 'accounting_reject') {
-      const actor = actorOf(b);
-      if (!actor) return res.status(400).json({ error: 'Nhập tên người xử lý trước khi trả hồ sơ' });
+      const actor = me;
       const { rf, order } = await getRefund(b.refund_code);
       const reason = RETURN_REASONS[clean(b.reason)];
       if (!reason) return res.status(400).json({ error: 'Chọn lý do trả về' });
@@ -218,7 +282,7 @@ module.exports = async function handler(req, res) {
         reconciled_at: null, review_log: logEntry(rf, 'KẾ TOÁN', actor, 'Trả về nhân viên', accNote)
       });
       if (!u) return res.status(409).json({ error: 'Hồ sơ không ở bước chờ Kế toán (có thể đã được xử lý)' });
-      await Flow.addHistory(order, `Kế toán (${actor}) trả hồ sơ ${rf.code} về nhân viên: ${accNote}`);
+      await Flow.addHistory(order, `Kế toán (${actor.full_name}) trả hồ sơ ${rf.code} về nhân viên: ${accNote}`);
       await syncTickets(order, u, { status: 'OPEN', decision: 'ACC_RETURNED' });
       return res.status(200).json({ ok: true, refund: u });
     }
@@ -229,15 +293,14 @@ module.exports = async function handler(req, res) {
       if (!['FORM_SUBMITTED', 'MANUAL_REVIEW', 'ACC_RETURNED'].includes(rf.status)) return res.status(409).json({ error: 'Hồ sơ không ở bước chờ CSKH đối chiếu' });
       const note = clean(b.note).slice(0, 500);
       if (b.decision === 'CAN_HOAN_TIEN') {
-        const actor = actorOf(b);
-        if (!actor) return res.status(400).json({ error: 'Nhập tên người xử lý trước khi gửi Kế toán' });
-        const u = await sendToAccounting(rf, order, note, actor);
+        if (!Staff.can(me, 'refund.send')) return res.status(403).json({ error: 'Vai trò này không được gửi hồ sơ sang Kế toán' });
+        const u = await sendToAccounting(rf, order, note, me);
         return res.status(200).json({ ok: true, refund: u });
       }
       if (b.decision === 'NGOAI_LE') {
         const [u] = await Store.update('refunds', { id: rf.id }, {
           status: 'MANUAL_REVIEW', cs_decision: 'NGOAI_LE', cs_note: note || 'Thông tin chưa đầy đủ hoặc ảnh biên lai không rõ',
-          review_log: logEntry(rf, 'NHÂN VIÊN', actorOf(b) || 'CSKH', 'Yêu cầu khách bổ sung', note)
+          review_log: logEntry(rf, 'NHÂN VIÊN', me, 'Yêu cầu khách bổ sung', note)
         });
         await Flow.addHistory(order, 'CSKH: thông tin RefundForm chưa hợp lệ (NGOAI_LE) – nhắc khách cập nhật');
         await Flow.notify(order, 'REFUND_FORM', 'Vui lòng cập nhật biểu mẫu hoàn tiền',
@@ -260,14 +323,16 @@ module.exports = async function handler(req, res) {
       const { rf, order } = await getRefund(b.refund_code);
       const ref = clean(b.refund_ref).slice(0, 40);
       if (!ref) return res.status(400).json({ error: 'Nhập mã giao dịch chuyển hoàn' });
-      const actor = actorOf(b);
-      if (!actor) return res.status(400).json({ error: 'Nhập tên người xử lý trước khi xác nhận chi' });
+      const actor = me;
+      // Nguyên tắc 2 người: người gửi hồ sơ sang Kế toán không được tự duyệt chi
+      const lastSend = (rf.review_log || []).filter(l => l.role === 'NHÂN VIÊN').pop();
+      if (lastSend && lastSend.actor_id === me.id) return res.status(403).json({ error: 'Bạn là người gửi hồ sơ này – cần một Kế toán khác duyệt chi' });
       const [u] = await Store.update('refunds', { id: rf.id, status: 'CS_APPROVED' }, {
         status: 'PAID_OUT', refund_ref: ref, approved_at: nowIso(), accounting_paid_at: nowIso(),
         review_log: logEntry(rf, 'KẾ TOÁN', actor, 'Đạt – đã chi', 'Mã GD ' + ref)
       });
       if (!u) return res.status(409).json({ error: 'Hồ sơ chưa được CSKH duyệt (CAN_HOAN_TIEN) hoặc đã chi' });
-      await Flow.addHistory(order, `Kế toán (${actor}) đã chi hoàn thủ công ${vnd(rf.amount)} (mã GD ${ref}) – chờ CSKH xác nhận hoàn tất`);
+      await Flow.addHistory(order, `Kế toán (${actor.full_name}) đã chi hoàn thủ công ${vnd(rf.amount)} (mã GD ${ref}) – chờ CSKH xác nhận hoàn tất`);
       await syncTickets(order, u, { status: 'OPEN' });
       return res.status(200).json({ ok: true, refund: u });
     }

@@ -56,9 +56,14 @@
     #login { max-width: 380px; margin: 80px auto; }
     .sb { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
     .hint { font-size: 12px; color: var(--muted); }
-    .actor { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #cbd5e1; }
-    .actor input { background: #1e293b; border-color: #334155; color: #fff; padding: 5px 9px; width: 170px; }
-    .actor input.need { border-color: #f87171; box-shadow: 0 0 0 2px rgba(248,113,113,.35); }
+    .who { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #e2e8f0; }
+    .who[hidden] { display: none; }
+    .who .role { padding: 2px 9px; border-radius: 999px; background: #334155; font-weight: 700; font-size: 11.5px; }
+    .who button { background: transparent; border: 1px solid #334155; color: #cbd5e1; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+    .who button:hover { background: #1e293b; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; align-items: end; }
+    .form-grid label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
+    tr.inactive td { opacity: .55; }
     .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
     .chip { border: 1px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
     .chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
@@ -81,24 +86,37 @@
   <header>
     <h1>🎬 Beta Cinemas · Nội bộ đối soát & hoàn tiền</h1>
     <span class="env" id="env">—</span>
-    <label class="actor" id="actor-box" hidden>Người xử lý
-      <input id="actor" placeholder="Họ tên nhân viên" maxlength="60" autocomplete="name">
-    </label>
+    <div class="who" id="who" hidden>
+      <span>👤 <b id="who-name"></b></span><span class="role" id="who-role"></span>
+      <button type="button" onclick="changeMyPassword()">Đổi mật khẩu</button>
+      <button type="button" onclick="logout()">Đăng xuất</button>
+    </div>
     <nav class="tabs" id="tabs" style="display: none;">
       <button data-tab="cskh" class="on">CSKH <span class="count" id="c-cskh" hidden></span></button>
       <button data-tab="ketoan">Kế toán <span class="count" id="c-ketoan" hidden></span></button>
+      <button data-tab="quay">Quầy</button>
       <button data-tab="it">IT / Dev <span class="count" id="c-it" hidden></span></button>
+      <button data-tab="nhansu">Nhân sự & nhật ký</button>
     </nav>
   </header>
 
   <main>
     <div class="card" id="login">
       <h2>Đăng nhập nội bộ</h2>
-      <p class="hint">Nhập khóa truy cập nội bộ (biến môi trường <span class="mono">ADMIN_KEY</span> trên máy chủ). Khi chạy thử bằng bộ nhớ trong, khóa mặc định là <span class="mono">beta-admin</span>.</p>
-      <form onsubmit="event.preventDefault(); login(document.getElementById('key').value)">
-        <input id="key" type="password" placeholder="Khóa truy cập" style="width: 100%; margin-bottom: 10px;" autocomplete="current-password">
-        <button class="btn primary" style="width: 100%;">Vào trang nội bộ</button>
+      <form id="login-form" onsubmit="event.preventDefault(); login()">
+        <input id="lg-email" type="email" placeholder="Email nhân viên" style="width: 100%; margin-bottom: 8px;" autocomplete="username" required>
+        <input id="lg-pass" type="password" placeholder="Mật khẩu" style="width: 100%; margin-bottom: 10px;" autocomplete="current-password" required>
+        <button class="btn primary" style="width: 100%;">Đăng nhập</button>
       </form>
+      <form id="boot-form" hidden onsubmit="event.preventDefault(); bootstrap()">
+        <p class="hint">Hệ thống chưa có tài khoản nhân viên nào. Tạo tài khoản <b>Quản lý</b> đầu tiên bằng khóa <span class="mono">ADMIN_KEY</span> trên máy chủ.</p>
+        <input id="bt-key" type="password" placeholder="ADMIN_KEY" style="width: 100%; margin-bottom: 8px;" required>
+        <input id="bt-name" placeholder="Họ tên Quản lý" style="width: 100%; margin-bottom: 8px;" required>
+        <input id="bt-email" type="email" placeholder="Email đăng nhập" style="width: 100%; margin-bottom: 8px;" required>
+        <input id="bt-pass" type="password" placeholder="Mật khẩu (≥ 8 ký tự)" minlength="8" style="width: 100%; margin-bottom: 10px;" required>
+        <button class="btn primary" style="width: 100%;">Tạo tài khoản Quản lý</button>
+      </form>
+      <p class="hint" id="demo-hint" hidden>Chạy thử (bộ nhớ trong): <span class="mono">quanly@ · ketoan@ · cskh@ · quay@beta.local</span>, mật khẩu <span class="mono">beta-admin</span>.</p>
       <div id="login-err" style="color: #b91c1c; margin-top: 8px;"></div>
     </div>
 
@@ -134,6 +152,38 @@
         </div>
         <div class="kpis" id="r-kpis"></div>
         <div id="r-table"></div>
+      </div>
+    </section>
+
+    <!-- ===================== QUẦY ===================== -->
+    <section id="tab-quay" hidden>
+      <div class="card" style="max-width: 640px;">
+        <h2>Tra cứu đơn / vé tại quầy</h2>
+        <form class="toolbar" onsubmit="event.preventDefault(); openOrder(document.getElementById('q-code').value.trim().toUpperCase())">
+          <input id="q-code" class="mono" placeholder="Nhập mã đơn BC..." style="flex: 1; text-transform: uppercase;" required>
+          <button class="btn primary">Tra cứu</button>
+        </form>
+        <p class="hint">Khách quên vé: nhập mã đơn trong email/SMS để xem trạng thái, ghế và suất chiếu.</p>
+      </div>
+    </section>
+
+    <!-- ===================== NHÂN SỰ ===================== -->
+    <section id="tab-nhansu" hidden>
+      <div class="card">
+        <h2>Tài khoản nhân viên <small>chỉ Quản lý · khóa tài khoản khi nhân viên nghỉ việc</small></h2>
+        <form class="form-grid" style="margin-bottom: 14px;" onsubmit="event.preventDefault(); createStaff()">
+          <label>Họ tên<input id="ns-name" required></label>
+          <label>Email<input id="ns-email" type="email" required></label>
+          <label>Vai trò<select id="ns-role"></select></label>
+          <label>Mật khẩu tạm<input id="ns-pass" type="text" minlength="8" required placeholder="≥ 8 ký tự"></label>
+          <button class="btn primary">+ Thêm nhân viên</button>
+        </form>
+        <div id="staff-table"></div>
+      </div>
+      <div class="card">
+        <h2>Nhật ký thao tác <small>ai làm gì, lúc nào – 300 thao tác gần nhất</small></h2>
+        <input id="au-search" placeholder="Lọc theo tên, thao tác, mã hồ sơ..." style="width: 100%; margin-bottom: 10px;" oninput="renderAudit()">
+        <div id="audit-table"></div>
       </div>
     </section>
 
@@ -215,8 +265,10 @@
 
   <script>
     const API = (location.port && !['3000', '5000'].includes(location.port)) ? 'http://localhost:5000/api/' : '/api/';
-    let KEY = sessionStorage.getItem('beta_admin_key') || '';
-    let tab = 'cskh';
+    let TOKEN = '';
+    try { TOKEN = sessionStorage.getItem('beta_staff_token') || ''; } catch (e) {}
+    let ME = null;
+    let tab = null;
     let overview = null;
 
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -239,55 +291,163 @@
     let csFilter = 'TODO';
     const selected = new Set();
 
-    // Người xử lý: lưu trong phiên trình duyệt, bắt buộc với thao tác gửi / trả / chi
-    const actorInput = () => document.getElementById('actor');
-    function actor() {
-      const v = actorInput().value.trim();
-      if (!v) { actorInput().classList.add('need'); actorInput().focus(); throw new Error('Nhập tên người xử lý (góc trên) trước khi thao tác.'); }
-      actorInput().classList.remove('need');
-      try { sessionStorage.setItem('beta_admin_actor', v); } catch (e) {}
-      return v;
-    }
+    // Quyền của nhân viên đang đăng nhập (MANAGER = '*')
+    const can = (perm) => !!ME && (ME.perms.includes('*') || ME.perms.includes(perm));
+    const isManager = () => !!ME && ME.role === 'MANAGER';
+    // Tab hiển thị theo vai trò
+    const TAB_RULE = {
+      cskh: () => can('refund.decide') || can('ticket.view'),
+      ketoan: () => can('refund.pay') || can('report.view'),
+      quay: () => can('order.view') && !can('refund.view') || isManager(),
+      it: isManager, nhansu: isManager
+    };
     const TK_LABEL = { GENERAL: 'Yêu cầu hỗ trợ', PAYMENT_REPORT: 'Khách báo lỗi', MANUAL_REVIEW: 'Hoàn tiền thủ công', DATA_MISMATCH: 'Dữ liệu lệch', UNMATCHED_TX: 'Tiền không khớp đơn' };
     const TK_STATUS = { OPEN: 'Mới / cần xử lý', WAITING_CUSTOMER: 'Chờ khách cập nhật', WAITING_ACCOUNTING: 'Chờ Kế toán' };
     const pill = (txt, tone) => `<span class="pill p-${tone || 'muted'}">${esc(txt)}</span>`;
 
     async function api(path, opts = {}) {
-      const r = await fetch(API + path, { ...opts, headers: { 'Content-Type': 'application/json', 'x-admin-key': KEY, ...(opts.headers || {}) } });
+      const r = await fetch(API + path, { ...opts, headers: { 'Content-Type': 'application/json', ...(TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {}), ...(opts.headers || {}) } });
       const j = await r.json().catch(() => ({}));
+      if (r.status === 401 && TOKEN && !/action=(login|bootstrap)/.test(path)) { logout(true); }
       if (!r.ok) { const e = new Error(j.error || ('HTTP ' + r.status)); e.status = r.status; throw e; }
       return j;
     }
     const post = (action, body) => api('admin', { method: 'POST', body: JSON.stringify({ action, ...body }) });
 
-    async function login(k) {
-      KEY = k.trim();
+    async function login() {
+      const err = document.getElementById('login-err');
+      err.textContent = '';
       try {
-        await load();
-        sessionStorage.setItem('beta_admin_key', KEY);
-        document.getElementById('login').hidden = true;
-        document.getElementById('tabs').style.display = 'flex';
-        document.getElementById('actor-box').hidden = false;
-        try { actorInput().value = sessionStorage.getItem('beta_admin_actor') || ''; } catch (e) {}
-        show(tab);
+        const r = await post('login', { email: document.getElementById('lg-email').value, password: document.getElementById('lg-pass').value });
+        TOKEN = r.token;
+        try { sessionStorage.setItem('beta_staff_token', TOKEN); } catch (e) {}
+        document.getElementById('lg-pass').value = '';
+        await enter();
       } catch (e) {
-        document.getElementById('login-err').textContent = e.message;
+        err.textContent = e.message;
       }
+    }
+
+    async function bootstrap() {
+      const err = document.getElementById('login-err');
+      err.textContent = '';
+      try {
+        const email = document.getElementById('bt-email').value, password = document.getElementById('bt-pass').value;
+        await post('bootstrap', { admin_key: document.getElementById('bt-key').value, full_name: document.getElementById('bt-name').value, email, password });
+        document.getElementById('lg-email').value = email;
+        document.getElementById('lg-pass').value = password;
+        await login();
+      } catch (e) {
+        err.textContent = e.message;
+      }
+    }
+
+    function logout(expired) {
+      TOKEN = ''; ME = null; overview = null;
+      try { sessionStorage.removeItem('beta_staff_token'); } catch (e) {}
+      document.getElementById('who').hidden = true;
+      document.getElementById('tabs').style.display = 'none';
+      document.querySelectorAll('main > section').forEach(x => { x.hidden = true; });
+      document.getElementById('login').hidden = false;
+      if (expired) document.getElementById('login-err').textContent = 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.';
+      initLogin();
+    }
+
+    async function changeMyPassword() {
+      const cur = prompt('Mật khẩu hiện tại:');
+      if (cur === null) return;
+      const nw = prompt('Mật khẩu mới (ít nhất 8 ký tự):');
+      if (nw === null) return;
+      try {
+        await post('change_password', { current_password: cur, new_password: nw });
+        alert('Đã đổi mật khẩu. Vui lòng đăng nhập lại.');
+        logout();
+      } catch (e) { alert(e.message); }
+    }
+
+    async function enter() {
+      ME = (await api('admin?action=me')).staff;
+      document.getElementById('who-name').textContent = ME.full_name;
+      document.getElementById('who-role').textContent = ME.role_label;
+      document.getElementById('who').hidden = false;
+      document.getElementById('login').hidden = true;
+      document.getElementById('tabs').style.display = 'flex';
+      document.querySelectorAll('#tabs button').forEach(btn => { btn.hidden = !TAB_RULE[btn.dataset.tab](); });
+      await load();
+      const first = [...document.querySelectorAll('#tabs button')].find(btn => !btn.hidden);
+      show(tab && TAB_RULE[tab] && TAB_RULE[tab]() ? tab : first.dataset.tab);
+    }
+
+    async function initLogin() {
+      try {
+        const st = await api('admin?action=status');
+        document.getElementById('env').textContent = st.live_db ? 'Supabase (dữ liệu thật)' : 'Bộ nhớ trong (chạy thử)';
+        document.getElementById('boot-form').hidden = !st.needs_bootstrap;
+        document.getElementById('login-form').hidden = st.needs_bootstrap;
+        document.getElementById('demo-hint').hidden = st.live_db;
+      } catch (e) {}
     }
 
     function show(name) {
       tab = name;
       document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
-      ['cskh', 'ketoan', 'it'].forEach(n => { document.getElementById('tab-' + n).hidden = n !== name; });
-      if (name === 'ketoan' && !document.getElementById('r-table').innerHTML) loadReport();
+      ['cskh', 'ketoan', 'quay', 'it', 'nhansu'].forEach(n => { document.getElementById('tab-' + n).hidden = n !== name; });
+      if (name === 'ketoan' && can('report.view') && !document.getElementById('r-table').innerHTML) loadReport();
+      if (name === 'nhansu') loadStaff();
     }
     document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => show(b.dataset.tab));
 
     async function load() {
+      if (!can('refund.view')) return; // Nhân viên quầy chỉ dùng tra cứu
       overview = await api('admin?action=overview');
       document.getElementById('env').textContent = overview.live_db ? 'Supabase (dữ liệu thật)' : 'Bộ nhớ trong (chạy thử)';
-      renderCskh(); renderKetoan(); renderIt();
+      renderCskh(); renderKetoan(); if (isManager()) renderIt();
     }
+
+    // ---------------- NHÂN SỰ & NHẬT KÝ (Quản lý) ----------------
+    let STAFF = [], ROLES = {}, AUDIT = [];
+    async function loadStaff() {
+      const [st, au] = await Promise.all([api('admin?action=staff_list'), api('admin?action=audit')]);
+      STAFF = st.staff; ROLES = st.roles; AUDIT = au.logs;
+      document.getElementById('ns-role').innerHTML = Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === 'CS' ? 'selected' : ''}>${esc(v)}</option>`).join('');
+      document.getElementById('staff-table').innerHTML = `<table><thead><tr><th>Họ tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Đăng nhập gần nhất</th><th></th></tr></thead><tbody>${
+        STAFF.map(x => `<tr class="${x.active ? '' : 'inactive'}"><td><b>${esc(x.full_name)}</b></td><td class="mono">${esc(x.email)}</td>
+          <td><select onchange="updateStaff('${x.id}', { role: this.value })" ${x.id === ME.id ? 'disabled' : ''}>${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === x.role ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></td>
+          <td>${x.active ? pill('Đang hoạt động', 'ok') : pill('Đã khóa', 'muted')}</td><td>${t(x.last_login_at) || '—'}</td>
+          <td class="row-actions">${x.id === ME.id ? '<span class="hint">(bạn)</span>' : `
+            <button class="btn" onclick="resetStaffPass('${x.id}')">Đặt lại mật khẩu</button>
+            <button class="btn ${x.active ? 'danger' : 'ok'}" onclick="updateStaff('${x.id}', { active: ${!x.active} })">${x.active ? 'Khóa' : 'Mở khóa'}</button>`}</td></tr>`).join('')
+      }</tbody></table>`;
+      renderAudit();
+    }
+    const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
+      remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
+      change_password: 'Đổi mật khẩu', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
+    function renderAudit() {
+      const q = document.getElementById('au-search').value.trim().toLowerCase();
+      const rows = AUDIT.filter(l => !q || [l.staff_name, l.action, AUDIT_LABEL[l.action], l.target, JSON.stringify(l.detail || {})].join(' ').toLowerCase().includes(q));
+      document.getElementById('audit-table').innerHTML = rows.length ? `<table><thead><tr><th>Thời điểm</th><th>Nhân viên</th><th>Thao tác</th><th>Đối tượng</th><th>Chi tiết</th></tr></thead><tbody>${
+        rows.map(l => `<tr><td>${t(l.created_at)}</td><td>${esc(l.staff_name)} ${l.role ? pill(ROLES[l.role] || l.role, 'muted') : ''}</td><td>${esc(AUDIT_LABEL[l.action] || l.action)}</td>
+          <td class="mono">${esc(l.target || '')}</td><td class="hint">${esc(Object.entries(l.detail || {}).filter(([, v]) => v !== undefined && v !== null && v !== '').map(([k, v]) => k + ': ' + v).join(' · '))}</td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Chưa có thao tác nào.</div>';
+    }
+    const createStaff = () => act(async () => {
+      await post('staff_create', { full_name: document.getElementById('ns-name').value, email: document.getElementById('ns-email').value,
+        role: document.getElementById('ns-role').value, password: document.getElementById('ns-pass').value });
+      ['ns-name', 'ns-email', 'ns-pass'].forEach(id => { document.getElementById(id).value = ''; });
+      await loadStaff();
+    });
+    const updateStaff = (id, patch) => act(async () => {
+      if (patch.active === false && !confirm('Khóa tài khoản này? Nhân viên sẽ bị đăng xuất ngay.')) return;
+      await post('staff_update', { id, ...patch });
+      await loadStaff();
+    });
+    const resetStaffPass = (id) => act(async () => {
+      const pw = prompt('Mật khẩu tạm mới (ít nhất 8 ký tự). Nhân viên sẽ bị đăng xuất khỏi mọi thiết bị:');
+      if (!pw) return;
+      await post('staff_update', { id, password: pw });
+      alert('Đã đặt lại mật khẩu. Hãy gửi mật khẩu tạm cho nhân viên qua kênh riêng.');
+    });
 
     function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
 
@@ -356,10 +516,9 @@
     }
 
     async function sendCodes(codes) {
-      const who = actor();
       const note = prompt(`Ghi chú đối chiếu gửi Kế toán cho ${codes.length} hồ sơ (tùy chọn):`, 'Biên lai khớp sổ cái ngân hàng');
       if (note === null) return;
-      const r = await post('send_to_accounting', { refund_codes: codes, note, actor: who });
+      const r = await post('send_to_accounting', { refund_codes: codes, note });
       const bad = r.results.filter(x => !x.ok);
       codes.forEach(c => selected.delete(c));
       alert(`Đã gửi Kế toán ${r.sent}/${codes.length} hồ sơ.` + (bad.length ? '\nKhông gửi được:\n' + bad.map(x => x.code + ': ' + x.error).join('\n') : ''));
@@ -386,7 +545,7 @@
             </div>
             <div class="row-actions" style="margin-top: 6px;">
               <input id="ref-${esc(r.code)}" class="mono" placeholder="Mã GD chuyển hoàn FT..." style="width: 170px;">
-              <button class="btn ok" onclick="paid('${esc(r.code)}')">✓ Đạt – Đã chi</button>
+              <button class="btn ok" onclick="paid('${esc(r.code)}')" ${(r.review_log || []).filter(x => x.role === 'NHÂN VIÊN').pop()?.actor_id === ME.id ? 'disabled title="Bạn là người gửi hồ sơ này – cần Kế toán khác duyệt"' : ''}>✓ Đạt – Đã chi</button>
               <button class="btn danger" onclick="openReject('${esc(r.code)}')">↩ Không đạt – Trả về</button>
             </div></td></tr>`).join('')
       }</tbody></table>` : '<div class="empty">Không có hồ sơ nào đang chờ Kế toán kiểm tra.</div>';
@@ -395,7 +554,6 @@
     // Hộp thoại "Không đạt – Trả về nhân viên"
     let rejectCode = null;
     function openReject(code) {
-      try { actor(); } catch (e) { return alert(e.message); }
       const r = overview.refunds.find(x => x.code === code);
       rejectCode = code;
       document.getElementById('rj-code').textContent = code;
@@ -412,7 +570,7 @@
       const err = document.getElementById('rj-err');
       if (!reason) return (err.textContent = 'Chọn lý do không đạt.');
       try {
-        await post('accounting_reject', { refund_code: rejectCode, reason, note, actor: actor() });
+        await post('accounting_reject', { refund_code: rejectCode, reason, note });
         document.getElementById('reject-dlg').close();
         await load();
       } catch (e) {
@@ -442,7 +600,7 @@
       }</tbody></table>` : '<div class="empty">Không có giao dịch trong khoảng thời gian này.</div>';
     }
     async function downloadCsv() {
-      const r = await fetch(API + 'admin?action=report&format=csv&' + dates(), { headers: { 'x-admin-key': KEY } });
+      const r = await fetch(API + 'admin?action=report&format=csv&' + dates(), { headers: { Authorization: 'Bearer ' + TOKEN } });
       if (!r.ok) return alert('Không tải được báo cáo');
       const blob = await r.blob();
       const a = document.createElement('a');
@@ -483,7 +641,7 @@
     async function sb(scenario, extra = {}) {
       const code = document.getElementById('sb-code').value.trim().toUpperCase();
       try {
-        const r = await fetch(API + 'simulate-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scenario, order_code: code, ...extra }) });
+        const r = await fetch(API + 'simulate-payment', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN }, body: JSON.stringify({ scenario, order_code: code, ...extra }) });
         const j = await r.json();
         if (!r.ok) throw new Error(j.error);
         document.getElementById('sb-result').innerHTML = `✓ ${esc(j.description)}${j.order ? ` → ${pill(j.order.status_label, STATUS_TONE[j.order.status])}` : ''}`;
@@ -498,15 +656,14 @@
     const decide = (code, decision) => act(async () => {
       const note = decision === 'NGOAI_LE' ? prompt('Ghi chú cho khách (thông tin cần cập nhật):', 'Ảnh biên lai không rõ số tiền / mã giao dịch') : prompt('Ghi chú đối chiếu (tùy chọn):', 'Biên lai khớp log cổng thanh toán');
       if (note === null) return;
-      await post('decide', { refund_code: code, decision, note, actor: actorInput().value.trim() });
+      await post('decide', { refund_code: code, decision, note });
     });
     const remind = (code) => act(async () => { await post('remind', { refund_code: code }); alert('Đã gửi nhắc qua Email, SMS và thông báo trên website.'); });
     const paid = (code) => act(async () => {
       const ref = document.getElementById('ref-' + code).value.trim();
       if (!ref) throw new Error('Nhập mã giao dịch chuyển hoàn trước khi xác nhận đã chi.');
-      const who = actor();
       if (!confirm(`Xác nhận ĐẠT và đã chuyển khoản hoàn cho hồ sơ ${code} (mã GD ${ref})?`)) return;
-      await post('accounting_paid', { refund_code: code, refund_ref: ref, actor: who });
+      await post('accounting_paid', { refund_code: code, refund_ref: ref });
     });
     const confirmDone = (code) => act(async () => { if (confirm('Xác nhận khách đã nhận tiền hoàn? Đơn sẽ chuyển REFUNDED và gửi thông báo kết quả cuối.')) await post('confirm_done', { refund_code: code }); });
     const resolveTicket = (code) => act(async () => { const note = prompt('Kết quả xử lý:'); if (note !== null) await post('resolve_ticket', { ticket_code: code, note }); });
@@ -554,8 +711,8 @@
     }
     function closeDrawer() { document.getElementById('drawer').classList.remove('open'); }
 
-    if (KEY) login(KEY);
-    setInterval(() => { if (KEY && !document.hidden && !document.getElementById('drawer').classList.contains('open')) load().catch(() => {}); }, 15000);
+    if (TOKEN) enter().catch(() => logout(true)); else initLogin();
+    setInterval(() => { if (TOKEN && ME && !document.hidden && !document.getElementById('drawer').classList.contains('open')) load().catch(() => {}); }, 15000);
   </script>
 </body>
 
