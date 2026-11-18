@@ -6,10 +6,15 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "mockups:inline": "node tools/build-inlined-html.js",
+    "mockups:capture": "node tools/capture-fullpage.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
     "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
   }
 }

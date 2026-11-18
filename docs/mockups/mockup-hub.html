@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beta Cinemas - 23 Màn hình Mockup Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0056b3;
+      --primary-hover: #004494;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 30px 20px 80px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .header {
+      text-align: center;
+      margin-bottom: 35px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .header p { color: var(--text-muted); font-size: 15px; max-width: 700px; margin: 0 auto; }
+    
+    .figma-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      border: 1px solid #6366f1;
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 35px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+    .figma-banner h3 { font-size: 18px; color: #fff; margin-bottom: 4px; }
+    .figma-banner p { font-size: 13.5px; color: #c7d2fe; }
+    .btn-figma {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #4f46e5;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-figma:hover { background: #4338ca; transform: translateY(-1px); }
+
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .btn-batch {
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-batch:hover { background: #0369a1; }
+
+    .category-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 30px 0 16px;
+      padding-left: 10px;
+      border-left: 4px solid var(--accent);
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .card-top { margin-bottom: 15px; }
+    .card-num {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .card-file {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-top: 6px;
+    }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .btn-open {
+      flex: 1;
+      text-align: center;
+      background: #334155;
+      color: #f1f5f9;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-open:hover { background: #475569; color: #fff; }
+    .btn-primary-open {
+      background: #0284c7;
+      color: #fff;
+    }
+    .btn-primary-open:hover { background: #0369a1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎬 Beta Cinemas - 23 Giao Diện Mockup Hub</h1>
+      <p>Tổng hợp đầy đủ 23 màn hình độc lập của hệ thống. Bạn có thể mở từng trang để xem trước hoặc xuất lên Figma Canvas.</p>
+    </div>
+
+    <!-- Figma Target Banner -->
+    <div class="figma-banner">
+      <div>
+        <h3>📁 File Figma mới đã được tạo sẵn cho bạn</h3>
+        <p>Tên file: <strong>Beta Cinemas - 23 Giao Dien Mockup</strong> (Click nút bên cạnh để mở trên Figma)</p>
+      </div>
+      <a href="https://www.figma.com/design/UKZu7LBUSk1bLnCSTOw1RI" target="_blank" class="btn-figma">
+        Mở File Figma ↗
+      </a>
+    </div>
+
+    <div class="action-bar">
+      <div><strong>Tổng số màn hình:</strong> 23 giao diện</div>
+      <button class="btn-batch" onclick="openAllPages()">🚀 Mở tất cả 23 trang (Tabs)</button>
+    </div>
+
+    <!-- Nhóm 1: Luồng Đặt vé -->
+    <div class="category-title">🎟️ 1. Luồng Đặt Vé Chính (8 màn hình)</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#01</span>
+          <div class="card-title">Trang chủ</div>
+          <div class="card-file">home.html</div>
+          <div class="card-desc">Banner, phim đang chiếu, sắp chiếu, tin khuyến mãi.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/home.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#02</span>
+          <div class="card-title">Chi tiết phim</div>
+          <div class="card-file">movie-detail.html</div>
+          <div class="card-desc">Trailer, nội dung, danh sách suất chiếu theo rạp.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/movie-detail.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#03</span>
+          <div class="card-title">Lịch chiếu phim</div>
+          <div class="card-file">schedule.html</div>
+          <div class="card-desc">Lịch theo ngày và lọc theo rạp Beta.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/schedule.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#04</span>
+          <div class="card-title">Đặt vé nhanh</div>
+          <div class="card-file">booking.html</div>
+          <div class="card-desc">Chọn rạp, ngày, phim và suất chiếu nhanh.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/booking.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#05</span>
+          <div class="card-title">Chọn ghế ngồi</div>
+          <div class="card-file">seats.html</div>
+          <div class="card-desc">Sơ đồ ghế rạp, phân loại ghế thường/VIP/đôi.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/seats.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#06</span>
+          <div class="card-title">Chọn bắp nước</div>
+          <div class="card-file">combo.html</div>
+          <div class="card-desc">Menu combo bắp rang, nước ngọt, phụ kiện phim.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/combo.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#07</span>
+          <div class="card-title">Kiểm tra đơn hàng</div>
+          <div class="card-file">checkout.html</div>
+          <div class="card-desc">Tóm tắt giỏ vé, mã giảm giá, chọn thanh toán.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/checkout.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#08</span>
+          <div class="card-title">Cổng thanh toán VietQR</div>
+          <div class="card-file">gateway.html</div>
+          <div class="card-desc">Quét mã QR SePay tự động kiểm tra giao dịch realtime.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/gateway.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nhóm 2: Vé & Hóa đơn -->
+    <div class="category-title">🧾 2. Quản Lý Vé & Hóa Đơn (4 màn hình)</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#09</span>
+          <div class="card-title">Hóa đơn điện tử</div>
+          <div class="card-file">invoice.html</div>
+          <div class="card-desc">Biên lai thanh toán thành công, chi tiết tiền và thuế.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/invoice.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#10</span>
+          <div class="card-title">Vé điện tử QR</div>
+          <div class="card-file">ticket.html</div>
+          <div class="card-desc">Mã QR và mã vạch vé để vào phòng chiếu.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/ticket.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#11</span>
+          <div class="card-title">Vé đã hủy</div>
+          <div class="card-file">ticket-cancelled.html</div>
+          <div class="card-desc">Giao diện thông báo vé đã bị hủy giao dịch.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/ticket-cancelled.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#12</span>
+          <div class="card-title">Vé đã hoàn tiền</div>
+          <div class="card-file">ticket-refunded.html</div>
+          <div class="card-desc">Giao diện xác nhận vé đã hoàn trả tiền thành công.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/ticket-refunded.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nhóm 3: Xử lý sự cố thanh toán & Hoàn tiền -->
+    <div class="category-title">⚠️ 3. Xử Lý Chuyển Khoản & Hoàn Tiền (4 màn hình)</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#13</span>
+          <div class="card-title">Chuyển thiếu tiền</div>
+          <div class="card-file">underpay.html</div>
+          <div class="card-desc">Cảnh báo thiếu tiền & mã QR thanh toán bổ sung.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/underpay.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#14</span>
+          <div class="card-title">Chuyển thừa tiền</div>
+          <div class="card-file">overpay.html</div>
+          <div class="card-desc">Thông báo chuyển thừa & hướng dẫn nhận lại tiền thừa.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/overpay.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#15</span>
+          <div class="card-title">Gửi yêu cầu hoàn tiền</div>
+          <div class="card-file">refund.html</div>
+          <div class="card-desc">Form nhập STK và lý do yêu cầu hủy vé hoàn tiền.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/refund.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#16</span>
+          <div class="card-title">Tra cứu hoàn tiền</div>
+          <div class="card-file">refund-track.html</div>
+          <div class="card-desc">Theo dõi tiến độ xét duyệt và hoàn tiền vé.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/refund-track.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nhóm 4: Tài khoản & Chăm sóc khách hàng -->
+    <div class="category-title">👤 4. Tài Khoản & Hỗ Trợ (7 màn hình)</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#17</span>
+          <div class="card-title">Đăng nhập tài khoản</div>
+          <div class="card-file">auth.html</div>
+          <div class="card-desc">Form đăng nhập đầy đủ với tài khoản mật khẩu.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/auth.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#18</span>
+          <div class="card-title">Đăng nhập rút gọn</div>
+          <div class="card-file">login.html</div>
+          <div class="card-desc">Trang đăng nhập modal/popup nhanh.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/login.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#19</span>
+          <div class="card-title">Đăng ký thành viên</div>
+          <div class="card-file">register.html</div>
+          <div class="card-desc">Form tạo tài khoản Beta Member mới.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/register.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#20</span>
+          <div class="card-title">Xác thực OTP</div>
+          <div class="card-file">verify.html</div>
+          <div class="card-desc">Màn hình nhập mã xác thực OTP gửi qua email/SMS.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/verify.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#21</span>
+          <div class="card-title">Quản lý tài khoản cá nhân</div>
+          <div class="card-file">account.html</div>
+          <div class="card-desc">Thông tin cá nhân, hạng thành viên, lịch sử đặt vé.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/account.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#22</span>
+          <div class="card-title">Trung tâm hỗ trợ</div>
+          <div class="card-file">support.html</div>
+          <div class="card-desc">Hỏi đáp thường gặp, liên hệ hotline, gửi yêu cầu trợ giúp.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/support.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-num">#23</span>
+          <div class="card-title">Trợ lý ảo AI BetaBot</div>
+          <div class="card-file">betabot.html</div>
+          <div class="card-desc">Giao diện Chatbot tư vấn chọn phim và suất chiếu.</div>
+        </div>
+        <div class="card-actions">
+          <a href="/betabot.html" target="_blank" class="btn-open btn-primary-open screen-link">Mở trang ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openAllPages() {
+      const links = document.querySelectorAll('.screen-link');
+      if (confirm(`Bạn có chắc chắn muốn mở cùng lúc ${links.length} tab để xuất sang Figma không?`)) {
+        links.forEach((a, index) => {
+          setTimeout(() => {
+            window.open(a.href, '_blank');
+          }, index * 200);
+        });
+      }
+    }
+  </script>
+</body>
+</html>

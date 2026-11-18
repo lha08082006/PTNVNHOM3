@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Trang Chủ – Alpha & Beta Cinema</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#12141C}
+a{color:#F3F1EC;text-decoration:none}a:hover{color:{{accent}}}
+button,select,input,textarea{font-family:inherit}
+</style>
+</helmet>
+<div style="font-family:'Be Vietnam Pro',system-ui,sans-serif;background:#12141C;color:#F3F1EC;position:relative;min-height:100vh">
+
+<!-- Header chuẩn Alpha / Beta Cinema -->
+<header style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:16px 48px;border-bottom:1px solid #2C3040">
+  <a href="home.html" style="display:flex;align-items:center;gap:12px">
+    <img src="./assets/60cdfe976dc5dbaa13ebd44a42c4d43e.png" alt="Logo" style="height:44px;width:auto">
+    <span style="display:flex;flex-direction:column;line-height:1">
+      <span style="font-weight:800;font-size:22px;letter-spacing:.14em">ALPHA</span>
+      <span style="font-weight:600;font-size:11px;letter-spacing:.42em;color:{{accent}};margin-top:4px">CINEMA</span>
+    </span>
+  </a>
+  <select style="min-height:42px;border-radius:21px;border:1px solid #2C3040;background:#1C1F2B;color:#F3F1EC;padding:0 16px;font:inherit;font-weight:600">
+    <option>Beta Thanh Xuân (Hà Nội)</option>
+  </select>
+  <nav style="display:flex;gap:24px;font-weight:600;font-size:15px">
+    <a href="home.html">Phim</a>
+    <a href="schedule.html">Lịch chiếu</a>
+    <a href="booking.html">Đặt vé</a>
+    <a href="account.html">Đơn của tôi</a>
+    <a href="support.html">Hỗ trợ</a>
+  </nav>
+  <div style="display:flex;gap:12px;align-items:center">
+    <a href="login.html" style="display:inline-flex;align-items:center;min-height:40px;padding:0 18px;border-radius:8px;border:1px solid #2C3040;color:#F3F1EC;font-weight:600">Đăng nhập</a>
+    <a href="register.html" style="display:inline-flex;align-items:center;min-height:40px;padding:0 18px;border-radius:8px;border:0;background:{{accent}};color:#12141C;font-weight:800">Đăng ký</a>
+  </div>
+</header>
+
+<!-- Main Screen Content -->
+
+<section style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:32px;padding:64px 48px 80px;background:linear-gradient(120deg,#2A1B3D,#12141C 70%)">
+  <div style="max-width:580px;display:flex;flex-direction:column;gap:18px">
+    <span style="font-size:13px;font-weight:700;letter-spacing:.12em;color:{{accent}}">BETA PICK · PHIM BOM TẤN TUẦN NÀY</span>
+    <h1 style="margin:0;font-size:52px;line-height:1.1;font-weight:800">Linh Giới Đại Chiến: Thần Sư Chung Quỳ</h1>
+    <p style="margin:0;color:#A3A7B8;font-size:16px;line-height:1.6">Cuộc chiến khốc liệt giữa thiện và ác nơi cõi âm. Đỉnh cao kỹ xảo điện ảnh châu Á.</p>
+    <div style="display:flex;gap:12px;font-size:14px;color:#A3A7B8"><span>Hành động, Kỳ ảo</span> · <span>125 phút</span> · <span style="color:{{accent}};font-weight:700">T18</span></div>
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <a href="booking.html" style="display:inline-flex;align-items:center;min-height:46px;padding:0 26px;border-radius:8px;background:{{accent}};color:#12141C;font-weight:800">Đặt vé ngay</a>
+      <a href="movie-detail.html" style="display:inline-flex;align-items:center;min-height:46px;padding:0 26px;border-radius:8px;border:1px solid #A3A7B8;color:#F3F1EC;font-weight:600">Chi tiết phim</a>
+    </div>
+  </div>
+  <div style="width:320px;height:450px;border-radius:16px;background:linear-gradient(160deg,#FF5400,#005198);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;box-shadow:0 20px 40px rgba(0,0,0,0.5)">[Poster Bom Tấn]</div>
+</section>
+
+<section style="padding:48px 48px 0;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:16px;align-items:center">
+      <h2 style="margin:0;font-size:28px;font-weight:800">Phim Chiếu Rạp</h2>
+      <button style="min-height:38px;padding:0 18px;border-radius:20px;border:0;background:{{accent}};color:#12141C;font-weight:800">Đang chiếu</button>
+      <button style="min-height:38px;padding:0 18px;border-radius:20px;border:1px solid #2C3040;background:transparent;color:#F3F1EC;font-weight:600">Sắp chiếu</button>
+    </div>
+    <a href="schedule.html" style="color:{{accent}};font-weight:600">Xem tất cả lịch chiếu ↗</a>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
+    <article style="display:flex;flex-direction:column;gap:10px">
+      <div style="aspect-ratio:2/3;border-radius:12px;background:linear-gradient(160deg,#FF5A3C,#7A2E8E);display:flex;align-items:center;justify-content:center;font-weight:700">[Linh Giới Đại Chiến]</div>
+      <h3 style="margin:0;font-size:16px;font-weight:700">Linh Giới Đại Chiến</h3>
+      <p style="margin:0;font-size:13px;color:#A3A7B8">Hành động · 125 phút</p>
+      <a href="booking.html" style="text-align:center;padding:10px;border-radius:8px;border:1px solid {{accent}};color:{{accent}};font-weight:800">Mua vé</a>
+    </article>
+    <article style="display:flex;flex-direction:column;gap:10px">
+      <div style="aspect-ratio:2/3;border-radius:12px;background:linear-gradient(160deg,#2E6FF2,#0F2A5C);display:flex;align-items:center;justify-content:center;font-weight:700">[Út Lan 2]</div>
+      <h3 style="margin:0;font-size:16px;font-weight:700">Út Lan 2: Đám Cưới Miền Tây</h3>
+      <p style="margin:0;font-size:13px;color:#A3A7B8">Hài hước · 105 phút</p>
+      <a href="booking.html" style="text-align:center;padding:10px;border-radius:8px;border:1px solid {{accent}};color:{{accent}};font-weight:800">Mua vé</a>
+    </article>
+    <article style="display:flex;flex-direction:column;gap:10px">
+      <div style="aspect-ratio:2/3;border-radius:12px;background:linear-gradient(160deg,#F2B84B,#B5421E);display:flex;align-items:center;justify-content:center;font-weight:700">[Án Mạng Karaoke]</div>
+      <h3 style="margin:0;font-size:16px;font-weight:700">Án Mạng Karaoke</h3>
+      <p style="margin:0;font-size:13px;color:#A3A7B8">Kinh dị, Giật gân · 112 phút</p>
+      <a href="booking.html" style="text-align:center;padding:10px;border-radius:8px;border:1px solid {{accent}};color:{{accent}};font-weight:800">Mua vé</a>
+    </article>
+    <article style="display:flex;flex-direction:column;gap:10px">
+      <div style="aspect-ratio:2/3;border-radius:12px;background:linear-gradient(160deg,#18A58A,#12414A);display:flex;align-items:center;justify-content:center;font-weight:700">[Quỷ Ăn Tạng 4]</div>
+      <h3 style="margin:0;font-size:16px;font-weight:700">Quỷ Ăn Tạng 4: Trở Lại</h3>
+      <p style="margin:0;font-size:13px;color:#A3A7B8">Kinh dị · 118 phút</p>
+      <a href="booking.html" style="text-align:center;padding:10px;border-radius:8px;border:1px solid {{accent}};color:{{accent}};font-weight:800">Mua vé</a>
+    </article>
+  </div>
+</section>
+
+<!-- Footer chuẩn -->
+<footer style="margin-top:60px;padding:40px 48px;border-top:1px solid #2C3040;background:#1C1F2B;display:flex;flex-direction:column;gap:24px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;font-size:14px;color:#A3A7B8;line-height:1.8">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <strong style="color:#F3F1EC;font-size:16px">ALPHA / BETA CINEMAS</strong>
+      </div>
+      Nơi mỗi câu chuyện bắt đầu<br>Hotline: 1900 636 807 (08:00 - 22:00)
+    </div>
+    <div><strong style="color:#F3F1EC">Khám phá</strong><br><a href="home.html">Phim đang chiếu</a><br><a href="schedule.html">Lịch chiếu rạp</a></div>
+    <div><strong style="color:#F3F1EC">Dịch vụ</strong><br><a href="refund.html">Chính sách hoàn hủy</a><br><a href="support.html">Trung tâm trợ giúp</a></div>
+    <div><strong style="color:#F3F1EC">Tài khoản</strong><br><a href="account.html">Lịch sử giao dịch</a><br><a href="verify.html">Xác thực tài khoản</a></div>
+  </div>
+  <p style="margin:0;font-size:13px;color:#64748b">© 2026 Alpha & Beta Cinemas. Mockup UI minh họa giao diện.</p>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF5400"},"$preview":{"width":1440,"height":1800}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#FF5400' };
+}
+}
+</script>
+</body>
+</html>

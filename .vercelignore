@@ -1,0 +1,10 @@
+# Không đưa tài liệu, công cụ nội bộ và mã máy chủ local lên Vercel
+docs/
+tools/
+inlined-mockups/
+mockups-png/
+migrations/
+schema.sql
+server.js
+.env*
+.claude/

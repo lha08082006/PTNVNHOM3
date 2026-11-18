@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram id="web-class-diagram-vi" name="Sơ đồ lớp thực tế - Web Beta Cinemas (Tiếng Việt)">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="2800" pageHeight="1850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Tiêu đề sơ đồ -->
+        <mxCell id="title" value="SƠ ĐỒ LỚP HỆ THỐNG WEB THỰC TẾ (HỆ THỐNG ĐẶT VÉ PHIM BETA CINEMAS)" style="text;html=1;align=left;fontSize=18;fontStyle=1;strokeColor=none;fillColor=none;fontColor=#003768;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1200" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- PHÂN VÙNG 1: TẦNG ĐIỀU KHIỂN & GIAO DIỆN CLIENT -->
+        <mxCell id="band_client" value="TẦNG 1: ĐIỀU KHIỂN &amp; GIAO DIỆN NGƯỜI DÙNG (Frontend Controllers &amp; Trợ lý AI)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fillColor=#E0F2FE;strokeColor=#0284C7;opacity=70;fontColor=#0369A1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="2220" height="250" as="geometry" />
+        </mxCell>
+
+        <!-- PHÂN VÙNG 2: TẦNG DỊCH VỤ & XỬ LÝ NGHIỆP VỤ BACKEND -->
+        <mxCell id="band_api" value="TẦNG 2: DỊCH VỤ XỬ LÝ NGHIỆP VỤ MÁY CHỦ (Backend Services &amp; Cổng Thanh Toán)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fillColor=#FEF3C7;strokeColor=#D97706;opacity=70;fontColor=#92400E;" vertex="1" parent="1">
+          <mxGeometry x="40" y="350" width="2220" height="280" as="geometry" />
+        </mxCell>
+
+        <!-- PHÂN VÙNG 3: TẦNG THỰC THỂ CƠ SỞ DỮ LIỆU -->
+        <mxCell id="band_data" value="TẦNG 3: THỰC THỂ DỮ LIỆU CỐT LÕI (Database Domain Entities - Bảng CSDL)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fillColor=#F3E8FF;strokeColor=#9333EA;opacity=70;fontColor=#6B21A8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="660" width="2220" height="520" as="geometry" />
+        </mxCell>
+
+        <!-- PHÂN VÙNG 4: CÁC BỘ ĐỊNH DANH TRẠNG THÁI -->
+        <mxCell id="band_enums" value="TẦNG 4: CÁC BỘ ĐỊNH DANH TRẠNG THÁI &amp; KẾT QUẢ (Enumerations)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fillColor=#F1F5F9;strokeColor=#64748B;opacity=70;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1210" width="2220" height="300" as="geometry" />
+        </mxCell>
+
+        <!-- =================== CÁC LỚP GIAO DIỆN CLIENT =================== -->
+        <!-- BoDieuKhienThanhToan (PayClient) -->
+        <mxCell id="c_payclient" value="«điều khiển»&#xa;BoDieuKhienThanhToan" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#BAE6FD;strokeColor=#0284C7;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="115" width="330" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="c_payclient_attr" value="- duongDanApi: Chuoi&#xa;- chuKyKiemTraGiay: SoNguyen = 3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_payclient">
+          <mxGeometry x="0" y="30" width="330" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="c_payclient_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_payclient">
+          <mxGeometry x="0" y="68" width="330" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_payclient_ops" value="+ goiApi(duongDan, thamSo): LoiHua&#xa;+ theoDoiTrangThai(maDon, hamGoiLai)&#xa;+ giaLapKichBan(kichBan, maDon): LoiHua&#xa;+ dinhDangVnd(soTien: SoNguyen): Chuoi&#xa;+ layDanhSachNgayChieu(): DanhSach" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_payclient">
+          <mxGeometry x="0" y="76" width="330" height="92" as="geometry" />
+        </mxCell>
+
+        <!-- TroLyAoBetaBot (BetaBotAI) -->
+        <mxCell id="c_betabot" value="«điều khiển / giao diện»&#xa;TroLyAoBetaBot" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#BAE6FD;strokeColor=#0284C7;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="460" y="115" width="340" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="c_betabot_attr" value="- lichSuTroChuyen: DanhSach&#xa;- dangXuLy: DungSai" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_betabot">
+          <mxGeometry x="0" y="30" width="340" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="c_betabot_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_betabot">
+          <mxGeometry x="0" y="68" width="340" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_betabot_ops" value="+ xuLyCauHoiNguoiDung(tinNhan: Chuoi)&#xa;+ guiYeuCauDoiSoat(maDon, maNganHang)&#xa;+ hienThiTheCuuVe(thongTinDon)&#xa;+ hienThiTheHoanTien(thongTinHoan)&#xa;+ hienThiTheKhieuNai(thongTinKhieuNai)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_betabot">
+          <mxGeometry x="0" y="76" width="340" height="92" as="geometry" />
+        </mxCell>
+
+        <!-- DieuKhienTrangXacMinh (VerifyViewController) -->
+        <mxCell id="c_verifyview" value="«điều khiển / giao diện»&#xa;DieuKhienTrangXacMinh" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#BAE6FD;strokeColor=#0284C7;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="870" y="115" width="330" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="c_verifyview_attr" value="- giayGiuGheConLai: SoNguyen = 600 (10 phút)&#xa;- giayRaSoatLop1ConLai: SoNguyen = 60 (1 phút)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_verifyview">
+          <mxGeometry x="0" y="30" width="330" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="c_verifyview_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_verifyview">
+          <mxGeometry x="0" y="68" width="330" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_verifyview_ops" value="+ batDauDemNguoc()&#xa;+ traCuuDinhKy(maDon: Chuoi)&#xa;+ hetGioRaSoatLop1() // Tự động gợi ý mở BetaBot&#xa;+ hetGioGiuGhe() // Điều hướng sang trang hoàn tiền&#xa;+ dieuHuongTheoTrangThai(trangThai)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_verifyview">
+          <mxGeometry x="0" y="76" width="330" height="92" as="geometry" />
+        </mxCell>
+
+        <!-- =================== CÁC LỚP DỊCH VỤ BACKEND =================== -->
+        <!-- XuLyWebhookSePay -->
+        <mxCell id="c_sepay" value="«dịch vụ»&#xa;XuLyWebhookSePay" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#FDE68A;strokeColor=#D97706;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="390" width="350" height="215" as="geometry" />
+        </mxCell>
+        <mxCell id="c_sepay_attr" value="- kiemTraChongTrung: TruyVanCSDL" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_sepay">
+          <mxGeometry x="0" y="30" width="350" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="c_sepay_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_sepay">
+          <mxGeometry x="0" y="56" width="350" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_sepay_ops" value="+ tiepNhanWebhook(yeuCau, phanHoi): LoiHua&#xa;+ trichXuatMaDon(noiDung, ma): Chuoi&#xa;+ kiemTraChongTrung(maThamChieu): DungSai&#xa;+ xuLyTraThieu(donHang, soTienMoi): KetQuaGiaoDich&#xa;+ xuLyTraThua(donHang, soTienMoi): KetQuaGiaoDich&#xa;+ xuLyTraDung(donHang, soTienMoi): KetQuaGiaoDich&#xa;+ xuLyTraTre(donHang, soTienMoi): KetQuaGiaoDich&#xa;+ tuDongGhepDonCho(): DonDatVe [0..1]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_sepay">
+          <mxGeometry x="0" y="64" width="350" height="142" as="geometry" />
+        </mxCell>
+
+        <!-- XuLyDoiSoatGiaoDich -->
+        <mxCell id="c_reconcile" value="«dịch vụ»&#xa;XuLyDoiSoatGiaoDich" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#FDE68A;strokeColor=#D97706;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="470" y="390" width="350" height="215" as="geometry" />
+        </mxCell>
+        <mxCell id="c_reconcile_attr" value="- nguongHetHanGiay: SoNguyen = 600 (10 phút)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_reconcile">
+          <mxGeometry x="0" y="30" width="350" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="c_reconcile_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_reconcile">
+          <mxGeometry x="0" y="56" width="350" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_reconcile_ops" value="+ thucHienDoiSoat(maDon, maNganHang, sdt): LoiHua&#xa;+ khopSoCaiGiaoDich(maNganHang, maDon): GiaoDich&#xa;+ cuuVeThanhCong(donHang, giaoDich): KetQua&#xa;+ cuuVeChuyenHoanTien(donHang, giaoDich): KetQua&#xa;+ chuyenKhieuNaiCSKH(donHang, maNganHang, sdt): KetQua&#xa;+ kiemTraDonHetHan(donHang): DungSai" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_reconcile">
+          <mxGeometry x="0" y="64" width="350" height="142" as="geometry" />
+        </mxCell>
+
+        <!-- XuLyHoanTien -->
+        <mxCell id="c_refund_service" value="«dịch vụ»&#xa;XuLyHoanTien" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#FDE68A;strokeColor=#D97706;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="870" y="390" width="330" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="c_refund_service_attr" value="- cacLyDoHopLe: DanhSachChuoi" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_refund_service">
+          <mxGeometry x="0" y="30" width="330" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="c_refund_service_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_refund_service">
+          <mxGeometry x="0" y="56" width="330" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_refund_service_ops" value="+ traCuuTienTrinh(maHoan, maDon): HoSoHoanTien&#xa;+ tiepNhanThongTinNganHang(duLieu): HoSoHoanTien&#xa;+ tuDongTaoHoSoNeuThieu(maDon): HoSoHoanTien&#xa;+ capNhatTienDo(maHoan, trangThaiMoi, maGD)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_refund_service">
+          <mxGeometry x="0" y="64" width="330" height="102" as="geometry" />
+        </mxCell>
+
+        <!-- XuLyDonDatVe -->
+        <mxCell id="c_order_service" value="«dịch vụ»&#xa;XuLyDonDatVe" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#FDE68A;strokeColor=#D97706;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="390" width="320" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="c_order_service_attr" value="- thoiGianGiuGhePhut: SoNguyen = 10" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_order_service">
+          <mxGeometry x="0" y="30" width="320" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="c_order_service_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_order_service">
+          <mxGeometry x="0" y="56" width="320" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_order_service_ops" value="+ taoDonDatVe(yeuCau, phanHoi): LoiHua&#xa;+ layTrangThaiDon(maDon): LoiHua&#xa;+ sinhMaDonHang(): Chuoi // Cú pháp BC...&#xa;+ tinhTongTien(ghe, combo, maGiamGia): SoNguyen" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_order_service">
+          <mxGeometry x="0" y="64" width="320" height="102" as="geometry" />
+        </mxCell>
+
+        <!-- =================== CÁC LỚP THỰC THỂ CSDL =================== -->
+        <!-- DonDatVe (Bảng orders) -->
+        <mxCell id="c_order" value="«thực thể / bảng»&#xa;DonDatVe (orders)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E9D5FF;strokeColor=#9333EA;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="700" width="350" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="c_order_attr" value="- maDinhDanh: Chuoi {KhoaChinh}&#xa;- maDonHang: Chuoi {DuyNhat} // Cú pháp BC...&#xa;- maNguoiDung: Chuoi [0..1]&#xa;- soDienThoai: Chuoi&#xa;- maPhim: Chuoi&#xa;- tenRap: Chuoi&#xa;- ngayChieu: Chuoi&#xa;- gioChieu: Chuoi&#xa;- khoaSuatChieu: Chuoi&#xa;- danhSachGhe: DanhSachChuoi // JSONB [D5, D6]&#xa;- danhSachCombo: BanDo // JSONB&#xa;- maGiamGia: Chuoi [0..1]&#xa;- tongTien: SoNguyen &gt;= 0&#xa;- soTienDaTra: SoNguyen = 0&#xa;- trangThai: TrangThaiDonDatVe = DANG_GIU_GHE&#xa;- hanGiuGhe: ThoiDiem // 10 phút&#xa;- thoiGianThanhToan: ThoiDiem [0..1]&#xa;- thoiGianTao: ThoiDiem" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_order">
+          <mxGeometry x="0" y="30" width="350" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="c_order_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_order">
+          <mxGeometry x="0" y="270" width="350" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_order_ops" value="+ daHetHan(): DungSai&#xa;+ laySoTienConThieu(): SoNguyen&#xa;+ laySoTienThua(): SoNguyen&#xa;+ capNhatTrangThai(trangThaiMoi)&#xa;+ congDonTienDaTra(soTien)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_order">
+          <mxGeometry x="0" y="278" width="350" height="92" as="geometry" />
+        </mxCell>
+
+        <!-- KhoaGhe (Bảng seat_holds) -->
+        <mxCell id="c_seathold" value="«thực thể / bảng»&#xa;KhoaGhe (seat_holds)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E9D5FF;strokeColor=#9333EA;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="470" y="700" width="310" height="195" as="geometry" />
+        </mxCell>
+        <mxCell id="c_seathold_attr" value="- khoaSuatChieu: Chuoi {KhoaChinh 1/2}&#xa;- maGhe: Chuoi {KhoaChinh 2/2}&#xa;- maDonHang: Chuoi {KhoaNgoai}&#xa;- trangThai: TrangThaiGhe = DANG_TAM_GIU&#xa;- hetHanLuc: ThoiDiem" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_seathold">
+          <mxGeometry x="0" y="30" width="310" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="c_seathold_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_seathold">
+          <mxGeometry x="0" y="115" width="310" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_seathold_ops" value="+ khoaGheTheoSuat(maDon, dsGhe, thoiLuong)&#xa;+ giaiPhongGheHetHan()&#xa;+ xacNhanBanGhe(maDon)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_seathold">
+          <mxGeometry x="0" y="123" width="310" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- GiaoDichNganHang (Bảng bank_transactions) -->
+        <mxCell id="c_banktx" value="«thực thể / bảng»&#xa;GiaoDichNganHang (bank_transactions)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E9D5FF;strokeColor=#9333EA;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="830" y="700" width="350" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="c_banktx_attr" value="- maGiaoDichSePay: SoNguyen {KhoaChinh}&#xa;- congThanhToan: Chuoi&#xa;- soTaiKhoanNhan: Chuoi&#xa;- ngayGiaoDich: ThoiDiem&#xa;- noiDungChuyenKhoan: Chuoi&#xa;- maDonBocTach: Chuoi [0..1]&#xa;- loaiChuyenKhoan: Chuoi // 'in'&#xa;- soTienChuyen: SoNguyen&#xa;- maGiaoDichNganHang: Chuoi {ChiMuc} // FT...&#xa;- duLieuGoc: JSONB // Lưu nguyên bản&#xa;- maDonHang: Chuoi {KhoaNgoai} [0..1]&#xa;- ketQuaXuLy: KetQuaGiaoDich&#xa;- ghiChu: Chuoi [0..1]&#xa;- thoiGianTao: ThoiDiem" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_banktx">
+          <mxGeometry x="0" y="30" width="350" height="205" as="geometry" />
+        </mxCell>
+        <mxCell id="c_banktx_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_banktx">
+          <mxGeometry x="0" y="235" width="350" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_banktx_ops" value="+ laGiaoDichTrung(): DungSai&#xa;+ lienKetDonHang(maDon)&#xa;+ danhDauKetQua(ketQua, ghiChu)&#xa;+ layNoiDungChuanHoa(): Chuoi" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_banktx">
+          <mxGeometry x="0" y="243" width="350" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- HoSoHoanTien (Bảng refunds) -->
+        <mxCell id="c_refund" value="«thực thể / bảng»&#xa;HoSoHoanTien (refunds)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E9D5FF;strokeColor=#9333EA;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="700" width="350" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="c_refund_attr" value="- maDinhDanh: Chuoi {KhoaChinh}&#xa;- maHoSoHoan: Chuoi {DuyNhat} // REF-...&#xa;- maDonHang: Chuoi {KhoaNgoai}&#xa;- maGiaoDichNganHang: SoNguyen [0..1]&#xa;- soTienHoan: SoNguyen &gt; 0&#xa;- lyDoHoan: LyDoHoanTien&#xa;- trangThai: TrangThaiHoanTien = CHO_THONG_TIN&#xa;- tenNganHang: Chuoi [0..1]&#xa;- soTaiKhoan: Chuoi [0..1]&#xa;- tenChuTaiKhoan: Chuoi [0..1]&#xa;- thoiGianNhanThongTin: ThoiDiem [0..1]&#xa;- thoiGianDoiSoat: ThoiDiem [0..1]&#xa;- thoiGianDuyet: ThoiDiem [0..1]&#xa;- thoiGianHoanTat: ThoiDiem [0..1]&#xa;- maGiaoDichHoanTien: Chuoi [0..1] // Mã GD hoàn&#xa;- thoiGianTao: ThoiDiem" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_refund">
+          <mxGeometry x="0" y="30" width="350" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="c_refund_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_refund">
+          <mxGeometry x="0" y="260" width="350" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_refund_ops" value="+ capNhatTaiKhoanNhan(nganHang, soTK, tenChuTK)&#xa;+ chuyenTrangThaiTiepTheo(trangThaiMoi)&#xa;+ hoanTatChuyenKhoan(maGiaoDichHoan)&#xa;+ daCoThongTinNganHang(): DungSai" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_refund">
+          <mxGeometry x="0" y="268" width="350" height="95" as="geometry" />
+        </mxCell>
+
+        <!-- PhieuKhieuNai (Bảng complaints) -->
+        <mxCell id="c_complaint" value="«thực thể / bảng»&#xa;PhieuKhieuNai (complaints)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E9D5FF;strokeColor=#9333EA;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1630" y="700" width="310" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="c_complaint_attr" value="- maDinhDanh: Chuoi {KhoaChinh}&#xa;- maPhieuKhieuNai: Chuoi {DuyNhat} // CS-...&#xa;- maGiaoDichNganHang: Chuoi [0..1]&#xa;- maDonHang: Chuoi [0..1]&#xa;- soDienThoai: Chuoi&#xa;- soTienKhieuNai: SoNguyen&#xa;- moTaChiTiet: Chuoi&#xa;- trangThai: TrangThaiKhieuNai = DANG_MO&#xa;- thoiGianTao: ThoiDiem" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_complaint">
+          <mxGeometry x="0" y="30" width="310" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="c_complaint_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="c_complaint">
+          <mxGeometry x="0" y="165" width="310" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_complaint_ops" value="+ taoPhieuMoi(duLieu): PhieuKhieuNai&#xa;+ danhDauGiaiQuyet(ghiChuXuLy)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_complaint">
+          <mxGeometry x="0" y="173" width="310" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- =================== CÁC BỘ ĐỊNH DANH TRẠNG THÁI (ENUMS) =================== -->
+        <!-- TrangThaiDonDatVe -->
+        <mxCell id="c_enum_order" value="«liệt kê»&#xa;TrangThaiDonDatVe" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E2E8F0;strokeColor=#64748B;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1255" width="220" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="c_enum_order_val" value="  DANG_GIU_GHE (HOLDING)&#xa;  THANH_TOAN_THIEU (PARTIAL)&#xa;  DA_THANH_TOAN (PAID)&#xa;  QUA_HAN_10_PHUT (EXPIRED)&#xa;  DA_HUY (CANCELLED)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_enum_order">
+          <mxGeometry x="0" y="30" width="220" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- TrangThaiGhe -->
+        <mxCell id="c_enum_seat" value="«liệt kê»&#xa;TrangThaiGhe" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E2E8F0;strokeColor=#64748B;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="330" y="1255" width="190" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c_enum_seat_val" value="  DANG_TAM_GIU (HELD)&#xa;  DA_BAN_CHINH_THUC (SOLD)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_enum_seat">
+          <mxGeometry x="0" y="30" width="190" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- KetQuaGiaoDich -->
+        <mxCell id="c_enum_tx" value="«liệt kê»&#xa;KetQuaGiaoDich" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E2E8F0;strokeColor=#64748B;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1255" width="250" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="c_enum_tx_val" value="  THANH_CONG (OK)&#xa;  THIEU_TIEN (SHORT)&#xa;  THUA_TIEN (EXCESS)&#xa;  TRE_GIO_10_PHUT (LATE)&#xa;  TRUNG_LAP (DUPLICATE)&#xa;  BETABOT_CUU_VE (RECOVERED)&#xa;  KHONG_KHOP_DON (UNMATCHED)&#xa;  LOI_XU_LY (ERROR)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_enum_tx">
+          <mxGeometry x="0" y="30" width="250" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- TrangThaiHoanTien -->
+        <mxCell id="c_enum_refund" value="«liệt kê»&#xa;TrangThaiHoanTien" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E2E8F0;strokeColor=#64748B;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="850" y="1255" width="230" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="c_enum_refund_val" value="  CHO_THONG_TIN (WAITING_INFO)&#xa;  DA_TIEP_NHAN (RECEIVED)&#xa;  DANG_DOI_SOAT (RECONCILING)&#xa;  DA_DUYET_HOAN (APPROVED)&#xa;  DA_HOAN_TAT (DONE)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_enum_refund">
+          <mxGeometry x="0" y="30" width="230" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- LyDoHoanTien -->
+        <mxCell id="c_enum_reason" value="«liệt kê»&#xa;LyDoHoanTien" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E2E8F0;strokeColor=#64748B;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="1255" width="240" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="c_enum_reason_val" value="  CHUYEN_TIEN_TRE (LATE)&#xa;  THIEU_TIEN_QUA_HAN (SHORT)&#xa;  HOAN_TIEN_THUA (EXCESS)&#xa;  CHUYEN_TIEN_TRUNG (DUPLICATE)&#xa;  LOI_HE_THONG (SYSTEM_ERROR)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_enum_reason">
+          <mxGeometry x="0" y="30" width="240" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- TrangThaiKhieuNai -->
+        <mxCell id="c_enum_complaint" value="«liệt kê»&#xa;TrangThaiKhieuNai" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=12;fillColor=#E2E8F0;strokeColor=#64748B;swimlaneFillColor=#FFFFFF;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="1255" width="210" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c_enum_complaint_val" value="  DANG_MO_CHO_CSKH (OPEN)&#xa;  DA_GIAI_QUYET (RESOLVED)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;html=1;whiteSpace=nowrap;" vertex="1" parent="c_enum_complaint">
+          <mxGeometry x="0" y="30" width="210" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- =================== QUAN HỆ GIỮA CÁC LỚP =================== -->
+        <!-- DonDatVe đến KhoaGhe (Thành phần: 1 Đơn quản lý nhiều Ghế tạm giữ) -->
+        <mxCell id="rel_order_seat" value="tạm khóa ghế&#xa;(1 — 1..*)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#333333;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.15;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;startArrow=diamondThin;startFill=1;startSize=12;endArrow=none;" edge="1" parent="1" source="c_order" target="c_seathold">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- DonDatVe đến GiaoDichNganHang (1 đến 0..*) -->
+        <mxCell id="rel_order_banktx" value="nhận biến động tiền&#xa;(1 — 0..*)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#333333;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.4;exitDx=0;exitDy=0;entryX=0;entryY=0.4;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;" edge="1" parent="1" source="c_order" target="c_banktx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- DonDatVe đến HoSoHoanTien (1 đến 0..1) -->
+        <mxCell id="rel_order_refund" value="phát sinh hoàn tiền&#xa;(1 — 0..1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#333333;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.8;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;" edge="1" parent="1" source="c_order" target="c_refund">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="1004" />
+              <mxPoint x="430" y="1130" />
+              <mxPoint x="1200" y="1130" />
+              <mxPoint x="1200" y="1004" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- GiaoDichNganHang đến HoSoHoanTien (Căn cứ giao dịch hoàn) -->
+        <mxCell id="rel_tx_refund" value="căn cứ hoàn&#xa;(0..1 — 0..1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#333333;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="c_banktx" target="c_refund">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- DonDatVe đến PhieuKhieuNai (1 đến 0..*) -->
+        <mxCell id="rel_order_complaint" value="khiếu nại CSKH&#xa;(1 — 0..*)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#333333;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.9;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;" edge="1" parent="1" source="c_order" target="c_complaint">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="1042" />
+              <mxPoint x="420" y="1160" />
+              <mxPoint x="1600" y="1160" />
+              <mxPoint x="1600" y="820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- XuLyWebhookSePay cập nhật DonDatVe & GiaoDichNganHang -->
+        <mxCell id="rel_sepay_order" value="«cập nhật trạng thái»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.4;strokeColor=#D97706;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;dashed=1;" edge="1" parent="1" source="c_sepay" target="c_order">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel_sepay_tx" value="«lưu sổ cái SePay»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.4;strokeColor=#D97706;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;dashed=1;" edge="1" parent="1" source="c_sepay" target="c_banktx">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="640" />
+              <mxPoint x="900" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- XuLyDoiSoatGiaoDich liên kết -->
+        <mxCell id="rel_rec_tx" value="«đối soát giao dịch»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.4;strokeColor=#D97706;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;dashed=1;" edge="1" parent="1" source="c_reconcile" target="c_banktx">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="645" y="640" />
+              <mxPoint x="1005" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel_rec_complaint" value="«tạo khiếu nại nếu trễ mạng»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.4;strokeColor=#D97706;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.9;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;dashed=1;" edge="1" parent="1" source="c_reconcile" target="c_complaint">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="785" y="630" />
+              <mxPoint x="1785" y="630" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- TroLyAoBetaBot gọi XuLyDoiSoatGiaoDich -->
+        <mxCell id="rel_bot_rec" value="«gọi API /api/reconcile»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.4;strokeColor=#0284C7;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;dashed=1;" edge="1" parent="1" source="c_betabot" target="c_reconcile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- BoDieuKhienThanhToan gọi XuLyDonDatVe -->
+        <mxCell id="rel_client_orderhandler" value="«gọi /api/create-order &amp; order-status»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.4;strokeColor=#0284C7;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;dashed=1;" edge="1" parent="1" source="c_payclient" target="c_order_service">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="334" y="330" />
+              <mxPoint x="1314" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- XuLyHoanTien cập nhật HoSoHoanTien -->
+        <mxCell id="rel_rfservice_rfentity" value="«tiếp nhận / cập nhật STK»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.4;strokeColor=#D97706;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=10;dashed=1;" edge="1" parent="1" source="c_refund_service" target="c_refund">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1035" y="620" />
+              <mxPoint x="1405" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
