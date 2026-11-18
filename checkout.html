@@ -53,7 +53,7 @@
 
     .b {
       border: 0;
-      background: var(--a);
+      background: #d63a1c;
       color: #ffffff;
       font-weight: 800;
       cursor: pointer;
@@ -240,7 +240,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -373,7 +373,7 @@
         <section class="c" style="display: flex; flex-direction: column; gap: 12px;">
           <h3 style="font-size: 17px; font-weight: 800;">🎟️ Khuyến mãi</h3>
           <div style="display: flex; gap: 10px;">
-            <input type="text" id="voucher-input" placeholder="Nhập mã voucher (Thử: BETAVIP)" style="flex: 1; height: 42px; border-radius: 8px; padding: 0 14px; background: #ffffff; border: 1.5px solid var(--border-dark); color: var(--text-light); font-size: 14px;">
+            <input aria-label="Nhập mã voucher (Thử: BETAVIP)" type="text" id="voucher-input" placeholder="Nhập mã voucher (Thử: BETAVIP)" style="flex: 1; height: 42px; border-radius: 8px; padding: 0 14px; background: #ffffff; border: 1.5px solid var(--border-dark); color: var(--text-light); font-size: 14px;">
             <button class="b" onclick="applyVoucher()" style="min-height: 42px; height: 42px; padding: 0 20px; border-radius: 8px; font-size: 14px;">
               Áp dụng
             </button>
@@ -456,7 +456,7 @@
           <div>
             <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
               <span id="summary-movie-title">LINH GIỚI ĐẠI CHIẾN</span>
-              <span id="summary-movie-age" style="background: var(--a); color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">T18</span>
+              <span id="summary-movie-age" style="background: #d63a1c; color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">T18</span>
             </h3>
             <p class="m" id="summary-format" style="font-size: 13px;">2D Phụ đề</p>
             <p class="m" id="summary-cinema-hall" style="font-size: 13px;">Beta Thanh Xuân · Phòng 01</p>

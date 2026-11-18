@@ -46,8 +46,8 @@
       font-size: 12px;
       font-weight: 800;
     }
-    .step-item.active .step-number { background: var(--beta-orange); color: white; }
-    .step-item.completed .step-number { background: var(--color-success); color: white; }
+    .step-item.active .step-number { background: #d14400; color: white; }
+    .step-item.completed .step-number { background: #047857; color: white; }
 
     /* Combo Item Card */
     .combo-grid {
@@ -92,7 +92,7 @@
       position: absolute;
       top: 12px;
       right: 12px;
-      background: var(--beta-orange);
+      background: #d14400;
       color: white;
       font-size: 11px;
       font-weight: 800;
@@ -184,6 +184,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
@@ -214,7 +215,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -243,7 +244,7 @@
   </header>
 
   <!-- Main Combo Selection Area -->
-  <main class="container" style="padding-top: 40px;">
+  <main id="main-content" class="container" style="padding-top: 40px;">
     
     <div class="section-header">
       <div class="section-title-wrap">

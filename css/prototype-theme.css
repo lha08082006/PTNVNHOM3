@@ -13,7 +13,7 @@
 
   /* Brand Accents */
   --beta-orange: #ff5400;
-  --beta-orange-hover: #e04a00;
+  --beta-orange-hover: #b83c00;
   --beta-orange-soft: #fff4ed;
   --beta-yellow: #f59e0b;
   --beta-yellow-soft: #fef3c7;
@@ -171,7 +171,7 @@ textarea {
 }
 
 .dock-item.active {
-  background: var(--beta-orange);
+  background: #d14400;
   color: #ffffff;
   box-shadow: 0 2px 10px rgba(255, 84, 0, 0.4);
 }
@@ -607,7 +607,7 @@ textarea {
 }
 
 .logo-tag {
-  background: var(--beta-orange);
+  background: #d14400;
   color: white;
   font-size: 10px;
   font-weight: 800;
@@ -757,7 +757,7 @@ textarea {
 }
 
 .badge-age-16 {
-  background: #f97316;
+  background: #c2410c;
   color: white;
 }
 
@@ -767,7 +767,7 @@ textarea {
 }
 
 .badge-age-p {
-  background: #10b981;
+  background: #047857;
   color: white;
 }
 
@@ -777,7 +777,7 @@ textarea {
 }
 
 .badge-vip {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, #b45309 0%, #b45309 100%);
   color: white;
 }
 
@@ -843,7 +843,7 @@ textarea {
 }
 
 .btn-overlay-buy {
-  background: var(--beta-orange);
+  background: #d14400;
   color: white;
   font-family: var(--font-display);
   font-weight: 800;
@@ -1215,7 +1215,7 @@ textarea {
   position: absolute;
   top: -3px;
   right: -3px;
-  background: #ff5400;
+  background: #d14400;
   color: #ffffff;
   font-size: 10px;
   font-weight: 800;
@@ -1284,5 +1284,47 @@ textarea {
     align-items: flex-end !important;
     bottom: 16px !important;
     right: 16px !important;
+  }
+}
+/* ==========================================================
+   Accessibility: focus rõ ràng cho người dùng bàn phím (WCAG 2.4.7)
+   Đặt cuối file và dùng !important để thắng các rule "outline: none" trong từng trang.
+   Chỉ hiện khi điều hướng bằng bàn phím (:focus-visible), không hiện khi bấm chuột.
+   ========================================================== */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid #005198 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Link "Bỏ qua tới nội dung chính" — ẩn cho tới khi được focus */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 100000;
+  padding: 10px 16px;
+  background: #005198;
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+.skip-link:focus { top: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

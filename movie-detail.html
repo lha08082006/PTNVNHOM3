@@ -190,7 +190,7 @@
       min-width: 0;
     }
     .trailer-badge {
-      background: #ff5400;
+      background: #d14400;
       color: white;
       font-size: 10.5px;
       font-weight: 800;
@@ -235,7 +235,7 @@
       flex-shrink: 0;
     }
     .trailer-modal-close:hover {
-      background: #ef4444;
+      background: #dc2626;
       border-color: #ef4444;
       color: white;
       transform: rotate(90deg);
@@ -305,6 +305,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#booking-area">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
@@ -335,7 +336,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>

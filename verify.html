@@ -143,12 +143,12 @@
     }
 
     .st-badge.done {
-      background: #10b981;
+      background: #047857;
       color: white;
     }
 
     .st-badge.current {
-      background: #ff5400;
+      background: #d14400;
       color: white;
     }
 
@@ -242,6 +242,7 @@
 </head>
 
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
@@ -270,7 +271,7 @@
 
       <!-- Chọn Cụm Rạp -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -296,7 +297,7 @@
     </div>
   </header>
 
-  <main class="container" style="padding-top: 28px; flex: 1;">
+  <main id="main-content" class="container" style="padding-top: 28px; flex: 1;">
 
     
 

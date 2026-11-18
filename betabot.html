@@ -19,7 +19,7 @@
     }
 
     .betabot-header-strip {
-      background: linear-gradient(135deg, #002e5b 0%, #005198 60%, #0284c7 100%);
+      background: linear-gradient(135deg, #002e5b 0%, #005198 60%, #0369a1 100%);
       color: white;
       padding: 24px 0;
       margin-bottom: 24px;
@@ -260,7 +260,7 @@
     }
 
     .user-bubble {
-      background: var(--beta-orange);
+      background: #d14400;
       color: white;
       border-radius: 16px 16px 4px 16px;
       padding: 12px 18px;
@@ -391,7 +391,7 @@
     .chat-send-btn {
       height: 46px;
       padding: 0 20px;
-      background: #FF5A3C;
+      background: #d63a1c;
       color: white;
       border: none;
       border-radius: 12px;
@@ -405,7 +405,7 @@
     }
 
     .chat-send-btn:hover {
-      background: #e04a00;
+      background: #b83c00;
       transform: translateY(-1px);
     }
 
@@ -425,6 +425,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
@@ -455,7 +456,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -506,7 +507,7 @@
   </section>
 
   <!-- Khung Thân Chính -->
-  <main class="betabot-page">
+  <main id="main-content" class="betabot-page">
     <div class="container">
       <div class="betabot-grid">
         
@@ -637,7 +638,7 @@
 
             <!-- Chat Input Footer -->
             <div class="chat-input-bar">
-              <input type="text" 
+              <input aria-label="Nhập tin nhắn hoặc câu hỏi cho BetaBot (Ví dụ: kiểm tra vé, hoàn tiền...)" type="text" 
                      id="user-input-box" 
                      class="chat-input-field" 
                      placeholder="Nhập tin nhắn hoặc câu hỏi cho BetaBot (Ví dụ: kiểm tra vé, hoàn tiền...)" 

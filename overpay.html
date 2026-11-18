@@ -128,7 +128,7 @@
       font-weight: 800;
     }
     .st-badge.done {
-      background: #10b981;
+      background: #047857;
       color: white;
     }
 
@@ -226,6 +226,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas (Chuẩn từ home.html) -->
   <div class="top-header-official">
@@ -256,7 +257,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -296,7 +297,7 @@
   </div>
 
   <!-- NỘI DUNG CHÍNH (THEO GIAO DIỆN OVERPAY ĐƯỢC CUNG CẤP) -->
-  <main class="overpay-container">
+  <main id="main-content" class="overpay-container">
     <div class="overpay-grid">
       
       <!-- CỘT TRÁI: THÔNG BÁO VÉ ĐÃ ĐƯỢC CẤP & HÓA ĐƠN -->

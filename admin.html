@@ -18,7 +18,7 @@
     nav.tabs button { background: transparent; border: 0; color: #cbd5e1; padding: 8px 14px; border-radius: 8px; font: inherit; font-weight: 700; cursor: pointer; }
     nav.tabs button.on { background: #fff; color: #0f172a; }
     nav.tabs .count[hidden] { display: none; }
-    nav.tabs .count { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 999px; background: #ef4444; color: #fff; font-size: 11px; }
+    nav.tabs .count { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 999px; background: #dc2626; color: #fff; font-size: 11px; }
     main { padding: 20px 22px 60px; max-width: 1400px; margin: 0 auto; }
     .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
     .card h2 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: .03em; color: var(--blue); display: flex; align-items: center; gap: 8px; }
@@ -35,7 +35,7 @@
     .btn { border: 1px solid #cbd5e1; background: #fff; padding: 6px 12px; border-radius: 8px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
     .btn:hover { background: #f8fafc; } .btn:disabled { opacity: .5; cursor: not-allowed; }
     .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
-    .btn.ok { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .btn.ok { background: #15803d; border-color: #16a34a; color: #fff; }
     .btn.danger { color: #b91c1c; border-color: #fca5a5; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } @media (max-width: 1000px) { .grid2 { grid-template-columns: 1fr; } }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -121,16 +121,16 @@
     <div class="card" id="login">
       <h2>Đăng nhập nội bộ</h2>
       <form id="login-form" onsubmit="event.preventDefault(); login()">
-        <input id="lg-email" type="email" placeholder="Email nhân viên" style="width: 100%; margin-bottom: 8px;" autocomplete="username" required>
-        <input id="lg-pass" type="password" placeholder="Mật khẩu" style="width: 100%; margin-bottom: 10px;" autocomplete="current-password" required>
+        <input aria-label="Email nhân viên" id="lg-email" type="email" placeholder="Email nhân viên" style="width: 100%; margin-bottom: 8px;" autocomplete="username" required>
+        <input aria-label="Mật khẩu" id="lg-pass" type="password" placeholder="Mật khẩu" style="width: 100%; margin-bottom: 10px;" autocomplete="current-password" required>
         <button class="btn primary" style="width: 100%;">Đăng nhập</button>
       </form>
       <form id="boot-form" hidden onsubmit="event.preventDefault(); bootstrap()">
         <p class="hint">Hệ thống chưa có tài khoản nhân viên nào. Tạo tài khoản <b>Quản lý</b> đầu tiên bằng khóa <span class="mono">ADMIN_KEY</span> trên máy chủ.</p>
-        <input id="bt-key" type="password" placeholder="ADMIN_KEY" style="width: 100%; margin-bottom: 8px;" required>
-        <input id="bt-name" placeholder="Họ tên Quản lý" style="width: 100%; margin-bottom: 8px;" required>
-        <input id="bt-email" type="email" placeholder="Email đăng nhập" style="width: 100%; margin-bottom: 8px;" required>
-        <input id="bt-pass" type="password" placeholder="Mật khẩu (≥ 8 ký tự)" minlength="8" style="width: 100%; margin-bottom: 10px;" required>
+        <input aria-label="ADMIN_KEY" id="bt-key" type="password" placeholder="ADMIN_KEY" style="width: 100%; margin-bottom: 8px;" required>
+        <input aria-label="Họ tên Quản lý" id="bt-name" placeholder="Họ tên Quản lý" style="width: 100%; margin-bottom: 8px;" required>
+        <input aria-label="Email đăng nhập" id="bt-email" type="email" placeholder="Email đăng nhập" style="width: 100%; margin-bottom: 8px;" required>
+        <input aria-label="Mật khẩu (≥ 8 ký tự)" id="bt-pass" type="password" placeholder="Mật khẩu (≥ 8 ký tự)" minlength="8" style="width: 100%; margin-bottom: 10px;" required>
         <button class="btn primary" style="width: 100%;">Tạo tài khoản Quản lý</button>
       </form>
       <p class="hint" id="demo-hint" hidden>Chạy thử (bộ nhớ trong): <span class="mono">quanly@ · ketoan@ · cskh@ · quay@beta.local</span>, mật khẩu <span class="mono">beta-admin</span>.</p>
@@ -140,7 +140,7 @@
     <!-- ===================== TỔNG QUAN (Quản lý / Kế toán) ===================== -->
     <section id="tab-tongquan" hidden>
       <div class="toolbar">
-        Từ <input type="date" id="db-from"> đến <input type="date" id="db-to">
+        Từ <input type="date" id="db-from" aria-label="Từ ngày"> đến <input type="date" id="db-to" aria-label="Đến ngày">
         <button class="btn primary" onclick="loadDashboard()">Xem</button>
         <span class="hint">Doanh thu tính theo đơn đã xuất vé, thời điểm xác nhận thanh toán (giờ Việt Nam)</span>
       </div>
@@ -169,7 +169,7 @@
         <h2>Hồ sơ hoàn tiền thủ công <small>nhân viên lọc & đối chiếu → gửi Kế toán → Kế toán kiểm tra: đạt thì chi, không đạt thì trả về</small></h2>
         <div class="chips" id="cs-chips"></div>
         <div class="toolbar">
-          <input id="cs-search" placeholder="Tìm mã hồ sơ, mã đơn, số tài khoản, tên chủ TK..." style="flex: 1; min-width: 220px;" oninput="renderCsRefunds()">
+          <input aria-label="Tìm mã hồ sơ, mã đơn, số tài khoản, tên chủ TK..." id="cs-search" placeholder="Tìm mã hồ sơ, mã đơn, số tài khoản, tên chủ TK..." style="flex: 1; min-width: 220px;" oninput="renderCsRefunds()">
           <button class="btn primary" id="btn-send-acc" onclick="sendSelected()" disabled>📤 Gửi Kế toán (<span id="sel-count">0</span>)</button>
         </div>
         <div id="cs-refunds"></div>
@@ -185,7 +185,7 @@
       <div class="card">
         <h2>Báo cáo đối soát định kỳ <small>REQ-05 · website ↔ cổng thanh toán</small></h2>
         <div class="row-actions" style="align-items: center; margin-bottom: 12px;">
-          Từ <input type="date" id="r-from"> đến <input type="date" id="r-to">
+          Từ <input type="date" id="r-from" aria-label="Từ ngày"> đến <input type="date" id="r-to" aria-label="Đến ngày">
           <button class="btn primary" onclick="loadReport()">Xem báo cáo</button>
           <button class="btn" onclick="downloadCsv()">⬇️ Tải Excel (CSV)</button>
         </div>
@@ -212,8 +212,8 @@
           <button class="btn primary">+ Tạo suất chiếu</button>
         </form>
         <div class="toolbar">
-          Xem lịch: <select id="sl-cinema" onchange="loadShowtimeList()"></select>
-          <input id="sl-date" type="date" onchange="loadShowtimeList()">
+          Xem lịch: <select id="sl-cinema" aria-label="Rạp" onchange="loadShowtimeList()"></select>
+          <input id="sl-date" type="date" aria-label="Ngày chiếu" onchange="loadShowtimeList()">
         </div>
         <div id="sl-table"></div>
       </div>
@@ -273,7 +273,7 @@
         <div class="card">
           <h2>Soát vé vào phòng chiếu <small>máy quét USB: đặt con trỏ vào ô rồi quét · hoặc dùng camera</small></h2>
           <form class="toolbar" onsubmit="event.preventDefault(); doCheckin(document.getElementById('ck-input').value)">
-            <input id="ck-input" class="mono" placeholder="Quét QR hoặc nhập mã đơn BC..." style="flex: 1;" autocomplete="off" autofocus>
+            <input aria-label="Quét QR hoặc nhập mã đơn BC..." id="ck-input" class="mono" placeholder="Quét QR hoặc nhập mã đơn BC..." style="flex: 1;" autocomplete="off" autofocus>
             <button class="btn primary">Soát vé</button>
           </form>
           <div class="row-actions" style="margin-bottom: 10px;">
@@ -286,7 +286,7 @@
         <div class="card">
           <h2>Tra cứu đơn / vé</h2>
           <form class="toolbar" onsubmit="event.preventDefault(); openOrder(document.getElementById('q-code').value.trim().toUpperCase())">
-            <input id="q-code" class="mono" placeholder="Nhập mã đơn BC..." style="flex: 1; text-transform: uppercase;" required>
+            <input aria-label="Nhập mã đơn BC..." id="q-code" class="mono" placeholder="Nhập mã đơn BC..." style="flex: 1; text-transform: uppercase;" required>
             <button class="btn">Tra cứu</button>
           </form>
           <p class="hint">Khách quên vé: nhập mã đơn trong email/SMS để xem trạng thái, ghế và suất chiếu, rồi soát bằng mã đơn ở ô bên trái.</p>
@@ -311,7 +311,7 @@
       </div>
       <div class="card">
         <h2>Nhật ký thao tác <small>ai làm gì, lúc nào – 300 thao tác gần nhất</small></h2>
-        <input id="au-search" placeholder="Lọc theo tên, thao tác, mã hồ sơ..." style="width: 100%; margin-bottom: 10px;" oninput="renderAudit()">
+        <input aria-label="Lọc theo tên, thao tác, mã hồ sơ..." id="au-search" placeholder="Lọc theo tên, thao tác, mã hồ sơ..." style="width: 100%; margin-bottom: 10px;" oninput="renderAudit()">
         <div id="audit-table"></div>
       </div>
     </section>
@@ -332,7 +332,7 @@
         <div class="card">
           <h2>Sandbox mô phỏng <small>dùng để chạy kịch bản UAT, không chuyển tiền thật</small></h2>
           <div class="row-actions" style="align-items: center;">
-            Mã đơn <input id="sb-code" class="mono" placeholder="BCxxxxxxxxxx" style="width: 160px; text-transform: uppercase;">
+            Mã đơn <input aria-label="BCxxxxxxxxxx" id="sb-code" class="mono" placeholder="BCxxxxxxxxxx" style="width: 160px; text-transform: uppercase;">
           </div>
           <div class="sb">
             <button class="btn" onclick="sb('SHIFT', { minutes: 2 })">⏩ +2 phút</button>
@@ -589,7 +589,7 @@
       let ok = false, data = null, msg = '';
       try { data = await post('checkin', { qr: raw }); ok = true; } catch (e) { msg = e.message; data = e.data || null; }
       const sm = data && data.summary;
-      box.innerHTML = `<div style="border-radius: 14px; padding: 18px; color: #fff; background: ${ok ? '#16a34a' : '#dc2626'};">
+      box.innerHTML = `<div style="border-radius: 14px; padding: 18px; color: #fff; background: ${ok ? '#15803d' : '#dc2626'};">
         <div style="font-size: 22px; font-weight: 900;">${ok ? '✓ HỢP LỆ – MỜI VÀO' : '✕ KHÔNG HỢP LỆ'}</div>
         ${msg ? `<div style="margin-top: 6px; font-weight: 700;">${esc(msg)}</div>` : ''}
         ${sm ? `<div style="margin-top: 10px; font-size: 14px; line-height: 1.6; background: rgba(255,255,255,.15); border-radius: 10px; padding: 10px 12px;">
@@ -723,7 +723,7 @@
       document.getElementById('ns-role').innerHTML = Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === 'CS' ? 'selected' : ''}>${esc(v)}</option>`).join('');
       document.getElementById('staff-table').innerHTML = `<table><thead><tr><th>Họ tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Đăng nhập gần nhất</th><th></th></tr></thead><tbody>${
         STAFF.map(x => `<tr class="${x.active ? '' : 'inactive'}"><td><b>${esc(x.full_name)}</b></td><td class="mono">${esc(x.email)}</td>
-          <td><select onchange="updateStaff('${x.id}', { role: this.value })" ${x.id === ME.id ? 'disabled' : ''}>${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === x.role ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></td>
+          <td><select aria-label="Vai trò của ${esc(x.name || x.email || '')}" onchange="updateStaff('${x.id}', { role: this.value })" ${x.id === ME.id ? 'disabled' : ''}>${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === x.role ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></td>
           <td>${x.active ? pill('Đang hoạt động', 'ok') : pill('Đã khóa', 'muted')}</td><td>${t(x.last_login_at) || '—'}</td>
           <td class="row-actions">${x.id === ME.id ? '<span class="hint">(bạn)</span>' : `
             <button class="btn" onclick="resetStaffPass('${x.id}')">Đặt lại mật khẩu</button>
@@ -795,10 +795,10 @@
       const sendable = (r) => ['FORM_SUBMITTED', 'ACC_RETURNED'].includes(r.status);
       const anySendable = rf.some(sendable);
       document.getElementById('cs-refunds').innerHTML = rf.length ? `<table><thead><tr>
-          <th style="width: 28px;">${anySendable ? '<input type="checkbox" title="Chọn tất cả" onchange="toggleAll(this.checked)">' : ''}</th>
+          <th style="width: 28px;">${anySendable ? '<input type="checkbox" aria-label="Chọn tất cả" title="Chọn tất cả" onchange="toggleAll(this.checked)">' : ''}</th>
           <th>Hồ sơ</th><th>Đơn</th><th>Số tiền</th><th>Tình trạng</th><th>Tài khoản nhận</th><th>Thao tác</th></tr></thead><tbody>${
         rf.map(r => `<tr class="${r.status === 'ACC_RETURNED' ? 'returned' : ''}">
-          <td>${sendable(r) ? `<input type="checkbox" ${selected.has(r.code) ? 'checked' : ''} onchange="toggleSel('${esc(r.code)}', this.checked)">` : ''}</td>
+          <td>${sendable(r) ? `<input type="checkbox" aria-label="Chọn hồ sơ ${esc(r.code)}" ${selected.has(r.code) ? 'checked' : ''} onchange="toggleSel('${esc(r.code)}', this.checked)">` : ''}</td>
           <td class="mono">${esc(r.code)}${r.returned_count ? `<div class="hint">bị trả ${r.returned_count} lần</div>` : ''}</td>
           <td class="mono"><a href="#" onclick="openOrder('${esc(r.order_code)}'); return false;">${esc(r.order_code)}</a></td>
           <td><b>${vnd(r.amount)}</b><div class="hint">${esc(r.reason)}</div></td>
@@ -856,7 +856,7 @@
               <button class="btn" onclick="openOrder('${esc(r.order_code)}')">🧾 Biên lai & sổ cái</button>
             </div>
             <div class="row-actions" style="margin-top: 6px;">
-              <input id="ref-${esc(r.code)}" class="mono" placeholder="Mã GD chuyển hoàn FT..." style="width: 170px;">
+              <input aria-label="Mã GD chuyển hoàn FT..." id="ref-${esc(r.code)}" class="mono" placeholder="Mã GD chuyển hoàn FT..." style="width: 170px;">
               <button class="btn ok" onclick="paid('${esc(r.code)}')" ${(r.review_log || []).filter(x => x.role === 'NHÂN VIÊN').pop()?.actor_id === ME.id ? 'disabled title="Bạn là người gửi hồ sơ này – cần Kế toán khác duyệt"' : ''}>✓ Đạt – Đã chi</button>
               <button class="btn danger" onclick="openReject('${esc(r.code)}')">↩ Không đạt – Trả về</button>
             </div></td></tr>`).join('')

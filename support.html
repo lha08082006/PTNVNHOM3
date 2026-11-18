@@ -100,6 +100,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
@@ -130,7 +131,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -170,14 +171,14 @@
 
       <!-- Fast Lookup Search Box -->
       <div class="support-search-box">
-        <input type="text" class="support-search-input" id="lookup-input" placeholder="Nhập mã đơn hàng BC..." onkeydown="if (event.key === 'Enter') lookupOrder()">
+        <input aria-label="Nhập mã đơn hàng BC..." type="text" class="support-search-input" id="lookup-input" placeholder="Nhập mã đơn hàng BC..." onkeydown="if (event.key === 'Enter') lookupOrder()">
         <button class="btn btn-primary support-search-btn" onclick="lookupOrder()">
           Tra Cứu Vé
         </button>
       </div>
 
       <div style="margin-top: 18px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-        <a href="betabot.html" class="btn" style="background: #FF5A3C; color: white; font-weight: 800; font-size: 13.5px; border-radius: 999px; padding: 8px 20px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(255, 90, 60, 0.4);">
+        <a href="betabot.html" class="btn" style="background: #d63a1c; color: white; font-weight: 800; font-size: 13.5px; border-radius: 999px; padding: 8px 20px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(255, 90, 60, 0.4);">
           <span>🤖</span>
           <span>Chat Với BetaBot Đối Soát Giao Dịch & Hoàn Tiền Tức Thì →</span>
         </a>
@@ -186,7 +187,7 @@
   </section>
 
   <!-- Main Grid Content -->
-  <main class="container">
+  <main id="main-content" class="container">
     
     <!-- Kết quả tra cứu nhanh (Mô phỏng) -->
     <div id="lookup-result-box" style="display: none; margin: 30px auto; max-width: 800px; background: white; border-radius: 16px; border: 1.5px solid #10b981; padding: 20px 26px; box-shadow: var(--shadow-md);"></div>
@@ -204,7 +205,7 @@
 
           <form id="support-form" onsubmit="event.preventDefault(); submitSupport();">
             <div class="form-group">
-              <label class="form-label">Loại vấn đề cần hỗ trợ <span style="color: var(--beta-orange);">*</span></label>
+              <label class="form-label" for="sp-category">Loại vấn đề cần hỗ trợ <span style="color: var(--beta-orange);">*</span></label>
               <select class="form-input" id="sp-category" required>
                 <option value="PAYMENT_NO_TICKET" selected>Chuyển khoản VietQR thành công nhưng chưa nhận vé</option>
                 <option value="WRONG_TRANSFER">Chuyển nhầm số tiền hoặc sai nội dung</option>
@@ -217,22 +218,22 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div class="form-group">
                 <label class="form-label">Mã đơn hàng (nếu có)</label>
-                <input type="text" class="form-input" id="sp-order" placeholder="Ví dụ: BC2610279854">
+                <input aria-label="Ví dụ: BC2610279854" type="text" class="form-input" id="sp-order" placeholder="Ví dụ: BC2610279854">
               </div>
               <div class="form-group">
-                <label class="form-label">Số điện thoại liên hệ <span style="color: var(--beta-orange);">*</span></label>
+                <label class="form-label" for="sp-phone">Số điện thoại liên hệ <span style="color: var(--beta-orange);">*</span></label>
                 <input type="tel" class="form-input" id="sp-phone" data-user="phone" required>
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label">Số tiền đã giao dịch (VNĐ)</label>
-              <input type="text" class="form-input" id="sp-amount" placeholder="Ví dụ: 179.000">
+              <input aria-label="Ví dụ: 179.000" type="text" class="form-input" id="sp-amount" placeholder="Ví dụ: 179.000">
             </div>
 
             <div class="form-group">
               <label class="form-label">Mô tả chi tiết sự cố</label>
-              <textarea class="form-input" id="sp-desc" rows="4" style="height: auto; padding: 12px 16px;" placeholder="Vui lòng nêu rõ ngân hàng bạn chuyển khoản, thời gian chuyển tiền..." required minlength="10"></textarea>
+              <textarea aria-label="Vui lòng nêu rõ ngân hàng bạn chuyển khoản, thời gian chuyển tiền..." class="form-input" id="sp-desc" rows="4" style="height: auto; padding: 12px 16px;" placeholder="Vui lòng nêu rõ ngân hàng bạn chuyển khoản, thời gian chuyển tiền..." required minlength="10"></textarea>
             </div>
 
             <p id="sp-msg" role="status" style="display: none; font-size: 14px; margin-bottom: 12px;"></p>

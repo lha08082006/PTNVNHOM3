@@ -181,6 +181,7 @@
     }
     .slider-btn.prev { left: 20px; }
     .slider-btn.next { right: 20px; }
+    .slider-btn.pause { top: auto; bottom: 12px; right: 20px; transform: none; width: 44px; height: 44px; font-size: 13px; }
     .slider-dots {
       position: absolute;
       bottom: 20px;
@@ -191,10 +192,15 @@
       z-index: 10;
     }
     .slider-dot {
+      /* Vùng bấm 24x24 (WCAG 2.5.8), phần chấm nhìn thấy vẫn 12px nhờ padding + background-clip */
+      box-sizing: content-box;
       width: 12px;
       height: 12px;
+      padding: 6px;
+      border: none;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.5);
+      background-clip: content-box;
       cursor: pointer;
       transition: all 0.3s;
     }
@@ -322,7 +328,7 @@
       min-width: 0;
     }
     .trailer-badge {
-      background: #ff5400;
+      background: #d14400;
       color: white;
       font-size: 10.5px;
       font-weight: 800;
@@ -367,7 +373,7 @@
       flex-shrink: 0;
     }
     .trailer-modal-close:hover {
-      background: #ef4444;
+      background: #dc2626;
       border-color: #ef4444;
       color: white;
       transform: rotate(90deg);
@@ -431,6 +437,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
@@ -461,7 +468,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -502,19 +509,20 @@
     </div>
 
     <!-- Nút điều hướng -->
-    <button class="slider-btn prev" onclick="changeSlide(-1)">❮</button>
-    <button class="slider-btn next" onclick="changeSlide(1)">❯</button>
+    <button type="button" class="slider-btn prev" onclick="changeSlide(-1)" aria-label="Banner trước"><span aria-hidden="true">❮</span></button>
+    <button type="button" class="slider-btn next" onclick="changeSlide(1)" aria-label="Banner tiếp theo"><span aria-hidden="true">❯</span></button>
+    <button type="button" class="slider-btn pause" id="slider-pause" onclick="toggleAutoSlide()" aria-label="Tạm dừng tự chuyển banner"><span aria-hidden="true">❚❚</span></button>
 
     <!-- Dots -->
     <div class="slider-dots">
-      <span class="slider-dot active" onclick="setSlide(0)"></span>
-      <span class="slider-dot" onclick="setSlide(1)"></span>
-      <span class="slider-dot" onclick="setSlide(2)"></span>
+      <button type="button" class="slider-dot active" onclick="setSlide(0)" aria-label="Banner 1" aria-current="true"></button>
+      <button type="button" class="slider-dot" onclick="setSlide(1)" aria-label="Banner 2"></button>
+      <button type="button" class="slider-dot" onclick="setSlide(2)" aria-label="Banner 3"></button>
     </div>
   </section>
 
   <!-- Danh Sách Phim (Chuẩn Tab & Movie Card có Hover Overlay của Beta Cinemas) -->
-  <main class="container" style="padding: 50px 20px 40px;">
+  <main id="main-content" class="container" style="padding: 50px 20px 40px;">
     
     <!-- Tab Phim chuẩn Beta -->
     <div class="movie-tabs-official">
@@ -956,7 +964,7 @@
   </div>
 
   <!-- Floating BetaBot Chat Launcher Button -->
-  <a href="betabot.html" style="position: fixed; bottom: 84px; right: 24px; z-index: 9998; display: flex; align-items: center; gap: 10px; background: #FF5A3C; color: white; padding: 10px 18px; border-radius: 999px; box-shadow: 0 8px 24px rgba(255, 90, 60, 0.45); text-decoration: none; font-weight: 800; font-size: 13.5px; transition: all 0.25s;">
+  <a href="betabot.html" style="position: fixed; bottom: 84px; right: 24px; z-index: 9998; display: flex; align-items: center; gap: 10px; background: #d63a1c; color: white; padding: 10px 18px; border-radius: 999px; box-shadow: 0 8px 24px rgba(255, 90, 60, 0.45); text-decoration: none; font-weight: 800; font-size: 13.5px; transition: all 0.25s;">
     <img src="images/betabot-avatar.png" alt="BetaBot" style="width: 28px; height: 28px; border-radius: 50%; background: #0f172a; border: 1.5px solid white;" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
     <span>Hỗ trợ đối soát • BetaBot 24/7</span>
     <span style="width: 8px; height: 8px; background: #3ddc97; border-radius: 50%;"></span>
@@ -998,6 +1006,8 @@
 
       slides[currentSlideIndex].classList.add('active');
       dots[currentSlideIndex].classList.add('active');
+      slides.forEach((s, i) => s.setAttribute('aria-hidden', i === currentSlideIndex ? 'false' : 'true'));
+      dots.forEach((d, i) => { if (i === currentSlideIndex) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
     }
 
     function changeSlide(step) {
@@ -1012,12 +1022,40 @@
       startAutoSlide();
     }
 
+    // Tự chuyển banner: có nút dừng, dừng khi hover/focus, tắt nếu người dùng bật "giảm chuyển động" (WCAG 2.2.2)
+    const sliderWrap = document.querySelector('.slider-official-wrap');
+    const pauseBtn = document.getElementById('slider-pause');
+    let autoSlidePaused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let sliderHovered = false;
+
     function startAutoSlide() {
+      clearInterval(autoSlideTimer);
+      if (autoSlidePaused || sliderHovered) return;
       autoSlideTimer = setInterval(() => {
         showSlide(currentSlideIndex + 1);
       }, 4000);
     }
 
+    function updatePauseBtn() {
+      pauseBtn.setAttribute('aria-label', autoSlidePaused ? 'Tiếp tục tự chuyển banner' : 'Tạm dừng tự chuyển banner');
+      pauseBtn.firstElementChild.textContent = autoSlidePaused ? '▶' : '❚❚';
+    }
+
+    function toggleAutoSlide() {
+      autoSlidePaused = !autoSlidePaused;
+      updatePauseBtn();
+      if (autoSlidePaused) clearInterval(autoSlideTimer); else startAutoSlide();
+    }
+
+    const holdSlider = () => { sliderHovered = true; clearInterval(autoSlideTimer); };
+    const releaseSlider = () => { sliderHovered = false; startAutoSlide(); };
+    sliderWrap.addEventListener('mouseenter', holdSlider);
+    sliderWrap.addEventListener('mouseleave', releaseSlider);
+    sliderWrap.addEventListener('focusin', holdSlider);
+    sliderWrap.addEventListener('focusout', e => { if (!sliderWrap.contains(e.relatedTarget)) releaseSlider(); });
+
+    updatePauseBtn();
+    showSlide(0);
     startAutoSlide();
 
     function switchMovieTab(tab) {

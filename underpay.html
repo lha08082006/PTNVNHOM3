@@ -128,11 +128,11 @@
       font-weight: 800;
     }
     .st-badge.done {
-      background: #10b981;
+      background: #047857;
       color: white;
     }
     .st-badge.warning {
-      background: #f59e0b;
+      background: #b45309;
       color: white;
     }
 
@@ -234,6 +234,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas (Chuẩn từ home.html) -->
   <div class="top-header-official">
@@ -264,7 +265,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -304,7 +305,7 @@
   </div>
 
   <!-- NỘI DUNG CHÍNH (THEO GIAO DIỆN UNDERPAY ĐƯỢC CUNG CẤP) -->
-  <main class="underpay-container">
+  <main id="main-content" class="underpay-container">
     <div class="underpay-grid">
       
       <!-- CỘT TRÁI: THÔNG BÁO CHUYỂN THIẾU & HÓA ĐƠN -->
@@ -462,7 +463,7 @@
                 <div style="font-size: 12px; color: #9a3412; font-weight: 700;">Số tiền chuyển bù</div>
                 <strong id="copy-remain-amount" style="font-family: monospace; font-size: 17px; color: #ff5400;">79.000 đ</strong>
               </div>
-              <button class="copy-pill-btn" style="background:#ff5400; color:white; border-color:#ff5400;" onclick="copyRemainAmount()">Sao chép</button>
+              <button class="copy-pill-btn" style="background:#d14400; color:white; border-color:#ff5400;" onclick="copyRemainAmount()">Sao chép</button>
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; background: #f0fdf4; padding-left: 10px; padding-right: 10px; border-radius: 8px;">

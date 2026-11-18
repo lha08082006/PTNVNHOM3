@@ -36,7 +36,7 @@
     .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 4px; position: relative; }
     .step { text-align: center; font-size: 12px; color: #94a3b8; }
     .step .dot { width: 30px; height: 30px; margin: 0 auto 6px; border-radius: 50%; display: grid; place-items: center; background: #e2e8f0; color: #64748b; font-weight: 800; }
-    .step.done { color: #166534; } .step.done .dot { background: #16a34a; color: #fff; }
+    .step.done { color: #166534; } .step.done .dot { background: #15803d; color: #fff; }
     .step.active { color: #1e40af; font-weight: 700; } .step.active .dot { background: #fff; border: 3px solid #2563eb; color: #2563eb; }
     .step small { display: block; color: #94a3b8; font-weight: 500; margin-top: 2px; }
     .tl { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid #e2e8f0; }
@@ -54,6 +54,7 @@
 </head>
 
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
     <div class="container top-header-inner">
@@ -81,7 +82,7 @@
 
       <!-- Chọn Cụm Rạp -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -107,7 +108,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <div class="od-wrap" id="od-root">
       <div class="od-card od-empty" id="od-loading">Đang tải thông tin đơn hàng...</div>
     </div>
@@ -236,7 +237,7 @@
     function showSearch(msg) {
       root.innerHTML = `<div class="od-card od-empty">
         <h2 style="text-transform: none;">${esc(msg)}</h2>
-        <div class="od-search"><input id="od-code" placeholder="BCxxxxxxxxxx" value="${esc(code)}"><button class="btn btn-primary" onclick="location.href='order.html?code='+document.getElementById('od-code').value.trim()">Tra cứu</button></div>
+        <div class="od-search"><input aria-label="BCxxxxxxxxxx" id="od-code" placeholder="BCxxxxxxxxxx" value="${esc(code)}"><button class="btn btn-primary" onclick="location.href='order.html?code='+document.getElementById('od-code').value.trim()">Tra cứu</button></div>
       </div>`;
     }
 

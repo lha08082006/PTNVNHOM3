@@ -53,7 +53,7 @@
 
     .b {
       border: 0;
-      background: var(--a);
+      background: #d63a1c;
       color: #ffffff;
       font-weight: 800;
       cursor: pointer;
@@ -137,7 +137,7 @@
       width: 30px;
       height: 28px;
       border-radius: 7px 7px 3px 3px;
-      background: #94a3b8;
+      background: #64748b;
       cursor: pointer;
       transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
       position: relative;
@@ -152,7 +152,12 @@
     .r i:hover:not(.x):not(.h):not(.k) {
       transform: scale(1.18);
       z-index: 10;
-      background: #64748b;
+      background: #475569;
+    }
+    .r i:focus-visible {
+      outline: 3px solid #005198;
+      outline-offset: 2px;
+      z-index: 11;
     }
 
     /* VIP row outline */
@@ -177,7 +182,7 @@
 
     /* Seat States */
     i.s {
-      background: var(--a) !important;
+      background: #d63a1c !important;
       color: #ffffff !important;
       font-weight: 800;
       box-shadow: 0 4px 12px rgba(255, 90, 60, 0.45) !important;
@@ -231,7 +236,7 @@
       color: #475569;
     }
     .st.active b {
-      background: var(--a);
+      background: #d63a1c;
       color: #ffffff;
       font-weight: 800;
     }
@@ -300,7 +305,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select id="cinema-select" class="cinema-select-official">
+        <select id="cinema-select" aria-label="Chọn rạp" class="cinema-select-official">
           <option value="Beta Thanh Xuân" selected>Beta Thanh Xuân (Hà Nội)</option>
           <option value="Beta Trần Quang Khải">Beta Trần Quang Khải (Hà Nội)</option>
           <option value="Beta Giải Phóng">Beta Giải Phóng (Hà Nội)</option>
@@ -344,7 +349,7 @@
     </div>
 
     <!-- Sơ Đồ Khán Phòng & Ghế Ngồi (Auditorium Seat Map) -->
-    <div class="seat-plan-scroll" role="img" aria-label="Sơ đồ ghế, hàng A đến H" style="display: flex; flex-direction: column; gap: 8px; align-items: center; background: #ffffff; padding: 36px 24px 28px; border-radius: 16px; border: 1px solid var(--border-dark); overflow-x: auto; width: 100%; box-shadow: 0 4px 20px rgba(0, 81, 152, 0.05);">
+    <div class="seat-plan-scroll" role="group" aria-label="Sơ đồ ghế, hàng A đến H. Dùng phím Tab để di chuyển, Enter hoặc Space để chọn ghế" style="display: flex; flex-direction: column; gap: 8px; align-items: center; background: #ffffff; padding: 36px 24px 28px; border-radius: 16px; border: 1px solid var(--border-dark); overflow-x: auto; width: 100%; box-shadow: 0 4px 20px rgba(0, 81, 152, 0.05);">
       
       <!-- Màn hình chiếu cong -->
       <div class="screen-curve"></div>
@@ -512,7 +517,7 @@
     <div class="c" style="position: sticky; bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; z-index: 1000; box-shadow: 0 10px 30px rgba(0, 81, 152, 0.12); border: 1.5px solid #cbd5e1; background: #ffffff;">
       <div>
         <p style="font-size: 15px; margin-bottom: 2px;">
-          <b id="checkout-movie-title" style="color: var(--text-light); font-size: 16px;">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</b> · Ghế: <span id="checkout-selected-seats" style="color: var(--a); font-weight: 800;">D5, D6</span> · Tạm tính: <strong id="checkout-total-price" style="color: var(--status-warning); font-size: 18px;">90,000đ</strong>
+          <b id="checkout-movie-title" style="color: var(--text-light); font-size: 16px;">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</b> · Ghế: <span id="checkout-selected-seats" aria-live="polite" style="color: var(--a); font-weight: 800;">D5, D6</span> · Tạm tính: <strong id="checkout-total-price" style="color: var(--status-warning); font-size: 18px;">90,000đ</strong>
         </p>
         <p class="m" id="checkout-meta-detail" style="font-size: 12.5px;">
           Phòng 01 (Dolby Atmos) · 2 Vé thường
@@ -617,6 +622,28 @@
 
       updateSummary();
     }
+
+    // Accessibility: ghế là nút bấm được bằng bàn phím, đọc được trạng thái
+    const SEAT_TYPE_LABEL = { standard: 'thường', vip: 'VIP', sweetbox: 'Sweetbox' };
+    function syncSeatA11y(el) {
+      const unavailable = el.classList.contains('x') || el.classList.contains('h') || el.classList.contains('k');
+      const selected = el.classList.contains('s');
+      const type = SEAT_TYPE_LABEL[el.dataset.type] || '';
+      const state = unavailable ? (el.title || 'Không còn trống') : (selected ? 'Đang chọn' : 'Còn trống');
+      el.setAttribute('aria-label', 'Ghế ' + el.dataset.id + (type ? ' ' + type : '') + ', ' + state);
+      el.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      if (unavailable) el.setAttribute('aria-disabled', 'true'); else el.removeAttribute('aria-disabled');
+    }
+    const seatObserver = new MutationObserver(list => list.forEach(m => syncSeatA11y(m.target)));
+    document.querySelectorAll('.r i[data-id]').forEach(seat => {
+      seat.setAttribute('role', 'button');
+      seat.setAttribute('tabindex', '0');
+      syncSeatA11y(seat);
+      seatObserver.observe(seat, { attributes: true, attributeFilter: ['class', 'title'] });
+      seat.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); seat.click(); }
+      });
+    });
 
     // Gắn sự kiện click chọn ghế
     document.querySelectorAll('.r i').forEach(seat => {

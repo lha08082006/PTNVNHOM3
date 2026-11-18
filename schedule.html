@@ -347,6 +347,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
@@ -377,7 +378,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" id="schedule-cinema-select" onchange="changeCinema(this.value)">
+        <select aria-label="Chọn rạp" class="cinema-select-official" id="schedule-cinema-select" onchange="changeCinema(this.value)">
           <option>Đang tải rạp...</option>
         </select>
         <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
@@ -406,7 +407,7 @@
   </section>
 
   <!-- Khung Chứa Nội Dung Lịch Chiếu Chính -->
-  <main class="container" style="padding-top: 10px; padding-bottom: 60px;">
+  <main id="main-content" class="container" style="padding-top: 10px; padding-bottom: 60px;">
     
     <!-- Chú Giải Suất Chiếu Muộn Từ 22h00 -->
     <div class="sch-legend-row">

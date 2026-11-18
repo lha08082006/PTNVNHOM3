@@ -147,6 +147,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
@@ -177,7 +178,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -206,7 +207,7 @@
   </header>
 
   <!-- Main Container -->
-  <main style="flex: 1; padding: 40px 20px 80px; display: flex; align-items: center; justify-content: center;">
+  <main id="main-content" style="flex: 1; padding: 40px 20px 80px; display: flex; align-items: center; justify-content: center;">
     
     <!-- ========================================== -->
     <!-- FORM 1: ĐĂNG NHẬP (Auth.dc.html)           -->
