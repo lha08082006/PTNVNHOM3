@@ -13,8 +13,8 @@
   };
 
   function apiBase() {
-    const port = location.port;
-    return (port === '5000' || port === '3000' || !port || location.protocol === 'https:') ? '/api/' : 'http://localhost:5000/api/';
+    // Live Server (port 55xx) hoặc file:// -> server Node port 5000; còn lại API cùng nguồn
+    return (/^55\d\d$/.test(location.port) || location.protocol === 'file:') ? 'http://localhost:5000/api/' : '/api/';
   }
 
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);

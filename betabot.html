@@ -449,8 +449,7 @@
       <!-- Logo chính thức -->
       <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
         <img class="official-logo" 
-             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
-             onerror="this.onerror=null; this.src='images/logo-official.png';" 
+             src="images/logo-official.png" 
              alt="Beta Cinemas">
       </a>
 
@@ -516,7 +515,7 @@
           
           <div class="bot-profile-card">
             <div class="bot-avatar-wrapper">
-              <img src="images/betabot-avatar.png" alt="BetaBot Avatar" class="bot-avatar-img" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+              <img src="images/betabot-avatar.webp" alt="BetaBot Avatar" class="bot-avatar-img" onerror="this.onerror=null; this.src='images/logo-official.png'">
               <span class="bot-online-badge"></span>
             </div>
             <h2 class="bot-name">BetaBot AI</h2>
@@ -584,7 +583,7 @@
             <!-- Chat Header -->
             <div class="chat-header">
               <div class="chat-header-user">
-                <img src="images/betabot-avatar.png" alt="BetaBot" class="chat-header-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+                <img src="images/betabot-avatar.webp" alt="BetaBot" class="chat-header-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
                 <div>
                   <div style="font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
                     <span>BetaBot</span>
@@ -611,7 +610,7 @@
               
               <!-- Tin nhắn 1: Bot Chào Mừng -->
               <div class="msg-row bot">
-                <img src="images/betabot-avatar.png" alt="Bot" class="msg-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+                <img src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
                 <div class="bot-bubble">
                   <p style="margin-bottom: 8px;">
                     Xin chào! Mình là <strong>BetaBot</strong> — Trợ lý AI hỗ trợ đối soát & giải quyết sự cố thanh toán tự động của Beta Cinemas.
@@ -665,8 +664,7 @@
         <div>
           <div style="margin-bottom: 18px;">
             <a href="home.html">
-              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png" 
-                   onerror="this.onerror=null; this.src='images/logo-white-official.png';" 
+              <img src="images/logo-white-official.png" 
                    alt="Beta Cinemas" 
                    style="height: 48px;">
             </a>
@@ -857,7 +855,7 @@
       const row = document.createElement('div');
       row.className = 'msg-row bot';
       row.innerHTML = `
-        <img src="images/betabot-avatar.png" alt="Bot" class="msg-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+        <img src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
         <div class="bot-bubble">${htmlContent}</div>
       `;
       chatBox.appendChild(row);
@@ -874,7 +872,7 @@
       typingRow.id = typingId;
       typingRow.className = 'msg-row bot';
       typingRow.innerHTML = `
-        <img src="images/betabot-avatar.png" alt="Bot" class="msg-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+        <img src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
         <div class="bot-bubble" style="font-style: italic; color: #64748b;">
           BetaBot đang xử lý dữ liệu...
         </div>
@@ -1223,7 +1221,7 @@
     function resetConversation() {
       chatBox.innerHTML = `
         <div class="msg-row bot">
-          <img src="images/betabot-avatar.png" alt="Bot" class="msg-avatar" onerror="this.src='https://betacinemas.vn/Assets/Common/logo/logo.png'">
+          <img src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
           <div class="bot-bubble">
             <p style="margin-bottom: 8px;">
               Xin chào! Mình là <strong>BetaBot</strong> — Trợ lý AI hỗ trợ đối soát & giải quyết sự cố thanh toán tự động của Beta Cinemas.
@@ -1335,5 +1333,6 @@
 
 <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
+  <script src="site-chrome.js" defer></script>
 </body>
 </html>

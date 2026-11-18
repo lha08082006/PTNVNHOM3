@@ -393,7 +393,8 @@
   </aside>
 
   <script>
-    const API = (location.port && !['3000', '5000'].includes(location.port)) ? 'http://localhost:5000/api/' : '/api/';
+    // Live Server (port 55xx) hoặc file:// -> server Node port 5000; còn lại API cùng nguồn
+    const API = (/^55\d\d$/.test(location.port) || location.protocol === 'file:') ? 'http://localhost:5000/api/' : '/api/';
     let TOKEN = '';
     try { TOKEN = sessionStorage.getItem('beta_staff_token') || ''; } catch (e) {}
     let ME = null;

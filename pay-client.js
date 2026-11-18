@@ -57,12 +57,12 @@ const Pay = {
   getApiBase() {
     if (typeof window !== 'undefined' && window.location) {
       const port = window.location.port;
-      // Đang truy cập trực tiếp qua server Node (port 5000, 3000) hoặc Vercel (port chuẩn 80/443 hoặc rỗng)
-      if (port === '5000' || port === '3000' || !port) {
-        return '/api/';
+      // Mở qua Live Server của VS Code (port 5500, 5501...) hoặc file:// -> gọi API ở server Node port 5000
+      if (/^55\d\d$/.test(port) || window.location.protocol === 'file:') {
+        return 'http://localhost:5000/api/';
       }
-      // Đang mở qua Live Server (port 5500, 5501...) -> ưu tiên kết nối tới port 5000
-      return 'http://localhost:5000/api/';
+      // Còn lại (server Node ở bất kỳ port nào, Vercel): API cùng nguồn
+      return '/api/';
     }
     return '/api/';
   },
