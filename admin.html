@@ -181,7 +181,7 @@
     const STATUS_TONE = { PENDING: 'warn', EXPIRED: 'warn', CONFIRMED: 'ok', CONFIRMED_LATE: 'ok', REFUND_REQUESTED: 'info', REFUNDED: 'muted', MANUAL_REVIEW: 'danger', CANCELLED: 'muted', FAILED: 'danger' };
     const RF_LABEL = { REQUESTED: 'Mới tạo', RETRYING: 'Đang gửi lại (30 phút/lần)', DONE: 'Đã hoàn', MANUAL_REVIEW: 'Chờ khách điền form', FORM_SUBMITTED: 'Chờ CSKH đối chiếu', CS_APPROVED: 'Chờ Kế toán chi', PAID_OUT: 'Kế toán đã chi – chờ CSKH xác nhận' };
     const RF_TONE = { REQUESTED: 'info', RETRYING: 'warn', DONE: 'ok', MANUAL_REVIEW: 'danger', FORM_SUBMITTED: 'warn', CS_APPROVED: 'info', PAID_OUT: 'info' };
-    const TK_LABEL = { PAYMENT_REPORT: 'Khách báo lỗi', MANUAL_REVIEW: 'Hoàn tiền thủ công', DATA_MISMATCH: 'Dữ liệu lệch', UNMATCHED_TX: 'Tiền không khớp đơn' };
+    const TK_LABEL = { GENERAL: 'Yêu cầu hỗ trợ', PAYMENT_REPORT: 'Khách báo lỗi', MANUAL_REVIEW: 'Hoàn tiền thủ công', DATA_MISMATCH: 'Dữ liệu lệch', UNMATCHED_TX: 'Tiền không khớp đơn' };
     const TK_STATUS = { OPEN: 'Mới / cần xử lý', WAITING_CUSTOMER: 'Chờ khách cập nhật', WAITING_ACCOUNTING: 'Chờ Kế toán' };
     const pill = (txt, tone) => `<span class="pill p-${tone || 'muted'}">${esc(txt)}</span>`;
 

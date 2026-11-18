@@ -163,7 +163,7 @@
 
       <!-- Fast Lookup Search Box -->
       <div class="support-search-box">
-        <input type="text" class="support-search-input" id="lookup-input" placeholder="Nhập mã đơn hàng BC... hoặc Số điện thoại mua vé" value="BC2610279854">
+        <input type="text" class="support-search-input" id="lookup-input" placeholder="Nhập mã đơn hàng BC..." onkeydown="if (event.key === 'Enter') lookupOrder()">
         <button class="btn btn-primary support-search-btn" onclick="lookupOrder()">
           Tra Cứu Vé
         </button>
@@ -182,23 +182,7 @@
   <main class="container">
     
     <!-- Kết quả tra cứu nhanh (Mô phỏng) -->
-    <div id="lookup-result-box" style="display: block; margin: 30px auto; max-width: 800px; background: white; border-radius: 16px; border: 1.5px solid #10b981; padding: 20px 26px; box-shadow: var(--shadow-md);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="color: #10b981; font-size: 20px;">✓</span>
-          <strong style="font-size: 16px; color: var(--beta-navy);">Đơn hàng: BC2610279854</strong>
-        </div>
-        <span class="badge" style="background: #d1fae5; color: #065f46;">ĐÃ THANH TOÁN (HỢP LỆ)</span>
-      </div>
-      <div style="font-size: 13.5px; color: #475569; line-height: 1.6;">
-        Phim: <strong>Linh Giới Đại Chiến: Thần Sư Chung Quỳ</strong> • Suất chiếu: <strong>18:30 (27/10/2026)</strong><br>
-        Rạp: <strong>Beta Thanh Xuân (HN)</strong> • Ghế: <strong>F07, F08 (VIP)</strong> • Tổng tiền: <strong>179.000 đ</strong>
-      </div>
-      <div style="margin-top: 14px; display: flex; gap: 10px;">
-        <a href="ticket.html" class="btn btn-primary btn-sm">Xem Vé Điện Tử QR</a>
-      </div>
-    </div>
-
+    <div id="lookup-result-box" style="display: none; margin: 30px auto; max-width: 800px; background: white; border-radius: 16px; border: 1.5px solid #10b981; padding: 20px 26px; box-shadow: var(--shadow-md);"></div>
     <div class="support-grid">
       
       <!-- CỘT TRÁI: FORM GỬI YÊU CẦU / KHIẾU NẠI -->
@@ -211,40 +195,41 @@
             Hệ thống đối soát tự động xử lý khiếu nại trong vòng 15-30 phút làm việc.
           </p>
 
-          <form onsubmit="event.preventDefault(); alert('Đã tiếp nhận yêu cầu hỗ trợ! Mã phiếu tiếp nhận: CS-2610-889. Nhân viên CSKH sẽ liên hệ lại bạn qua SĐT/Email.');">
+          <form id="support-form" onsubmit="event.preventDefault(); submitSupport();">
             <div class="form-group">
               <label class="form-label">Loại vấn đề cần hỗ trợ <span style="color: var(--beta-orange);">*</span></label>
-              <select class="form-input" required>
-                <option selected>Chuyển khoản VietQR/VNPay thành công nhưng chưa nhận vé</option>
-                <option>Chuyển nhầm số tiền hoặc sai cú pháp</option>
-                <option>Yêu cầu hoàn tiền vé theo chính sách</option>
-                <option>Đổi suất chiếu do sự cố bất khả kháng</option>
-                <option>Phản ánh chất lượng dịch vụ phòng chiếu</option>
+              <select class="form-input" id="sp-category" required>
+                <option value="PAYMENT_NO_TICKET" selected>Chuyển khoản VietQR thành công nhưng chưa nhận vé</option>
+                <option value="WRONG_TRANSFER">Chuyển nhầm số tiền hoặc sai nội dung</option>
+                <option value="REFUND">Yêu cầu hoàn tiền vé theo chính sách</option>
+                <option value="CHANGE_SHOWTIME">Đổi suất chiếu do sự cố bất khả kháng</option>
+                <option value="SERVICE">Phản ánh chất lượng dịch vụ phòng chiếu</option>
               </select>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div class="form-group">
                 <label class="form-label">Mã đơn hàng (nếu có)</label>
-                <input type="text" class="form-input" placeholder="Ví dụ: BC2610279854" value="BC2610279854">
+                <input type="text" class="form-input" id="sp-order" placeholder="Ví dụ: BC2610279854">
               </div>
               <div class="form-group">
                 <label class="form-label">Số điện thoại liên hệ <span style="color: var(--beta-orange);">*</span></label>
-                <input type="tel" class="form-input" data-user="phone" required>
+                <input type="tel" class="form-input" id="sp-phone" data-user="phone" required>
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label">Số tiền đã giao dịch (VNĐ)</label>
-              <input type="text" class="form-input" value="179.000">
+              <input type="text" class="form-input" id="sp-amount" placeholder="Ví dụ: 179.000">
             </div>
 
             <div class="form-group">
               <label class="form-label">Mô tả chi tiết sự cố</label>
-              <textarea class="form-input" rows="4" style="height: auto; padding: 12px 16px;" placeholder="Vui lòng nêu rõ ngân hàng bạn chuyển khoản, thời gian chuyển tiền...">Tôi đã quét mã VietQR và tài khoản ngân hàng báo trừ tiền 179.000đ lúc 12:45 nhưng trình duyệt bị tắt đột ngột, xin rạp kiểm tra lại giúp tôi.</textarea>
+              <textarea class="form-input" id="sp-desc" rows="4" style="height: auto; padding: 12px 16px;" placeholder="Vui lòng nêu rõ ngân hàng bạn chuyển khoản, thời gian chuyển tiền..." required minlength="10"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+            <p id="sp-msg" role="status" style="display: none; font-size: 14px; margin-bottom: 12px;"></p>
+            <button type="submit" id="sp-submit" class="btn btn-primary btn-lg" style="width: 100%;">
               Gửi Yêu Cầu Cho Đội Ngũ CSKH
             </button>
           </form>
@@ -264,7 +249,7 @@
             <span>▾</span>
           </div>
           <div class="faq-answer">
-            Quý khách yên tâm, hệ thống SePay tự động lưu trữ webhook và khớp giao dịch. Trong một số ít trường hợp ngân hàng chuyển mạch chậm (NAPAS trễ 1-2 phút), hệ thống sẽ cập nhật trạng thái đơn sang ĐÃ THANH TOÁN ngay khi nhận được tín hiệu. Bạn có thể nhập mã `BC...` vào ô tra cứu ở trên để xem vé ngay lập tức.
+            Quý khách yên tâm, hệ thống SePay tự động lưu trữ webhook và khớp giao dịch. Trong một số ít trường hợp ngân hàng chuyển mạch chậm (NAPAS trễ 1-2 phút), hệ thống sẽ cập nhật trạng thái đơn sang ĐÃ THANH TOÁN ngay khi nhận được tín hiệu. Bạn có thể nhập mã đơn BC... vào ô tra cứu ở trên để xem trạng thái đơn ngay lập tức.
           </div>
         </div>
 
@@ -417,6 +402,8 @@
     </nav>
   </div>
   <script src="auth-client.js"></script>
+  <script src="catalog.js"></script>
+  <script src="pay-client.js"></script>
   <script src="quick-dock.js"></script>
 
   <script>
@@ -424,15 +411,71 @@
       el.classList.toggle('open');
     }
 
-    function lookupOrder() {
-      const val = document.getElementById('lookup-input').value.trim();
-      if (!val) {
-        alert('Vui lòng nhập mã đơn hàng hoặc số điện thoại!');
-        return;
+    const esc = (x) => String(x == null ? '' : x).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+
+    async function lookupOrder() {
+      const code = document.getElementById('lookup-input').value.trim().toUpperCase();
+      const box = document.getElementById('lookup-result-box');
+      if (!code) { alert('Vui lòng nhập mã đơn hàng!'); return; }
+      box.style.display = 'block';
+      box.style.borderColor = '#cbd5e1';
+      box.textContent = 'Đang tra cứu đơn ' + code + '...';
+      try {
+        const o = await Pay.call('order-status?code=' + encodeURIComponent(code));
+        const m = Pay.getMovie(o.movie_key);
+        box.style.borderColor = o.has_ticket ? '#10b981' : '#f59e0b';
+        box.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; flex-wrap: wrap;">
+            <strong style="font-size: 16px; color: var(--beta-navy);">Đơn hàng: ${esc(o.code)}</strong>
+            <span class="badge" style="background: ${o.has_ticket ? '#d1fae5' : '#fef3c7'}; color: ${o.has_ticket ? '#065f46' : '#92400e'};">${esc(o.status_label).toUpperCase()}</span>
+          </div>
+          <div style="font-size: 13.5px; color: #475569; line-height: 1.6;">
+            Phim: <strong>${esc(m.title)}</strong> • Suất chiếu: <strong>${esc(o.show_time)} (${esc(o.show_date)})</strong><br>
+            Rạp: <strong>${esc(o.cinema)}</strong> • Ghế: <strong>${esc((o.seats || []).join(', '))}</strong> • Tổng tiền: <strong>${Pay.vnd(o.total)}</strong>
+            ${o.status_sublabel ? '<br>' + esc(o.status_sublabel) : ''}
+          </div>
+          <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
+            ${o.has_ticket ? `<a href="ticket.html?order=${encodeURIComponent(o.code)}" class="btn btn-primary btn-sm">Xem Vé Điện Tử</a>` : ''}
+            <a href="order.html?code=${encodeURIComponent(o.code)}" class="btn btn-outline btn-sm">Theo Dõi Đơn Hàng</a>
+          </div>`;
+        document.getElementById('sp-order').value = o.code;
+      } catch (e) {
+        box.style.borderColor = '#fca5a5';
+        box.textContent = e.status === 404
+          ? 'Không tìm thấy đơn hàng ' + code + '. Vui lòng kiểm tra lại mã đơn trong email/SMS xác nhận.'
+          : 'Lỗi tra cứu: ' + e.message;
       }
-      document.getElementById('lookup-result-box').style.display = 'block';
-      alert('Đã tìm thấy thông tin đơn hàng ' + val + '!');
     }
+
+    async function submitSupport() {
+      const val = (id) => document.getElementById(id).value.trim();
+      const msg = document.getElementById('sp-msg');
+      const btn = document.getElementById('sp-submit');
+      btn.disabled = true;
+      try {
+        const r = await Pay.post('support', {
+          category: val('sp-category'), order_code: val('sp-order'), phone: val('sp-phone'),
+          amount: val('sp-amount'), description: val('sp-desc')
+        });
+        msg.style.color = '#15803d';
+        msg.textContent = '✓ Đã tiếp nhận yêu cầu. Mã phiếu: ' + r.ticket_code +
+          (r.status_label ? ' · Trạng thái đơn: ' + r.status_label : '') +
+          '. CSKH sẽ liên hệ qua số điện thoại bạn cung cấp.';
+        document.getElementById('sp-desc').value = '';
+      } catch (e) {
+        msg.style.color = '#dc2626';
+        msg.textContent = e.message;
+      } finally {
+        msg.style.display = 'block';
+        btn.disabled = false;
+      }
+    }
+
+    // Mở từ liên kết có sẵn mã đơn: support.html?order=BC...
+    (function () {
+      const code = new URLSearchParams(location.search).get('order');
+      if (code) { document.getElementById('lookup-input').value = code; lookupOrder(); }
+    })();
   </script>
 </body>
 </html>

@@ -23,3 +23,10 @@ alter table orders add constraint orders_user_id_fkey foreign key (user_id) refe
 create index if not exists orders_user_idx on orders(user_id);
 
 commit;
+
+-- Giai đoạn 4: phiếu hỗ trợ chung từ form support.html
+begin;
+alter table support_tickets drop constraint if exists support_tickets_type_check;
+alter table support_tickets add constraint support_tickets_type_check
+  check (type in ('PAYMENT_REPORT','MANUAL_REVIEW','DATA_MISMATCH','UNMATCHED_TX','GENERAL'));
+commit;

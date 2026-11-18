@@ -34,6 +34,7 @@ const apiRoutes = {
   '/api/reconcile': require('./api/reconcile'),
   '/api/refund': require('./api/refund'),
   '/api/report-issue': require('./api/report-issue'),
+  '/api/support': require('./api/support'),
   '/api/seats': require('./api/seats'),
   '/api/cron': require('./api/cron'),
   '/api/admin': require('./api/admin'),

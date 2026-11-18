@@ -129,7 +129,7 @@ create table if not exists support_tickets (
   code        text unique not null,
   order_code  text,
   refund_code text,
-  type        text not null check (type in ('PAYMENT_REPORT','MANUAL_REVIEW','DATA_MISMATCH','UNMATCHED_TX')),
+  type        text not null check (type in ('PAYMENT_REPORT','MANUAL_REVIEW','DATA_MISMATCH','UNMATCHED_TX','GENERAL')),
   priority    text not null default 'HIGH',
   status      text not null default 'OPEN' check (status in ('OPEN','WAITING_CUSTOMER','WAITING_ACCOUNTING','RESOLVED')),
   summary     text,
