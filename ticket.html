@@ -124,6 +124,16 @@
         gap: 16px;
       }
     }
+
+    /* In vé: chỉ giữ tấm vé, bỏ menu, footer, các nút */
+    @media print {
+      body { background: #fff !important; }
+      .top-header-official, .header-main-official, .footer-official, #quick-dock-widget,
+      .ticket-actions, .betabot-fab, .no-print { display: none !important; }
+      .ticket-wrapper { max-width: 100% !important; padding: 0 !important; }
+      * { box-shadow: none !important; }
+      #ticket-qr { break-inside: avoid; }
+    }
   </style>
 </head>
 <body>
@@ -176,7 +186,7 @@
         <ul class="main-menu-official">
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
           <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
@@ -198,7 +208,7 @@
           Đặt Vé Thành Công!
         </h1>
         <p style="font-size: 14.5px; color: #64748b; max-width: 580px; margin: 0 auto;" id="ticket-sent-info">
-          Cảm ơn bạn đã đặt vé tại Beta Cinemas. Vé điện tử đã sẵn sàng. Thông tin vé và mã soát vé đã được gửi về cho khách hàng <strong style="color: #005198;" id="ticket-customer-name"></strong> qua email <strong style="color: #0f172a;" id="ticket-customer-email"></strong> và SMS số <strong style="color: #0f172a;" id="ticket-customer-phone"></strong>.
+          Cảm ơn bạn đã đặt vé tại Beta Cinemas. Vé điện tử đã sẵn sàng. Thông tin vé và mã soát vé đã được gửi về email <strong style="color: #0f172a;" id="ticket-customer-email"></strong> của khách hàng <strong style="color: #005198;" id="ticket-customer-name"></strong> (SĐT <strong style="color: #0f172a;" id="ticket-customer-phone"></strong>).
         </p>
       </div>
 
@@ -232,7 +242,7 @@
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <span id="ticket-badge-format" class="badge" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-weight: 800; font-size: 11.5px; padding: 4px 10px; border-radius: 6px;">2D PHỤ ĐỀ</span>
-              <span class="badge badge-vip" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; font-weight: 800; font-size: 11.5px; padding: 4px 10px; border-radius: 6px;">VÉ VIP ĐIỆN TỬ</span>
+              <span class="badge badge-vip" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; font-weight: 800; font-size: 11.5px; padding: 4px 10px; border-radius: 6px;" id="ticket-seat-class">VÉ ĐIỆN TỬ</span>
             </div>
           </div>
 
@@ -331,8 +341,8 @@
       </div>
 
       <!-- Tiện ích vé: Lưu, In, Chia sẻ -->
-      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 30px;">
-        <button class="btn btn-primary" onclick="alert('Đang tải ảnh vé độ phân giải cao về thiết bị...')">
+      <div class="ticket-actions" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 30px;">
+        <button type="button" class="btn btn-primary" id="btn-save-ticket" onclick="saveTicketImage()">
           📥 Lưu Ảnh Vé Về Điện Thoại
         </button>
         <button class="btn btn-outline" onclick="window.print()">
@@ -597,6 +607,102 @@
       }
     }
 
+    // Lưu vé thành ảnh PNG (thông tin vé + mã QR soát vé) để mở nhanh tại quầy khi không có mạng
+    async function saveTicketImage() {
+      const btn = document.getElementById('btn-save-ticket');
+      const txt = (id) => ((document.getElementById(id) || {}).textContent || '').replace(/\s+/g, ' ').trim();
+      const qrSrc = document.querySelector('#ticket-qr canvas, #ticket-qr img');
+      if (!qrSrc) { alert('Vé chưa có mã QR. Vui lòng đợi trang tải xong rồi thử lại.'); return; }
+      if (btn) btn.disabled = true;
+      try {
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        const W = 720, P = 44, S = 2;
+        const c = document.createElement('canvas');
+        c.width = W * S; c.height = 1120 * S;
+        const g = c.getContext('2d');
+        g.scale(S, S);
+        const font = (w, px) => `${w} ${px}px "Be Vietnam Pro", "Segoe UI", Arial, sans-serif`;
+        const wrap = (text, x, y, maxW, lh) => {
+          const words = String(text).split(' ');
+          let line = '';
+          for (const w of words) {
+            const t = line ? line + ' ' + w : w;
+            if (g.measureText(t).width > maxW && line) { g.fillText(line, x, y); y += lh; line = w; } else line = t;
+          }
+          if (line) { g.fillText(line, x, y); y += lh; }
+          return y;
+        };
+        // nền + đầu vé
+        g.fillStyle = '#f1f5f9'; g.fillRect(0, 0, W, 1120);
+        g.fillStyle = '#ffffff'; g.beginPath(); g.roundRect(20, 20, W - 40, 1080, 24); g.fill();
+        g.fillStyle = '#005198'; g.beginPath(); g.roundRect(20, 20, W - 40, 110, [24, 24, 0, 0]); g.fill();
+        g.fillStyle = '#ffffff'; g.font = font(900, 30); g.fillText('BETA CINEMAS', P, 82);
+        g.font = font(600, 15); g.textAlign = 'right'; g.fillText('VÉ XEM PHIM ĐIỆN TỬ', W - P, 82); g.textAlign = 'left';
+        // phim
+        let y = 182;
+        g.fillStyle = '#0f172a'; g.font = font(900, 28);
+        y = wrap(txt('ticket-movie-title'), P, y, W - 2 * P, 36);
+        g.fillStyle = '#0284c7'; g.font = font(700, 16); g.fillText(txt('ticket-badge-format'), P, y + 4); y += 40;
+        // các ô thông tin
+        const field = (label, value, x, yy, w, color) => {
+          g.fillStyle = '#64748b'; g.font = font(700, 13); g.fillText(label.toUpperCase(), x, yy);
+          g.fillStyle = color || '#0f172a'; g.font = font(800, 19);
+          return wrap(value || '—', x, yy + 28, w, 26);
+        };
+        const half = (W - 2 * P - 24) / 2;
+        const y1 = field('Rạp chiếu', txt('ticket-cinema-name'), P, y, half, '#005198');
+        const y2 = field('Phòng chiếu', txt('ticket-hall-name'), P + half + 24, y, half);
+        y = Math.max(y1, y2) + 18;
+        const y3 = field('Suất chiếu', txt('ticket-showtime'), P, y, half, '#ea580c');
+        const y4 = field('Ghế', txt('ticket-seats-list'), P + half + 24, y, half, '#005198');
+        y = Math.max(y3, y4) + 18;
+        y = field('Tổng tiền', txt('ticket-total-price'), P, y, W - 2 * P, '#ea580c') + 10;
+        // đường xé vé
+        g.strokeStyle = '#cbd5e1'; g.setLineDash([8, 8]); g.lineWidth = 2;
+        g.beginPath(); g.moveTo(P, y + 10); g.lineTo(W - P, y + 10); g.stroke(); g.setLineDash([]);
+        y += 44;
+        // mã QR
+        const q = 300, qx = (W - q) / 2;
+        g.fillStyle = '#ffffff'; g.fillRect(qx - 12, y - 12, q + 24, q + 24);
+        g.imageSmoothingEnabled = false;
+        g.drawImage(qrSrc, qx, y, q, q);
+        y += q + 44;
+        g.textAlign = 'center';
+        g.fillStyle = '#0f172a'; g.font = '800 24px "Courier New", monospace';
+        g.fillText(txt('ticket-barcode-num') || txt('ticket-order-code-foot'), W / 2, y); y += 32;
+        g.fillStyle = '#64748b'; g.font = font(500, 14);
+        g.fillText('Đưa mã QR này cho nhân viên soát vé. Mỗi vé chỉ dùng được một lần.', W / 2, y); y += 22;
+        g.fillText('Khách hàng: ' + (txt('ticket-card-customer') || txt('ticket-customer-name')), W / 2, y);
+        g.textAlign = 'left';
+
+        // cắt bỏ phần trống phía dưới theo chiều cao nội dung thật
+        const H = Math.min(1120, Math.ceil(y + 40));
+        const out = document.createElement('canvas');
+        out.width = W * S; out.height = (H + 20) * S;
+        const o2 = out.getContext('2d');
+        o2.fillStyle = '#f1f5f9'; o2.fillRect(0, 0, out.width, out.height);
+        o2.drawImage(c, 0, 0, W * S, H * S, 0, 0, W * S, H * S);
+        const code = (txt('ticket-order-code-foot') || 've').replace(/[^\w-]/g, '');
+        const blob = await new Promise((r) => out.toBlob(r, 'image/png'));
+        const file = new File([blob], 've-' + code + '.png', { type: 'image/png' });
+        // Điện thoại: dùng bảng chia sẻ để lưu vào Ảnh; máy tính: tải file về
+        if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
+          await navigator.share({ files: [file], title: 'Vé Beta Cinemas ' + code });
+        } else {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = file.name;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        }
+      } catch (e) {
+        if (e && e.name !== 'AbortError') alert('Không lưu được ảnh vé: ' + e.message + '. Bạn có thể chụp màn hình mã QR thay thế.');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+    window.saveTicketImage = saveTicketImage;
+
     function applyOrderToTicket(ord) {
       if (!ord) return;
       const movieObj = resolveMovie(ord.movie_key);
@@ -614,13 +720,27 @@
       }
 
       if (ord.show_time || ord.show_date) {
-        document.getElementById('ticket-showtime').textContent = (ord.show_time || '18:30') + ' • ' + (ord.show_date || '27/10/2026');
+        document.getElementById('ticket-showtime').textContent = [ord.show_time, ord.show_date].filter(Boolean).join(' • ');
+      }
+
+      // Phòng chiếu + định dạng lấy từ suất chiếu thật
+      if (ord.showtime_id && Pay.getShowtime) {
+        Pay.getShowtime(ord.showtime_id).then((st) => {
+          if (!st) return;
+          const hall = document.getElementById('ticket-hall-name');
+          if (hall) hall.textContent = st.room || '—';
+          if (st.format) document.getElementById('ticket-badge-format').textContent = st.format;
+        }).catch(() => {});
       }
 
       if (ord.seats && ord.seats.length > 0) {
         const s = Array.isArray(ord.seats) ? ord.seats.join(', ') : ord.seats;
         const count = Array.isArray(ord.seats) ? ord.seats.length : ord.seats.split(',').length;
-        document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' Ghế VIP)';
+        document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' ghế)';
+        // Nhãn hạng vé theo ghế thật (thường / VIP / Sweetbox)
+        const types = new Set((Array.isArray(ord.seats) ? ord.seats : String(ord.seats).split(',')).map((x) => window.BetaCatalog ? BetaCatalog.seatType(x) : null));
+        const cls = document.getElementById('ticket-seat-class');
+        if (cls) cls.textContent = types.has('sweetbox') ? 'VÉ SWEETBOX' : types.has('vip') ? 'VÉ VIP' : 'VÉ ĐIỆN TỬ';
       }
 
       if (ord.total) {
@@ -686,13 +806,13 @@
     }
 
     if (timeParam || dateParam) {
-      document.getElementById('ticket-showtime').textContent = (timeParam || '18:30') + ' • ' + (dateParam || ('Hôm nay (' + new Date().toLocaleDateString('vi-VN') + ')'));
+      document.getElementById('ticket-showtime').textContent = [timeParam, dateParam].filter(Boolean).join(' • ');
     }
 
     if (seatsParam) {
       const s = decodeURIComponent(seatsParam);
       const count = s.split(',').length;
-      document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' Ghế VIP)';
+      document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' ghế)';
     }
 
     if (totalParam) {

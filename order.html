@@ -98,7 +98,7 @@
         <ul class="main-menu-official">
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
           <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
@@ -214,7 +214,7 @@
         <div>
           <div class="od-card">
             <h2>Thông báo đã gửi</h2>
-            ${(o.notifications || []).length ? o.notifications.map(n => `<div class="note"><b>${esc(n.title)}</b>${esc(n.message)}<div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">${Pay.fmtTime(n.at)} · ${(n.channels || []).map(c => ({ WEB: 'Website', EMAIL: 'Email', SMS: 'SMS' })[c] || c).join(', ')}</div></div>`).join('') : '<div style="color: #94a3b8; font-size: 13px;">Chưa có thông báo.</div>'}
+            ${(o.notifications || []).length ? o.notifications.map(n => `<div class="note"><b>${esc(n.title)}</b>${esc(n.message)}<div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">${Pay.fmtTime(n.at)} · ${(n.channels || []).filter(c => c !== 'SMS').map(c => ({ WEB: 'Website', EMAIL: 'Email' })[c] || c).join(', ')}</div></div>`).join('') : '<div style="color: #94a3b8; font-size: 13px;">Chưa có thông báo.</div>'}
           </div>
           <div class="od-card" style="margin-top: 18px;">
             <h2>Lịch sử xử lý</h2>

@@ -77,6 +77,7 @@ const server = http.createServer(async (req, res) => {
   // 1. Xử lý API Routes
   // Giống rewrite trên Vercel: /sitemap.xml, /robots.txt do api/sitemap.js sinh ra
   if (pathname === '/sitemap.xml') pathname = '/api/sitemap';
+  if (pathname === '/favicon.ico') pathname = '/images/icon-ticket.png';
   if (pathname === '/robots.txt') { pathname = '/api/sitemap'; parsedUrl.query = { ...(parsedUrl.query || {}), robots: '1' }; }
 
   if (pathname.startsWith('/api/')) {

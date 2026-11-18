@@ -299,7 +299,7 @@
         <ul class="main-menu-official">
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="schedule.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
           <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official active">THÀNH VIÊN</a></li>
@@ -326,7 +326,7 @@
         <button type="button" class="btn btn-primary btn-sm" onclick="window.print()" style="background: #005198; border-color: #005198; font-weight: 700;">
           🖨️ In Hóa Đơn
         </button>
-        <button type="button" class="btn btn-outline btn-sm" onclick="alert('Đang tạo và tải tệp hóa đơn PDF...')" style="color: #334155;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="downloadInvoicePdf()" title="Mở hộp thoại in, chọn &quot;Lưu dưới dạng PDF&quot;" style="color: #334155;">
           📥 Tải Về PDF
         </button>
       </div>
@@ -569,6 +569,21 @@
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
   <script>
+    // Tải PDF: dùng hộp thoại in của trình duyệt ("Lưu dưới dạng PDF"); tên file mặc định = mã đơn
+    function downloadInvoicePdf() {
+      const code = (new URLSearchParams(location.search).get('order') || new URLSearchParams(location.search).get('code') || '').replace(/[^\w-]/g, '');
+      const oldTitle = document.title;
+      document.title = 'hoa-don-beta-' + (code || 've');
+      if (!sessionStorage.getItem('pdf_hint_shown')) {
+        try { sessionStorage.setItem('pdf_hint_shown', '1'); } catch (e) {}
+        alert('Trong hộp thoại in, chọn máy in "Lưu dưới dạng PDF" (Save as PDF) để tải hóa đơn về máy.');
+      }
+      const restore = () => { document.title = oldTitle; window.removeEventListener('afterprint', restore); };
+      window.addEventListener('afterprint', restore);
+      window.print();
+    }
+    window.downloadInvoicePdf = downloadInvoicePdf;
+
     // Hóa đơn dựng từ đơn hàng thật trên máy chủ (không còn dữ liệu mẫu)
     const VAT_RATE = 0.08;
     const vnd = (n) => Number(n || 0).toLocaleString('vi-VN') + ' đ';

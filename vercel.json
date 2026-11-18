@@ -20,6 +20,10 @@
     {
       "source": "/robots.txt",
       "destination": "/api/sitemap?robots=1"
+    },
+    {
+      "source": "/favicon.ico",
+      "destination": "/images/icon-ticket.png"
     }
   ],
   "headers": [

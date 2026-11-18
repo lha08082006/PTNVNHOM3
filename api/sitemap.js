@@ -2,7 +2,7 @@
 // Trang công khai + trang chi tiết từng phim đang chiếu / sắp chiếu lấy từ database.
 const CatalogDB = require('../lib/catalog-db');
 
-const STATIC = ['/', '/schedule', '/booking', '/support', '/policy'];
+const STATIC = ['/', '/schedule', '/booking', '/gia-ve', '/support', '/policy'];
 const xml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
 
 function siteUrl(req) {

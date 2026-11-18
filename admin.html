@@ -971,7 +971,7 @@
       if (note === null) return;
       await post('decide', { refund_code: code, decision, note });
     });
-    const remind = (code) => act(async () => { await post('remind', { refund_code: code }); alert('Đã gửi nhắc qua Email, SMS và thông báo trên website.'); });
+    const remind = (code) => act(async () => { await post('remind', { refund_code: code }); alert('Đã gửi nhắc qua Email và thông báo trên trang đơn hàng của khách.'); });
     const paid = (code) => act(async () => {
       const ref = document.getElementById('ref-' + code).value.trim();
       if (!ref) throw new Error('Nhập mã giao dịch chuyển hoàn trước khi xác nhận đã chi.');

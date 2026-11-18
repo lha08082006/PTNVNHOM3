@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giá vé & Combo - Beta Cinemas</title>
+  <meta name="description" content="Bảng giá vé xem phim Beta Cinemas: ghế thường, ghế VIP, ghế đôi Sweetbox theo từng rạp, giá combo bắp nước và cách áp dụng mã giảm giá.">
+  <meta property="og:title" content="Giá vé & Combo - Beta Cinemas">
+  <meta property="og:description" content="Giá ghế thường, VIP, Sweetbox theo rạp và giá combo bắp nước tại Beta Cinemas.">
+  <meta property="og:image" content="images/logo-official.png">
+  <link rel="icon" href="images/icon-ticket.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  <style>
+    body { background: #f8fafc; color: #0f172a; margin: 0; font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
+    .gv-top { background: #005198; color: #fff; padding: 14px 16px; }
+    .gv-top .in { max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .gv-top img { height: 40px; display: block; }
+    .gv-top a { color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; }
+    .gv-wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px 60px; }
+    .gv-wrap h1 { font-family: Montserrat, sans-serif; font-size: 28px; color: #005198; margin: 0 0 6px; }
+    .gv-lead { color: #475569; margin: 0 0 24px; font-size: 15px; line-height: 1.6; }
+    .gv-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 26px; }
+    .gv-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; }
+    .gv-card .t { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 10px; }
+    .gv-card .sw { width: 22px; height: 20px; border-radius: 6px 6px 3px 3px; display: inline-block; }
+    .gv-card .p { font-family: Montserrat, sans-serif; font-size: 30px; font-weight: 900; color: #ea580c; margin: 10px 0 4px; }
+    .gv-card .d { color: #64748b; font-size: 13.5px; line-height: 1.6; }
+    .gv-sec { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px 24px; margin-bottom: 18px; }
+    .gv-sec h2 { font-family: Montserrat, sans-serif; font-size: 19px; margin: 0 0 6px; }
+    .gv-sec .sub { color: #64748b; font-size: 13.5px; margin: 0 0 14px; }
+    .gv-table-wrap { overflow-x: auto; }
+    .gv-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+    .gv-table th, .gv-table td { border-bottom: 1px solid #e2e8f0; padding: 11px 10px; text-align: left; }
+    .gv-table th { background: #f1f5f9; font-size: 12.5px; text-transform: uppercase; letter-spacing: .3px; color: #475569; }
+    .gv-table td.num { font-weight: 700; white-space: nowrap; }
+    .gv-table a { color: #005198; font-weight: 700; }
+    .gv-combos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .gv-combo { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .gv-combo b { font-size: 14.5px; }
+    .gv-combo span { color: #ea580c; font-weight: 800; white-space: nowrap; }
+    .gv-note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 14px; font-size: 13.5px; color: #1e3a8a; line-height: 1.6; }
+    .gv-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .m { color: #64748b; }
+    @media (max-width: 760px) {
+      .gv-cards { grid-template-columns: minmax(0, 1fr); }
+      .gv-wrap h1 { font-size: 23px; }
+      .gv-sec { padding: 18px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="gv-top">
+    <div class="in">
+      <a href="home.html" aria-label="Về trang chủ Beta Cinemas"><img src="images/logo-white-official.png" alt="Beta Cinemas"></a>
+      <nav style="display:flex; gap:18px; flex-wrap:wrap" aria-label="Điều hướng">
+        <a href="schedule.html">Lịch chiếu</a>
+        <a href="account.html">Tài khoản</a>
+        <a href="support.html">Hỗ trợ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="gv-wrap">
+    <h1>Giá vé & Combo</h1>
+    <p class="gv-lead">Giá dưới đây là giá niêm yết. Mỗi suất chiếu có thể có giá riêng (suất đặc biệt, ngày lễ); giá chính xác luôn hiện khi bạn chọn ghế và là số tiền máy chủ tính khi tạo đơn.</p>
+
+    <div class="gv-cards" id="gv-cards" aria-live="polite"></div>
+
+    <section class="gv-sec">
+      <h2>Giá theo rạp (7 ngày tới)</h2>
+      <p class="sub">Khoảng giá lấy từ các suất chiếu đang mở bán của từng rạp.</p>
+      <div class="gv-table-wrap">
+        <table class="gv-table">
+          <thead><tr><th>Rạp</th><th>Ghế thường</th><th>Ghế VIP</th><th>Ghế đôi</th><th>Số suất</th><th></th></tr></thead>
+          <tbody id="gv-cinemas"><tr><td colspan="6" class="m">Đang tải giá theo rạp…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="gv-sec">
+      <h2>Combo bắp nước</h2>
+      <p class="sub">Đặt kèm khi mua vé online, nhận tại quầy Concession trước giờ chiếu. Tối đa <span id="gv-max-combo">10</span> phần mỗi loại.</p>
+      <div class="gv-combos" id="gv-combos"></div>
+    </section>
+
+    <section class="gv-sec">
+      <h2>Lưu ý khi đặt vé</h2>
+      <ul style="margin: 6px 0 14px; padding-left: 20px; line-height: 1.8; font-size: 14.5px; color: #334155;">
+        <li>Mỗi đơn tối đa <strong id="gv-max-seats">8</strong> ghế. Ghế đôi Sweetbox bán theo cặp.</li>
+        <li>Mã giảm giá nhập ở bước thanh toán, giảm thẳng vào tổng đơn và không vượt quá tổng tiền.</li>
+        <li>Ghế được giữ 10 phút sau khi bấm thanh toán. Thanh toán bằng chuyển khoản VietQR.</li>
+        <li>Phim có nhãn độ tuổi T13/T16/T18 có thể được yêu cầu xuất trình giấy tờ khi soát vé. Xem <a href="policy.html#do-tuoi">quy định độ tuổi</a>.</li>
+      </ul>
+      <div class="gv-cta">
+        <a class="btn btn-primary" href="schedule.html">🎟️ Xem lịch chiếu & đặt vé</a>
+        <a class="btn btn-outline" href="policy.html#hoan-tien">Chính sách hoàn tiền</a>
+      </div>
+    </section>
+  </main>
+
+  <footer style="text-align:center; color:#64748b; font-size:13px; padding: 10px 16px 30px">
+    © 2026 Beta Cinemas · <a href="policy.html" style="color:#005198;font-weight:700">Chính sách</a> · Hotline 1900 636 807
+  </footer>
+
+  <script src="catalog.js"></script>
+  <script src="pay-client.js"></script>
+  <script>
+    (async () => {
+      const C = window.BetaCatalog;
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const vnd = (n) => Pay.vnd(n);
+
+      const TYPES = [
+        ['standard', '#64748b', 'Hàng A – E. Ghế đơn tiêu chuẩn.'],
+        ['vip', '#f59e0b', 'Hàng F – G. Vị trí trung tâm, góc nhìn đẹp nhất.'],
+        ['sweetbox', '#ec4899', 'Hàng H. Ghế đôi cho 2 người, giá tính cho cả cặp.'],
+      ];
+      $('gv-cards').innerHTML = TYPES.map(([k, color, d]) =>
+        `<div class="gv-card"><div class="t"><span class="sw" style="background:${color}"></span>${esc(C.SEAT_LABEL[k])}</div>` +
+        `<div class="p">${vnd(C.SEAT_PRICES[k])}</div><div class="d">${esc(d)}</div></div>`).join('');
+      $('gv-combos').innerHTML = Object.values(C.COMBOS).map((c) => `<div class="gv-combo"><b>${esc(c.name)}</b><span>${vnd(c.price)}</span></div>`).join('');
+      $('gv-max-combo').textContent = C.MAX_COMBO_QTY;
+      $('gv-max-seats').textContent = C.MAX_SEATS;
+
+      const range = (arr) => {
+        const v = arr.filter((x) => x > 0);
+        if (!v.length) return '—';
+        const lo = Math.min(...v), hi = Math.max(...v);
+        return lo === hi ? vnd(lo) : vnd(lo) + ' – ' + vnd(hi);
+      };
+      try {
+        const [cn, st] = await Promise.all([Pay.catalog('cinemas'), Pay.catalog('showtimes', { days: 7 })]);
+        const shows = (st.showtimes || []).filter((s) => !s.late);
+        const rows = (cn.cinemas || []).map((c) => {
+          const list = shows.filter((s) => s.cinema_id === c.id);
+          const p = (k) => list.map((s) => (s.prices || {})[k]);
+          return `<tr><td><strong>${esc(c.name)}</strong>${c.city ? '<div class="m" style="font-size:12.5px">' + esc(c.city) + '</div>' : ''}</td>` +
+            `<td class="num">${range(p('standard'))}</td><td class="num">${range(p('vip'))}</td><td class="num">${range(p('sweetbox'))}</td>` +
+            `<td>${list.length}</td><td>${list.length ? `<a href="schedule.html?cinema=${encodeURIComponent(c.id)}">Lịch chiếu →</a>` : '<span class="m">Chưa có suất</span>'}</td></tr>`;
+        });
+        $('gv-cinemas').innerHTML = rows.join('') || '<tr><td colspan="6" class="m">Chưa có rạp nào.</td></tr>';
+      } catch (e) {
+        $('gv-cinemas').innerHTML = '<tr><td colspan="6" class="m">Không tải được giá theo rạp. <button type="button" class="btn btn-outline btn-sm" onclick="location.reload()">Thử lại</button></td></tr>';
+      }
+    })();
+  </script>
+</body>
+</html>
