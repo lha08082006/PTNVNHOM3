@@ -126,6 +126,96 @@ async function test(name, fn) {
     delete process.env.SEPAY_WEBHOOK_KEY;
   });
 
+  // --- Đối soát Tầng 2/3: tiền về muộn, ghế đã bán, gần giờ chiếu, thừa, trùng ---
+  const Store = require('../lib/store');
+  const sim = async (scenario, order_code, extra = {}) => {
+    const r = await call('simulate-payment', { method: 'POST', body: { scenario, order_code, ...extra } });
+    assert.strictEqual(r.status, 200, scenario + ': ' + JSON.stringify(r.data));
+    return r.data.order;
+  };
+  const newOrder = async (seats) => {
+    const r = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: ST.id, seats } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    return r.data.code;
+  };
+  const refundsOf = (c) => Store.find('refunds', { order_code: c });
+  // Ngân hàng đã trừ tiền trong 10 phút nhưng cổng chỉ báo SUCCESS sau 12 phút, webhook thất lạc
+  // -> hết giờ giữ ghế đơn thành EXPIRED (chưa rõ kết quả), chờ Job 30 phút đối soát.
+  const paidButExpired = async (seats) => {
+    const c = await newOrder(seats);
+    await sim('SLOW_BANK', c, { delay_min: 12 });
+    const o = await sim('SHIFT', c, { minutes: 11 });
+    assert.strictEqual(o.status, 'EXPIRED', JSON.stringify(o));
+    return c;
+  };
+
+  await test('Tầng 2: tiền về muộn, ghế còn trống -> cấp vé bù', async () => {
+    const c = await paidButExpired(['B1']);
+    const o = await sim('SHIFT', c, { minutes: 30 }); // tới chu kỳ Job 30 phút, cổng đã báo SUCCESS
+    assert.strictEqual(o.status, 'CONFIRMED_LATE', JSON.stringify(o));
+    assert.strictEqual((await refundsOf(c)).length, 0);
+    const held = await Store.find('seat_holds', { showtime_key: (await Store.one('orders', { code: c })).showtime_key, seat_id: 'B1' }, { order: null });
+    assert.strictEqual(held.length, 1);
+    assert.strictEqual(held[0].status, 'SOLD');
+  });
+
+  await test('Tầng 2: ghế đã bán cho khách khác -> hoàn tiền SEAT_TAKEN', async () => {
+    const c = await paidButExpired(['B2']);
+    const other = await newOrder(['B2']); // ghế đã được nhả khi đơn hết hạn
+    assert.strictEqual((await sim('OK', other)).status, 'CONFIRMED');
+    const o = await sim('SHIFT', c, { minutes: 30 });
+    assert.strictEqual(o.status, 'REFUNDED', JSON.stringify(o));
+    const rf = await refundsOf(c);
+    assert.strictEqual(rf.length, 1);
+    assert.strictEqual(rf[0].reason, 'SEAT_TAKEN');
+    assert.strictEqual(rf[0].status, 'DONE');
+    assert.strictEqual(Number(rf[0].amount), Number((await Store.one('orders', { code: c })).total));
+  });
+
+  await test('Tầng 2: còn dưới 30 phút trước giờ chiếu -> hoàn tiền NEAR_SHOWTIME', async () => {
+    const c = await paidButExpired(['B3']);
+    await sim('SHOWTIME', c, { minutes: 20 });
+    const o = await sim('SHIFT', c, { minutes: 30 });
+    assert.strictEqual(o.status, 'REFUNDED', JSON.stringify(o));
+    const rf = await refundsOf(c);
+    assert.deepStrictEqual(rf.map(r => [r.reason, r.status]), [['NEAR_SHOWTIME', 'DONE']]);
+  });
+
+  await test('Tầng 2: chuyển tiền sau khi hết giờ giữ ghế -> hoàn tiền LATE', async () => {
+    const c = await newOrder(['B4']);
+    const o = await sim('LATE', c);
+    assert.strictEqual(o.status, 'REFUNDED', JSON.stringify(o));
+    assert.deepStrictEqual((await refundsOf(c)).map(r => r.reason), ['LATE']);
+  });
+
+  await test('Chuyển thừa -> xuất vé + hoàn phần thừa; webhook trùng không xử lý lại', async () => {
+    const c = await newOrder(['B5']);
+    const o = await sim('EXCESS', c, { custom_amount: 0 });
+    assert.strictEqual(o.status, 'CONFIRMED', JSON.stringify(o));
+    let rf = await refundsOf(c);
+    assert.deepStrictEqual(rf.map(r => [r.reason, Number(r.amount), r.status]), [['EXCESS', 21000, 'DONE']]);
+
+    // SePay gửi lại đúng webhook cũ (2 lần): không thêm giao dịch, vé hay lệnh hoàn
+    for (let i = 0; i < 2; i++) {
+      const r = await call('simulate-payment', { method: 'POST', body: { scenario: 'DUP_WEBHOOK', order_code: c } });
+      assert.strictEqual(r.data.webhook.duplicate, true, JSON.stringify(r.data));
+    }
+    assert.strictEqual((await Store.find('bank_transactions', { code: c })).length, 1);
+    assert.strictEqual((await refundsOf(c)).length, 1);
+    const after = await Store.one('orders', { code: c });
+    assert.strictEqual(after.status, 'CONFIRMED');
+    assert.strictEqual(after.history.filter(h => h.from !== 'CONFIRMED' && h.to === 'CONFIRMED').length, 1); // xuất vé đúng một lần
+
+    // Khách chuyển thêm một giao dịch MỚI cho đơn đã xuất vé -> hoàn toàn bộ khoản đó (DUPLICATE)
+    await sim('OK', c, { custom_amount: after.total });
+    rf = await refundsOf(c);
+    const dup = rf.filter(r => r.reason === 'DUPLICATE');
+    assert.strictEqual(dup.length, 1);
+    assert.strictEqual(Number(dup[0].amount), Number(after.total));
+    assert.strictEqual(dup[0].status, 'DONE');
+    assert.strictEqual((await Store.one('orders', { code: c })).status, 'CONFIRMED');
+  });
+
   // Đăng nhập nhân viên demo (chế độ bộ nhớ trong tự tạo 4 tài khoản, mật khẩu beta-admin)
   const staffLogin = async (email) => {
     const r = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email, password: 'beta-admin' } });
@@ -274,6 +364,48 @@ async function test(name, fn) {
     const far = await quay.post({ action: 'checkin', code });
     assert.strictEqual(far.status, 409);
     assert.ok((await call('order-status', { query: { code: SOON_CODE } })).data.checked_in_at);
+  });
+
+  await test('Nhật ký: mỗi thao tác ghi thành công tạo đúng 1 dòng, lỗi ghi không bị nuốt', async () => {
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    const logs = () => Store.find('audit_logs', {}, { limit: 10000 });
+    // Mỗi phản hồi trả về khi nhật ký đã ghi xong (không ghi "chạy ngầm" sau phản hồi)
+    const expectOne = async (who, body) => {
+      const before = (await logs()).length;
+      const r = await who.post(body);
+      assert.strictEqual(r.status, 200, body.action + ': ' + JSON.stringify(r.data));
+      const after = await logs();
+      assert.strictEqual(after.length, before + 1, 'số dòng nhật ký sau ' + body.action);
+      assert.ok(after.some(l => l.action === body.action), 'thiếu nhật ký ' + body.action);
+      assert.strictEqual(r.data.audit_warning, undefined);
+    };
+    await expectOne(ql, { action: 'movie_save', title: 'Phim Nhật Ký', status: 'SOON' });
+    await expectOne(ql, { action: 'cinema_save', id: 'beta-thanh-xuan', name: 'Beta Thanh Xuân' });
+    await expectOne(ql, { action: 'voucher_save', code: 'NHATKY', discount: 5000, max_uses: 1 });
+    await expectOne(ql, { action: 'staff_create', full_name: 'NV Nhat Ky', email: 'nhatky@beta.local', role: 'COUNTER', password: 'matkhau123' });
+    await expectOne(ql, { action: 'run_job' });
+    await expectOne(cs, { action: 'send_to_accounting', refund_codes: ['REF-T2'] });
+
+    // Thao tác bị từ chối (sai quyền / lỗi nghiệp vụ) không ghi nhật ký
+    const before = (await logs()).length;
+    assert.strictEqual((await cs.post({ action: 'movie_save', title: 'Cam' })).status, 403);
+    assert.strictEqual((await quay.post({ action: 'checkin', code })).status, 409);
+    assert.strictEqual((await logs()).length, before);
+
+    // DB lỗi khi ghi nhật ký -> thao tác vẫn xong nhưng phản hồi có cảnh báo
+    const insert = Store.insert;
+    const errLog = console.error;
+    const errs = [];
+    Store.insert = async (table, row) => { if (table === 'audit_logs') throw new Error('mất kết nối'); return insert.call(Store, table, row); };
+    console.error = (...a) => errs.push(a.join(' '));
+    try {
+      const r = await ql.post({ action: 'movie_save', title: 'Phim Nhật Ký', status: 'NOW' });
+      assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+      assert.match(r.data.audit_warning || '', /chưa ghi được nhật ký/);
+      assert.ok(errs.some(e => e.includes('movie_save')), 'không có log lỗi phía máy chủ');
+    } finally { Store.insert = insert; console.error = errLog; }
   });
 
   await test('Tổng quan: doanh thu, vé bán, lấp đầy', async () => {

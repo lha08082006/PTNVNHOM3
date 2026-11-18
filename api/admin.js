@@ -167,13 +167,19 @@ module.exports = async function handler(req, res) {
     const me = await Staff.guard(req, res, NEED[action]);
     if (!me) return;
 
-    // Mọi thao tác ghi (POST) thành công đều vào nhật ký
+    // Mọi thao tác ghi (POST) thành công đều vào nhật ký. Ghi xong (await) mới trả phản hồi, để
+    // serverless không dừng tiến trình giữa chừng; ghi lỗi thì báo kèm `audit_warning`, không nuốt im lặng.
+    // (Mọi nhánh dưới đây đều `return res...json(...)` nên handler chờ được promise này.)
     if (req.method === 'POST' && action !== 'change_password') {
       const json = res.json.bind(res);
-      res.json = (data) => {
-        if ((res.statusCode || 200) < 400) {
+      let statusCode = 200;
+      const status = res.status.bind(res);
+      res.status = (c) => { statusCode = c; return status(c); };
+      res.json = async (data) => {
+        if (statusCode < 400) {
           const target = b0.qr ? String(b0.qr).split('.')[1] : b0.code || b0.title || b0.name || b0.movie_id || b0.refund_code || (Array.isArray(b0.refund_codes) ? b0.refund_codes.join(',') : null) || b0.ticket_code || b0.email || b0.id || null;
-          Staff.audit(me, action, target, { note: b0.note || undefined, reason: b0.reason || undefined, refund_ref: b0.refund_ref || undefined, role: b0.role || undefined, active: b0.active }).catch(() => {});
+          const ok = await Staff.audit(me, action, target, { note: b0.note || undefined, reason: b0.reason || undefined, refund_ref: b0.refund_ref || undefined, role: b0.role || undefined, active: b0.active });
+          if (!ok && data && typeof data === 'object') data = { ...data, audit_warning: 'Thao tác đã thực hiện nhưng chưa ghi được nhật ký – báo IT kiểm tra' };
         }
         return json(data);
       };
