@@ -553,6 +553,7 @@
     const COMBOS = {};
     for (const k in BetaCatalog.COMBOS) COMBOS[k] = { ...BetaCatalog.COMBOS[k], qty: 0 };
     let voucherCode = null;
+    let SHOWTIME = null; // suất chiếu thật (database)
 
     let baseSeatPrice = 90000;
     let discountAmount = 0;
@@ -565,12 +566,8 @@
     // Đọc query parameters
     function parseParams() {
       const p = new URLSearchParams(window.location.search);
-      if (p.get('movie')) currentMovie = p.get('movie');
-      if (p.get('cinema')) currentCinema = p.get('cinema');
-      if (p.get('date')) currentDate = p.get('date');
-      if (p.get('time')) currentTime = p.get('time');
       if (p.get('seats')) selectedSeatsStr = p.get('seats');
-      try { baseSeatPrice = BetaCatalog.quote({ seats: selectedSeatsStr }).seat_total; } catch (e) {
+      try { baseSeatPrice = BetaCatalog.quote({ seats: selectedSeatsStr, prices: SHOWTIME.prices }).seat_total; } catch (e) {
         alert('Vui lòng chọn ghế trước khi thanh toán.');
         location.replace('seats.html?' + p.toString());
         return;
@@ -604,7 +601,7 @@
       document.getElementById('summary-movie-age').textContent = movieObj.age;
       document.getElementById('summary-movie-poster').src = movieObj.poster;
 
-      document.getElementById('summary-cinema-hall').textContent = currentCinema + ' · Phòng 01';
+      document.getElementById('summary-cinema-hall').textContent = currentCinema + ' · ' + (SHOWTIME.room || 'Phòng 01');
       document.getElementById('summary-showtime').textContent = currentDate + ' · ' + currentTime;
 
       // Ghế
@@ -613,12 +610,8 @@
       document.getElementById('summary-seat-amount').textContent = new Intl.NumberFormat('vi-VN').format(baseSeatPrice) + ' đ';
 
       // Nút back quay về combo.html
-      const backUrl = 'combo.html?movie=' + encodeURIComponent(currentMovie) + 
-                      '&cinema=' + encodeURIComponent(currentCinema) + 
-                      '&date=' + encodeURIComponent(currentDate) + 
-                      '&time=' + encodeURIComponent(currentTime) + 
-                      '&seats=' + encodeURIComponent(selectedSeatsStr) + 
-                      '&total=' + baseSeatPrice;
+      const backUrl = 'combo.html?showtime=' + encodeURIComponent(SHOWTIME.id) + '&seats=' + encodeURIComponent(selectedSeatsStr) +
+                      '&combos=' + encodeURIComponent(p.get('combos') || '{}');
       document.getElementById('btn-back-seats').href = backUrl;
 
       calcTotal();
@@ -633,7 +626,7 @@
     }
 
     // Áp dụng voucher
-    function applyVoucher() {
+    async function applyVoucher() {
       const code = document.getElementById('voucher-input').value.trim().toUpperCase();
       const msgEl = document.getElementById('voucher-msg');
       if (!code) {
@@ -641,15 +634,19 @@
         msgEl.style.color = '#ef4444';
         return;
       }
-      if (BetaCatalog.VOUCHERS[code]) {
-        voucherCode = code;
-        discountAmount = BetaCatalog.VOUCHERS[code].discount;
-        msgEl.textContent = '✓ Áp dụng thành công mã ' + code + ': ' + BetaCatalog.VOUCHERS[code].label + '!';
+      try {
+        const v = (await Pay.catalog('voucher', { code })).voucher;
+        voucherCode = v.code;
+        discountAmount = v.discount;
+        msgEl.textContent = '✓ Áp dụng thành công mã ' + v.code + (v.label ? ': ' + v.label : '') + '!';
         msgEl.style.color = 'var(--status-live)';
         document.getElementById('summary-discount-row').style.display = 'flex';
-      } else {
-        msgEl.textContent = 'Mã giảm giá không hợp lệ hoặc đã hết lượt dùng.';
+      } catch (e) {
+        voucherCode = null;
+        discountAmount = 0;
+        msgEl.textContent = e.message || 'Mã giảm giá không hợp lệ hoặc đã hết lượt dùng.';
         msgEl.style.color = '#ef4444';
+        document.getElementById('summary-discount-row').style.display = 'none';
       }
       calcTotal();
     }
@@ -710,10 +707,7 @@
       try {
         // Máy chủ tạo đơn PENDING và khóa ghế nguyên tử 10 phút (Tầng 1 bắt đầu từ đây)
         await Pay.createOrderAndGo({
-          movie_key: currentMovie,
-          cinema: currentCinema,
-          show_date: currentDate,
-          show_time: currentTime,
+          showtime_id: SHOWTIME.id,
           seats: seatArray,
           combos: combosPayload,
           voucher: voucherCode,
@@ -732,7 +726,7 @@
         }
         if (err.status === 409) {
           alert(err.message + ' Bạn sẽ được đưa về sơ đồ ghế để chọn lại.');
-          location.href = 'seats.html?' + new URLSearchParams({ movie: currentMovie, cinema: currentCinema, date: currentDate, time: currentTime }).toString();
+          location.href = 'seats.html?showtime=' + encodeURIComponent(SHOWTIME.id);
           return;
         }
         alert('Không tạo được đơn hàng (' + err.message + '). Bạn chưa bị trừ tiền – vui lòng thử lại.');
@@ -741,9 +735,21 @@
     }
 
 
-    parseParams();
-    // Đặt vé cần tài khoản thành viên: đơn và e-ticket gắn với hồ sơ thật
-    if (window.BetaAuth) BetaAuth.requireLogin();
+    (async function init() {
+      // Đặt vé cần tài khoản thành viên: đơn và e-ticket gắn với hồ sơ thật
+      if (window.BetaAuth) await BetaAuth.requireLogin();
+      SHOWTIME = await Pay.getShowtime(new URLSearchParams(location.search).get('showtime'));
+      if (!SHOWTIME || !SHOWTIME.active) {
+        alert('Suất chiếu không tồn tại hoặc đã ngừng bán. Vui lòng chọn lại suất chiếu.');
+        location.replace('schedule.html');
+        return;
+      }
+      currentMovie = SHOWTIME.movie_key;
+      currentCinema = SHOWTIME.cinema;
+      currentDate = SHOWTIME.date_label;
+      currentTime = SHOWTIME.time;
+      parseParams();
+    })();
   </script>
 </body>
 </html>

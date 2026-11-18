@@ -64,6 +64,21 @@
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; align-items: end; }
     .form-grid label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
     tr.inactive td { opacity: .55; }
+    :root { --series: #2a78c2; --grid: #e2e8f0; }
+    .chart-cols { display: flex; align-items: flex-end; gap: 2px; height: 180px; padding-top: 8px; border-bottom: 1px solid #94a3b8; position: relative; }
+    .chart-cols .col { flex: 1; height: 100%; display: flex; align-items: flex-end; position: relative; cursor: default; }
+    .chart-cols .col i { display: block; width: 100%; background: var(--series); border-radius: 4px 4px 0 0; min-height: 0; }
+    .chart-cols .col:hover i { filter: brightness(.85); }
+    .chart-cols .col .tip { display: none; position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 12px; padding: 6px 8px; border-radius: 6px; white-space: nowrap; z-index: 2; pointer-events: none; }
+    .chart-cols .col:hover .tip { display: block; }
+    .chart-x { display: flex; gap: 2px; font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .chart-x span { flex: 1; text-align: center; overflow: hidden; white-space: nowrap; }
+    .hbar { display: grid; grid-template-columns: minmax(110px, 34%) 1fr auto; gap: 8px; align-items: center; font-size: 13px; padding: 4px 0; }
+    .hbar .track { height: 12px; }
+    .hbar .track i { display: block; height: 100%; background: var(--series); border-radius: 0 4px 4px 0; min-width: 2px; }
+    .hbar .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hbar .v { font-variant-numeric: tabular-nums; color: #334155; font-weight: 700; }
+    details.table-view summary { cursor: pointer; font-size: 12px; color: var(--muted); margin-top: 8px; }
     .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
     .chip { border: 1px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
     .chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
@@ -92,8 +107,10 @@
       <button type="button" onclick="logout()">Đăng xuất</button>
     </div>
     <nav class="tabs" id="tabs" style="display: none;">
+      <button data-tab="tongquan">Tổng quan</button>
       <button data-tab="cskh" class="on">CSKH <span class="count" id="c-cskh" hidden></span></button>
       <button data-tab="ketoan">Kế toán <span class="count" id="c-ketoan" hidden></span></button>
+      <button data-tab="danhmuc">Danh mục</button>
       <button data-tab="quay">Quầy</button>
       <button data-tab="it">IT / Dev <span class="count" id="c-it" hidden></span></button>
       <button data-tab="nhansu">Nhân sự & nhật ký</button>
@@ -119,6 +136,28 @@
       <p class="hint" id="demo-hint" hidden>Chạy thử (bộ nhớ trong): <span class="mono">quanly@ · ketoan@ · cskh@ · quay@beta.local</span>, mật khẩu <span class="mono">beta-admin</span>.</p>
       <div id="login-err" style="color: #b91c1c; margin-top: 8px;"></div>
     </div>
+
+    <!-- ===================== TỔNG QUAN (Quản lý / Kế toán) ===================== -->
+    <section id="tab-tongquan" hidden>
+      <div class="toolbar">
+        Từ <input type="date" id="db-from"> đến <input type="date" id="db-to">
+        <button class="btn primary" onclick="loadDashboard()">Xem</button>
+        <span class="hint">Doanh thu tính theo đơn đã xuất vé, thời điểm xác nhận thanh toán (giờ Việt Nam)</span>
+      </div>
+      <div class="kpis" id="db-kpis"></div>
+      <div class="card">
+        <h2>Doanh thu theo ngày</h2>
+        <div id="db-days"></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h2>Doanh thu theo phim</h2><div id="db-movies"></div></div>
+        <div class="card"><h2>Doanh thu theo rạp</h2><div id="db-cinemas"></div></div>
+      </div>
+      <div class="card">
+        <h2>Tỷ lệ lấp đầy – suất chiếu 3 ngày tới <small>20 suất bán chạy nhất</small></h2>
+        <div id="db-upcoming"></div>
+      </div>
+    </section>
 
     <!-- ===================== CSKH ===================== -->
     <section id="tab-cskh" hidden>
@@ -155,15 +194,105 @@
       </div>
     </section>
 
+    <!-- ===================== DANH MỤC (Quản lý) ===================== -->
+    <section id="tab-danhmuc" hidden>
+      <div class="card">
+        <h2>Suất chiếu <small>tạo nhanh nhiều giờ × nhiều ngày · giá để trống = giá mặc định</small></h2>
+        <form class="form-grid" onsubmit="event.preventDefault(); createShowtimes()" style="margin-bottom: 14px;">
+          <label>Phim<select id="sc-movie" required></select></label>
+          <label>Rạp<select id="sc-cinema" required></select></label>
+          <label>Từ ngày<input id="sc-date" type="date" required></label>
+          <label>Số ngày liên tiếp<input id="sc-days" type="number" min="1" max="31" value="1"></label>
+          <label>Giờ chiếu (HH:MM, cách nhau dấu phẩy)<input id="sc-times" placeholder="09:30, 12:15, 19:30" required></label>
+          <label>Định dạng<input id="sc-format" placeholder="2D PHỤ ĐỀ"></label>
+          <label>Phòng<input id="sc-room" placeholder="Phòng 01"></label>
+          <label>Giá ghế thường<input id="sc-p1" type="number" min="0" step="1000" placeholder="45000"></label>
+          <label>Giá ghế VIP<input id="sc-p2" type="number" min="0" step="1000" placeholder="50000"></label>
+          <label>Giá Sweetbox<input id="sc-p3" type="number" min="0" step="1000" placeholder="100000"></label>
+          <button class="btn primary">+ Tạo suất chiếu</button>
+        </form>
+        <div class="toolbar">
+          Xem lịch: <select id="sl-cinema" onchange="loadShowtimeList()"></select>
+          <input id="sl-date" type="date" onchange="loadShowtimeList()">
+        </div>
+        <div id="sl-table"></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <h2>Phim <small>bấm "Sửa" để nạp vào form</small></h2>
+          <form class="form-grid" id="mv-form" onsubmit="event.preventDefault(); saveMovie()" style="margin-bottom: 12px;">
+            <label>Mã phim (để trống = tự tạo)<input id="mv-id" placeholder="vd: suzume"></label>
+            <label>Tên phim<input id="mv-title" required></label>
+            <label>Tên ngắn<input id="mv-short"></label>
+            <label>Phân loại tuổi<input id="mv-age" placeholder="P / T13 / T16 / T18"></label>
+            <label>Thời lượng (phút)<input id="mv-dur" type="number" min="1"></label>
+            <label>Trạng thái<select id="mv-status"></select></label>
+            <label>Thể loại · thời lượng · ngôn ngữ<input id="mv-meta"></label>
+            <label>Ảnh poster (đường dẫn)<input id="mv-poster" placeholder="images/..."></label>
+            <label>Định dạng<input id="mv-format" placeholder="2D Phụ đề Tiếng Việt"></label>
+            <label>Nhãn định dạng<input id="mv-badge" placeholder="2D PHỤ ĐỀ"></label>
+            <button class="btn primary">Lưu phim</button>
+          </form>
+          <div id="mv-table"></div>
+        </div>
+        <div class="card">
+          <h2>Voucher <small>giới hạn lượt dùng & thời hạn</small></h2>
+          <form class="form-grid" onsubmit="event.preventDefault(); saveVoucher()" style="margin-bottom: 12px;">
+            <label>Mã<input id="vc-code" required style="text-transform: uppercase;"></label>
+            <label>Giảm (đ)<input id="vc-discount" type="number" min="1000" step="1000" required></label>
+            <label>Mô tả<input id="vc-label"></label>
+            <label>Tổng lượt tối đa<input id="vc-max" type="number" min="1" placeholder="không giới hạn"></label>
+            <label>Lượt / khách<input id="vc-per" type="number" min="1" placeholder="không giới hạn"></label>
+            <label>Bắt đầu<input id="vc-start" type="datetime-local"></label>
+            <label>Kết thúc<input id="vc-end" type="datetime-local"></label>
+            <label>Đang áp dụng<select id="vc-active"><option value="true">Có</option><option value="false">Tạm dừng</option></select></label>
+            <button class="btn primary">Lưu voucher</button>
+          </form>
+          <div id="vc-table"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Cụm rạp</h2>
+        <form class="form-grid" onsubmit="event.preventDefault(); saveCinema()" style="margin-bottom: 12px;">
+          <label>Mã (để trống = tự tạo)<input id="cn-id"></label>
+          <label>Tên rạp<input id="cn-name" required></label>
+          <label>Thành phố<input id="cn-city"></label>
+          <label>Địa chỉ<input id="cn-address"></label>
+          <label>Hoạt động<select id="cn-active"><option value="true">Có</option><option value="false">Tạm đóng</option></select></label>
+          <button class="btn primary">Lưu rạp</button>
+        </form>
+        <div id="cn-table"></div>
+      </div>
+    </section>
+
     <!-- ===================== QUẦY ===================== -->
     <section id="tab-quay" hidden>
-      <div class="card" style="max-width: 640px;">
-        <h2>Tra cứu đơn / vé tại quầy</h2>
-        <form class="toolbar" onsubmit="event.preventDefault(); openOrder(document.getElementById('q-code').value.trim().toUpperCase())">
-          <input id="q-code" class="mono" placeholder="Nhập mã đơn BC..." style="flex: 1; text-transform: uppercase;" required>
-          <button class="btn primary">Tra cứu</button>
-        </form>
-        <p class="hint">Khách quên vé: nhập mã đơn trong email/SMS để xem trạng thái, ghế và suất chiếu.</p>
+      <div class="grid2">
+        <div class="card">
+          <h2>Soát vé vào phòng chiếu <small>máy quét USB: đặt con trỏ vào ô rồi quét · hoặc dùng camera</small></h2>
+          <form class="toolbar" onsubmit="event.preventDefault(); doCheckin(document.getElementById('ck-input').value)">
+            <input id="ck-input" class="mono" placeholder="Quét QR hoặc nhập mã đơn BC..." style="flex: 1;" autocomplete="off" autofocus>
+            <button class="btn primary">Soát vé</button>
+          </form>
+          <div class="row-actions" style="margin-bottom: 10px;">
+            <button type="button" class="btn" id="ck-cam-btn" onclick="toggleCamera()">📷 Quét bằng camera</button>
+            <span class="hint" id="ck-cam-hint"></span>
+          </div>
+          <video id="ck-video" playsinline muted style="display: none; width: 100%; max-width: 420px; border-radius: 10px; background: #000;"></video>
+          <div id="ck-result" style="margin-top: 12px;"></div>
+        </div>
+        <div class="card">
+          <h2>Tra cứu đơn / vé</h2>
+          <form class="toolbar" onsubmit="event.preventDefault(); openOrder(document.getElementById('q-code').value.trim().toUpperCase())">
+            <input id="q-code" class="mono" placeholder="Nhập mã đơn BC..." style="flex: 1; text-transform: uppercase;" required>
+            <button class="btn">Tra cứu</button>
+          </form>
+          <p class="hint">Khách quên vé: nhập mã đơn trong email/SMS để xem trạng thái, ghế và suất chiếu, rồi soát bằng mã đơn ở ô bên trái.</p>
+          <h3 style="font-size: 13px; color: #005198; margin-top: 16px;">VỪA SOÁT TẠI QUẦY NÀY</h3>
+          <div id="ck-history" class="hint">Chưa có.</div>
+        </div>
       </div>
     </section>
 
@@ -296,10 +425,11 @@
     const isManager = () => !!ME && ME.role === 'MANAGER';
     // Tab hiển thị theo vai trò
     const TAB_RULE = {
+      tongquan: () => can('report.view'),
       cskh: () => can('refund.decide') || can('ticket.view'),
       ketoan: () => can('refund.pay') || can('report.view'),
-      quay: () => can('order.view') && !can('refund.view') || isManager(),
-      it: isManager, nhansu: isManager
+      quay: () => can('ticket.checkin'),
+      it: isManager, nhansu: isManager, danhmuc: () => can('catalog.manage')
     };
     const TK_LABEL = { GENERAL: 'Yêu cầu hỗ trợ', PAYMENT_REPORT: 'Khách báo lỗi', MANUAL_REVIEW: 'Hoàn tiền thủ công', DATA_MISMATCH: 'Dữ liệu lệch', UNMATCHED_TX: 'Tiền không khớp đơn' };
     const TK_STATUS = { OPEN: 'Mới / cần xử lý', WAITING_CUSTOMER: 'Chờ khách cập nhật', WAITING_ACCOUNTING: 'Chờ Kế toán' };
@@ -309,7 +439,7 @@
       const r = await fetch(API + path, { ...opts, headers: { 'Content-Type': 'application/json', ...(TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {}), ...(opts.headers || {}) } });
       const j = await r.json().catch(() => ({}));
       if (r.status === 401 && TOKEN && !/action=(login|bootstrap)/.test(path)) { logout(true); }
-      if (!r.ok) { const e = new Error(j.error || ('HTTP ' + r.status)); e.status = r.status; throw e; }
+      if (!r.ok) { const e = new Error(j.error || ('HTTP ' + r.status)); e.status = r.status; e.data = j; throw e; }
       return j;
     }
     const post = (action, body) => api('admin', { method: 'POST', body: JSON.stringify({ action, ...body }) });
@@ -391,9 +521,11 @@
     function show(name) {
       tab = name;
       document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
-      ['cskh', 'ketoan', 'quay', 'it', 'nhansu'].forEach(n => { document.getElementById('tab-' + n).hidden = n !== name; });
+      ['tongquan', 'cskh', 'ketoan', 'danhmuc', 'quay', 'it', 'nhansu'].forEach(n => { document.getElementById('tab-' + n).hidden = n !== name; });
       if (name === 'ketoan' && can('report.view') && !document.getElementById('r-table').innerHTML) loadReport();
       if (name === 'nhansu') loadStaff();
+      if (name === 'danhmuc') loadCatalog();
+      if (name === 'tongquan') loadDashboard();
     }
     document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => show(b.dataset.tab));
 
@@ -403,6 +535,185 @@
       document.getElementById('env').textContent = overview.live_db ? 'Supabase (dữ liệu thật)' : 'Bộ nhớ trong (chạy thử)';
       renderCskh(); renderKetoan(); if (isManager()) renderIt();
     }
+
+    // ---------------- TỔNG QUAN ----------------
+    const shortVnd = (n) => n >= 1e9 ? (n / 1e9).toFixed(1).replace('.', ',') + ' tỷ' : n >= 1e6 ? (n / 1e6).toFixed(1).replace('.', ',') + ' tr' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : String(n);
+    function hbars(rows, valueKey, label) {
+      if (!rows.length) return '<div class="empty">Chưa có dữ liệu trong kỳ.</div>';
+      const top = rows.slice(0, 8);
+      const other = rows.slice(8).reduce((s, r) => s + r[valueKey], 0);
+      if (other) top.push({ [label]: 'Khác (' + (rows.length - 8) + ')', [valueKey]: other, tickets: rows.slice(8).reduce((s, r) => s + r.tickets, 0) });
+      const max = Math.max(...top.map(r => r[valueKey]), 1);
+      return top.map(r => `<div class="hbar" title="${esc(r[label])}: ${vnd(r[valueKey])} · ${r.tickets} vé">
+        <span class="name">${esc(r[label])}</span><span class="track"><i style="width: ${(r[valueKey] / max * 100).toFixed(1)}%"></i></span><span class="v">${shortVnd(r[valueKey])}</span></div>`).join('');
+    }
+    async function loadDashboard() {
+      const f = document.getElementById('db-from'), tt = document.getElementById('db-to');
+      const d = await api('admin?action=dashboard' + (f.value ? '&from=' + f.value : '') + (tt.value ? '&to=' + tt.value : ''));
+      f.value = d.from; tt.value = d.to;
+      const k = d.kpi;
+      document.getElementById('db-kpis').innerHTML = [
+        [vnd(k.revenue), 'Doanh thu vé & combo'], [vnd(k.net), 'Doanh thu thuần (trừ hoàn tiền)'], [k.tickets, 'Vé đã bán'], [k.orders, 'Đơn đã xuất vé'],
+        [vnd(k.avg_order), 'Giá trị đơn trung bình'], [vnd(k.refunded), 'Đã hoàn tiền'], [k.occupancy_3d + '%', 'Lấp đầy ghế 3 ngày tới'],
+        [k.pending_manual_refunds, 'Hồ sơ hoàn thủ công đang mở'], [k.open_tickets, 'Phiếu hỗ trợ đang mở']
+      ].map(([v, l]) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join('');
+      const max = Math.max(...d.days.map(x => x.revenue), 1);
+      const every = Math.ceil(d.days.length / 14);
+      document.getElementById('db-days').innerHTML = `
+        <div class="chart-cols" role="img" aria-label="Doanh thu theo ngày từ ${d.from} đến ${d.to}">${d.days.map(x => `
+          <div class="col"><i style="height: ${(x.revenue / max * 100).toFixed(1)}%"></i>
+            <span class="tip">${x.date.split('-').reverse().join('/')}<br><b>${vnd(x.revenue)}</b> · ${x.orders} đơn · ${x.tickets} vé</span></div>`).join('')}
+        </div>
+        <div class="chart-x">${d.days.map((x, i) => `<span>${i % every === 0 ? x.date.slice(8) + '/' + x.date.slice(5, 7) : ''}</span>`).join('')}</div>
+        <details class="table-view"><summary>Xem dạng bảng</summary>
+          <table><thead><tr><th>Ngày</th><th>Doanh thu</th><th>Đơn</th><th>Vé</th></tr></thead><tbody>${
+            d.days.map(x => `<tr><td>${x.date.split('-').reverse().join('/')}</td><td>${vnd(x.revenue)}</td><td>${x.orders}</td><td>${x.tickets}</td></tr>`).join('')}</tbody></table>
+        </details>`;
+      document.getElementById('db-movies').innerHTML = hbars(d.by_movie, 'revenue', 'title');
+      document.getElementById('db-cinemas').innerHTML = hbars(d.by_cinema, 'revenue', 'name');
+      document.getElementById('db-upcoming').innerHTML = d.upcoming.length ? `<table><thead><tr><th>Suất</th><th>Phim</th><th>Rạp</th><th style="width: 34%;">Lấp đầy</th></tr></thead><tbody>${
+        d.upcoming.map(x => `<tr><td><b>${x.time}</b> <span class="hint">${esc(x.date_label)}</span></td><td>${esc(x.movie)}</td><td>${esc(x.cinema)}</td>
+          <td><div class="hbar" style="grid-template-columns: 1fr auto; padding: 0;"><span class="track"><i style="width: ${Math.max(x.rate, 0.5)}%"></i></span><span class="v">${x.sold}/${x.total} · ${x.rate}%</span></div></td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Chưa có suất chiếu nào trong 3 ngày tới.</div>';
+    }
+
+    // ---------------- QUẦY: SOÁT VÉ ----------------
+    const ckHistory = [];
+    async function doCheckin(raw) {
+      raw = String(raw || '').trim();
+      if (!raw) return;
+      const box = document.getElementById('ck-result');
+      const input = document.getElementById('ck-input');
+      input.value = '';
+      input.focus();
+      let ok = false, data = null, msg = '';
+      try { data = await post('checkin', { qr: raw }); ok = true; } catch (e) { msg = e.message; data = e.data || null; }
+      const sm = data && data.summary;
+      box.innerHTML = `<div style="border-radius: 14px; padding: 18px; color: #fff; background: ${ok ? '#16a34a' : '#dc2626'};">
+        <div style="font-size: 22px; font-weight: 900;">${ok ? '✓ HỢP LỆ – MỜI VÀO' : '✕ KHÔNG HỢP LỆ'}</div>
+        ${msg ? `<div style="margin-top: 6px; font-weight: 700;">${esc(msg)}</div>` : ''}
+        ${sm ? `<div style="margin-top: 10px; font-size: 14px; line-height: 1.6; background: rgba(255,255,255,.15); border-radius: 10px; padding: 10px 12px;">
+          Đơn <b class="mono">${esc(sm.code)}</b>${sm.signed ? '' : ' (soát bằng mã đơn)'}<br>
+          ${sm.movie_title ? esc(sm.movie_title) + '<br>' : ''}${esc(sm.cinema)} · <b>${esc(sm.show_time)}</b> ${esc(sm.show_date)}<br>
+          Ghế: <b style="font-size: 18px;">${esc((sm.seats || []).join(', '))}</b>${sm.customer_name ? ' · ' + esc(sm.customer_name) : ''}
+        </div>` : ''}
+      </div>`;
+      ckHistory.unshift({ at: new Date(), ok, code: sm ? sm.code : raw.slice(0, 20), seats: sm ? sm.seats.join(', ') : '' });
+      document.getElementById('ck-history').innerHTML = '<table><tbody>' + ckHistory.slice(0, 15).map(h =>
+        `<tr><td>${h.at.toLocaleTimeString('vi-VN')}</td><td class="mono">${esc(h.code)}</td><td>${esc(h.seats)}</td><td>${h.ok ? pill('Vào', 'ok') : pill('Từ chối', 'danger')}</td></tr>`).join('') + '</tbody></table>';
+      try { navigator.vibrate && navigator.vibrate(ok ? 80 : [80, 60, 80]); } catch (e) {}
+    }
+
+    // Quét QR bằng camera (trình duyệt hỗ trợ BarcodeDetector: Chrome Android, macOS, ChromeOS)
+    let camStream = null, camTimer = null, lastScan = '';
+    async function toggleCamera() {
+      const video = document.getElementById('ck-video');
+      const hint = document.getElementById('ck-cam-hint');
+      if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; clearInterval(camTimer); video.style.display = 'none'; document.getElementById('ck-cam-btn').textContent = '📷 Quét bằng camera'; return; }
+      if (!('BarcodeDetector' in window)) { hint.textContent = 'Trình duyệt này chưa hỗ trợ quét QR bằng camera – hãy dùng máy quét USB hoặc nhập mã đơn.'; return; }
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = camStream; video.style.display = 'block'; await video.play();
+        document.getElementById('ck-cam-btn').textContent = '⏹ Tắt camera';
+        const det = new BarcodeDetector({ formats: ['qr_code'] });
+        camTimer = setInterval(async () => {
+          try {
+            const codes = await det.detect(video);
+            if (codes[0] && codes[0].rawValue !== lastScan) { lastScan = codes[0].rawValue; doCheckin(lastScan); setTimeout(() => { lastScan = ''; }, 3000); }
+          } catch (e) {}
+        }, 400);
+      } catch (e) { hint.textContent = 'Không mở được camera: ' + e.message; camStream = null; }
+    }
+
+    // ---------------- DANH MỤC (Quản lý) ----------------
+    let CAT = null;
+    const val = (id) => document.getElementById(id).value.trim();
+    async function loadCatalog() {
+      CAT = await api('admin?action=catalog');
+      const opt = (rows, label, sel) => rows.map(r => `<option value="${esc(r.id)}" ${r.id === sel ? 'selected' : ''}>${esc(label(r))}</option>`).join('');
+      document.getElementById('sc-movie').innerHTML = opt(CAT.movies.filter(m => m.status !== 'HIDDEN'), m => m.title);
+      document.getElementById('sc-cinema').innerHTML = opt(CAT.cinemas.filter(c => c.active), c => c.name);
+      const slc = document.getElementById('sl-cinema');
+      slc.innerHTML = opt(CAT.cinemas, c => c.name, slc.value);
+      if (!document.getElementById('sc-date').value) document.getElementById('sc-date').value = CAT.today;
+      if (!document.getElementById('sl-date').value) document.getElementById('sl-date').value = CAT.today;
+      document.getElementById('mv-status').innerHTML = Object.entries(CAT.statuses).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('');
+      document.getElementById('mv-table').innerHTML = `<table><thead><tr><th>Phim</th><th>Tuổi</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+        CAT.movies.map(m => `<tr><td><b>${esc(m.title)}</b><div class="hint mono">${esc(m.id)}</div></td><td>${esc(m.age)}</td>
+          <td>${pill(CAT.statuses[m.status] || m.status, m.status === 'NOW' ? 'ok' : m.status === 'SOON' ? 'info' : 'muted')}</td>
+          <td><button class="btn" onclick="editMovie('${esc(m.id)}')">Sửa</button></td></tr>`).join('')}</tbody></table>`;
+      document.getElementById('vc-table').innerHTML = CAT.vouchers.length ? `<table><thead><tr><th>Mã</th><th>Giảm</th><th>Đã dùng</th><th>Hạn</th><th></th></tr></thead><tbody>${
+        CAT.vouchers.map(v => `<tr class="${v.active ? '' : 'inactive'}"><td class="mono"><b>${esc(v.id)}</b><div class="hint">${esc(v.label)}</div></td><td>${vnd(v.discount)}</td>
+          <td>${v.used}${v.max_uses ? ' / ' + v.max_uses : ''}${v.per_customer ? `<div class="hint">${v.per_customer} lượt/khách</div>` : ''}</td>
+          <td class="hint">${v.starts_at ? t(v.starts_at) : '—'}<br>${v.ends_at ? '→ ' + t(v.ends_at) : ''}</td>
+          <td><button class="btn" onclick="editVoucher('${esc(v.id)}')">Sửa</button></td></tr>`).join('')}</tbody></table>` : '<div class="empty">Chưa có voucher.</div>';
+      document.getElementById('cn-table').innerHTML = `<table><thead><tr><th>Rạp</th><th>Thành phố</th><th>Địa chỉ</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+        CAT.cinemas.map(c => `<tr class="${c.active ? '' : 'inactive'}"><td><b>${esc(c.name)}</b><div class="hint mono">${esc(c.id)}</div></td><td>${esc(c.city)}</td><td>${esc(c.address)}</td>
+          <td>${c.active ? pill('Hoạt động', 'ok') : pill('Tạm đóng', 'muted')}</td>
+          <td><button class="btn" onclick="editCinema('${esc(c.id)}')">Sửa</button></td></tr>`).join('')}</tbody></table>`;
+      await loadShowtimeList();
+    }
+    async function loadShowtimeList() {
+      const r = await api('admin?action=showtime_list&cinema=' + encodeURIComponent(val('sl-cinema')) + '&date=' + encodeURIComponent(val('sl-date')));
+      const now = Date.now();
+      document.getElementById('sl-table').innerHTML = r.showtimes.length ? `<table><thead><tr><th>Giờ</th><th>Phim</th><th>Định dạng / phòng</th><th>Giá (thường / VIP / đôi)</th><th>Ghế đã bán/giữ</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+        r.showtimes.map(x => { const past = new Date(x.starts_at).getTime() <= now; const sold = x.seats_total - x.seats_free; return `<tr class="${x.active ? '' : 'inactive'}">
+          <td><b>${x.time}</b></td><td>${esc(x.movie.title)}</td><td>${esc(x.format)}<div class="hint">${esc(x.room)}</div></td>
+          <td>${vnd(x.prices.standard)} / ${vnd(x.prices.vip)} / ${vnd(x.prices.sweetbox)}</td><td>${sold} / ${x.seats_total}</td>
+          <td>${past ? pill('Đã chiếu', 'muted') : x.active ? pill('Đang bán', 'ok') : pill('Ngừng bán', 'danger')}</td>
+          <td>${past ? '' : `<button class="btn ${x.active ? 'danger' : 'ok'}" onclick="toggleShowtime('${x.id}', ${!x.active})">${x.active ? 'Ngừng bán' : 'Mở bán lại'}</button>`}</td></tr>`; }).join('')
+      }</tbody></table>` : '<div class="empty">Rạp chưa có suất chiếu nào trong ngày này.</div>';
+    }
+    const createShowtimes = () => act(async () => {
+      const r = await post('showtime_create', { movie_id: val('sc-movie'), cinema_id: val('sc-cinema'), date: val('sc-date'), days: val('sc-days'), times: val('sc-times'),
+        format: val('sc-format'), room: val('sc-room'), price_standard: val('sc-p1'), price_vip: val('sc-p2'), price_sweetbox: val('sc-p3') });
+      alert(`Đã tạo ${r.created} suất chiếu.` + (r.skipped.length ? '\nBỏ qua: ' + r.skipped.join(', ') : ''));
+      document.getElementById('sl-cinema').value = val('sc-cinema');
+      document.getElementById('sl-date').value = val('sc-date');
+      await loadShowtimeList();
+    });
+    const toggleShowtime = (id, active) => act(async () => {
+      if (!active && !confirm('Ngừng bán suất chiếu này?')) return;
+      await post('showtime_update', { id, active });
+      await loadShowtimeList();
+    });
+    function editMovie(id) {
+      const m = CAT.movies.find(x => x.id === id);
+      const set = (k, v) => { document.getElementById(k).value = v == null ? '' : v; };
+      set('mv-id', m.id); set('mv-title', m.title); set('mv-short', m.short_title); set('mv-age', m.age); set('mv-dur', m.duration_min);
+      set('mv-status', m.status || 'NOW'); set('mv-meta', m.meta); set('mv-poster', m.poster); set('mv-format', m.format); set('mv-badge', m.badge);
+      document.getElementById('mv-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const saveMovie = () => act(async () => {
+      await post('movie_save', { id: val('mv-id'), title: val('mv-title'), short_title: val('mv-short'), age: val('mv-age'), duration_min: val('mv-dur'),
+        status: val('mv-status'), meta: val('mv-meta'), poster: val('mv-poster'), format: val('mv-format'), badge: val('mv-badge') });
+      ['mv-id', 'mv-title', 'mv-short', 'mv-age', 'mv-dur', 'mv-meta', 'mv-poster', 'mv-format', 'mv-badge'].forEach(id => { document.getElementById(id).value = ''; });
+      await loadCatalog();
+    });
+    function editVoucher(id) {
+      const v = CAT.vouchers.find(x => x.id === id);
+      const loc = (iso) => iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
+      const set = (k, x) => { document.getElementById(k).value = x == null ? '' : x; };
+      set('vc-code', v.id); set('vc-discount', v.discount); set('vc-label', v.label); set('vc-max', v.max_uses); set('vc-per', v.per_customer);
+      set('vc-start', loc(v.starts_at)); set('vc-end', loc(v.ends_at)); set('vc-active', String(v.active !== false));
+    }
+    const saveVoucher = () => act(async () => {
+      await post('voucher_save', { code: val('vc-code'), discount: val('vc-discount'), label: val('vc-label'), max_uses: val('vc-max'), per_customer: val('vc-per'),
+        starts_at: val('vc-start') ? new Date(val('vc-start')).toISOString() : '', ends_at: val('vc-end') ? new Date(val('vc-end')).toISOString() : '', active: val('vc-active') === 'true' });
+      ['vc-code', 'vc-discount', 'vc-label', 'vc-max', 'vc-per', 'vc-start', 'vc-end'].forEach(id => { document.getElementById(id).value = ''; });
+      await loadCatalog();
+    });
+    function editCinema(id) {
+      const c = CAT.cinemas.find(x => x.id === id);
+      document.getElementById('cn-id').value = c.id; document.getElementById('cn-name').value = c.name;
+      document.getElementById('cn-city').value = c.city || ''; document.getElementById('cn-address').value = c.address || '';
+      document.getElementById('cn-active').value = String(c.active);
+    }
+    const saveCinema = () => act(async () => {
+      await post('cinema_save', { id: val('cn-id'), name: val('cn-name'), city: val('cn-city'), address: val('cn-address'), active: val('cn-active') === 'true' });
+      ['cn-id', 'cn-name', 'cn-city', 'cn-address'].forEach(id => { document.getElementById(id).value = ''; });
+      await loadCatalog();
+    });
 
     // ---------------- NHÂN SỰ & NHẬT KÝ (Quản lý) ----------------
     let STAFF = [], ROLES = {}, AUDIT = [];
@@ -422,6 +733,7 @@
     }
     const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
       remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
+      movie_save: 'Lưu phim', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
       change_password: 'Đổi mật khẩu', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
     function renderAudit() {
       const q = document.getElementById('au-search').value.trim().toLowerCase();

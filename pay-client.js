@@ -103,6 +103,7 @@ const Pay = {
         err.status = r.status;
         throw err;
       }
+      Pay._absorb(j);
       return j;
     } catch (err) {
       console.warn('[Pay.call Error]:', err.message);
@@ -239,8 +240,28 @@ const Pay = {
 
   // Lấy thông tin phim theo key; mã không có trong danh mục thì trả bản "chưa rõ phim" thay vì đoán sai phim
   getMovie(key) {
-    const m = this.MOVIES[String(key || "").trim().toLowerCase()];
+    const k = String(key || "").trim().toLowerCase();
+    const m = Pay._movies[k] || this.MOVIES[k];
     return m || { title: "PHIM ĐANG CẬP NHẬT", shortTitle: "Phim đang cập nhật", age: "", meta: "", poster: "images/400x633-145627-230926-40.jpg", format: "2D", badge: "2D" };
+  },
+
+  // Phim lấy từ database (qua API) được ghi nhớ để getMovie() dùng, kể cả phim Quản lý mới thêm
+  _movies: {},
+  _absorb(j) {
+    const take = (m, key) => { if (m && (m.key || key)) Pay._movies[String(m.key || key).toLowerCase()] = m; };
+    if (!j || typeof j !== "object") return;
+    take(j.movie, j.movie_key);
+    (j.orders || []).forEach(o => take(o.movie, o.movie_key));
+    (j.movies || []).forEach(m => take(m));
+    (j.showtimes || []).forEach(st => take(st.movie, st.movie_key));
+    if (j.showtime) take(j.showtime.movie, j.showtime.movie_key);
+  },
+
+  // Danh mục từ database
+  catalog: (action, params = {}) => Pay.call("catalog?" + new URLSearchParams({ action, ...params })),
+  async getShowtime(id) {
+    if (!id) return null;
+    try { return (await Pay.catalog("showtime", { id })).showtime; } catch (e) { return null; }
   },
 
   // Đồng bộ hóa thông tin phim & hóa đơn trên giao diện động

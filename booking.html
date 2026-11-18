@@ -299,15 +299,7 @@
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
         <select id="cinema-select" class="cinema-select-official">
-          <option value="Beta Thanh Xuân" selected>Beta Thanh Xuân (Hà Nội)</option>
-          <option value="Beta Trần Quang Khải">Beta Trần Quang Khải (Hà Nội)</option>
-          <option value="Beta Giải Phóng">Beta Giải Phóng (Hà Nội)</option>
-          <option value="Beta Mỹ Đình">Beta Mỹ Đình (Hà Nội)</option>
-          <option value="Beta Quang Trung">Beta Quang Trung (TP.HCM)</option>
-          <option value="Beta Ung Văn Khiêm">Beta Ung Văn Khiêm (TP.HCM)</option>
-          <option value="Beta Thái Nguyên">Beta Thái Nguyên</option>
-          <option value="Beta Bắc Giang">Beta Bắc Giang</option>
-          <option value="Beta Nha Trang">Beta Nha Trang</option>
+          <option>Đang tải rạp...</option>
         </select>
         <span
           style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
@@ -377,78 +369,16 @@
 
         <!-- Thanh Chọn Ngày Chiếu (7 ngày trong tuần) -->
         <div class="g" id="date-selector" style="gap: 8px;">
-          <button class="b date-btn" data-date="Hôm nay"
-            style="min-width: 76px; text-align: center; line-height: 1.3;">CN<br>25/10</button>
-          <button class="o date-btn" data-date="T2 26/10"
-            style="min-width: 76px; text-align: center; line-height: 1.3;">T2<br>26/10</button>
-          <button class="o date-btn" data-date="T3 27/10"
-            style="min-width: 76px; text-align: center; line-height: 1.3;">T3<br>27/10</button>
-          <button class="o date-btn" data-date="T4 28/10"
-            style="min-width: 76px; text-align: center; line-height: 1.3;">T4<br>28/10</button>
-          <button class="o date-btn" data-date="T5 29/10"
-            style="min-width: 76px; text-align: center; line-height: 1.3;">T5<br>29/10</button>
-          <button class="o date-btn" data-date="T6 30/10"
-            style="min-width: 76px; text-align: center; line-height: 1.3;">T6<br>30/10</button>
-          <button class="o date-btn" data-date="T7 31/10"
-            style="min-width: 76px; text-align: center; line-height: 1.3;">T7<br>31/10</button>
         </div>
 
         <!-- Khối Chọn Suất Chiếu (Thời Gian Thực) -->
         <section class="c" style="display: flex; flex-direction: column; gap: 14px;">
           <h3 style="font-size: 18px; font-weight: 800;">Chọn suất chiếu</h3>
           <p class="m" style="display: flex; align-items: center; gap: 6px;">
-            <span class="live-dot">●</span> Trực tiếp · cập nhật 2 giây trước · <span id="live-viewer-count"
-              style="color: var(--text-light); font-weight: 700;">14</span> người đang xem suất này
+            <span class="live-dot">●</span> Số ghế trống cập nhật theo thời gian thực
           </p>
 
-          <!-- Nhóm 1: 2D Phụ đề -->
-          <div style="margin-top: 4px;">
-            <p style="font-weight: 700; margin-bottom: 10px; font-size: 14.5px; color: var(--text-light);">2D Phụ đề</p>
-            <div class="g" id="showtime-group-1">
-              <!-- Suất 1: Hết vé -->
-              <button class="sl" disabled>
-                <b>09:30</b>
-                <span class="bar"><i style="width: 100%; background: #64748b;"></i></span>
-                <span class="m" style="font-size: 12px; color: #ef4444;">Hết vé</span>
-              </button>
-
-              <!-- Suất 2: Đang chọn mặc định -->
-              <button class="sl on" data-time="12:15" data-format="2D Phụ đề" data-available="85" data-total="120"
-                onclick="handleShowtimeClick(this)">
-                <b>12:15</b>
-                <span class="bar"><i style="width: 29%;"></i></span>
-                <span class="m" style="font-size: 12px;">85/120 ghế</span>
-              </button>
-
-              <!-- Suất 3: Sắp hết -->
-              <button class="sl lo" data-time="19:45" data-format="2D Phụ đề" data-available="12" data-total="120"
-                onclick="handleShowtimeClick(this)">
-                <b>19:45</b>
-                <span class="bar"><i style="width: 90%;"></i></span>
-                <span class="m" style="font-size: 12px; color: var(--status-warning);">Sắp hết · 12/120 ghế</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Nhóm 2: 3D IMAX -->
-          <div style="margin-top: 10px;">
-            <p style="font-weight: 700; margin-bottom: 10px; font-size: 14.5px; color: var(--text-light);">3D IMAX</p>
-            <div class="g" id="showtime-group-2">
-              <button class="sl" data-time="20:30" data-format="3D IMAX" data-available="96" data-total="120"
-                onclick="handleShowtimeClick(this)">
-                <b>20:30</b>
-                <span class="bar"><i style="width: 20%;"></i></span>
-                <span class="m" style="font-size: 12px;">96/120 ghế</span>
-              </button>
-
-              <button class="sl" data-time="22:15" data-format="3D IMAX" data-available="110" data-total="120"
-                onclick="handleShowtimeClick(this)">
-                <b>22:15</b>
-                <span class="bar"><i style="width: 8%;"></i></span>
-                <span class="m" style="font-size: 12px;">110/120 ghế</span>
-              </button>
-            </div>
-          </div>
+          <div id="showtime-groups"></div>
 
         </section>
 
@@ -523,221 +453,137 @@
   <script src="quick-dock.js"></script>
 
   <!-- Script xử lý dữ liệu động & tương tác thời gian thực -->
+  <script src="catalog.js"></script>
+  <script src="pay-client.js"></script>
   <script>
-    // Dữ liệu các phim trong hệ thống
-    const MOVIE_DATA = {
-      'linh-gioi-dai-chien': {
-        title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
-        shortTitle: 'LINH GIỚI ĐẠI CHIẾN',
-        age: 'T18',
-        meta: 'Hành động, Giả tưởng, Thần thoại · 128 phút · Tiếng Trung - Phụ đề Tiếng Việt',
-        poster: 'images/400x633-145627-230926-40.jpg'
-      },
-      'dia-dao': {
-        title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
-        shortTitle: 'LINH GIỚI ĐẠI CHIẾN',
-        age: 'T18',
-        meta: 'Hành động, Giả tưởng, Thần thoại · 128 phút · Tiếng Trung - Phụ đề Tiếng Việt',
-        poster: 'images/400x633-145627-230926-40.jpg'
-      },
-      'quy-an-tang-4': {
-        title: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
-        shortTitle: 'QUỶ ĂN TẠNG 4',
-        age: 'T18',
-        meta: 'Kinh dị, Bí ẩn, Giật gân · 115 phút · Tiếng Thái - Phụ đề Tiếng Việt',
-        poster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg'
-      },
-      'trai-buon-nguoi': {
-        title: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
-        shortTitle: 'TRẠI BUÔN NGƯỜI',
-        age: 'T16',
-        meta: 'Tâm lý, Tội phạm, Gay cấn · 118 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-        poster: 'images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.jpg'
-      },
-      'blue-lock': {
-        title: 'BLUE LOCK: THE MOVIE - EPISODE NAGI',
-        shortTitle: 'BLUE LOCK: EPISODE NAGI',
-        age: 'P',
-        meta: 'Hoạt hình, Thể thao, Anime · 95 phút · Tiếng Nhật - Phụ đề Tiếng Việt',
-        poster: 'images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.jpg'
-      },
-      'an-mang-karaoke': {
-        title: 'ÁN MẠNG KARAOKE',
-        shortTitle: 'ÁN MẠNG KARAOKE',
-        age: 'T16',
-        meta: 'Trinh thám, Hài hước, Bí ẩn · 96 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-        poster: 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg'
-      },
-      'ut-lan-2': {
-        title: 'ÚT LAN 2',
-        shortTitle: 'ÚT LAN 2',
-        age: 'T16',
-        meta: 'Tâm lý, Tình cảm, Hài kịch · 114 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-        poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg'
-      },
-      'co-dau-hao-mon': {
-        title: 'ÚT LAN 2',
-        shortTitle: 'ÚT LAN 2',
-        age: 'T16',
-        meta: 'Tâm lý, Tình cảm, Hài kịch · 114 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-        poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg'
-      },
-      'suzume': {
-        title: 'KHÓA CHẶT CỬA NÀO SUZUME',
-        shortTitle: 'SUZUME NO TOJIMARI',
-        age: 'P',
-        meta: 'Hoạt hình, Giả tưởng, Anime · 121 phút · Tiếng Nhật - Phụ đề Tiếng Việt',
-        poster: 'images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.jpg'
-      },
-      'ca-voi-nuot-chung': {
-        title: 'CÁ VOI NUỐT CHỬNG',
-        shortTitle: 'CÁ VOI NUỐT CHỬNG',
-        age: 'T13',
-        meta: 'Sinh tồn, Hành động, Viễn tưởng · 98 phút · Tiếng Anh - Phụ đề Tiếng Việt',
-        poster: 'images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.jpg'
-      },
-      'me-min': {
-        title: 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI',
-        shortTitle: 'MẸ MÌN',
-        age: 'T18',
-        meta: 'Kinh dị, Tâm lý, Giật gân · 105 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-        poster: 'images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.jpg'
-      },
-      'shaun-the-sheep': {
-        title: 'SHAUN THE SHEEP: CHUYẾN PHIÊU LƯU NGOÀI HÀNH TINH',
-        shortTitle: 'SHAUN THE SHEEP',
-        age: 'P',
-        meta: 'Hoạt hình, Phiêu lưu, Hài hước · 86 phút · Không thoại - Bản quyền Aardman',
-        poster: 'images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.jpg'
-      }
-    };
+    // Đặt vé theo phim: chọn rạp + ngày -> suất chiếu thật (database) -> seats.html?showtime=<id>
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const params = new URLSearchParams(location.search);
+    const movieKey = params.get('movie') || '';
+    let cinemaId = params.get('cinema') || '';
+    let CINEMAS = [];
+    let today = '';
+    let selectedDate = '';
+    let selected = null;
 
-    let selectedMovieKey = 'linh-gioi-dai-chien';
-    let selectedDate = 'Hôm nay';
-    let selectedTime = '12:15';
-    let selectedFormat = '2D Phụ đề';
-    let selectedCinema = 'Beta Thanh Xuân';
+    const addDays = (date, n) => { const [y, m, d] = date.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10); };
+    const cinemaName = () => (CINEMAS.find(c => c.id === cinemaId) || {}).name || '';
 
-    // Đọc URL param
-    function initFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      const movieParam = params.get('movie');
-      if (movieParam && MOVIE_DATA[movieParam]) {
-        selectedMovieKey = movieParam;
-      }
-
-      const movie = MOVIE_DATA[selectedMovieKey];
-      document.getElementById('detail-movie-title').textContent = movie.title;
-      document.getElementById('detail-movie-age').textContent = movie.age;
-      document.getElementById('detail-movie-meta').textContent = movie.meta;
-      document.getElementById('detail-movie-poster').src = movie.poster;
-      document.getElementById('summary-movie').textContent = movie.shortTitle;
-
-      updateSummary();
+    function renderMovie(m) {
+      document.getElementById('detail-movie-title').textContent = m.title;
+      document.getElementById('detail-movie-age').textContent = m.age;
+      document.getElementById('detail-movie-meta').textContent = m.meta;
+      document.getElementById('detail-movie-poster').src = m.poster;
+      document.getElementById('summary-movie').textContent = m.shortTitle || m.title;
     }
 
-    // Chọn rạp
-    document.getElementById('cinema-select').addEventListener('change', function (e) {
-      selectedCinema = e.target.value;
-      document.getElementById('cinema-name-tag').textContent = selectedCinema;
-      document.getElementById('summary-cinema').textContent = selectedCinema;
-      updateSeatLink();
-    });
-
-    // Chọn ngày chiếu
-    document.querySelectorAll('.date-btn').forEach(btn => {
-      btn.addEventListener('click', function () {
-        document.querySelectorAll('.date-btn').forEach(b => {
-          b.className = 'o date-btn';
-        });
-        this.className = 'b date-btn';
-        selectedDate = this.dataset.date;
-        updateSummary();
-      });
-    });
-
-    // Chọn suất chiếu
-    function handleShowtimeClick(btn) {
-      if (btn.hasAttribute('disabled')) return;
-      document.querySelectorAll('.sl').forEach(s => s.classList.remove('on'));
-      btn.classList.add('on');
-
-      selectedTime = btn.dataset.time;
-      selectedFormat = btn.dataset.format;
-      const available = btn.dataset.available || '85';
-
-      document.getElementById('summary-available-count').textContent = available;
-      updateSummary();
+    function renderDates() {
+      const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+      const box = document.getElementById('date-selector');
+      box.innerHTML = '';
+      for (let i = 0; i < 7; i++) {
+        const date = addDays(today, i);
+        const [, mm, dd] = date.split('-');
+        const btn = document.createElement('button');
+        btn.className = (date === selectedDate ? 'b' : 'o') + ' date-btn';
+        btn.style.cssText = 'min-width: 76px; text-align: center; line-height: 1.3; cursor: pointer;';
+        btn.innerHTML = `${i === 0 ? 'Hôm nay' : DOW[new Date(date + 'T00:00:00Z').getUTCDay()]}<br>${dd}/${mm}`;
+        btn.onclick = () => { selectedDate = date; renderDates(); loadShowtimes(); };
+        box.appendChild(btn);
+      }
     }
 
     function updateSummary() {
-      document.getElementById('summary-showtime').textContent = `${selectedDate} · ${selectedTime}`;
-      document.getElementById('summary-format').textContent = selectedFormat;
-      document.getElementById('summary-cinema').textContent = selectedCinema;
-      updateSeatLink();
-    }
-
-    function updateSeatLink() {
-      const btnSeats = document.getElementById('btn-submit-seats');
-      btnSeats.href = `seats.html?movie=${encodeURIComponent(selectedMovieKey)}&cinema=${encodeURIComponent(selectedCinema)}&time=${encodeURIComponent(selectedTime)}&date=${encodeURIComponent(selectedDate)}`;
-    }
-
-    // Tăng giảm ngẫu nhiên nhẹ số người đang xem tạo hiệu ứng thời gian thực
-    setInterval(() => {
-      const viewerEl = document.getElementById('live-viewer-count');
-      if (viewerEl) {
-        let count = parseInt(viewerEl.textContent) || 14;
-        let delta = Math.floor(Math.random() * 3) - 1; // -1, 0, +1
-        let newCount = Math.max(8, Math.min(32, count + delta));
-        viewerEl.textContent = newCount;
+      document.getElementById('summary-cinema').textContent = cinemaName();
+      document.getElementById('cinema-name-tag').textContent = cinemaName();
+      const btn = document.getElementById('btn-submit-seats');
+      if (selected) {
+        document.getElementById('summary-showtime').textContent = selected.date_label + ' · ' + selected.time;
+        document.getElementById('summary-format').textContent = selected.format;
+        document.getElementById('summary-available-count').textContent = selected.seats_free;
+        btn.href = 'seats.html?showtime=' + encodeURIComponent(selected.id);
+        btn.style.opacity = '';
+        btn.style.pointerEvents = '';
+      } else {
+        document.getElementById('summary-showtime').textContent = 'Chưa chọn suất';
+        document.getElementById('summary-format').textContent = '—';
+        document.getElementById('summary-available-count').textContent = '—';
+        btn.removeAttribute('href');
+        btn.style.opacity = '.5';
+        btn.style.pointerEvents = 'none';
       }
-    }, 4000);
+    }
 
-    renderRealtimeDateBar();
-    initFromUrl();
+    async function loadShowtimes() {
+      const box = document.getElementById('showtime-groups');
+      box.innerHTML = '<p class="m">Đang tải suất chiếu...</p>';
+      selected = null;
+      updateSummary();
+      try {
+        const r = await Pay.catalog('showtimes', { movie: movieKey, cinema: cinemaId, date: selectedDate });
+        if (!r.showtimes.length) { box.innerHTML = '<p class="m">Rạp chưa có suất chiếu phim này trong ngày đã chọn. Vui lòng chọn ngày hoặc rạp khác.</p>'; return; }
+        const byFormat = {};
+        r.showtimes.forEach(st => { (byFormat[st.format] = byFormat[st.format] || []).push(st); });
+        box.innerHTML = Object.entries(byFormat).map(([fmt, list]) => `
+          <div style="margin-top: 4px;">
+            <p style="font-weight: 700; margin-bottom: 10px; font-size: 14.5px; color: var(--text-light);">${esc(fmt)}</p>
+            <div class="g">${list.map(st => {
+              const used = Math.round((1 - st.seats_free / st.seats_total) * 100);
+              const low = st.seats_free > 0 && st.seats_free <= 12;
+              return st.seats_free <= 0
+                ? `<button class="sl" disabled><b>${st.time}</b><span class="bar"><i style="width: 100%; background: #64748b;"></i></span><span class="m" style="font-size: 12px; color: #ef4444;">Hết vé</span></button>`
+                : `<button class="sl${low ? ' lo' : ''}" data-id="${esc(st.id)}" onclick="pickShowtime('${esc(st.id)}')">
+                     <b>${st.time}</b><span class="bar"><i style="width: ${used}%;"></i></span>
+                     <span class="m" style="font-size: 12px;${low ? ' color: var(--status-warning);' : ''}">${low ? 'Sắp hết · ' : ''}${st.seats_free}/${st.seats_total} ghế</span>
+                   </button>`;
+            }).join('')}</div>
+          </div>`).join('');
+        window.__showtimes = r.showtimes;
+      } catch (e) {
+        box.innerHTML = `<p class="m" style="color: #dc2626;">Không tải được suất chiếu (${esc(e.message)}).</p>`;
+      }
+    }
 
-    // Tự động sinh danh sách 7 ngày chiếu theo thời gian thực (Bắt đầu từ hôm nay)
-    function renderRealtimeDateBar() {
-      const dateSelector = document.getElementById('date-selector');
-      if (!dateSelector) return;
+    function pickShowtime(id) {
+      selected = (window.__showtimes || []).find(s => s.id === id) || null;
+      document.querySelectorAll('#showtime-groups .sl').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+      updateSummary();
+    }
 
-      const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-      const now = new Date();
-      dateSelector.innerHTML = '';
-
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(now);
-        d.setDate(now.getDate() + i);
-        const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
-        const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
-        const dow = daysOfWeek[d.getDay()];
-        const tag = `${dow} ${day}/${month}`;
-
-        const btn = document.createElement('button');
-        btn.className = (i === 0 ? 'b date-btn' : 'o date-btn');
-        btn.setAttribute('data-date', tag);
-        btn.style.cssText = 'min-width: 76px; text-align: center; line-height: 1.3; cursor: pointer;';
-        btn.innerHTML = `${dow}<br>${day}/${month}`;
-
-        btn.addEventListener('click', function() {
-          document.querySelectorAll('.date-btn').forEach(b => {
-            b.classList.remove('b');
-            b.classList.add('o');
-          });
-          this.classList.remove('o');
-          this.classList.add('b');
-          selectedDate = tag;
+    (async function init() {
+      try {
+        const [mv, cn, week] = await Promise.all([Pay.catalog('movies'), Pay.catalog('cinemas'), Pay.catalog('showtimes', { movie: movieKey, days: 7 })]);
+        const m = mv.movies.find(x => x.key === movieKey);
+        if (!m) { location.replace('home.html'); return; }
+        renderMovie(m);
+        // Chỉ liệt kê các rạp có chiếu phim này trong 7 ngày tới
+        const showing = new Set(week.showtimes.map(x => x.cinema_id));
+        CINEMAS = cn.cinemas.filter(c => showing.has(c.id));
+        if (!CINEMAS.length) {
+          document.getElementById('showtime-groups').innerHTML = '<p class="m">Phim chưa có lịch chiếu trong 7 ngày tới.</p>';
           updateSummary();
-        });
-
-        dateSelector.appendChild(btn);
-
-        if (i === 0) {
-          selectedDate = tag;
+          return;
         }
+        if (!CINEMAS.some(c => c.id === cinemaId)) cinemaId = CINEMAS[0] ? CINEMAS[0].id : '';
+        const sel = document.getElementById('cinema-select');
+        sel.innerHTML = CINEMAS.map(c => `<option value="${esc(c.id)}" ${c.id === cinemaId ? 'selected' : ''}>${esc(c.name)}${c.city ? ' (' + esc(c.city) + ')' : ''}</option>`).join('');
+        sel.onchange = () => {
+          cinemaId = sel.value;
+          const f = week.showtimes.find(x => x.cinema_id === cinemaId);
+          if (f) selectedDate = f.date;
+          renderDates();
+          loadShowtimes();
+        };
+        today = week.today;
+        // Ngày mặc định: ngày gần nhất rạp đang chọn có suất
+        const firstAtCinema = week.showtimes.find(x => x.cinema_id === cinemaId);
+        selectedDate = firstAtCinema ? firstAtCinema.date : today;
+        renderDates();
+        await loadShowtimes();
+      } catch (e) {
+        document.getElementById('showtime-groups').innerHTML = `<p class="m" style="color: #dc2626;">Không tải được dữ liệu (${esc(e.message)}).</p>`;
       }
-    }
-
+    })();
   </script>
 </body>
 

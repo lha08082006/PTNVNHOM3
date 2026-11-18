@@ -28,7 +28,7 @@ async function test(name, fn) {
 }
 
 (async () => {
-  let tokA, tokB, code;
+  let tokA, tokB, code, ST;
 
   await test('Đăng ký + đăng nhập', async () => {
     const r = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach A', email: 'a@test.vn', phone: '0901000001', password: 'matkhau123' } });
@@ -49,8 +49,22 @@ async function test(name, fn) {
     assert.strictEqual(r.status, 401);
   });
 
+  await test('Danh mục: lịch chiếu thật từ database', async () => {
+    const mv = await call('catalog', { query: { action: 'movies' } });
+    assert.ok(mv.data.movies.length >= 10);
+    const r = await call('catalog', { query: { action: 'showtimes', days: 3 } });
+    assert.ok(r.data.showtimes.length > 0);
+    // Chọn suất còn xa giờ chiếu nhất để không bị "đã bắt đầu"
+    ST = r.data.showtimes[r.data.showtimes.length - 1];
+    assert.strictEqual(ST.seats_free, ST.seats_total);
+    const one = await call('catalog', { query: { action: 'showtime', id: ST.id } });
+    assert.strictEqual(one.data.showtime.id, ST.id);
+    assert.strictEqual((await call('catalog', { query: { action: 'showtime', id: 'khong-co' } })).status, 404);
+  });
+
   await test('Máy chủ tự tính giá, chặn sửa giá', async () => {
-    const base = { movie_key: 'suzume', cinema: 'Beta Thanh Xuân', show_date: 'T5 19/11', show_time: '20:00' };
+    const base = { showtime_id: ST.id };
+    assert.strictEqual((await call('create-order', { method: 'POST', token: tokA, body: { showtime_id: 'sai', seats: ['A1'] } })).status, 400);
     const cheat = await call('create-order', { method: 'POST', token: tokA, body: { ...base, seats: ['A1'], total: 1000 } });
     assert.strictEqual(cheat.status, 409);
     const fake = await call('create-order', { method: 'POST', token: tokA, body: { ...base, seats: ['Z99'] } });
@@ -62,8 +76,10 @@ async function test(name, fn) {
   });
 
   await test('Không bán trùng ghế', async () => {
-    const r = await call('create-order', { method: 'POST', token: tokB, body: { movie_key: 'suzume', cinema: 'Beta Thanh Xuân', show_date: 'T5 19/11', show_time: '20:00', seats: ['F2'] } });
+    const r = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: ST.id, seats: ['F2'] } });
     assert.strictEqual(r.status, 409);
+    const after = await call('catalog', { query: { action: 'showtime', id: ST.id } });
+    assert.strictEqual(after.data.showtime.seats_free, ST.seats_total - 3);
   });
 
   await test('Lịch sử đơn chỉ thấy đơn của mình', async () => {
@@ -201,6 +217,99 @@ async function test(name, fn) {
     const au = await ql.get('audit');
     const acts = au.data.logs.map(l => l.action);
     for (const a of ['login', 'send_to_accounting', 'accounting_reject', 'accounting_paid', 'confirm_done', 'staff_create', 'staff_update']) assert.ok(acts.includes(a), 'thiếu nhật ký ' + a);
+  });
+
+  await test('Danh mục (Quản lý): tạo phim, suất chiếu, voucher giới hạn lượt', async () => {
+    const CatalogDB = require('../lib/catalog-db');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    assert.strictEqual((await cs.post({ action: 'movie_save', title: 'Phim Cam' })).status, 403);
+    const mv = await ql.post({ action: 'movie_save', title: 'Phim Thử Nghiệm', age: 'T13', duration_min: 100, status: 'NOW' });
+    assert.strictEqual(mv.status, 200, JSON.stringify(mv.data));
+    assert.strictEqual(mv.data.movie.id, 'phim-thu-nghiem');
+    // Suất chiếu 90 phút nữa (giờ VN), giá riêng
+    const soon = CatalogDB.vnParts(new Date(Date.now() + 90 * 60000).toISOString());
+    const sc = await ql.post({ action: 'showtime_create', movie_id: 'phim-thu-nghiem', cinema_id: 'beta-thanh-xuan', date: soon.date, times: soon.time, price_standard: 60000 });
+    assert.strictEqual(sc.data.created, 1, JSON.stringify(sc.data));
+    const dup = await ql.post({ action: 'showtime_create', movie_id: 'phim-thu-nghiem', cinema_id: 'beta-thanh-xuan', date: soon.date, times: soon.time });
+    assert.strictEqual(dup.data.created, 0);
+    const list = await call('catalog', { query: { action: 'showtimes', movie: 'phim-thu-nghiem', date: soon.date } });
+    globalThis.SOON = list.data.showtimes[0];
+    assert.strictEqual(SOON.prices.standard, 60000);
+
+    // Voucher 1 lượt / khách, tối đa 2 lượt
+    await ql.post({ action: 'voucher_save', code: 'THU2', discount: 10000, max_uses: 2, per_customer: 1 });
+    const v1 = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: SOON.id, seats: ['A1'], voucher: 'thu2', total: 50000 } });
+    assert.strictEqual(v1.status, 200, JSON.stringify(v1.data));
+    globalThis.SOON_CODE = v1.data.code;
+    const again = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: SOON.id, seats: ['A2'], voucher: 'THU2' } });
+    assert.strictEqual(again.status, 400); // đã dùng 1 lượt
+    const check = await call('catalog', { token: tokB, query: { action: 'voucher', code: 'THU2' } });
+    assert.strictEqual(check.status, 400);
+    // Không ngừng bán suất đã có khách giữ ghế
+    assert.strictEqual((await ql.post({ action: 'showtime_update', id: SOON.id, active: false })).status, 409);
+  });
+
+  await test('Soát vé QR: hợp lệ một lần, chặn vé giả và vé đã soát', async () => {
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    // Đơn chưa thanh toán thì không soát được
+    const unpaid = await quay.post({ action: 'checkin', qr: SOON_CODE });
+    assert.strictEqual(unpaid.status, 409);
+    await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: SOON_CODE } });
+    const view = await call('order-status', { query: { code: SOON_CODE } });
+    assert.match(view.data.ticket_qr, /^BETA1\.BC\d{10}\.[A-Za-z0-9_-]{16}$/);
+    assert.strictEqual((await cs.post({ action: 'checkin', qr: view.data.ticket_qr })).status, 403);
+    const forged = await quay.post({ action: 'checkin', qr: view.data.ticket_qr.slice(0, -2) + 'xx' });
+    assert.strictEqual(forged.status, 400);
+    const ok = await quay.post({ action: 'checkin', qr: view.data.ticket_qr });
+    assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
+    assert.deepStrictEqual(ok.data.summary.seats, ['A1']);
+    const twice = await quay.post({ action: 'checkin', qr: view.data.ticket_qr });
+    assert.strictEqual(twice.status, 409);
+    assert.strictEqual(twice.data.already, true);
+    const byCode = await quay.post({ action: 'checkin', code: SOON_CODE });
+    assert.strictEqual(byCode.status, 409);
+    // Vé của suất còn xa (hơn 2 giờ) thì chưa mở soát
+    const far = await quay.post({ action: 'checkin', code });
+    assert.strictEqual(far.status, 409);
+    assert.ok((await call('order-status', { query: { code: SOON_CODE } })).data.checked_in_at);
+  });
+
+  await test('Tổng quan: doanh thu, vé bán, lấp đầy', async () => {
+    const kt = asStaff(await staffLogin('ketoan@beta.local'));
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    assert.strictEqual((await quay.get('dashboard')).status, 403);
+    const d = await kt.get('dashboard');
+    assert.strictEqual(d.status, 200, JSON.stringify(d.data));
+    assert.ok(d.data.kpi.revenue >= 264000 + 50000);
+    assert.ok(d.data.kpi.tickets >= 4);
+    assert.strictEqual(d.data.days.length, 14);
+    assert.ok(d.data.by_movie.length >= 2);
+    assert.ok(d.data.upcoming.some(x => x.sold > 0));
+  });
+
+  await test('Quên mật khẩu bằng mã OTP + khóa khi đăng nhập sai nhiều lần', async () => {
+    for (let i = 0; i < 5; i++) await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'b@test.vn', password: 'sai-' + i } });
+    const locked = await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'b@test.vn', password: 'matkhau123' } });
+    assert.strictEqual(locked.status, 429); // đúng mật khẩu nhưng đang bị khóa
+    const unknown = await call('auth', { method: 'POST', query: { action: 'forgot' }, body: { email: 'khongco@test.vn' } });
+    assert.strictEqual(unknown.status, 200);
+    assert.strictEqual(unknown.data.dev_code, undefined); // không lộ email chưa đăng ký
+    const f = await call('auth', { method: 'POST', query: { action: 'forgot' }, body: { email: 'b@test.vn' } });
+    assert.match(f.data.dev_code, /^\d{6}$/);
+    const wrong = await call('auth', { method: 'POST', query: { action: 'reset' }, body: { email: 'b@test.vn', code: '000000' === f.data.dev_code ? '111111' : '000000', new_password: 'matkhaumoi9' } });
+    assert.strictEqual(wrong.status, 400);
+    const r = await call('auth', { method: 'POST', query: { action: 'reset' }, body: { email: 'b@test.vn', code: f.data.dev_code, new_password: 'matkhaumoi9' } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.strictEqual((await call('auth', { query: { action: 'me' }, token: tokB })).status, 401); // phiên cũ hết hạn
+    const reuse = await call('auth', { method: 'POST', query: { action: 'reset' }, body: { email: 'b@test.vn', code: f.data.dev_code, new_password: 'matkhaukhac1' } });
+    assert.strictEqual(reuse.status, 400); // mã chỉ dùng một lần
+    const login = await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'b@test.vn', password: 'matkhaumoi9' } });
+    assert.strictEqual(login.status, 200); // đặt lại mật khẩu cũng mở khóa đăng nhập
+    // Nhân viên cũng bị khóa khi sai nhiều lần
+    for (let i = 0; i < 5; i++) await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'quay@beta.local', password: 'sai' } });
+    assert.strictEqual((await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'quay@beta.local', password: 'beta-admin' } })).status, 429);
   });
 
   for (const [ok, name] of results) console.log(ok, name);

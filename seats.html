@@ -496,13 +496,13 @@
     <!-- Chú Giải Phân Loại Ghế & Giá -->
     <div class="g m" style="justify-content: center; gap: 24px; font-weight: 600;">
       <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: #94a3b8;"></b> Thường [45,000đ]
+        <b class="q" style="background: #94a3b8;"></b> Thường [<span id="lg-standard">45.000đ</span>]
       </span>
       <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: #fef3c7; box-shadow: 0 0 0 1.5px var(--status-warning);"></b> VIP [50,000đ]
+        <b class="q" style="background: #fef3c7; box-shadow: 0 0 0 1.5px var(--status-warning);"></b> VIP [<span id="lg-vip">50.000đ</span>]
       </span>
       <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: #fce7f3; box-shadow: 0 0 0 1.5px #f472b6; width: 32px;"></b> Sweetbox đôi [100,000đ]
+        <b class="q" style="background: #fce7f3; box-shadow: 0 0 0 1.5px #f472b6; width: 32px;"></b> Sweetbox đôi [<span id="lg-sweetbox">100.000đ</span>]
       </span>
     </div>
 
@@ -569,7 +569,10 @@
 
     // Danh sách ghế đang được chọn
     let selectedSeats = [];
-    const seatPrice = (id) => BetaCatalog.SEAT_PRICES[BetaCatalog.seatType(id)] || 0;
+    // Giá ghế theo suất chiếu (database); mặc định giá trong catalog.js
+    let SHOWTIME = null;
+    let PRICES = BetaCatalog.SEAT_PRICES;
+    const seatPrice = (id) => PRICES[BetaCatalog.seatType(id)] || 0;
 
     let currentMovieKey = 'linh-gioi-dai-chien';
     let currentCinema = 'Beta Thanh Xuân';
@@ -665,7 +668,7 @@
         btnNext.classList.remove('disabled');
 
         // Chuyển tiếp mượt mà sang bước 3: Chọn bắp nước (combo.html)
-        const comboUrl = 'combo.html?movie=' + encodeURIComponent(currentMovieKey) + '&cinema=' + encodeURIComponent(currentCinema) + '&date=' + encodeURIComponent(currentDate) + '&time=' + encodeURIComponent(currentTime) + '&seats=' + encodeURIComponent(seatIds) + '&total=' + total;
+        const comboUrl = 'combo.html?showtime=' + encodeURIComponent(SHOWTIME ? SHOWTIME.id : '') + '&seats=' + encodeURIComponent(seatIds);
         btnNext.href = comboUrl;
       }
     }
@@ -673,7 +676,8 @@
     // Đánh dấu ghế đang có người giữ / đã bán theo dữ liệu thật của suất chiếu (NFR-05)
     async function markTakenSeats() {
       if (!window.Pay || !Pay.getTakenSeats) return;
-      const key = [currentMovieKey, currentCinema, currentDate, currentTime].join('|');
+      if (!SHOWTIME) return;
+      const key = SHOWTIME.id;
       const taken = await Pay.getTakenSeats(key);
       taken.forEach(t => {
         const el = document.querySelector('.r i[data-id="' + t.seat + '"]');
@@ -687,8 +691,25 @@
       if (taken.length) updateSummary();
     }
 
-    initParams();
-    markTakenSeats();
+    // Trang ghế luôn gắn với một suất chiếu thật: seats.html?showtime=<id>
+    (async function init() {
+      const id = new URLSearchParams(location.search).get('showtime');
+      SHOWTIME = await Pay.getShowtime(id);
+      if (!SHOWTIME || !SHOWTIME.active) {
+        alert('Suất chiếu không tồn tại hoặc đã ngừng bán. Vui lòng chọn lại suất chiếu.');
+        location.replace('schedule.html');
+        return;
+      }
+      currentMovieKey = SHOWTIME.movie_key;
+      currentCinema = SHOWTIME.cinema;
+      currentDate = SHOWTIME.date_label;
+      currentTime = SHOWTIME.time;
+      PRICES = SHOWTIME.prices;
+      ['standard', 'vip', 'sweetbox'].forEach(t => { const el = document.getElementById('lg-' + t); if (el) el.textContent = Pay.vnd(PRICES[t]).replace(' ', ''); });
+      document.querySelectorAll('.r i[data-id]').forEach(el => { const t = BetaCatalog.seatType(el.dataset.id); if (t) el.dataset.price = PRICES[t]; });
+      initParams();
+      markTakenSeats();
+    })();
     setInterval(markTakenSeats, 15000);
   </script>
 </body>

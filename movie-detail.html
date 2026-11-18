@@ -836,10 +836,9 @@
       const m = p.get("movie") || "linh-gioi-dai-chien";
       const dateVal = selectedDateStr || "Hôm nay";
 
+      // Chọn rạp, ngày và suất chiếu thật ở trang đặt vé
       document.querySelectorAll("a[href*='seats.html']").forEach(a => {
-        const timeSpan = a.querySelector("span[style*='font-size: 18px']") || a.querySelector("span");
-        const time = timeSpan ? timeSpan.textContent.trim() : "18:30";
-        a.href = `seats.html?movie=${encodeURIComponent(m)}&cinema=Beta%20Thanh%20Xu%C3%A2n&date=${encodeURIComponent(dateVal)}&time=${encodeURIComponent(time)}`;
+        a.href = 'booking.html?movie=' + encodeURIComponent(m);
       });
     }
 

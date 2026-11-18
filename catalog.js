@@ -109,8 +109,16 @@
 
   const err = (msg) => Object.assign(new Error(msg), { http: 400 });
 
+  // Toàn bộ ghế của phòng chiếu (dùng để đếm ghế trống)
+  const SEAT_IDS = [];
+  for (const r of 'ABCDEFG') for (let n = 1; n <= 10; n++) SEAT_IDS.push(r + n);
+  for (let n = 1; n <= 7; n += 2) SEAT_IDS.push(`H${n}-H${n + 1}`);
+
   // Tính tiền một đơn. Ném lỗi (http 400) nếu ghế/combo/voucher không hợp lệ.
-  function quote({ seats = [], combos = {}, voucher = null } = {}) {
+  //   prices   : giá ghế của suất chiếu (mặc định SEAT_PRICES)
+  //   vouchers : danh sách voucher hợp lệ (mặc định VOUCHERS; máy chủ truyền voucher đã kiểm tra trong DB)
+  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS } = {}) {
+    prices = { ...SEAT_PRICES, ...(prices || {}) };
     const list = (Array.isArray(seats) ? seats : String(seats).split(','))
       .map(s => String(s).trim().toUpperCase()).filter(Boolean);
     if (!list.length) throw err('Chưa chọn ghế');
@@ -119,7 +127,7 @@
     const seatLines = list.map(id => {
       const type = seatType(id);
       if (!type) throw err('Ghế không tồn tại: ' + id);
-      return { id, type, price: SEAT_PRICES[type] };
+      return { id, type, price: prices[type] };
     });
     const seat_total = seatLines.reduce((s, x) => s + x.price, 0);
 
@@ -134,8 +142,8 @@
     const combo_total = comboLines.reduce((s, x) => s + x.amount, 0);
 
     const code = voucher ? String(voucher).trim().toUpperCase() : null;
-    if (code && !VOUCHERS[code]) throw err('Mã giảm giá không hợp lệ hoặc đã hết lượt dùng');
-    const discount = code ? Math.min(VOUCHERS[code].discount, seat_total + combo_total) : 0;
+    if (code && !(vouchers || {})[code]) throw err('Mã giảm giá không hợp lệ hoặc đã hết lượt dùng');
+    const discount = code ? Math.min(vouchers[code].discount, seat_total + combo_total) : 0;
 
     return {
       seats: seatLines, combos: comboLines, voucher: code,
@@ -148,5 +156,5 @@
     return MOVIES[k] || null;
   }
 
-  return { MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_PRICES, SEAT_LABEL, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
+  return { MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
 });

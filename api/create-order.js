@@ -1,8 +1,12 @@
 // api/create-order.js - Tạo đơn PENDING, khóa ghế nguyên tử 10 phút (bắt đầu Tầng 1)
 // Bắt buộc đăng nhập: đơn gắn với thành viên, thông tin liên hệ lấy từ hồ sơ (không tin trình duyệt).
+// Phim / rạp / giờ chiếu / giá ghế lấy từ suất chiếu trong database (showtime_id), không tin trình duyệt.
 const Flow = require('../lib/flow');
 const Auth = require('../lib/auth');
-const { fail } = require('../lib/api-util');
+const CatalogDB = require('../lib/catalog-db');
+const { fail, clean } = require('../lib/api-util');
+
+const STOP_SALE_MS = 0; // ngừng bán khi suất bắt đầu chiếu
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
@@ -10,9 +14,15 @@ module.exports = async function handler(req, res) {
     const me = await Auth.currentCustomer(req);
     if (!me) return res.status(401).json({ ok: false, error: 'Vui lòng đăng nhập để đặt vé' });
     const b = req.body || {};
+    const st = await CatalogDB.getShowtime(clean(b.showtime_id));
+    if (!st || !st.active) return res.status(400).json({ ok: false, error: 'Suất chiếu không tồn tại hoặc đã ngừng bán' });
+    if (new Date(st.starts_at).getTime() - STOP_SALE_MS <= Date.now()) return res.status(400).json({ ok: false, error: 'Suất chiếu đã bắt đầu, vui lòng chọn suất khác' });
+    const v = b.voucher ? await CatalogDB.checkVoucher(b.voucher, me.id) : null;
+
     const order = await Flow.createOrder({
-      movie_key: b.movie_key, cinema: b.cinema, show_date: b.show_date, show_time: b.show_time,
-      showtime_key: b.showtime_key, seats: b.seats, combos: b.combos, voucher: b.voucher,
+      movie_key: st.movie_key, cinema: st.cinema, show_date: st.date_label, show_time: st.time, show_at: st.starts_at,
+      showtime_key: st.id, prices: st.prices, trusted_movie: true,
+      seats: b.seats, combos: b.combos, voucher: v ? v.code : null, voucher_def: v,
       total: b.total, user_id: me.id, phone: me.phone, email: me.email, customer_name: me.full_name
     });
     return res.status(200).json(await Flow.view(order));

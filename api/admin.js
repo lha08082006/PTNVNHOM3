@@ -4,6 +4,10 @@
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
 const Staff = require('../lib/staff');
+const CatalogAdmin = require('../lib/catalog-admin');
+const CatalogDB = require('../lib/catalog-db');
+const Ticket = require('../lib/ticket');
+const Dashboard = require('../lib/dashboard');
 const { fail, clean, adminKey } = require('../lib/api-util');
 
 const nowIso = () => new Date().toISOString();
@@ -35,6 +39,9 @@ const NEED = {
   send_to_accounting: 'refund.send', decide: 'refund.decide', remind: 'refund.remind', confirm_done: 'refund.confirm',
   accounting_paid: 'refund.pay', accounting_reject: 'refund.return', resolve_ticket: 'ticket.resolve',
   staff_list: 'staff.manage', staff_create: 'staff.manage', staff_update: 'staff.manage', audit: 'staff.manage',
+  catalog: 'catalog.manage', movie_save: 'catalog.manage', cinema_save: 'catalog.manage', showtime_list: 'catalog.manage',
+  showtime_create: 'catalog.manage', showtime_update: 'catalog.manage', voucher_save: 'catalog.manage',
+  checkin: 'ticket.checkin', dashboard: 'report.view',
   me: null, change_password: null
 };
 
@@ -165,7 +172,7 @@ module.exports = async function handler(req, res) {
       const json = res.json.bind(res);
       res.json = (data) => {
         if ((res.statusCode || 200) < 400) {
-          const target = b0.refund_code || (Array.isArray(b0.refund_codes) ? b0.refund_codes.join(',') : null) || b0.ticket_code || b0.email || b0.id || null;
+          const target = b0.qr ? String(b0.qr).split('.')[1] : b0.code || b0.title || b0.name || b0.movie_id || b0.refund_code || (Array.isArray(b0.refund_codes) ? b0.refund_codes.join(',') : null) || b0.ticket_code || b0.email || b0.id || null;
           Staff.audit(me, action, target, { note: b0.note || undefined, reason: b0.reason || undefined, refund_ref: b0.refund_ref || undefined, role: b0.role || undefined, active: b0.active }).catch(() => {});
         }
         return json(data);
@@ -178,6 +185,33 @@ module.exports = async function handler(req, res) {
       await Staff.audit(me, 'change_password', me.email);
       return res.status(200).json({ ok: true });
     }
+
+    if (req.method === 'GET' && action === 'dashboard') {
+      return res.status(200).json({ ok: true, ...(await Dashboard.build({ from: clean(req.query.from), to: clean(req.query.to) })) });
+    }
+
+    // --- Quầy: soát vé (QR ký số hoặc mã đơn) ---
+    if (req.method === 'POST' && action === 'checkin') {
+      try {
+        const summary = await Ticket.checkin(b0.qr || b0.code, me);
+        return res.status(200).json({ ok: true, summary });
+      } catch (e) {
+        if (e.summary) return res.status(e.http || 409).json({ ok: false, error: e.message, summary: e.summary, already: !!e.already });
+        throw e;
+      }
+    }
+
+    // --- Quản lý: danh mục phim / rạp / suất chiếu / voucher ---
+    if (req.method === 'GET' && action === 'catalog') return res.status(200).json({ ok: true, ...(await CatalogAdmin.overview()) });
+    if (req.method === 'GET' && action === 'showtime_list') {
+      const q = req.query || {};
+      return res.status(200).json({ ok: true, showtimes: await CatalogDB.showtimes({ cinema: clean(q.cinema) || undefined, date: clean(q.date) || undefined, includePast: true, includeInactive: true }) });
+    }
+    if (req.method === 'POST' && action === 'movie_save') return res.status(200).json({ ok: true, movie: await CatalogAdmin.saveMovie(b0) });
+    if (req.method === 'POST' && action === 'cinema_save') return res.status(200).json({ ok: true, cinema: await CatalogAdmin.saveCinema(b0) });
+    if (req.method === 'POST' && action === 'showtime_create') return res.status(200).json({ ok: true, ...(await CatalogAdmin.createShowtimes(b0)) });
+    if (req.method === 'POST' && action === 'showtime_update') return res.status(200).json({ ok: true, showtime: await CatalogAdmin.updateShowtime(b0) });
+    if (req.method === 'POST' && action === 'voucher_save') return res.status(200).json({ ok: true, voucher: await CatalogAdmin.saveVoucher(b0) });
 
     // --- Quản lý: nhân sự & nhật ký ---
     if (req.method === 'GET' && action === 'staff_list') {

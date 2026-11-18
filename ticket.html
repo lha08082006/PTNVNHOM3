@@ -306,77 +306,23 @@
         <div class="ticket-barcode-side">
           <div style="font-size: 12.5px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
             <span>🎟️</span>
-            <span>MÃ SOÁT VÉ VÀO CỬA (CHECK-IN BARCODE)</span>
+            <span>MÃ QR SOÁT VÉ VÀO CỬA</span>
           </div>
 
           <!-- BARCODE CODE-128 SVG -->
           <div style="background: white; padding: 16px 24px 12px; border-radius: 12px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.04); width: 100%; max-width: 480px; margin-bottom: 12px;">
-            <svg class="barcode-svg" viewBox="0 0 380 64" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 58px; display: block;">
-              <g fill="#0f172a">
-                <rect x="0" y="0" width="3" height="64"/>
-                <rect x="6" y="0" width="2" height="64"/>
-                <rect x="12" y="0" width="4" height="64"/>
-                <rect x="20" y="0" width="1" height="64"/>
-                <rect x="24" y="0" width="5" height="64"/>
-                <rect x="33" y="0" width="2" height="64"/>
-                <rect x="38" y="0" width="3" height="64"/>
-                <rect x="44" y="0" width="6" height="64"/>
-                <rect x="54" y="0" width="2" height="64"/>
-                <rect x="60" y="0" width="4" height="64"/>
-                <rect x="68" y="0" width="1" height="64"/>
-                <rect x="73" y="0" width="5" height="64"/>
-                <rect x="82" y="0" width="3" height="64"/>
-                <rect x="88" y="0" width="2" height="64"/>
-                <rect x="94" y="0" width="6" height="64"/>
-                <rect x="104" y="0" width="2" height="64"/>
-                <rect x="110" y="0" width="4" height="64"/>
-                <rect x="118" y="0" width="5" height="64"/>
-                <rect x="127" y="0" width="2" height="64"/>
-                <rect x="133" y="0" width="3" height="64"/>
-                <rect x="140" y="0" width="6" height="64"/>
-                <rect x="150" y="0" width="2" height="64"/>
-                <rect x="156" y="0" width="5" height="64"/>
-                <rect x="165" y="0" width="3" height="64"/>
-                <rect x="172" y="0" width="2" height="64"/>
-                <rect x="178" y="0" width="6" height="64"/>
-                <rect x="188" y="0" width="3" height="64"/>
-                <rect x="194" y="0" width="2" height="64"/>
-                <rect x="200" y="0" width="4" height="64"/>
-                <rect x="208" y="0" width="5" height="64"/>
-                <rect x="217" y="0" width="2" height="64"/>
-                <rect x="223" y="0" width="6" height="64"/>
-                <rect x="233" y="0" width="3" height="64"/>
-                <rect x="240" y="0" width="2" height="64"/>
-                <rect x="246" y="0" width="5" height="64"/>
-                <rect x="255" y="0" width="3" height="64"/>
-                <rect x="262" y="0" width="6" height="64"/>
-                <rect x="272" y="0" width="2" height="64"/>
-                <rect x="278" y="0" width="4" height="64"/>
-                <rect x="286" y="0" width="5" height="64"/>
-                <rect x="295" y="0" width="2" height="64"/>
-                <rect x="301" y="0" width="6" height="64"/>
-                <rect x="311" y="0" width="3" height="64"/>
-                <rect x="318" y="0" width="2" height="64"/>
-                <rect x="324" y="0" width="5" height="64"/>
-                <rect x="333" y="0" width="4" height="64"/>
-                <rect x="341" y="0" width="2" height="64"/>
-                <rect x="347" y="0" width="6" height="64"/>
-                <rect x="357" y="0" width="2" height="64"/>
-                <rect x="363" y="0" width="4" height="64"/>
-                <rect x="371" y="0" width="3" height="64"/>
-                <rect x="377" y="0" width="3" height="64"/>
-              </g>
-            </svg>
+            <div id="ticket-qr" style="display: flex; justify-content: center; padding: 6px 0;" aria-label="Mã QR vé"></div>
+            <div id="ticket-checkin-state" style="display: none; margin-top: 8px; font-weight: 800; color: #b45309;"></div>
             <div style="font-family: 'Courier New', Courier, monospace; font-size: 17px; font-weight: 800; color: #0f172a; letter-spacing: 5px; margin-top: 8px;" id="ticket-barcode-num">
               BC 2610 2798 54
             </div>
           </div>
 
           <div style="font-size: 12.5px; color: #64748b; line-height: 1.5; max-width: 480px; margin-top: 4px;">
-            Quét mã vạch này trực tiếp tại máy quét cửa phòng chiếu để vào xem phim, hoặc đưa nhân viên hỗ trợ tại rạp.
+            Đưa mã QR này cho nhân viên soát vé tại cửa phòng chiếu. Mỗi vé chỉ được soát một lần – không chia sẻ ảnh mã QR cho người khác.
           </div>
           <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;">
-            Mã giao dịch: <strong>#TXN-8392019482</strong> • Thời gian tạo: <strong>11:10:56 29/10/2026</strong>
+            Mã đơn: <strong id="ticket-order-code-foot">—</strong> • Đặt lúc: <strong id="ticket-created-at">—</strong>
           </div>
         </div>
 
@@ -500,6 +446,7 @@
   <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
   <script>
@@ -703,6 +650,19 @@
       if (custEmailEl) custEmailEl.textContent = custEmail;
       const custPhoneEl = document.getElementById('ticket-customer-phone');
       if (custPhoneEl) custPhoneEl.textContent = custPhone;
+
+      // Mã QR ký số (máy chủ cấp) cho nhân viên quầy quét
+      if (ord.ticket_qr && window.QRCode) {
+        const box = document.getElementById('ticket-qr');
+        box.innerHTML = '';
+        new QRCode(box, { text: ord.ticket_qr, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+      }
+      const ck = document.getElementById('ticket-checkin-state');
+      if (ck && ord.checked_in_at) { ck.style.display = 'block'; ck.textContent = '✓ Vé đã được soát lúc ' + new Date(ord.checked_in_at).toLocaleString('vi-VN'); }
+      const foot = document.getElementById('ticket-order-code-foot');
+      if (foot) foot.textContent = ord.code;
+      const ca = document.getElementById('ticket-created-at');
+      if (ca && ord.created_at) ca.textContent = new Date(ord.created_at).toLocaleString('vi-VN');
 
       if (ord.status === 'CONFIRMED_LATE') {
         const noteEl = document.getElementById('ticket-pay-status-note');

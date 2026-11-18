@@ -207,3 +207,101 @@ create table if not exists audit_logs (
 create index if not exists audit_logs_created_idx on audit_logs(created_at desc);
 alter table staff      enable row level security;
 alter table audit_logs enable row level security;
+
+-- 11) Danh mục, soát vé, quên mật khẩu (xem migrations/2026-11-21_danh-muc-qr-otp.sql để có dữ liệu khởi tạo)
+-- Phim (Quản lý sửa trên admin.html > Danh mục)
+create table if not exists movies (
+  id           text primary key,                  -- mã phim, vd: suzume
+  title        text not null,
+  short_title  text,
+  age          text,
+  meta         text,
+  poster       text,
+  format       text,
+  badge        text,
+  duration_min int,
+  trailer      text,
+  status       text not null default 'NOW' check (status in ('NOW','SOON','HIDDEN')),
+  created_at   timestamptz not null default now()
+);
+
+-- Cụm rạp
+create table if not exists cinemas (
+  id         text primary key,                    -- vd: beta-thanh-xuan
+  name       text not null,
+  city       text,
+  address    text,
+  active     boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- Suất chiếu: giá ghế để null = dùng giá mặc định trong catalog.js
+create table if not exists showtimes (
+  id             uuid primary key default gen_random_uuid(),
+  movie_id       text not null references movies(id),
+  cinema_id      text not null references cinemas(id),
+  starts_at      timestamptz not null,
+  format         text,
+  room           text,
+  price_standard bigint,
+  price_vip      bigint,
+  price_sweetbox bigint,
+  active         boolean not null default true,
+  created_at     timestamptz not null default now(),
+  unique (movie_id, cinema_id, starts_at)
+);
+create index if not exists showtimes_cinema_time_idx on showtimes(cinema_id, starts_at);
+create index if not exists showtimes_movie_time_idx on showtimes(movie_id, starts_at);
+
+-- Voucher: giới hạn tổng lượt, lượt mỗi khách, thời hạn
+create table if not exists vouchers (
+  id           text primary key,                  -- mã voucher (chữ in hoa)
+  discount     bigint not null check (discount > 0),
+  label        text,
+  max_uses     int,
+  per_customer int,
+  starts_at    timestamptz,
+  ends_at      timestamptz,
+  active       boolean not null default true,
+  created_at   timestamptz not null default now()
+);
+create index if not exists orders_voucher_idx on orders(voucher);
+
+-- Soát vé tại quầy: mỗi đơn chỉ soát một lần (unique order_id)
+create table if not exists ticket_checkins (
+  id         uuid primary key default gen_random_uuid(),
+  order_id   uuid not null unique references orders(id),
+  order_code text,
+  staff_id   uuid references staff(id),
+  staff_name text,
+  method     text,                                -- QR | CODE
+  created_at timestamptz not null default now()
+);
+
+-- Quên mật khẩu: mã 6 số (lưu dạng băm), hết hạn 15 phút
+create table if not exists password_resets (
+  id          uuid primary key default gen_random_uuid(),
+  customer_id uuid not null references customers(id),
+  code_hash   text not null,
+  expires_at  timestamptz not null,
+  attempts    int not null default 0,
+  used        boolean not null default false,
+  created_at  timestamptz not null default now()
+);
+
+-- Chặn dò mật khẩu: đếm lần sai theo tài khoản
+create table if not exists auth_throttle (
+  id           text primary key,                  -- c:<email/sđt> | s:<email nhân viên> | f:/r:<email>
+  fails        int not null default 0,
+  window_start timestamptz,
+  locked_until timestamptz,
+  created_at   timestamptz not null default now()
+);
+
+alter table movies          enable row level security;
+alter table cinemas         enable row level security;
+alter table showtimes       enable row level security;
+alter table vouchers        enable row level security;
+alter table ticket_checkins enable row level security;
+alter table password_resets enable row level security;
+alter table auth_throttle   enable row level security;

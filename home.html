@@ -1218,5 +1218,53 @@
 
   </script>
 
+  <script src="catalog.js"></script>
+  <script src="pay-client.js"></script>
+  <script>
+    // Đồng bộ lưới phim với danh mục trong database: ẩn phim đã ẩn/không còn, thêm phim mới, gắn đúng tab
+    (async function syncMovieGrid() {
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      try {
+        const { movies } = await Pay.catalog('movies');
+        const byKey = Object.fromEntries(movies.map(m => [m.key, m]));
+        const grid = document.getElementById('movie-grid');
+        const seen = new Set();
+        grid.querySelectorAll('.movie-card').forEach(card => {
+          const a = card.querySelector('a[href*="booking.html?movie="]');
+          const key = a ? new URL(a.href).searchParams.get('movie') : null;
+          const m = key && byKey[key];
+          if (!m) { card.remove(); return; }
+          seen.add(key);
+          const special = (card.getAttribute('data-tab') || '').includes('special');
+          card.setAttribute('data-tab', (m.status === 'SOON' ? 'soon' : 'now') + (special ? ' special' : ''));
+        });
+        movies.filter(m => !seen.has(m.key)).forEach(m => {
+          const card = document.createElement('div');
+          card.className = 'movie-card';
+          card.setAttribute('data-tab', m.status === 'SOON' ? 'soon' : 'now');
+          const link = 'booking.html?movie=' + encodeURIComponent(m.key);
+          card.innerHTML = `
+            <div class="movie-poster-wrap">
+              <img class="movie-poster-img" src="${esc(m.poster)}" alt="${esc(m.title)}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
+              ${m.age ? `<div class="movie-age-tag"><span class="badge">${esc(m.age)}</span></div>` : ''}
+              <div class="movie-poster-overlay"><a href="${link}" class="btn-overlay-buy">🎟️ MUA VÉ</a></div>
+            </div>
+            <div class="movie-info-official">
+              <h3 class="movie-title-official"><a href="${link}">${esc(m.title)}</a></h3>
+              <div class="movie-meta-official">
+                ${m.meta ? `<span><strong>Thể loại:</strong> ${esc(m.meta.split('·')[0].trim())}</span>` : ''}
+                ${m.duration_min ? `<span><strong>Thời lượng:</strong> ${m.duration_min} phút</span>` : ''}
+              </div>
+            </div>`;
+          grid.appendChild(card);
+        });
+        const active = document.querySelector('.movie-tab-btn.active');
+        if (typeof switchMovieTab === 'function') switchMovieTab(active ? active.id.replace('tab-', '') : 'now');
+      } catch (e) {
+        console.warn('Không đồng bộ được danh sách phim:', e.message);
+      }
+    })();
+  </script>
 </body>
+
 </html>
