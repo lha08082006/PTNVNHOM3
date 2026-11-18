@@ -8,7 +8,8 @@
     "start": "node server.js",
     "dev": "node server.js",
     "mockups:inline": "node tools/build-inlined-html.js",
-    "mockups:capture": "node tools/capture-fullpage.js"
+    "mockups:capture": "node tools/capture-fullpage.js",
+    "test": "node tools/smoke-test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

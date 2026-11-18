@@ -131,7 +131,7 @@ const server = http.createServer(async (req, res) => {
     if (err || !stats.isFile()) {
       res.statusCode = 404;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.end(`<h2>404 - Không tìm thấy trang: ${pathname}</h2><p><a href="/">Quay về trang chủ</a></p>`);
+      fs.createReadStream(path.join(PUBLIC_DIR, '404.html')).pipe(res);
       return;
     }
 

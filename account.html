@@ -43,7 +43,12 @@
       border-radius: var(--radius-full);
       text-transform: uppercase;
       letter-spacing: 1px;
+      white-space: nowrap;
     }
+
+    .member-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    .member-card-id { font-family: monospace; font-size: 16px; opacity: 0.9; letter-spacing: 2px; }
+    @media (max-width: 520px) { .member-card-id { font-size: 13px; letter-spacing: 1px; } }
 
     /* Account Layout */
     .account-layout {
@@ -476,14 +481,14 @@
 
     <!-- Virtual Member Card -->
     <div class="member-virtual-card">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+      <div class="member-card-head">
         <div style="display: flex; align-items: center; gap: 12px;">
           <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png"
             onerror="this.onerror=null; this.src='images/logo-white-official.png';" alt="Beta Cinemas"
             style="height: 45px;">
-          <span class="card-rank-badge">THÀNH VIÊN BETA CLUB</span>
+          <span class="card-rank-badge">BETA CLUB</span>
         </div>
-        <div style="font-family: monospace; font-size: 16px; opacity: 0.9; letter-spacing: 2px;">
+        <div class="member-card-id">
           CARD ID: <span id="member-card-id">----</span>
         </div>
       </div>

@@ -32,7 +32,15 @@ function toggleQuickDock() {
 }
 window.toggleQuickDock = toggleQuickDock;
 
+// Thanh chuyển giao diện chỉ dành cho môi trường phát triển (localhost hoặc ?dev=1)
+const BETA_DEV_MODE = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || new URLSearchParams(location.search).get('dev') === '1';
+
 (function initQuickDock() {
+  if (!BETA_DEV_MODE) {
+    const hide = () => { const w = document.getElementById('quick-dock-widget'); if (w) w.remove(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hide); else hide();
+    return;
+  }
   function setupLinks() {
     // 1. Thu thập tham số đơn hàng từ URL hoặc localStorage
     const curParams = new URLSearchParams(window.location.search);

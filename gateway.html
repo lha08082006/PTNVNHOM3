@@ -321,6 +321,12 @@
     let isReportUnlocked = false;
     let isReportSubmitted = false;
 
+    // Bảng sandbox (mô phỏng ngân hàng) chỉ hiện khi phát triển trên máy hoặc mở với ?sandbox=1
+    const isDevHost = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    if (!isDevHost && params.get('sandbox') !== '1') {
+      const sb = document.getElementById('sandbox-details');
+      if (sb) sb.remove();
+    }
     if (params.get('sandbox') === '1' || params.get('test') === '1') {
       const sbEl = document.getElementById('sandbox-details');
       if (sbEl) sbEl.open = true;

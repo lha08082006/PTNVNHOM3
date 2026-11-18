@@ -17,7 +17,11 @@
 //   SHIFT        : "tua nhanh" thời gian của đơn thêm `minutes` phút (demo Job 30 phút / 24 giờ)
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
-const { fail, clean } = require('../lib/api-util');
+const { fail, clean, requireAdmin } = require('../lib/api-util');
+
+// Sandbox chỉ mở khi chạy bộ nhớ trong (DB_MODE=mock / chưa có Supabase). Trên DB thật phải bật
+// ALLOW_SANDBOX=1 VÀ gửi khóa nội bộ x-admin-key – nếu không ai cũng "thanh toán giả" để lấy vé.
+const sandboxAllowed = () => !Store.isLive() || process.env.ALLOW_SANDBOX === '1';
 
 const MIN = 60 * 1000;
 const SENDER = { bank_name: 'MB Bank', acc_number: '0861200466', acc_name: 'NGUYEN HOANG NAM' };
@@ -83,6 +87,8 @@ async function shiftOrder(order, minutes) {
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+  if (!sandboxAllowed()) return res.status(403).json({ error: 'Sandbox thanh toán đã tắt trên môi trường thật' });
+  if (Store.isLive() && !requireAdmin(req, res)) return;
   try {
     const b = req.body || {};
     const scenario = clean(b.scenario || 'OK').toUpperCase();
