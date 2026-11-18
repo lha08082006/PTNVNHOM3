@@ -239,6 +239,12 @@
           <div id="report-error-status" style="font-size: 12px; color: #64748b; margin-top: 6px; display: none;"></div>
         </div>
 
+        <!-- Khách đổi ý trước khi chuyển khoản: hủy để nhả ghế ngay -->
+        <button type="button" id="btn-cancel-order" onclick="Pay.confirmCancel(new URLSearchParams(location.search).get('order'), this)"
+          style="width: 100%; margin-top: 10px; background: #fff; border: 1.5px solid #fecaca; color: #b91c1c; padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
+          ✕ Hủy đơn & nhả ghế (chưa chuyển khoản)
+        </button>
+
         <div style="font-size: 12px; color: #dc2626; margin-top: 12px; line-height: 1.5; font-weight: 600;">
           ⚠️ Lưu ý: Quý khách vui lòng giữ nguyên nội dung <strong id="note-order-code">…</strong> để hệ thống tự động xuất vé ngay tức thì!
         </div>

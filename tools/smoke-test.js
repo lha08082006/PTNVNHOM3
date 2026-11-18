@@ -100,6 +100,40 @@ async function test(name, fn) {
     assert.strictEqual(s.data.customer_name, 'Khach A');
   });
 
+  await test('Gửi lại vé qua email: chỉ chủ đơn, giới hạn số lần', async () => {
+    const q = { action: 'resend-ticket', code };
+    assert.strictEqual((await call('order-action', { method: 'POST', query: q })).status, 401);
+    assert.strictEqual((await call('order-action', { method: 'POST', query: q, token: tokB })).status, 404); // đơn của người khác
+    for (let i = 0; i < 3; i++) {
+      const r = await call('order-action', { method: 'POST', query: q, token: tokA });
+      assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+      assert.match(r.data.email, /\*\*\*@/); // không trả lại email đầy đủ
+    }
+    assert.strictEqual((await call('order-action', { method: 'POST', query: q, token: tokA })).status, 429);
+  });
+
+  await test('Khách tự hủy đơn chờ thanh toán: nhả ghế ngay, không hủy được đơn đã có vé', async () => {
+    const before = (await call('catalog', { query: { action: 'showtime', id: ST.id } })).data.showtime.seats_free;
+    const r = await call('create-order', { method: 'POST', token: tokA, body: { showtime_id: ST.id, seats: ['B5', 'B6'] } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    const held = (await call('catalog', { query: { action: 'showtime', id: ST.id } })).data.showtime.seats_free;
+    assert.strictEqual(held, before - 2);
+    const q = { action: 'cancel', code: r.data.code };
+    assert.strictEqual((await call('order-action', { method: 'POST', query: q, token: tokB })).status, 404);
+    const c = await call('order-action', { method: 'POST', query: q, token: tokA });
+    assert.strictEqual(c.status, 200, JSON.stringify(c.data));
+    assert.ok(['CANCELLED', 'EXPIRED'].includes(c.data.status), c.data.status);
+    assert.strictEqual(c.data.has_ticket, false);
+    const after = (await call('catalog', { query: { action: 'showtime', id: ST.id } })).data.showtime.seats_free;
+    assert.strictEqual(after, before); // ghế đã nhả
+    assert.strictEqual((await call('order-action', { method: 'POST', query: q, token: tokA })).status, 409); // hủy lại
+    assert.strictEqual((await call('order-action', { method: 'POST', query: { action: 'cancel', code }, token: tokA })).status, 409); // đơn đã xuất vé
+    // Người khác đặt lại được đúng ghế vừa nhả
+    const again = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: ST.id, seats: ['B5'] } });
+    assert.strictEqual(again.status, 200, JSON.stringify(again.data));
+    await call('order-action', { method: 'POST', query: { action: 'cancel', code: again.data.code }, token: tokB });
+  });
+
   await test('Phiếu hỗ trợ', async () => {
     const r = await call('support', { method: 'POST', body: { category: 'SERVICE', phone: '0901000001', description: 'Điều hòa phòng chiếu quá lạnh' } });
     assert.strictEqual(r.status, 200, JSON.stringify(r.data));
@@ -186,6 +220,27 @@ async function test(name, fn) {
     const o = await sim('LATE', c);
     assert.strictEqual(o.status, 'REFUNDED', JSON.stringify(o));
     assert.deepStrictEqual((await refundsOf(c)).map(r => r.reason), ['LATE']);
+  });
+
+  await test('Khách đã hủy đơn rồi vẫn chuyển tiền -> cấp vé bù hoặc tự hoàn, không mất tiền', async () => {
+    const cancel = async (c) => {
+      const x = await call('order-action', { method: 'POST', query: { action: 'cancel', code: c }, token: tokB });
+      assert.strictEqual(x.status, 200, JSON.stringify(x.data));
+    };
+    // Chuyển đủ ngay trong 10 phút giữ ghế ban đầu, ghế còn trống -> cấp vé bù ("Cứu vé trước")
+    const c1 = await newOrder(['B7']);
+    await cancel(c1);
+    const o1 = await sim('LATE', c1);
+    assert.strictEqual(o1.status, 'CONFIRMED_LATE', JSON.stringify(o1.history));
+    assert.strictEqual(o1.has_ticket, true);
+    // Ghế đã bị người khác mua sau khi hủy -> hoàn tiền ("Hoàn tiền sau")
+    const c2 = await newOrder(['B8']);
+    await cancel(c2);
+    await sim('SEAT_TAKEN', c2);
+    await sim('LATE', c2);
+    const o2 = (await call('order-status', { query: { code: c2 } })).data;
+    assert.ok(['REFUNDED', 'REFUND_REQUESTED'].includes(o2.status), o2.status);
+    assert.strictEqual((await refundsOf(c2)).length, 1);
   });
 
   await test('Chuyển thừa -> xuất vé + hoàn phần thừa; webhook trùng không xử lý lại', async () => {

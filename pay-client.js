@@ -118,6 +118,40 @@ const Pay = {
       body: JSON.stringify(body || {})
     }),
 
+  // Chủ đơn (đã đăng nhập): hủy đơn chưa thanh toán để nhả ghế / gửi lại vé qua email
+  cancelOrder: (code) => Pay.post('order-action?action=cancel&code=' + encodeURIComponent(code)),
+  resendTicket: (code) => Pay.post('order-action?action=resend-ticket&code=' + encodeURIComponent(code)),
+
+  // Gửi lại vé qua email, báo kết quả ngay trên nút
+  async resendTicketUI(code, btn) {
+    if (!code) return;
+    const label = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Đang gửi…'; }
+    try {
+      const r = await Pay.resendTicket(code);
+      const msg = r.sent ? '✓ Đã gửi vé tới ' + r.email : 'Máy chủ chưa cấu hình gửi email – vé chưa được gửi (' + r.email + ')';
+      if (btn) btn.textContent = msg;
+      setTimeout(() => { if (btn) { btn.disabled = false; btn.textContent = label; } }, 6000);
+    } catch (e) {
+      alert('Chưa gửi được vé: ' + e.message);
+      if (btn) { btn.disabled = false; btn.textContent = label; }
+    }
+  },
+
+  // Hủy đơn sau khi khách xác nhận; xong thì mở trang theo dõi đơn
+  async confirmCancel(code, btn) {
+    if (!code) return;
+    if (!confirm('Hủy đơn ' + code + ' và nhả ghế ngay?\n\nChỉ hủy khi bạn CHƯA chuyển khoản. Nếu lỡ đã chuyển, hệ thống vẫn tự cấp vé bù hoặc hoàn tiền.')) return;
+    if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Đang hủy…'; }
+    try {
+      await Pay.cancelOrder(code);
+      location.href = 'order.html?code=' + encodeURIComponent(code);
+    } catch (e) {
+      alert('Chưa hủy được đơn: ' + e.message);
+      if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; }
+    }
+  },
+
   // Bộ nhớ đệm LocalStorage lưu trữ trạng thái đơn hàng (đặc biệt khi mở qua Live Server)
   getLocalOrder(code) {
     if (typeof localStorage === 'undefined' || !code) return null;

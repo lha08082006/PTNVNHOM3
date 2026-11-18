@@ -345,6 +345,9 @@
         <button type="button" class="btn btn-primary" id="btn-save-ticket" onclick="saveTicketImage()">
           📥 Lưu Ảnh Vé Về Điện Thoại
         </button>
+        <button type="button" class="btn btn-outline" id="btn-resend-ticket" onclick="Pay.resendTicketUI(new URLSearchParams(location.search).get('order'), this)">
+          📧 Gửi Lại Vé Qua Email
+        </button>
         <button class="btn btn-outline" onclick="window.print()">
           🖨️ In Vé Ra Giấy
         </button>

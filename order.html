@@ -202,6 +202,8 @@
             <div class="actions">
               ${o.has_ticket ? `<a class="btn btn-primary btn-sm" href="ticket.html?order=${encodeURIComponent(o.code)}">🎟️ Xem vé điện tử</a>` : ''}
               ${o.status === 'PENDING' ? `<a class="btn btn-primary btn-sm" href="${Pay.routeFor(o)}">📱 Quay lại màn hình thanh toán</a>` : ''}
+              ${o.status === 'PENDING' && !o.paid_amount && window.BetaAuth && BetaAuth.isLoggedIn() ? `<button type="button" class="btn btn-outline btn-sm" onclick="Pay.confirmCancel('${esc(o.code)}', this)" style="color: #b91c1c; border-color: #fecaca;">✕ Hủy đơn & nhả ghế</button>` : ''}
+              ${o.has_ticket && window.BetaAuth && BetaAuth.isLoggedIn() ? `<button type="button" class="btn btn-outline btn-sm" onclick="Pay.resendTicketUI('${esc(o.code)}', this)">📧 Gửi lại vé qua email</button>` : ''}
               ${canReport ? `<button class="btn btn-outline btn-sm" onclick="report()" style="color: #dc2626; border-color: #fca5a5;">📢 Báo lỗi: đã chuyển tiền nhưng chưa có vé</button>` : ''}
               <a class="btn btn-outline btn-sm" href="betabot.html?order=${encodeURIComponent(o.code)}">🤖 Chat BetaBot hỗ trợ đối soát</a>
             </div>

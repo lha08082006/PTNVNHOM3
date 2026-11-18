@@ -43,7 +43,8 @@ const apiRoutes = {
   '/api/cron': require('./api/cron'),
   '/api/admin': require('./api/admin'),
   '/api/simulate-payment': require('./api/simulate-payment'),
-  '/api/sitemap': require('./api/sitemap')
+  '/api/sitemap': require('./api/sitemap'),
+  '/api/order-action': require('./api/order-action')
 };
 
 const MAX_BODY_BYTES = 8 * 1024 * 1024; // đủ cho ảnh biên lai 5 MB (base64)
