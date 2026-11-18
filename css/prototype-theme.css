@@ -1116,6 +1116,13 @@ textarea {
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
+    box-sizing: border-box;
+  }
+
+  /* cụ thể hơn để thắng các <style> riêng của từng trang (padding: 0) */
+  .header-row > nav > .main-menu-official {
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .footer-official-grid {
