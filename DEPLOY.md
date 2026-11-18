@@ -6,6 +6,7 @@
 - **DB đang chạy:** chạy lần lượt (mỗi file chạy lại được, an toàn):
   1. `migrations/2026-11-18_quy-trinh-3-tang.sql`
   2. `migrations/2026-11-19_thanh-vien.sql` — bảng `customers`, `orders.user_id`, loại phiếu `GENERAL`
+  3. `migrations/2026-11-20_ke-toan-tra-ve.sql` — trạng thái `ACC_RETURNED` (Kế toán trả hồ sơ về nhân viên)
 
 ## 2. Biến môi trường (Vercel → Settings → Environment Variables)
 

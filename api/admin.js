@@ -14,6 +14,38 @@ async function getRefund(code) {
   return { rf, order };
 }
 
+// Lý do Kế toán trả hồ sơ về nhân viên
+const RETURN_REASONS = {
+  WRONG_ACCOUNT: 'Sai số tài khoản / tên chủ tài khoản',
+  AMOUNT_MISMATCH: 'Số tiền hoàn không khớp sổ cái ngân hàng',
+  RECEIPT_UNCLEAR: 'Biên lai không rõ hoặc không khớp giao dịch',
+  DUPLICATE: 'Nghi trùng với khoản đã hoàn trước đó',
+  OTHER: 'Khác'
+};
+
+// Người xử lý (tự khai trên trang nội bộ cho tới khi có tài khoản nhân viên riêng)
+const actorOf = (b) => clean(b.actor).slice(0, 60);
+
+// Ghi thêm một dòng vào nhật ký vòng duyệt Nhân viên <-> Kế toán của hồ sơ
+const logEntry = (rf, role, actor, act, note) =>
+  [...(Array.isArray(rf.review_log) ? rf.review_log : []), { at: nowIso(), role, actor, action: act, note: note || null }];
+
+// Nhân viên gửi hồ sơ sang Kế toán (lần đầu hoặc gửi lại sau khi bị trả về)
+async function sendToAccounting(rf, order, note, actor) {
+  if (!['FORM_SUBMITTED', 'ACC_RETURNED'].includes(rf.status)) {
+    throw Object.assign(new Error(rf.status === 'MANUAL_REVIEW' ? 'Khách chưa gửi RefundForm – chưa thể chuyển Kế toán' : 'Hồ sơ không ở bước chờ nhân viên'), { http: 409 });
+  }
+  const resend = rf.status === 'ACC_RETURNED';
+  const [u] = await Store.update('refunds', { id: rf.id, status: rf.status }, {
+    status: 'CS_APPROVED', cs_decision: 'CAN_HOAN_TIEN', cs_note: note || rf.cs_note || null, reconciled_at: nowIso(),
+    review_log: logEntry(rf, 'NHÂN VIÊN', actor, resend ? 'Gửi lại Kế toán' : 'Gửi Kế toán', note)
+  });
+  if (!u) throw Object.assign(new Error('Hồ sơ vừa được người khác xử lý'), { http: 409 });
+  await Flow.addHistory(order, `Nhân viên (${actor}) ${resend ? 'gửi lại' : 'gửi'} hồ sơ ${rf.code} sang Kế toán chi hoàn ${vnd(rf.amount)}`);
+  await syncTickets(order, u, { status: 'WAITING_ACCOUNTING', decision: 'CAN_HOAN_TIEN' });
+  return u;
+}
+
 async function syncTickets(order, refund, patch) {
   const context = await Flow.buildContext(order, refund);
   for (const t of await Store.find('support_tickets', { order_code: order.code, status: { neq: 'RESOLVED' } })) {
@@ -97,7 +129,14 @@ module.exports = async function handler(req, res) {
   try {
     if (req.method === 'GET' && action === 'overview') {
       const tickets = await Store.find('support_tickets', { status: { neq: 'RESOLVED' } }, { limit: 200 });
-      const pipeline = await Store.find('refunds', { status: { in: ['MANUAL_REVIEW', 'FORM_SUBMITTED', 'CS_APPROVED', 'PAID_OUT', 'RETRYING', 'REQUESTED'] } }, { limit: 300 });
+      const pipeline = await Store.find('refunds', { status: { in: ['MANUAL_REVIEW', 'FORM_SUBMITTED', 'CS_APPROVED', 'ACC_RETURNED', 'PAID_OUT', 'RETRYING', 'REQUESTED'] } }, { limit: 300 });
+      // Hồ sơ thủ công đã hoàn tất gần đây (bộ lọc "Hoàn tất")
+      pipeline.push(...await Store.find('refunds', { status: 'DONE', is_manual: true }, { limit: 50 }));
+      // Kế toán cần thấy tiền thực nhận của đơn để đối chiếu với số tiền hoàn
+      for (const r of pipeline.filter(x => x.status === 'CS_APPROVED')) {
+        const txs = await Store.find('bank_transactions', { code: r.order_code, transfer_type: 'in' }, { order: null });
+        r.received = txs.reduce((s, t) => s + Number(t.amount || 0), 0);
+      }
       const orders = await Store.find('orders', {}, { limit: 40 });
       const logs = await Store.find('gateway_logs', {}, { limit: 60 });
       return res.status(200).json({
@@ -105,6 +144,7 @@ module.exports = async function handler(req, res) {
         alerts: await alerts(),
         tickets: tickets.map(t => ({ ...t, context: undefined, has_context: !!t.context })),
         refunds: pipeline.map(r => ({ ...r, receipt_url: undefined, has_receipt: !!r.receipt_url })),
+        return_reasons: RETURN_REASONS,
         orders: orders.map(o => ({ code: o.code, status: o.status, label: Flow.STATUS_LABEL[o.status], total: o.total, paid_amount: o.paid_amount, created_at: o.created_at, seats: o.seats, movie_key: o.movie_key })),
         logs
       });
@@ -144,20 +184,61 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true, ...(await Flow.runJob({ force: !!b.force })) });
     }
 
+    // Nhân viên gửi NHIỀU hồ sơ sang Kế toán một lần (lọc ở màn hình "Hoàn tiền thủ công")
+    if (action === 'send_to_accounting') {
+      const actor = actorOf(b);
+      if (!actor) return res.status(400).json({ error: 'Nhập tên người xử lý trước khi gửi Kế toán' });
+      const codes = (Array.isArray(b.refund_codes) ? b.refund_codes : []).map(clean).filter(Boolean).slice(0, 100);
+      if (!codes.length) return res.status(400).json({ error: 'Chưa chọn hồ sơ nào' });
+      const results = [];
+      for (const code of codes) {
+        try {
+          const { rf, order } = await getRefund(code);
+          await sendToAccounting(rf, order, clean(b.note).slice(0, 500), actor);
+          results.push({ code, ok: true });
+        } catch (e) {
+          results.push({ code, ok: false, error: e.message });
+        }
+      }
+      return res.status(200).json({ ok: true, sent: results.filter(r => r.ok).length, results });
+    }
+
+    // Kế toán kiểm tra lại: KHÔNG ĐẠT -> trả hồ sơ về nhân viên kèm lý do
+    if (action === 'accounting_reject') {
+      const actor = actorOf(b);
+      if (!actor) return res.status(400).json({ error: 'Nhập tên người xử lý trước khi trả hồ sơ' });
+      const { rf, order } = await getRefund(b.refund_code);
+      const reason = RETURN_REASONS[clean(b.reason)];
+      if (!reason) return res.status(400).json({ error: 'Chọn lý do trả về' });
+      const note = clean(b.note).slice(0, 500);
+      if (clean(b.reason) === 'OTHER' && !note) return res.status(400).json({ error: 'Ghi rõ lý do khi chọn "Khác"' });
+      const accNote = reason + (note ? ': ' + note : '');
+      const [u] = await Store.update('refunds', { id: rf.id, status: 'CS_APPROVED' }, {
+        status: 'ACC_RETURNED', acc_note: accNote, acc_returned_at: nowIso(), returned_count: (rf.returned_count || 0) + 1,
+        reconciled_at: null, review_log: logEntry(rf, 'KẾ TOÁN', actor, 'Trả về nhân viên', accNote)
+      });
+      if (!u) return res.status(409).json({ error: 'Hồ sơ không ở bước chờ Kế toán (có thể đã được xử lý)' });
+      await Flow.addHistory(order, `Kế toán (${actor}) trả hồ sơ ${rf.code} về nhân viên: ${accNote}`);
+      await syncTickets(order, u, { status: 'OPEN', decision: 'ACC_RETURNED' });
+      return res.status(200).json({ ok: true, refund: u });
+    }
+
     // CSKH đối chiếu RefundForm với log cổng thanh toán (SOP 6.5.1, bước 2)
     if (action === 'decide') {
       const { rf, order } = await getRefund(b.refund_code);
-      if (!['FORM_SUBMITTED', 'MANUAL_REVIEW'].includes(rf.status)) return res.status(409).json({ error: 'Hồ sơ không ở bước chờ CSKH đối chiếu' });
+      if (!['FORM_SUBMITTED', 'MANUAL_REVIEW', 'ACC_RETURNED'].includes(rf.status)) return res.status(409).json({ error: 'Hồ sơ không ở bước chờ CSKH đối chiếu' });
       const note = clean(b.note).slice(0, 500);
       if (b.decision === 'CAN_HOAN_TIEN') {
-        if (rf.status !== 'FORM_SUBMITTED') return res.status(409).json({ error: 'Khách chưa gửi RefundForm – chưa thể chuyển Kế toán' });
-        const [u] = await Store.update('refunds', { id: rf.id, status: rf.status }, { status: 'CS_APPROVED', cs_decision: 'CAN_HOAN_TIEN', cs_note: note || null, reconciled_at: nowIso() });
-        await Flow.addHistory(order, `CSKH đối chiếu khớp (CAN_HOAN_TIEN) – chuyển Kế toán chi hoàn ${vnd(rf.amount)}`);
-        await syncTickets(order, u, { status: 'WAITING_ACCOUNTING', decision: 'CAN_HOAN_TIEN' });
+        const actor = actorOf(b);
+        if (!actor) return res.status(400).json({ error: 'Nhập tên người xử lý trước khi gửi Kế toán' });
+        const u = await sendToAccounting(rf, order, note, actor);
         return res.status(200).json({ ok: true, refund: u });
       }
       if (b.decision === 'NGOAI_LE') {
-        const [u] = await Store.update('refunds', { id: rf.id }, { status: 'MANUAL_REVIEW', cs_decision: 'NGOAI_LE', cs_note: note || 'Thông tin chưa đầy đủ hoặc ảnh biên lai không rõ' });
+        const [u] = await Store.update('refunds', { id: rf.id }, {
+          status: 'MANUAL_REVIEW', cs_decision: 'NGOAI_LE', cs_note: note || 'Thông tin chưa đầy đủ hoặc ảnh biên lai không rõ',
+          review_log: logEntry(rf, 'NHÂN VIÊN', actorOf(b) || 'CSKH', 'Yêu cầu khách bổ sung', note)
+        });
         await Flow.addHistory(order, 'CSKH: thông tin RefundForm chưa hợp lệ (NGOAI_LE) – nhắc khách cập nhật');
         await Flow.notify(order, 'REFUND_FORM', 'Vui lòng cập nhật biểu mẫu hoàn tiền',
           `CSKH cần bạn cập nhật lại thông tin nhận hoàn tiền cho đơn ${order.code}: ${u.cs_note}`);
@@ -179,9 +260,14 @@ module.exports = async function handler(req, res) {
       const { rf, order } = await getRefund(b.refund_code);
       const ref = clean(b.refund_ref).slice(0, 40);
       if (!ref) return res.status(400).json({ error: 'Nhập mã giao dịch chuyển hoàn' });
-      const [u] = await Store.update('refunds', { id: rf.id, status: 'CS_APPROVED' }, { status: 'PAID_OUT', refund_ref: ref, approved_at: nowIso(), accounting_paid_at: nowIso() });
+      const actor = actorOf(b);
+      if (!actor) return res.status(400).json({ error: 'Nhập tên người xử lý trước khi xác nhận chi' });
+      const [u] = await Store.update('refunds', { id: rf.id, status: 'CS_APPROVED' }, {
+        status: 'PAID_OUT', refund_ref: ref, approved_at: nowIso(), accounting_paid_at: nowIso(),
+        review_log: logEntry(rf, 'KẾ TOÁN', actor, 'Đạt – đã chi', 'Mã GD ' + ref)
+      });
       if (!u) return res.status(409).json({ error: 'Hồ sơ chưa được CSKH duyệt (CAN_HOAN_TIEN) hoặc đã chi' });
-      await Flow.addHistory(order, `Kế toán đã chi hoàn thủ công ${vnd(rf.amount)} (mã GD ${ref}) – chờ CSKH xác nhận hoàn tất`);
+      await Flow.addHistory(order, `Kế toán (${actor}) đã chi hoàn thủ công ${vnd(rf.amount)} (mã GD ${ref}) – chờ CSKH xác nhận hoàn tất`);
       await syncTickets(order, u, { status: 'OPEN' });
       return res.status(200).json({ ok: true, refund: u });
     }

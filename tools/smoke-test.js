@@ -110,6 +110,48 @@ async function test(name, fn) {
     delete process.env.SEPAY_WEBHOOK_KEY;
   });
 
+  await test('Hoàn tiền thủ công: gửi Kế toán → trả về → gửi lại → chi → hoàn tất', async () => {
+    const Store = require('../lib/store');
+    const K = { 'x-admin-key': 'beta-admin' };
+    const admin = (body) => call('admin', { method: 'POST', headers: K, body });
+    const order = await Store.one('orders', { code });
+    const mk = async (c) => Store.insert('refunds', {
+      code: c, order_id: order.id, order_code: code, amount: 50000, reason: 'MISMATCH', status: 'FORM_SUBMITTED',
+      idempotency_key: 'test-' + c, deadline_at: new Date().toISOString(), is_manual: true,
+      bank_name: 'MB Bank', acc_number: '0123456789', acc_name: 'KHACH A', receipt_url: 'data:image/png;base64,AA==', form_submitted_at: new Date().toISOString()
+    });
+    await mk('REF-T1'); await mk('REF-T2');
+
+    const noActor = await admin({ action: 'send_to_accounting', refund_codes: ['REF-T1'] });
+    assert.strictEqual(noActor.status, 400);
+    const sent = await admin({ action: 'send_to_accounting', refund_codes: ['REF-T1', 'REF-T2', 'REF-KHONGCO'], actor: 'NV Lan' });
+    assert.strictEqual(sent.data.sent, 2, JSON.stringify(sent.data));
+    assert.strictEqual(sent.data.results.find(r => r.code === 'REF-KHONGCO').ok, false);
+
+    const noReason = await admin({ action: 'accounting_reject', refund_code: 'REF-T1', actor: 'KT Minh' });
+    assert.strictEqual(noReason.status, 400);
+    const rej = await admin({ action: 'accounting_reject', refund_code: 'REF-T1', reason: 'WRONG_ACCOUNT', note: 'STK sai 1 số', actor: 'KT Minh' });
+    assert.strictEqual(rej.status, 200, JSON.stringify(rej.data));
+    assert.strictEqual(rej.data.refund.status, 'ACC_RETURNED');
+    assert.strictEqual(rej.data.refund.returned_count, 1);
+    // Hồ sơ đã trả về thì Kế toán không chi được nữa
+    const payReturned = await admin({ action: 'accounting_paid', refund_code: 'REF-T1', refund_ref: 'FT1', actor: 'KT Minh' });
+    assert.strictEqual(payReturned.status, 409);
+
+    const resend = await admin({ action: 'send_to_accounting', refund_codes: ['REF-T1'], note: 'Đã sửa STK theo khách xác nhận', actor: 'NV Lan' });
+    assert.strictEqual(resend.data.sent, 1);
+    const pay = await admin({ action: 'accounting_paid', refund_code: 'REF-T1', refund_ref: 'FT999', actor: 'KT Minh' });
+    assert.strictEqual(pay.data.refund.status, 'PAID_OUT');
+    const done = await admin({ action: 'confirm_done', refund_code: 'REF-T1' });
+    assert.strictEqual(done.data.refund.status, 'DONE');
+    const log = done.data.refund.review_log.map(l => l.action);
+    assert.deepStrictEqual(log, ['Gửi Kế toán', 'Trả về nhân viên', 'Gửi lại Kế toán', 'Đạt – đã chi']);
+
+    const ov = await call('admin', { headers: K, query: { action: 'overview' } });
+    assert.ok(ov.data.refunds.some(r => r.code === 'REF-T2' && r.status === 'CS_APPROVED' && r.received > 0));
+    assert.ok(ov.data.refunds.some(r => r.code === 'REF-T1' && r.status === 'DONE'));
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

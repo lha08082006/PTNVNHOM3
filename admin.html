@@ -56,6 +56,24 @@
     #login { max-width: 380px; margin: 80px auto; }
     .sb { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
     .hint { font-size: 12px; color: var(--muted); }
+    .actor { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #cbd5e1; }
+    .actor input { background: #1e293b; border-color: #334155; color: #fff; padding: 5px 9px; width: 170px; }
+    .actor input.need { border-color: #f87171; box-shadow: 0 0 0 2px rgba(248,113,113,.35); }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .chip { border: 1px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+    .chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .chip .n { display: inline-block; min-width: 18px; margin-left: 4px; padding: 0 5px; border-radius: 999px; background: #e2e8f0; color: #334155; font-size: 11px; }
+    .chip.on .n { background: rgba(255,255,255,.25); color: #fff; }
+    .chip.alert-chip:not(.on) { border-color: #fca5a5; color: #b91c1c; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+    tr.returned td { background: #fef2f2; }
+    .ret-note { margin-top: 4px; font-size: 12px; color: #991b1b; font-weight: 600; }
+    dialog { border: 0; border-radius: 14px; padding: 0; width: min(460px, 94vw); box-shadow: 0 20px 50px rgba(15,23,42,.3); }
+    dialog::backdrop { background: rgba(15,23,42,.45); }
+    dialog form { padding: 18px 20px; display: grid; gap: 10px; }
+    dialog h3 { margin: 0; font-size: 15px; color: #991b1b; }
+    .rlog { margin: 8px 0 0; padding: 0; list-style: none; font-size: 12px; }
+    .rlog li { padding: 4px 0; border-top: 1px dashed var(--line); }
   </style>
 </head>
 
@@ -63,6 +81,9 @@
   <header>
     <h1>🎬 Beta Cinemas · Nội bộ đối soát & hoàn tiền</h1>
     <span class="env" id="env">—</span>
+    <label class="actor" id="actor-box" hidden>Người xử lý
+      <input id="actor" placeholder="Họ tên nhân viên" maxlength="60" autocomplete="name">
+    </label>
     <nav class="tabs" id="tabs" style="display: none;">
       <button data-tab="cskh" class="on">CSKH <span class="count" id="c-cskh" hidden></span></button>
       <button data-tab="ketoan">Kế toán <span class="count" id="c-ketoan" hidden></span></button>
@@ -88,7 +109,12 @@
         <div id="tickets"></div>
       </div>
       <div class="card">
-        <h2>Hồ sơ hoàn tiền thủ công <small>khách gửi RefundForm → CSKH đối chiếu → Kế toán chi → CSKH xác nhận hoàn tất</small></h2>
+        <h2>Hồ sơ hoàn tiền thủ công <small>nhân viên lọc & đối chiếu → gửi Kế toán → Kế toán kiểm tra: đạt thì chi, không đạt thì trả về</small></h2>
+        <div class="chips" id="cs-chips"></div>
+        <div class="toolbar">
+          <input id="cs-search" placeholder="Tìm mã hồ sơ, mã đơn, số tài khoản, tên chủ TK..." style="flex: 1; min-width: 220px;" oninput="renderCsRefunds()">
+          <button class="btn primary" id="btn-send-acc" onclick="sendSelected()" disabled>📤 Gửi Kế toán (<span id="sel-count">0</span>)</button>
+        </div>
         <div id="cs-refunds"></div>
       </div>
     </section>
@@ -96,7 +122,7 @@
     <!-- ===================== KẾ TOÁN ===================== -->
     <section id="tab-ketoan" hidden>
       <div class="card">
-        <h2>Lệnh chi hoàn thủ công <small>đã được CSKH duyệt CAN_HOAN_TIEN (SOP 6.5.2)</small></h2>
+        <h2>Duyệt chi hoàn tiền <small>hồ sơ nhân viên đã gửi · kiểm tra lại: đạt → chi & nhập mã GD, không đạt → trả về nhân viên</small></h2>
         <div id="kt-refunds"></div>
       </div>
       <div class="card">
@@ -164,6 +190,24 @@
     </section>
   </main>
 
+  <dialog id="reject-dlg">
+    <form method="dialog" onsubmit="event.preventDefault(); submitReject();">
+      <h3>Trả hồ sơ <span class="mono" id="rj-code"></span> về nhân viên</h3>
+      <div class="hint" id="rj-info"></div>
+      <label>Lý do không đạt
+        <select id="rj-reason" required style="width: 100%; margin-top: 4px;"></select>
+      </label>
+      <label>Ghi chú cho nhân viên
+        <textarea id="rj-note" rows="3" style="width: 100%; margin-top: 4px;" placeholder="VD: STK khách ghi 0123... nhưng biên lai chuyển từ 0456..."></textarea>
+      </label>
+      <div id="rj-err" style="color: #b91c1c; font-size: 13px;"></div>
+      <div class="row-actions" style="justify-content: flex-end;">
+        <button type="button" class="btn" onclick="document.getElementById('reject-dlg').close()">Hủy</button>
+        <button class="btn danger" style="background: #dc2626; color: #fff; border-color: #dc2626;">↩ Trả về nhân viên</button>
+      </div>
+    </form>
+  </dialog>
+
   <aside id="drawer">
     <div class="dh"><strong id="d-title">Đơn hàng</strong><button class="btn" onclick="closeDrawer()">Đóng ✕</button></div>
     <div class="db" id="d-body"></div>
@@ -179,8 +223,31 @@
     const vnd = (n) => new Intl.NumberFormat('vi-VN').format(n || 0) + 'đ';
     const t = (iso) => iso ? new Date(iso).toLocaleString('vi-VN', { hour12: false }) : '';
     const STATUS_TONE = { PENDING: 'warn', EXPIRED: 'warn', CONFIRMED: 'ok', CONFIRMED_LATE: 'ok', REFUND_REQUESTED: 'info', REFUNDED: 'muted', MANUAL_REVIEW: 'danger', CANCELLED: 'muted', FAILED: 'danger' };
-    const RF_LABEL = { REQUESTED: 'Mới tạo', RETRYING: 'Đang gửi lại (30 phút/lần)', DONE: 'Đã hoàn', MANUAL_REVIEW: 'Chờ khách điền form', FORM_SUBMITTED: 'Chờ CSKH đối chiếu', CS_APPROVED: 'Chờ Kế toán chi', PAID_OUT: 'Kế toán đã chi – chờ CSKH xác nhận' };
-    const RF_TONE = { REQUESTED: 'info', RETRYING: 'warn', DONE: 'ok', MANUAL_REVIEW: 'danger', FORM_SUBMITTED: 'warn', CS_APPROVED: 'info', PAID_OUT: 'info' };
+    const RF_LABEL = { REQUESTED: 'Mới tạo', RETRYING: 'Đang gửi lại (30 phút/lần)', DONE: 'Hoàn tất', MANUAL_REVIEW: 'Chờ khách bổ sung', FORM_SUBMITTED: 'Chờ nhân viên đối chiếu', CS_APPROVED: 'Đã gửi – chờ Kế toán', ACC_RETURNED: 'Kế toán trả về', PAID_OUT: 'Kế toán đã chi – chờ xác nhận' };
+    const RF_TONE = { REQUESTED: 'info', RETRYING: 'warn', DONE: 'ok', MANUAL_REVIEW: 'muted', FORM_SUBMITTED: 'warn', CS_APPROVED: 'info', ACC_RETURNED: 'danger', PAID_OUT: 'info' };
+    // Bộ lọc hồ sơ thủ công của nhân viên (theo thứ tự ưu tiên xử lý)
+    const CS_FILTERS = [
+      ['TODO', 'Cần xử lý', ['ACC_RETURNED', 'FORM_SUBMITTED', 'PAID_OUT']],
+      ['ACC_RETURNED', 'Kế toán trả về', ['ACC_RETURNED']],
+      ['FORM_SUBMITTED', 'Chờ đối chiếu', ['FORM_SUBMITTED']],
+      ['MANUAL_REVIEW', 'Chờ khách bổ sung', ['MANUAL_REVIEW']],
+      ['CS_APPROVED', 'Đã gửi Kế toán', ['CS_APPROVED']],
+      ['PAID_OUT', 'Kế toán đã chi', ['PAID_OUT']],
+      ['DONE', 'Hoàn tất', ['DONE']]
+    ];
+    const MANUAL = ['MANUAL_REVIEW', 'FORM_SUBMITTED', 'CS_APPROVED', 'ACC_RETURNED', 'PAID_OUT', 'DONE'];
+    let csFilter = 'TODO';
+    const selected = new Set();
+
+    // Người xử lý: lưu trong phiên trình duyệt, bắt buộc với thao tác gửi / trả / chi
+    const actorInput = () => document.getElementById('actor');
+    function actor() {
+      const v = actorInput().value.trim();
+      if (!v) { actorInput().classList.add('need'); actorInput().focus(); throw new Error('Nhập tên người xử lý (góc trên) trước khi thao tác.'); }
+      actorInput().classList.remove('need');
+      try { sessionStorage.setItem('beta_admin_actor', v); } catch (e) {}
+      return v;
+    }
     const TK_LABEL = { GENERAL: 'Yêu cầu hỗ trợ', PAYMENT_REPORT: 'Khách báo lỗi', MANUAL_REVIEW: 'Hoàn tiền thủ công', DATA_MISMATCH: 'Dữ liệu lệch', UNMATCHED_TX: 'Tiền không khớp đơn' };
     const TK_STATUS = { OPEN: 'Mới / cần xử lý', WAITING_CUSTOMER: 'Chờ khách cập nhật', WAITING_ACCOUNTING: 'Chờ Kế toán' };
     const pill = (txt, tone) => `<span class="pill p-${tone || 'muted'}">${esc(txt)}</span>`;
@@ -200,6 +267,8 @@
         sessionStorage.setItem('beta_admin_key', KEY);
         document.getElementById('login').hidden = true;
         document.getElementById('tabs').style.display = 'flex';
+        document.getElementById('actor-box').hidden = false;
+        try { actorInput().value = sessionStorage.getItem('beta_admin_actor') || ''; } catch (e) {}
         show(tab);
       } catch (e) {
         document.getElementById('login-err').textContent = e.message;
@@ -233,28 +302,122 @@
           <td><button class="btn" onclick="resolveTicket('${esc(x.code)}')">Đóng phiếu</button></td></tr>`).join('')
       }</tbody></table>` : '<div class="empty">Không có phiếu nào cần xử lý 🎉</div>';
 
-      const rf = overview.refunds.filter(r => ['MANUAL_REVIEW', 'FORM_SUBMITTED', 'PAID_OUT'].includes(r.status));
-      document.getElementById('cs-refunds').innerHTML = rf.length ? `<table><thead><tr><th>Hồ sơ</th><th>Đơn</th><th>Số tiền</th><th>Lý do</th><th>Tình trạng</th><th>Tài khoản nhận</th><th>Thao tác</th></tr></thead><tbody>${
-        rf.map(r => `<tr><td class="mono">${esc(r.code)}</td><td class="mono"><a href="#" onclick="openOrder('${esc(r.order_code)}'); return false;">${esc(r.order_code)}</a></td>
-          <td><b>${vnd(r.amount)}</b></td><td>${esc(r.reason)}</td><td>${pill(RF_LABEL[r.status], RF_TONE[r.status])}${r.cs_note ? `<div class="hint">${esc(r.cs_note)}</div>` : ''}</td>
+      renderCsRefunds();
+    }
+
+    function renderCsRefunds() {
+      const all = overview.refunds.filter(r => MANUAL.includes(r.status));
+      const q = document.getElementById('cs-search').value.trim().toLowerCase();
+      document.getElementById('cs-chips').innerHTML = CS_FILTERS.map(([key, label, sts]) => {
+        const n = all.filter(r => sts.includes(r.status)).length;
+        return `<button class="chip ${csFilter === key ? 'on' : ''} ${key === 'ACC_RETURNED' && n ? 'alert-chip' : ''}" onclick="csFilter='${key}'; renderCsRefunds()">${label}<span class="n">${n}</span></button>`;
+      }).join('');
+      const sts = CS_FILTERS.find(f => f[0] === csFilter)[2];
+      const order = { ACC_RETURNED: 0, FORM_SUBMITTED: 1, PAID_OUT: 2, MANUAL_REVIEW: 3, CS_APPROVED: 4, DONE: 5 };
+      const rf = all
+        .filter(r => sts.includes(r.status))
+        .filter(r => !q || [r.code, r.order_code, r.acc_number, r.acc_name, r.bank_name].join(' ').toLowerCase().includes(q))
+        .sort((x, y) => (order[x.status] - order[y.status]) || (new Date(x.created_at) - new Date(y.created_at)));
+      // Bỏ chọn những hồ sơ không còn gửi được
+      for (const c of [...selected]) { const r = all.find(x => x.code === c); if (!r || !['FORM_SUBMITTED', 'ACC_RETURNED'].includes(r.status)) selected.delete(c); }
+      const sendable = (r) => ['FORM_SUBMITTED', 'ACC_RETURNED'].includes(r.status);
+      const anySendable = rf.some(sendable);
+      document.getElementById('cs-refunds').innerHTML = rf.length ? `<table><thead><tr>
+          <th style="width: 28px;">${anySendable ? '<input type="checkbox" title="Chọn tất cả" onchange="toggleAll(this.checked)">' : ''}</th>
+          <th>Hồ sơ</th><th>Đơn</th><th>Số tiền</th><th>Tình trạng</th><th>Tài khoản nhận</th><th>Thao tác</th></tr></thead><tbody>${
+        rf.map(r => `<tr class="${r.status === 'ACC_RETURNED' ? 'returned' : ''}">
+          <td>${sendable(r) ? `<input type="checkbox" ${selected.has(r.code) ? 'checked' : ''} onchange="toggleSel('${esc(r.code)}', this.checked)">` : ''}</td>
+          <td class="mono">${esc(r.code)}${r.returned_count ? `<div class="hint">bị trả ${r.returned_count} lần</div>` : ''}</td>
+          <td class="mono"><a href="#" onclick="openOrder('${esc(r.order_code)}'); return false;">${esc(r.order_code)}</a></td>
+          <td><b>${vnd(r.amount)}</b><div class="hint">${esc(r.reason)}</div></td>
+          <td>${pill(RF_LABEL[r.status], RF_TONE[r.status])}
+            ${r.status === 'ACC_RETURNED' && r.acc_note ? `<div class="ret-note">↩ ${esc(r.acc_note)}</div>` : (r.cs_note ? `<div class="hint">${esc(r.cs_note)}</div>` : '')}</td>
           <td>${r.acc_number ? `${esc(r.bank_name)}<br><span class="mono">${esc(r.acc_number)}</span> · ${esc(r.acc_name)}${r.has_receipt ? ' · 🧾' : ''}` : '<span class="hint">chưa có</span>'}</td>
           <td class="row-actions">${
-            r.status === 'FORM_SUBMITTED' ? `<button class="btn" onclick="openOrder('${esc(r.order_code)}')">Đối chiếu biên lai</button><button class="btn ok" onclick="decide('${esc(r.code)}','CAN_HOAN_TIEN')">CAN_HOAN_TIEN</button><button class="btn danger" onclick="decide('${esc(r.code)}','NGOAI_LE')">NGOAI_LE</button>`
-            : r.status === 'MANUAL_REVIEW' ? `<button class="btn" onclick="remind('${esc(r.code)}')">📨 Nhắc khách (Email/SMS)</button>`
-            : `<button class="btn ok" onclick="confirmDone('${esc(r.code)}')">Xác nhận hoàn tất</button>`
+            sendable(r) ? `<button class="btn" onclick="openOrder('${esc(r.order_code)}')">Đối chiếu</button>
+              <button class="btn ok" onclick="sendOne('${esc(r.code)}')">${r.status === 'ACC_RETURNED' ? 'Gửi lại Kế toán' : 'Gửi Kế toán'}</button>
+              <button class="btn danger" onclick="decide('${esc(r.code)}','NGOAI_LE')">Yêu cầu khách bổ sung</button>`
+            : r.status === 'MANUAL_REVIEW' ? `<button class="btn" onclick="remind('${esc(r.code)}')">📨 Nhắc khách</button>`
+            : r.status === 'PAID_OUT' ? `<button class="btn ok" onclick="confirmDone('${esc(r.code)}')">Xác nhận hoàn tất</button>`
+            : r.status === 'CS_APPROVED' ? '<span class="hint">Đang chờ Kế toán kiểm tra</span>'
+            : `<span class="hint">Mã GD ${esc(r.refund_ref || '')}</span>`
           }</td></tr>`).join('')
-      }</tbody></table>` : '<div class="empty">Không có hồ sơ hoàn tiền thủ công.</div>';
+      }</tbody></table>` : '<div class="empty">Không có hồ sơ nào trong mục này.</div>';
+      document.getElementById('sel-count').textContent = selected.size;
+      document.getElementById('btn-send-acc').disabled = !selected.size;
     }
+
+    function toggleSel(code, on) { on ? selected.add(code) : selected.delete(code); renderCsRefunds(); }
+    function toggleAll(on) {
+      const sts = CS_FILTERS.find(f => f[0] === csFilter)[2];
+      overview.refunds.filter(r => sts.includes(r.status) && ['FORM_SUBMITTED', 'ACC_RETURNED'].includes(r.status))
+        .forEach(r => on ? selected.add(r.code) : selected.delete(r.code));
+      renderCsRefunds();
+    }
+
+    async function sendCodes(codes) {
+      const who = actor();
+      const note = prompt(`Ghi chú đối chiếu gửi Kế toán cho ${codes.length} hồ sơ (tùy chọn):`, 'Biên lai khớp sổ cái ngân hàng');
+      if (note === null) return;
+      const r = await post('send_to_accounting', { refund_codes: codes, note, actor: who });
+      const bad = r.results.filter(x => !x.ok);
+      codes.forEach(c => selected.delete(c));
+      alert(`Đã gửi Kế toán ${r.sent}/${codes.length} hồ sơ.` + (bad.length ? '\nKhông gửi được:\n' + bad.map(x => x.code + ': ' + x.error).join('\n') : ''));
+    }
+    const sendSelected = () => act(() => sendCodes([...selected]));
+    const sendOne = (code) => act(() => sendCodes([code]));
 
     // ---------------- KẾ TOÁN ----------------
     function renderKetoan() {
-      const rf = overview.refunds.filter(r => r.status === 'CS_APPROVED');
+      const rf = overview.refunds.filter(r => r.status === 'CS_APPROVED')
+        .sort((x, y) => new Date(x.reconciled_at || x.created_at) - new Date(y.reconciled_at || y.created_at));
       badge('c-ketoan', rf.length);
-      document.getElementById('kt-refunds').innerHTML = rf.length ? `<table><thead><tr><th>Hồ sơ</th><th>Đơn</th><th>Số tiền</th><th>Chuyển tới</th><th>CSKH ghi chú</th><th>Mã GD chuyển hoàn</th></tr></thead><tbody>${
-        rf.map(r => `<tr><td class="mono">${esc(r.code)}</td><td class="mono"><a href="#" onclick="openOrder('${esc(r.order_code)}'); return false;">${esc(r.order_code)}</a></td>
-          <td><b>${vnd(r.amount)}</b></td><td>${esc(r.bank_name)}<br><span class="mono">${esc(r.acc_number)}</span> · ${esc(r.acc_name)}</td><td>${esc(r.cs_note || '')}</td>
-          <td class="row-actions"><input id="ref-${esc(r.code)}" class="mono" placeholder="FT..." style="width: 130px;"><button class="btn ok" onclick="paid('${esc(r.code)}')">Đã chi hoàn</button></td></tr>`).join('')
-      }</tbody></table>` : '<div class="empty">Không có lệnh chi nào đang chờ.</div>';
+      const sentBy = (r) => { const l = (r.review_log || []).filter(x => x.role === 'NHÂN VIÊN').pop(); return l ? `${esc(l.actor)} · ${t(l.at)}` : ''; };
+      document.getElementById('kt-refunds').innerHTML = rf.length ? `<table><thead><tr><th>Hồ sơ</th><th>Đơn</th><th>Số tiền hoàn</th><th>Tiền thực nhận của đơn</th><th>Chuyển tới</th><th>Nhân viên gửi</th><th>Kiểm tra</th></tr></thead><tbody>${
+        rf.map(r => `<tr class="${r.received != null && r.amount > r.received ? 'flag' : ''}">
+          <td class="mono">${esc(r.code)}${r.returned_count ? `<div class="hint">gửi lại lần ${r.returned_count + 1}</div>` : ''}</td>
+          <td class="mono"><a href="#" onclick="openOrder('${esc(r.order_code)}'); return false;">${esc(r.order_code)}</a></td>
+          <td><b>${vnd(r.amount)}</b><div class="hint">${esc(r.reason)}</div></td>
+          <td>${vnd(r.received)}${r.received != null && r.amount > r.received ? '<div class="ret-note">⚠ Hoàn nhiều hơn tiền nhận</div>' : ''}</td>
+          <td>${esc(r.bank_name)}<br><span class="mono">${esc(r.acc_number)}</span> · ${esc(r.acc_name)}</td>
+          <td>${sentBy(r)}${r.cs_note ? `<div class="hint">${esc(r.cs_note)}</div>` : ''}</td>
+          <td><div class="row-actions">
+              <button class="btn" onclick="openOrder('${esc(r.order_code)}')">🧾 Biên lai & sổ cái</button>
+            </div>
+            <div class="row-actions" style="margin-top: 6px;">
+              <input id="ref-${esc(r.code)}" class="mono" placeholder="Mã GD chuyển hoàn FT..." style="width: 170px;">
+              <button class="btn ok" onclick="paid('${esc(r.code)}')">✓ Đạt – Đã chi</button>
+              <button class="btn danger" onclick="openReject('${esc(r.code)}')">↩ Không đạt – Trả về</button>
+            </div></td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Không có hồ sơ nào đang chờ Kế toán kiểm tra.</div>';
+    }
+
+    // Hộp thoại "Không đạt – Trả về nhân viên"
+    let rejectCode = null;
+    function openReject(code) {
+      try { actor(); } catch (e) { return alert(e.message); }
+      const r = overview.refunds.find(x => x.code === code);
+      rejectCode = code;
+      document.getElementById('rj-code').textContent = code;
+      document.getElementById('rj-info').textContent = `Đơn ${r.order_code} · hoàn ${vnd(r.amount)} tới ${r.bank_name} ${r.acc_number} (${r.acc_name})`;
+      document.getElementById('rj-reason').innerHTML = '<option value="">— Chọn lý do —</option>' +
+        Object.entries(overview.return_reasons || {}).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('');
+      document.getElementById('rj-note').value = '';
+      document.getElementById('rj-err').textContent = '';
+      document.getElementById('reject-dlg').showModal();
+    }
+    async function submitReject() {
+      const reason = document.getElementById('rj-reason').value;
+      const note = document.getElementById('rj-note').value.trim();
+      const err = document.getElementById('rj-err');
+      if (!reason) return (err.textContent = 'Chọn lý do không đạt.');
+      try {
+        await post('accounting_reject', { refund_code: rejectCode, reason, note, actor: actor() });
+        document.getElementById('reject-dlg').close();
+        await load();
+      } catch (e) {
+        err.textContent = e.message;
+      }
     }
 
     function dates() {
@@ -335,10 +498,16 @@
     const decide = (code, decision) => act(async () => {
       const note = decision === 'NGOAI_LE' ? prompt('Ghi chú cho khách (thông tin cần cập nhật):', 'Ảnh biên lai không rõ số tiền / mã giao dịch') : prompt('Ghi chú đối chiếu (tùy chọn):', 'Biên lai khớp log cổng thanh toán');
       if (note === null) return;
-      await post('decide', { refund_code: code, decision, note });
+      await post('decide', { refund_code: code, decision, note, actor: actorInput().value.trim() });
     });
     const remind = (code) => act(async () => { await post('remind', { refund_code: code }); alert('Đã gửi nhắc qua Email, SMS và thông báo trên website.'); });
-    const paid = (code) => act(async () => { await post('accounting_paid', { refund_code: code, refund_ref: document.getElementById('ref-' + code).value }); });
+    const paid = (code) => act(async () => {
+      const ref = document.getElementById('ref-' + code).value.trim();
+      if (!ref) throw new Error('Nhập mã giao dịch chuyển hoàn trước khi xác nhận đã chi.');
+      const who = actor();
+      if (!confirm(`Xác nhận ĐẠT và đã chuyển khoản hoàn cho hồ sơ ${code} (mã GD ${ref})?`)) return;
+      await post('accounting_paid', { refund_code: code, refund_ref: ref, actor: who });
+    });
     const confirmDone = (code) => act(async () => { if (confirm('Xác nhận khách đã nhận tiền hoàn? Đơn sẽ chuyển REFUNDED và gửi thông báo kết quả cuối.')) await post('confirm_done', { refund_code: code }); });
     const resolveTicket = (code) => act(async () => { const note = prompt('Kết quả xử lý:'); if (note !== null) await post('resolve_ticket', { ticket_code: code, note }); });
 
@@ -358,7 +527,9 @@
             <span>Hạn tự hoàn</span><span>${t(r.deadline_at)}</span>
             ${r.acc_number ? `<span>RefundForm</span><span>${esc(r.bank_name)} · <span class="mono">${esc(r.acc_number)}</span> · ${esc(r.acc_name)} (gửi ${t(r.form_submitted_at)})</span>` : ''}
             ${r.refund_ref ? `<span>Mã GD hoàn</span><span class="mono">${esc(r.refund_ref)}</span>` : ''}
+            ${r.acc_note ? `<span>Kế toán trả về</span><span class="ret-note" style="margin: 0;">${esc(r.acc_note)} (${r.returned_count} lần)</span>` : ''}
           </div>
+          ${(r.review_log || []).length ? `<div class="hint">Nhật ký Nhân viên ↔ Kế toán:</div><ul class="rlog">${r.review_log.map(l => `<li>${t(l.at)} · <b>${esc(l.role)}</b> ${esc(l.actor)}: ${esc(l.action)}${l.note ? ' – ' + esc(l.note) : ''}</li>`).join('')}</ul>` : ''}
           ${r.receipt_url ? `<div class="hint">Ảnh biên lai khách gửi:</div><img class="receipt" src="${esc(r.receipt_url)}" alt="Biên lai">` : ''}
         </div>`).join('');
       document.getElementById('d-body').innerHTML = `

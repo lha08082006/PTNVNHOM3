@@ -96,7 +96,7 @@ create table if not exists refunds (
   amount             bigint not null check (amount > 0),
   reason             text not null check (reason in ('LATE','SEAT_TAKEN','NEAR_SHOWTIME','SHORT','EXCESS','DUPLICATE','MISMATCH')),
   status             text not null default 'REQUESTED' check (status in (
-                       'REQUESTED','RETRYING','DONE','MANUAL_REVIEW','FORM_SUBMITTED','CS_APPROVED','PAID_OUT')),
+                       'REQUESTED','RETRYING','DONE','MANUAL_REVIEW','FORM_SUBMITTED','CS_APPROVED','ACC_RETURNED','PAID_OUT')),
   idempotency_key    text unique not null,             -- BR-04: chống hoàn trùng
   tx_refs            text,
   source_account     jsonb,
@@ -118,6 +118,10 @@ create table if not exists refunds (
   form_submitted_at  timestamptz,
   cs_decision        text check (cs_decision in ('CAN_HOAN_TIEN','NGOAI_LE')),
   cs_note            text,
+  acc_note           text,                             -- lý do Kế toán trả hồ sơ về nhân viên
+  acc_returned_at    timestamptz,
+  returned_count     int not null default 0,           -- số lần bị Kế toán trả về
+  review_log         jsonb not null default '[]',      -- từng vòng Nhân viên <-> Kế toán (ai, lúc nào, ghi chú)
   created_at         timestamptz not null default now()
 );
 create index if not exists refunds_order_code_idx on refunds(order_code);
