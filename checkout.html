@@ -537,6 +537,7 @@
   <script src="quick-dock.js"></script>
 
   <!-- Script quản lý giỏ hàng bắp nước, voucher, URL params và thanh toán -->
+  <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
   <script>
     const MOVIE_DETAILS = (window.Pay && Pay.MOVIES) ? Pay.MOVIES : {
@@ -548,16 +549,14 @@
       }
     };
 
-    const COMBOS = {
-      solo: { name: 'Combo Solo', price: 69000, qty: 0 },
-      couple: { name: 'Combo Couple', price: 89000, qty: 0 },
-      party: { name: 'Combo Party Gold', price: 129000, qty: 0 },
-      sausage: { name: 'Xúc Xích Nướng Phô Mai', price: 25000, qty: 0 }
-    };
+    // Giá combo / ghế / voucher lấy từ catalog.js – cùng nguồn với máy chủ khi tạo đơn
+    const COMBOS = {};
+    for (const k in BetaCatalog.COMBOS) COMBOS[k] = { ...BetaCatalog.COMBOS[k], qty: 0 };
+    let voucherCode = null;
 
     let baseSeatPrice = 90000;
     let discountAmount = 0;
-    let selectedSeatsStr = 'D5, D6';
+    let selectedSeatsStr = '';
     let currentMovie = 'linh-gioi-dai-chien';
     let currentCinema = 'Beta Thanh Xuân';
     let currentDate = (window.Pay && Pay.getTodayTag) ? Pay.getTodayTag() : 'Hôm nay';
@@ -571,10 +570,10 @@
       if (p.get('date')) currentDate = p.get('date');
       if (p.get('time')) currentTime = p.get('time');
       if (p.get('seats')) selectedSeatsStr = p.get('seats');
-      if (p.get('seatsTotal')) {
-        baseSeatPrice = parseInt(p.get('seatsTotal')) || 90000;
-      } else if (p.get('total')) {
-        baseSeatPrice = parseInt(p.get('total')) || 90000;
+      try { baseSeatPrice = BetaCatalog.quote({ seats: selectedSeatsStr }).seat_total; } catch (e) {
+        alert('Vui lòng chọn ghế trước khi thanh toán.');
+        location.replace('seats.html?' + p.toString());
+        return;
       }
 
       // Đọc combo từ URL nếu được chuyển từ combo.html
@@ -587,8 +586,6 @@
           for (let k in parsedCombos) {
             if (COMBOS[k]) {
               COMBOS[k].qty = Number(parsedCombos[k]) || 0;
-            } else if (k === 'family' && COMBOS.party) {
-              COMBOS.party.qty = Number(parsedCombos[k]) || 0;
             }
           }
         } catch (e) {
@@ -644,9 +641,10 @@
         msgEl.style.color = '#ef4444';
         return;
       }
-      if (code === 'BETAVIP' || code === 'ALPHA' || code === 'CINEMA') {
-        discountAmount = 20000;
-        msgEl.textContent = '✓ Áp dụng thành công mã ' + code + ': Giảm 20.000 đ!';
+      if (BetaCatalog.VOUCHERS[code]) {
+        voucherCode = code;
+        discountAmount = BetaCatalog.VOUCHERS[code].discount;
+        msgEl.textContent = '✓ Áp dụng thành công mã ' + code + ': ' + BetaCatalog.VOUCHERS[code].label + '!';
         msgEl.style.color = 'var(--status-live)';
         document.getElementById('summary-discount-row').style.display = 'flex';
       } else {
@@ -718,13 +716,18 @@
           show_time: currentTime,
           seats: seatArray,
           combos: combosPayload,
-          voucher: discountAmount > 0 ? 'BETAVIP' : null,
+          voucher: voucherCode,
           total: finalTotal
         });
       } catch (err) {
         console.error('[Checkout] Không tạo được đơn:', err);
         if (err.status === 401) {
           location.href = BetaAuth.loginUrl();
+          return;
+        }
+        if (err.status === 409 && /Giá đơn hàng/.test(err.message)) {
+          alert(err.message);
+          resetBtn();
           return;
         }
         if (err.status === 409) {

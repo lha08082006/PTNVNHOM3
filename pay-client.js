@@ -253,123 +253,16 @@ const Pay = {
     return `${p(d.getHours())}:${p(d.getMinutes())} ${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
   },
 
-  // Danh mục thông tin chuẩn 11 bộ phim Beta Cinemas
-  MOVIES: {
-    'an-mang-karaoke': {
-      title: 'ÁN MẠNG KARAOKE',
-      shortTitle: 'Án Mạng Karaoke',
-      age: 'T16',
-      meta: 'Trinh thám, Hài hước, Bí ẩn · 96 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg',
-      format: '2D Phụ đề Tiếng Anh',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'linh-gioi-dai-chien': {
-      title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
-      shortTitle: 'Linh Giới Đại Chiến',
-      age: 'T18',
-      meta: 'Hành động, Giả tưởng, Thần thoại · 128 phút · Tiếng Trung - Phụ đề Tiếng Việt',
-      poster: 'images/400x633-145627-230926-40.jpg',
-      format: '2D Phụ đề Tiếng Việt',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'dia-dao': {
-      title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
-      shortTitle: 'Linh Giới Đại Chiến',
-      age: 'T18',
-      meta: 'Hành động, Giả tưởng, Thần thoại · 128 phút · Tiếng Trung - Phụ đề Tiếng Việt',
-      poster: 'images/400x633-145627-230926-40.jpg',
-      format: '2D Phụ đề Tiếng Việt',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'quy-an-tang-4': {
-      title: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
-      shortTitle: 'Quỷ Ăn Tạng 4',
-      age: 'T18',
-      meta: 'Kinh dị, Bí ẩn, Giật gân · 115 phút · Tiếng Thái - Phụ đề Tiếng Việt',
-      poster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
-      format: '2D Phụ đề Tiếng Việt',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'trai-buon-nguoi': {
-      title: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
-      shortTitle: 'Trại Buôn Người',
-      age: 'T16',
-      meta: 'Tâm lý, Tội phạm, Gay cấn · 118 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.jpg',
-      format: '2D Phụ đề Tiếng Anh',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'blue-lock': {
-      title: 'BLUE LOCK: THE MOVIE - EPISODE NAGI',
-      shortTitle: 'Blue Lock: Episode Nagi',
-      age: 'P',
-      meta: 'Hoạt hình, Thể thao, Anime · 95 phút · Tiếng Nhật - Phụ đề Tiếng Việt',
-      poster: 'images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.jpg',
-      format: '2D Phụ đề Tiếng Việt',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'ut-lan-2': {
-      title: 'ÚT LAN 2',
-      shortTitle: 'Út Lan 2',
-      age: 'T16',
-      meta: 'Tâm lý, Tình cảm, Hài kịch · 114 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg',
-      format: '2D Phụ đề Tiếng Anh',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'co-dau-hao-mon': {
-      title: 'ÚT LAN 2',
-      shortTitle: 'Út Lan 2',
-      age: 'T16',
-      meta: 'Tâm lý, Tình cảm, Hài kịch · 114 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg',
-      format: '2D Phụ đề Tiếng Anh',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'suzume': {
-      title: 'KHÓA CHẶT CỬA NÀO SUZUME',
-      shortTitle: 'Suzume No Tojimari',
-      age: 'P',
-      meta: 'Hoạt hình, Giả tưởng, Anime · 121 phút · Tiếng Nhật - Phụ đề Tiếng Việt',
-      poster: 'images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.jpg',
-      format: '2D Phụ đề Tiếng Việt',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'ca-voi-nuot-chung': {
-      title: 'CÁ VOI NUỐT CHỬNG',
-      shortTitle: 'Cá Voi Nuốt Chửng',
-      age: 'T13',
-      meta: 'Sinh tồn, Hành động, Viễn tưởng · 98 phút · Tiếng Anh - Phụ đề Tiếng Việt',
-      poster: 'images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.jpg',
-      format: '2D Phụ đề Tiếng Việt',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'me-min': {
-      title: 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI',
-      shortTitle: 'Mẹ Mìn',
-      age: 'T18',
-      meta: 'Kinh dị, Tâm lý, Giật gân · 105 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.jpg',
-      format: '2D Phụ đề Tiếng Anh',
-      badge: '2D PHỤ ĐỀ'
-    },
-    'shaun-the-sheep': {
-      title: 'SHAUN THE SHEEP: CHUYẾN PHIÊU LƯU NGOÀI HÀNH TINH',
-      shortTitle: 'Shaun The Sheep',
-      age: 'P',
-      meta: 'Hoạt hình, Phiêu lưu, Hài hước · 86 phút · Không thoại - Bản quyền Aardman',
-      poster: 'images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.jpg',
-      format: '2D Lồng Tiếng',
-      badge: '2D LỒNG TIẾNG'
-    }
+  // Danh mục phim lấy từ catalog.js (dùng chung với máy chủ)
+  get MOVIES() {
+    const C = (typeof window !== "undefined" && window.BetaCatalog) || (typeof require === "function" ? require("./catalog") : null);
+    return (C && C.MOVIES) || {};
   },
 
-  // Lấy thông tin phim chuẩn theo key
+  // Lấy thông tin phim theo key; mã không có trong danh mục thì trả bản "chưa rõ phim" thay vì đoán sai phim
   getMovie(key) {
-    if (!key) return this.MOVIES['an-mang-karaoke'] || this.MOVIES['linh-gioi-dai-chien'];
-    const cleanKey = String(key).trim().toLowerCase();
-    return this.MOVIES[cleanKey] || this.MOVIES['an-mang-karaoke'] || this.MOVIES['linh-gioi-dai-chien'];
+    const m = this.MOVIES[String(key || "").trim().toLowerCase()];
+    return m || { title: "PHIM ĐANG CẬP NHẬT", shortTitle: "Phim đang cập nhật", age: "", meta: "", poster: "images/400x633-145627-230926-40.jpg", format: "2D", badge: "2D" };
   },
 
   // Đồng bộ hóa thông tin phim & hóa đơn trên giao diện động
@@ -392,7 +285,7 @@ const Pay = {
     const seatsEls = document.querySelectorAll('#invoice-seats, #summary-seats');
     const s = Array.isArray(ord.seats) ? ord.seats.join(', ') : (ord.seats || 'D5, D6');
     const count = Array.isArray(ord.seats) ? ord.seats.length : (ord.seats ? ord.seats.split(',').length : 2);
-    seatsEls.forEach(el => { el.textContent = s + ' (' + count + ' Ghế VIP)'; });
+    seatsEls.forEach(el => { el.textContent = s + ' (' + count + ' ghế)'; });
 
     const ageEls = document.querySelectorAll('#invoice-movie-age, #summary-movie-age, #ticket-movie-age, .dynamic-movie-age');
     ageEls.forEach(el => { el.textContent = m.age; });

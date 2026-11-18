@@ -397,6 +397,7 @@
   <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
+  <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -404,8 +405,11 @@
     const currentCinema = params.get('cinema') || 'Beta Thanh Xuân';
     const currentDate = params.get('date') || ((window.Pay && Pay.getTodayTag) ? Pay.getTodayTag() : 'Hôm nay');
     const currentTime = params.get('time') || '12:15';
-    const selectedSeatsStr = params.get('seats') || 'D5, D6';
-    let ticketTotal = parseInt(params.get('total')) || 90000;
+    const selectedSeatsStr = params.get('seats') || '';
+    if (!selectedSeatsStr) location.replace('seats.html?' + params.toString());
+    // Tiền vé tính lại từ sơ đồ giá (catalog.js), không tin số tiền trên URL
+    let ticketTotal = 0;
+    try { ticketTotal = BetaCatalog.quote({ seats: selectedSeatsStr }).seat_total; } catch (e) { alert(e.message); location.replace('seats.html?' + params.toString()); }
 
     const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(currentMovieKey) : {
       title: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
@@ -416,17 +420,12 @@
 
     // Hiển thị thông tin suất chiếu & ghế
     document.getElementById('combo-movie-display').textContent = movieObj.title + ' · ' + movieObj.age;
-    document.getElementById('combo-seat-summary').textContent = selectedSeatsStr + ' (' + seatCount + ' Ghế VIP)';
+    document.getElementById('combo-seat-summary').textContent = selectedSeatsStr + ' (' + seatCount + ' ghế)';
     document.getElementById('combo-cinema-showtime').textContent = currentCinema + ' · ' + currentTime + ' (' + currentDate + ')';
     document.getElementById('combo-ticket-total-display').textContent = 'Tiền vé: ' + (window.Pay ? Pay.vnd(ticketTotal) : new Intl.NumberFormat('vi-VN').format(ticketTotal) + ' đ');
 
-    const items = {
-      solo: { name: 'Combo Solo', price: 69000, qty: 0 },
-      couple: { name: 'Combo Couple', price: 89000, qty: 0 },
-      party: { name: 'Combo Party Gold', price: 129000, qty: 0 },
-      family: { name: 'Combo Siêu Nhóm (Family)', price: 129000, qty: 0 },
-      sausage: { name: 'Xúc Xích Nướng', price: 25000, qty: 0 }
-    };
+    const items = {};
+    for (const k in BetaCatalog.COMBOS) items[k] = { ...BetaCatalog.COMBOS[k], qty: 0 };
 
     // Khôi phục combo nếu có tham số URL
     const combosParam = params.get('combos');

@@ -370,8 +370,8 @@
         <u>B</u>
         <i data-id="B1" data-type="standard" data-price="45000">1</i>
         <i data-id="B2" data-type="standard" data-price="45000">2</i>
-        <i class="x" data-id="B3" data-type="sold" title="Đã bán">✕</i>
-        <i class="x" data-id="B4" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="B3" data-type="standard" data-price="45000">✕</i>
+        <i data-id="B4" data-type="standard" data-price="45000">✕</i>
         <i data-id="B5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="B6" data-type="standard" data-price="45000">6</i>
@@ -392,7 +392,7 @@
         <i data-id="C5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="C6" data-type="standard" data-price="45000">6</i>
-        <i class="x" data-id="C7" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="C7" data-type="standard" data-price="45000">✕</i>
         <i data-id="C8" data-type="standard" data-price="45000">8</i>
         <i data-id="C9" data-type="standard" data-price="45000">9</i>
         <i data-id="C10" data-type="standard" data-price="45000">10</i>
@@ -406,9 +406,9 @@
         <i data-id="D2" data-type="standard" data-price="45000">2</i>
         <i data-id="D3" data-type="standard" data-price="45000">3</i>
         <i data-id="D4" data-type="standard" data-price="45000">4</i>
-        <i class="s" data-id="D5" data-type="standard" data-price="45000" title="Đang chọn D5">5</i>
+        <i data-id="D5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
-        <i class="s" data-id="D6" data-type="standard" data-price="45000" title="Đang chọn D6">6</i>
+        <i data-id="D6" data-type="standard" data-price="45000">6</i>
         <i data-id="D7" data-type="standard" data-price="45000">7</i>
         <i data-id="D8" data-type="standard" data-price="45000">8</i>
         <i data-id="D9" data-type="standard" data-price="45000">9</i>
@@ -419,14 +419,14 @@
       <!-- Hàng E (Standard - E1 đang giữ, E7 khóa) -->
       <div class="r" data-row="E">
         <u>E</u>
-        <i class="h" data-id="E1" data-type="held" title="Đang được giữ">⏳</i>
+        <i data-id="E1" data-type="standard" data-price="45000">⏳</i>
         <i data-id="E2" data-type="standard" data-price="45000">2</i>
         <i data-id="E3" data-type="standard" data-price="45000">3</i>
         <i data-id="E4" data-type="standard" data-price="45000">4</i>
         <i data-id="E5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="E6" data-type="standard" data-price="45000">6</i>
-        <i class="k" data-id="E7" data-type="blocked" title="Tạm khóa">⛔</i>
+        <i data-id="E7" data-type="standard" data-price="45000">⛔</i>
         <i data-id="E8" data-type="standard" data-price="45000">8</i>
         <i data-id="E9" data-type="standard" data-price="45000">9</i>
         <i data-id="E10" data-type="standard" data-price="45000">10</i>
@@ -444,8 +444,8 @@
         <b style="width: 24px;"></b>
         <i data-id="F6" data-type="vip" data-price="50000">6</i>
         <i data-id="F7" data-type="vip" data-price="50000">7</i>
-        <i class="x" data-id="F8" data-type="sold" title="Đã bán">✕</i>
-        <i class="x" data-id="F9" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="F8" data-type="vip" data-price="50000">✕</i>
+        <i data-id="F9" data-type="vip" data-price="50000">✕</i>
         <i data-id="F10" data-type="vip" data-price="50000">10</i>
         <u>F</u>
       </div>
@@ -473,7 +473,7 @@
         <i data-id="H1-H2" data-type="sweetbox" data-price="100000">H1-H2</i>
         <i data-id="H3-H4" data-type="sweetbox" data-price="100000">H3-H4</i>
         <b style="width: 24px;"></b>
-        <i class="x" data-id="H5-H6" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="H5-H6" data-type="sweetbox" data-price="100000">✕</i>
         <i data-id="H7-H8" data-type="sweetbox" data-price="100000">H7-H8</i>
         <u>H</u>
       </div>
@@ -548,6 +548,7 @@
   <script src="quick-dock.js"></script>
 
   <!-- Script xử lý chọn ghế & tính tiền tương tác thời gian thực -->
+  <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
   <script>
     // Danh mục tên phim
@@ -567,10 +568,8 @@
     };
 
     // Danh sách ghế đang được chọn
-    let selectedSeats = [
-      { id: 'D5', type: 'standard', price: 45000 },
-      { id: 'D6', type: 'standard', price: 45000 }
-    ];
+    let selectedSeats = [];
+    const seatPrice = (id) => BetaCatalog.SEAT_PRICES[BetaCatalog.seatType(id)] || 0;
 
     let currentMovieKey = 'linh-gioi-dai-chien';
     let currentCinema = 'Beta Thanh Xuân';
@@ -584,6 +583,14 @@
       if (params.get('cinema')) currentCinema = params.get('cinema');
       if (params.get('date')) currentDate = params.get('date');
       if (params.get('time')) currentTime = params.get('time');
+      // Quay lại từ bước combo: giữ nguyên các ghế khách đã chọn
+      (params.get('seats') || '').split(',').map(x => x.trim().toUpperCase()).filter(Boolean).forEach(id => {
+        const el = document.querySelector('.r i[data-id="' + id + '"]');
+        if (el && BetaCatalog.seatType(id) && !selectedSeats.some(x => x.id === id)) {
+          el.classList.add('s');
+          selectedSeats.push({ id, type: BetaCatalog.seatType(id), price: seatPrice(id) });
+        }
+      });
 
       const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(currentMovieKey) : null;
       const movieTitle = movieObj ? (movieObj.shortTitle || movieObj.title) : (MOVIE_NAMES[currentMovieKey] || 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ');
@@ -614,14 +621,18 @@
         }
 
         const id = this.dataset.id;
-        const type = this.dataset.type;
-        const price = parseInt(this.dataset.price) || 45000;
+        const type = BetaCatalog.seatType(id);
+        const price = seatPrice(id);
 
         const existsIndex = selectedSeats.findIndex(s => s.id === id);
         if (existsIndex > -1) {
           selectedSeats.splice(existsIndex, 1);
           this.classList.remove('s');
         } else {
+          if (selectedSeats.length >= BetaCatalog.MAX_SEATS) {
+            alert('Mỗi đơn đặt tối đa ' + BetaCatalog.MAX_SEATS + ' ghế.');
+            return;
+          }
           selectedSeats.push({ id, type, price });
           this.classList.add('s');
         }
