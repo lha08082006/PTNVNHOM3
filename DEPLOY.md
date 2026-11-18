@@ -39,6 +39,31 @@ quyền xem đơn, thanh toán sandbox, phiếu hỗ trợ, đổi mật khẩu,
 - Kiểm tra đơn và nhật ký webhook ở tab IT / Dev.
 - Gửi thử form ở `support.html` → phiếu "Yêu cầu hỗ trợ" phải hiện trong admin.
 
+## 5. Checklist trước khi mở bán (Go-live)
+
+Phải tự làm trên các dịch vụ bên ngoài, code không làm thay được:
+
+- [ ] **Thu hồi khóa SePay cũ** (đã lộ trong lịch sử git), tạo khóa mới, đặt vào `SEPAY_API_KEY` / `SEPAY_WEBHOOK_KEY`.
+- [ ] `AUTH_SECRET` ngẫu nhiên ≥ 32 ký tự; `ADMIN_KEY` mạnh, xóa đi sau khi đã tạo tài khoản Quản lý đầu tiên.
+- [ ] **Không** đặt `ALLOW_SANDBOX`, **không** đặt `DB_MODE` trên production.
+- [ ] Đặt `SITE_URL` (vd `https://beta.example.vn`): dùng cho link trong email, `sitemap.xml` và `robots.txt`.
+- [ ] Xác minh tên miền gửi mail trên Resend, đặt `RESEND_API_KEY`, `MAIL_FROM`; thử "Quên mật khẩu" phải nhận được mã OTP.
+- [ ] Chạy đủ 4 migration (mục 1), vào admin.html → Danh mục: kiểm tra phim, rạp, giá; tạo suất chiếu 7 ngày tới.
+- [ ] **UAT bằng tiền thật, số tiền nhỏ** (mỗi ca một đơn):
+  - [ ] Chuyển đủ → vé xuất trong vài giây, có email, QR soát được 1 lần ở tab Quầy.
+  - [ ] Chuyển thiếu, chờ hết 10 phút → hồ sơ hoàn tiền SHORT, tiền về trong 24 giờ.
+  - [ ] Chuyển thừa → vẫn có vé + hồ sơ hoàn EXCESS.
+  - [ ] Chuyển sau khi hết 10 phút → cấp vé bù (ghế còn) hoặc hoàn tiền.
+  - [ ] Hồ sơ hoàn tiền thủ công: CSKH gửi → Kế toán trả về → gửi lại → chi → hoàn tất.
+- [ ] Rà lại nội dung `policy.html` (điều khoản, bảo mật, hoàn tiền) với người phụ trách pháp lý/kế toán trước khi công bố.
+- [ ] Gửi `https://<tên-miền>/sitemap.xml` lên Google Search Console.
+
+### Theo dõi hằng ngày sau khi mở bán
+
+- admin.html → IT / Dev: nhật ký webhook. Webhook lỗi 401/503 liên tục = sai khóa SePay.
+- admin.html → CSKH, bộ lọc **Cần xử lý**: hồ sơ `MANUAL_REVIEW` (quá 24 giờ chưa tự hoàn được) phải xử lý trong ngày.
+- Vercel → Cron: `/api/cron` phải chạy thành công mỗi ngày.
+
 ## Ghi chú
 
 - Vai trò nội bộ: **Quản lý** (toàn quyền, nhân sự, nhật ký, IT), **Kế toán** (duyệt chi / trả về, báo cáo), **CSKH** (phiếu hỗ trợ, đối chiếu & gửi hồ sơ hoàn tiền), **Quầy** (tra cứu đơn). Người gửi hồ sơ sang Kế toán không được tự duyệt chi hồ sơ đó.

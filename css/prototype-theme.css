@@ -1103,7 +1103,7 @@ textarea {
     min-width: 0;
   }
 
-  img, video, iframe {
+  img, video, iframe, select, input, textarea {
     max-width: 100%;
   }
 
@@ -1164,6 +1164,13 @@ textarea {
   [style*="grid-template-columns: repeat(2"],
   [style*="grid-template-columns: repeat(3"] {
     grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Nút có chữ dài: xuống dòng thay vì đẩy trang tràn ngang */
+  .btn {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
   }
 }
 
