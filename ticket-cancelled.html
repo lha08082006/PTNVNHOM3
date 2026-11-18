@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+  <script>
+    // Trang mẫu thiết kế: trạng thái đơn thật (đã hủy / đã hoàn tiền) hiển thị ở order.html
+    (function () {
+      var c = new URLSearchParams(location.search).get("order");
+      location.replace(c ? "order.html?code=" + encodeURIComponent(c) : "account.html");
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chi Tiết Đơn Hàng: Đã Hủy - Beta Cinemas (Thiết Kế Nền Trắng 2026)</title>
@@ -210,7 +217,7 @@
         <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
       </div>
       <div class="top-auth-links">
-        <span style="color: #005198;">Xin chào, <strong>LƯƠNG HỒNG ANH</strong></span>
+        
         <span>|</span>
         <a href="account.html">Tài khoản</a>
         <span>|</span>

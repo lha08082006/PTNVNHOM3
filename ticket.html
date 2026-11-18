@@ -133,7 +133,7 @@
         <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
       </div>
       <div class="top-auth-links">
-        <span style="color: #005198;">Xin chào, <strong>LƯƠNG HỒNG ANH</strong></span>
+        
         <span>|</span>
         <a href="account.html">Thành viên</a>
         <span>|</span>
@@ -196,7 +196,7 @@
           Đặt Vé Thành Công!
         </h1>
         <p style="font-size: 14.5px; color: #64748b; max-width: 580px; margin: 0 auto;" id="ticket-sent-info">
-          Cảm ơn bạn <strong style="color: #005198;">LƯƠNG HỒNG ANH</strong>. Vé điện tử đã sẵn sàng. Thông tin vé và mã soát vé đã được gửi về cho khách hàng <strong style="color: #005198;" id="ticket-customer-name">LƯƠNG HỒNG ANH</strong> qua email <strong style="color: #0f172a;" id="ticket-customer-email">luonghonganh.cinema@gmail.com</strong> và SMS số <strong style="color: #0f172a;" id="ticket-customer-phone">0987654321</strong>.
+          Cảm ơn bạn đã đặt vé tại Beta Cinemas. Vé điện tử đã sẵn sàng. Thông tin vé và mã soát vé đã được gửi về cho khách hàng <strong style="color: #005198;" id="ticket-customer-name"></strong> qua email <strong style="color: #0f172a;" id="ticket-customer-email"></strong> và SMS số <strong style="color: #0f172a;" id="ticket-customer-phone"></strong>.
         </p>
       </div>
 
@@ -282,10 +282,9 @@
             <div>
               <div class="ticket-field-label">Chủ Vé / Khách Hàng</div>
               <div class="ticket-field-value" id="ticket-card-customer" style="font-size: 16px; color: var(--beta-navy); font-weight: 900;">
-                LƯƠNG HỒNG ANH
               </div>
               <div style="font-size: 11.5px; color: #005198; font-weight: 700; margin-top: 3px;">
-                Thẻ Gold: BM-99281
+                Thành viên Beta Club
               </div>
             </div>
           </div>
@@ -523,6 +522,9 @@
 
     const params = new URLSearchParams(window.location.search);
     const orderParam = params.get('order');
+    if (!orderParam) location.replace('account.html');
+    const ticketMain = document.querySelector('main');
+    if (ticketMain) ticketMain.style.visibility = 'hidden';
     const movieParam = params.get('movie');
     const cinemaParam = params.get('cinema');
     const dateParam = params.get('date');
@@ -689,9 +691,9 @@
         }
       }
 
-      const custName = ord.customer_name || 'LƯƠNG HỒNG ANH';
-      const custEmail = ord.email || 'luonghonganh.cinema@gmail.com';
-      const custPhone = ord.phone || '0987654321';
+      const custName = ord.customer_name || 'Khách hàng';
+      const custEmail = ord.email || '(chưa có email)';
+      const custPhone = ord.phone || '(chưa có SĐT)';
 
       const custNameEl = document.getElementById('ticket-customer-name');
       if (custNameEl) custNameEl.textContent = custName;
@@ -702,7 +704,7 @@
       const custPhoneEl = document.getElementById('ticket-customer-phone');
       if (custPhoneEl) custPhoneEl.textContent = custPhone;
 
-      if (ord.code === 'BC2885539882' || ord.status === 'CONFIRMED_LATE' || ord.status === 'REISSUED') {
+      if (ord.status === 'CONFIRMED_LATE') {
         const noteEl = document.getElementById('ticket-pay-status-note');
         if (noteEl) noteEl.textContent = '✓ Đã thanh toán (Cấp bù vé VietQR)';
       }
@@ -757,7 +759,12 @@
       Pay.getOrder(orderParam).then(ord => {
         // Chỉ hiển thị vé khi đơn đã CONFIRMED / CONFIRMED_LATE; trạng thái khác chuyển sang trang theo dõi đơn
         if (ord && ord.has_ticket === false) { location.replace('order.html?code=' + encodeURIComponent(ord.code)); return; }
-        if (ord) applyOrderToTicket(ord);
+        if (!ord) {
+          ticketMain.innerHTML = '<div style="max-width:520px;margin:60px auto;text-align:center;padding:32px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;"><h2>Không tìm thấy vé</h2><p style="color:#64748b;margin:8px 0 20px;">Mã đơn không tồn tại hoặc máy chủ đang bận. Vui lòng thử lại sau.</p><a class="btn btn-primary" href="account.html">Về lịch sử đơn hàng</a></div>';
+        } else {
+          applyOrderToTicket(ord);
+        }
+        ticketMain.style.visibility = 'visible';
       }).catch(e => console.warn('Lỗi lấy đơn hàng ticket:', e.message));
     }
   </script>

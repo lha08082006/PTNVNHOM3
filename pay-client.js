@@ -135,28 +135,6 @@ const Pay = {
     } catch (e) {}
   },
 
-  buildOrderFromUrl(code) {
-    if (typeof window === 'undefined' || !window.location) return null;
-    const p = new URLSearchParams(window.location.search);
-    const ordCode = code || p.get('order') || 'BC2610279854';
-    const total = Number(p.get('total') || 179000);
-    return {
-      code: ordCode,
-      total: total,
-      paid_amount: Number(p.get('paid') || 0),
-      remaining_amount: Number(p.get('remaining') || (total - Number(p.get('paid') || 0))),
-      excess_amount: Number(p.get('excess') || 0),
-      movie_key: p.get('movie') || 'an-mang-karaoke',
-      cinema: p.get('cinema') || 'Beta Thanh Xuân',
-      show_date: p.get('date') || (typeof window !== 'undefined' && window.Pay && Pay.getTodayTag ? Pay.getTodayTag() : 'Hôm nay'),
-      show_time: p.get('time') || '12:15',
-      seats: p.get('seats') ? p.get('seats').split(',').map(s => s.trim()) : ['D5', 'D6'],
-      combos: (function() { try { return p.get('combos') ? JSON.parse(decodeURIComponent(p.get('combos'))) : {}; } catch(e){ return {}; } })(),
-      status: 'HOLDING',
-      created_at: new Date().toISOString()
-    };
-  },
-
   // Lấy chi tiết đơn hàng từ máy chủ; mất kết nối thì trả trạng thái thật gần nhất đã lưu (nếu có)
   async getOrder(code) {
     if (!code) return null;

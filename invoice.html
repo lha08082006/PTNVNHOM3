@@ -264,7 +264,7 @@
         <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
       </div>
       <div class="top-auth-links">
-        <span style="color: #005198;">Xin chào, <strong>LƯƠNG HỒNG ANH</strong></span>
+        
         <span>|</span>
         <a href="account.html">Lịch sử đơn</a>
         <span>|</span>
@@ -370,9 +370,9 @@
             👤 THÔNG TIN KHÁCH HÀNG & THÀNH VIÊN
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13.5px;">
-            <div>Khách hàng: <strong id="page-inv-customer-name">LƯƠNG HỒNG ANH</strong></div>
+            <div>Khách hàng: <strong id="page-inv-customer-name"></strong></div>
             <div>Số điện thoại: <strong id="page-inv-customer-phone">0912 345 678</strong></div>
-            <div>Email nhận vé: <span id="page-inv-customer-email">luonghonganh@email.com</span></div>
+            <div>Email nhận vé: <span id="page-inv-customer-email"></span></div>
             <div>Thẻ thành viên: <strong id="page-inv-member-id" style="color: #ff5400;">BM-99281 (Beta VIP Gold)</strong></div>
           </div>
         </div>
@@ -538,7 +538,7 @@
             BC2610279854
           </div>
           <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
-            Hóa đơn điện tử có giá trị pháp lý theo Nghị định 123/2020/NĐ-CP • Tra cứu trực tuyến tại: <span style="color: #005198; font-weight: 600;">https://einvoice.betacinemas.vn</span>
+            Chứng từ thanh toán trực tuyến của đơn hàng. Cần hóa đơn GTGT, vui lòng liên hệ CSKH 1900 636 807.
           </div>
         </div>
 
@@ -564,292 +564,110 @@
   <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
+  <script src="catalog.js"></script>
+  <script src="pay-client.js"></script>
   <script>
-    const INVOICES_DATA = {
-      'BC2885539882': {
-        code: 'BC2885539882',
-        invoiceNumber: 'HD-2026-009140',
-        symbol: '1C26TBB',
-        createdAt: '05/11/2026 21:56:43',
-        movieTitle: 'QUỶ ĂN TẠNG 4: LỜI NGUYỄN TRỞ LẠI',
-        moviePoster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
-        movieAge: 'C18',
-        format: '2D Phụ Đề',
-        cinema: 'Beta Thanh Xuân (Hà Nội)',
-        room: 'Phòng chiếu 02',
-        showtime: '12:15 • Thứ 5 (05/11/2026)',
-        seats: 'D5 (Ghế VIP)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VietQR / SePay (Cấp bù vé)',
-        bankTransCode: 'VQR-261105-39882',
-        statusBadge: '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>',
-        statusNote: 'Hóa đơn đã được đối soát thành công và cấp bù vé mới theo chính sách bồi hoàn sự cố thanh toán. Vé hợp lệ vào phòng chiếu.',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế D5) - Cấp bù vé', qty: 1, price: 45000, amount: 45000 }
-        ],
-        subtotal: 41667,
-        vat: 3333,
-        discount: 0,
-        total: 45000
-      },
+    // Hóa đơn dựng từ đơn hàng thật trên máy chủ (không còn dữ liệu mẫu)
+    const VAT_RATE = 0.08;
+    const vnd = (n) => Number(n || 0).toLocaleString('vi-VN') + ' đ';
+    const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v == null ? '' : v; };
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-      'BC2610279854': {
-        code: 'BC2610279854',
-        invoiceNumber: 'HD-2026-008921',
-        symbol: '1C26TBB',
-        createdAt: '27/10/2026 18:14:02',
-        movieTitle: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
-        moviePoster: 'images/400x633-145627-230926-40.jpg',
-        movieAge: 'C18',
-        format: '2D Phụ Đề (IMAX Sound)',
-        cinema: 'Beta Thanh Xuân (Hà Nội)',
-        room: 'Phòng chiếu 01',
-        showtime: '18:30 • Hôm nay (27/10/2026)',
-        seats: 'F07, F08 (Ghế VIP)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VietQR / SePay (Tài khoản ngân hàng)',
-        bankTransCode: 'VQR-261027-88291',
-        statusBadge: '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (HỢP LỆ)</span>',
-        statusNote: 'Hóa đơn đã được thanh toán đầy đủ và hợp lệ. Vé sẵn sàng quét mã vào cửa tại cụm rạp Beta Thanh Xuân.',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế F07, F08)', qty: 2, price: 65000, amount: 130000 },
-          { name: 'Combo Solo (1 Bắp ngọt lớn + 1 Nước ngọt 32oz)', qty: 1, price: 49000, amount: 49000 }
-        ],
-        subtotal: 165741,
-        vat: 13259,
-        discount: 0,
-        total: 179000
-      },
-      'BC2610264412': {
-        code: 'BC2610264412',
-        invoiceNumber: 'HD-2026-008650',
-        symbol: '1C26TBB',
-        createdAt: '24/10/2026 18:28:44',
-        movieTitle: 'ÚT LAN 2',
-        moviePoster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg',
-        movieAge: 'C16',
-        format: '2D Phụ Đề',
-        cinema: 'Beta Trần Quang Khải (Hà Nội)',
-        room: 'Phòng chiếu 01',
-        showtime: '18:30 • 24/10/2026',
-        seats: 'E07, E08 (Ghế Thường)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VietQR Chuyển khoản',
-        bankTransCode: 'ERR-TIMEOUT-4412',
-        statusBadge: '<span class="badge" style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 11px;">⚠️ ĐÃ HỦY (CHƯA HOÀN TIỀN)</span>',
-        statusNote: 'Giao dịch bị lỗi timeout giữ ghế rạp nhưng tài khoản ngân hàng đã bị trừ tiền 150.000 đ. Đơn hàng đang chờ khách hàng gửi form yêu cầu hoàn tiền hoặc nhờ BetaBot đối soát.',
-        items: [
-          { name: 'Vé xem phim 2D Thường (Ghế E07, E08)', qty: 2, price: 75000, amount: 150000 }
-        ],
-        subtotal: 138889,
-        vat: 11111,
-        discount: 0,
-        total: 150000
-      },
-      'BC2610227189': {
-        code: 'BC2610227189',
-        invoiceNumber: 'HD-2026-008339',
-        symbol: '1C26TBB',
-        createdAt: '22/10/2026 19:40:55',
-        movieTitle: 'ÁN MẠNG KARAOKE',
-        moviePoster: 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg',
-        movieAge: 'C16',
-        format: '2D Phụ Đề',
-        cinema: 'Beta Mỹ Đình (Hà Nội)',
-        room: 'Phòng chiếu 03',
-        showtime: '20:00 • 22/10/2026',
-        seats: 'F11, F12 (Ghế VIP) + 1x Bắp Phô Mai',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'SePay VietQR',
-        bankTransCode: 'REF-2610-915',
-        statusBadge: '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>',
-        statusNote: 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Ngân hàng đối tác đang xử lý lệnh chuyển tiền hoàn lại, dự kiến hoàn tất trong 1-2 ngày làm việc).',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế F11, F12)', qty: 2, price: 80000, amount: 160000 },
-          { name: 'Bắp Rang Phô Mai Lớn', qty: 1, price: 50000, amount: 50000 }
-        ],
-        subtotal: 194444,
-        vat: 15556,
-        discount: 0,
-        total: 210000
-      },
-      'BC2610208819': {
-        code: 'BC2610208819',
-        invoiceNumber: 'HD-2026-008105',
-        symbol: '1C26TBB',
-        createdAt: '20/10/2026 17:30:10',
-        movieTitle: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
-        moviePoster: 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg',
-        movieAge: 'C16',
-        format: '2D Phụ Đề Tiếng Anh',
-        cinema: 'Beta Thanh Xuân (Hà Nội)',
-        room: 'Phòng chiếu 02',
-        showtime: '21:00 • 20/10/2026',
-        seats: 'G09, G10 (Ghế VIP)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VietQR (Đã hoàn tiền 100%)',
-        bankTransCode: 'REF-2610-889',
-        statusBadge: '<span class="badge" style="background: #fee2e2; color: #b91c1c; font-weight: 800; font-size: 11px;">✕ ĐÃ HỦY (ĐÃ HOÀN TIỀN)</span>',
-        statusNote: 'Hóa đơn đã hủy theo yêu cầu của khách hàng trước giờ chiếu 120 phút. Đã giải ngân hoàn tiền 100% (180.000 đ) qua VietQR ngày 20/10/2026.',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế G09, G10)', qty: 2, price: 90000, amount: 180000 }
-        ],
-        subtotal: 166667,
-        vat: 13333,
-        discount: 0,
-        total: 180000
-      },
-      'BC2610153321': {
-        code: 'BC2610153321',
-        invoiceNumber: 'HD-2026-007412',
-        symbol: '1C26TBB',
-        createdAt: '15/10/2026 19:42:15',
-        movieTitle: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
-        moviePoster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
-        movieAge: 'C18',
-        format: '2D Phụ Đề',
-        cinema: 'Beta Giải Phóng (Hà Nội)',
-        room: 'Phòng chiếu 02',
-        showtime: '20:15 • 15/10/2026',
-        seats: 'D05, D06 (Ghế VIP)',
-        customerName: 'LƯƠNG HỒNG ANH',
-        customerPhone: '0912 345 678',
-        customerEmail: 'luonghonganh@email.com',
-        memberId: 'BM-99281 (Beta VIP Gold)',
-        paymentMethod: 'VNPAY-QR',
-        bankTransCode: 'VNP-261015-33210',
-        statusBadge: '<span class="badge" style="background: #e2e8f0; color: #475569; font-weight: 800; font-size: 11px;">✓ ĐÃ XEM HOÀN TẤT</span>',
-        statusNote: 'Suất chiếu đã kết thúc. Hóa đơn điện tử đã được đối soát và lưu trữ vào sổ sách kế toán điện tử.',
-        items: [
-          { name: 'Vé xem phim 2D VIP (Ghế D05, D06)', qty: 2, price: 65000, amount: 130000 }
-        ],
-        subtotal: 120370,
-        vat: 9630,
-        discount: 0,
-        total: 130000
-      }
+    const BADGES = {
+      paid: '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN</span>',
+      refunding: '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐANG XỬ LÝ HOÀN TIỀN</span>',
+      refunded: '<span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 800; font-size: 11px;">✓ ĐÃ HOÀN TIỀN</span>',
+      pending: '<span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 800; font-size: 11px;">⏳ CHỜ THANH TOÁN</span>',
+      cancelled: '<span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 800; font-size: 11px;">✕ ĐÃ HỦY</span>'
     };
 
-    function loadInvoiceDetails() {
-      const params = new URLSearchParams(window.location.search);
-      const orderCode = params.get('order') || 'BC2610279854';
-      const data = INVOICES_DATA[orderCode] || INVOICES_DATA['BC2610279854'];
+    function showError(msg) {
+      const main = document.querySelector('main');
+      main.innerHTML = `<div style="max-width: 560px; margin: 60px auto; text-align: center; padding: 32px; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0;">
+        <div style="font-size: 40px;">🧾</div>
+        <h2 style="margin: 12px 0 8px; color: #0f172a;">Không mở được hóa đơn</h2>
+        <p style="color: #64748b; margin-bottom: 20px;">${esc(msg)}</p>
+        <a href="account.html" class="btn btn-primary">Về lịch sử đơn hàng</a>
+      </div>`;
+    }
 
-      document.getElementById('page-inv-code').textContent = data.code;
-      document.getElementById('page-inv-number').textContent = data.invoiceNumber;
-      document.getElementById('page-inv-symbol').textContent = data.symbol;
-      document.getElementById('page-inv-created-at').textContent = data.createdAt;
-      document.getElementById('page-inv-status-badge').innerHTML = data.statusBadge;
+    async function loadInvoiceDetails() {
+      const code = (new URLSearchParams(location.search).get('order') || '').trim().toUpperCase();
+      if (!code) return showError('Thiếu mã đơn hàng.');
+      let o;
+      try {
+        o = await Pay.call('order-status?code=' + encodeURIComponent(code));
+      } catch (e) {
+        return showError(e.status === 404 ? 'Không tìm thấy đơn hàng #' + code + '.' : 'Lỗi kết nối máy chủ: ' + e.message);
+      }
 
-      document.getElementById('page-inv-customer-name').textContent = data.customerName;
-      document.getElementById('page-inv-customer-phone').textContent = data.customerPhone;
-      document.getElementById('page-inv-customer-email').textContent = data.customerEmail;
-      document.getElementById('page-inv-member-id').textContent = data.memberId;
+      const m = Pay.getMovie(o.movie_key);
+      const created = new Date(o.created_at);
+      const state = o.has_ticket ? 'paid'
+        : o.status === 'REFUNDED' ? 'refunded'
+        : ['EXPIRED', 'REFUND_REQUESTED', 'MANUAL_REVIEW'].includes(o.status) ? 'refunding'
+        : o.status === 'PENDING' ? 'pending' : 'cancelled';
 
-      document.getElementById('page-inv-movie-title').textContent = data.movieTitle;
-      document.getElementById('page-inv-movie-poster').src = data.moviePoster;
-      document.getElementById('page-inv-cinema').textContent = data.cinema;
-      document.getElementById('page-inv-room').textContent = data.room;
-      document.getElementById('page-inv-showtime').textContent = data.showtime;
-      document.getElementById('page-inv-seats').textContent = data.seats;
-      document.getElementById('page-inv-format').textContent = data.format;
+      setText('page-inv-code', o.code);
+      setText('page-inv-number', 'HD-' + created.getFullYear() + '-' + o.code.slice(-6));
+      setText('page-inv-symbol', '1C' + String(created.getFullYear()).slice(-2) + 'TBB');
+      setText('page-inv-created-at', created.toLocaleString('vi-VN'));
+      document.getElementById('page-inv-status-badge').innerHTML = BADGES[state];
+
+      setText('page-inv-customer-name', o.customer_name || '—');
+      setText('page-inv-customer-phone', o.phone || '—');
+      setText('page-inv-customer-email', o.email || '—');
+      setText('page-inv-member-id', o.customer_name ? 'Thành viên Beta Club' : 'Khách lẻ');
+
+      setText('page-inv-movie-title', m.title);
+      document.getElementById('page-inv-movie-poster').src = m.poster;
+      setText('page-inv-cinema', o.cinema);
+      setText('page-inv-room', 'Phòng chiếu 01');
+      setText('page-inv-showtime', (o.show_time || '') + ' • ' + (o.show_date || ''));
+      setText('page-inv-seats', (o.seats || []).join(', '));
+      setText('page-inv-format', m.format);
+
+      // Bảng kê tính lại từ catalog.js – cùng công thức máy chủ đã dùng khi tạo đơn
+      let q = null;
+      try { q = BetaCatalog.quote({ seats: o.seats, combos: o.combos, voucher: o.voucher }); } catch (e) {}
+      const items = q
+        ? [
+            ...Object.entries(q.seats.reduce((acc, s) => { (acc[s.type] = acc[s.type] || []).push(s); return acc; }, {}))
+              .map(([type, list]) => ({ name: BetaCatalog.SEAT_LABEL[type] + ' (' + list.map(s => s.id).join(', ') + ')', qty: list.length, price: list[0].price, amount: list.length * list[0].price })),
+            ...q.combos.map(c => ({ name: c.name, qty: c.qty, price: c.price, amount: c.amount }))
+          ]
+        : [{ name: 'Vé xem phim (' + (o.seats || []).join(', ') + ')', qty: (o.seats || []).length || 1, price: o.total, amount: o.total }];
+      const discount = q ? q.discount : 0;
 
       const tbody = document.getElementById('page-inv-items-body');
-      tbody.innerHTML = '';
-      data.items.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${index + 1}. ${item.name}</strong></td>
-          <td style="text-align: center;">${item.qty}</td>
-          <td style="text-align: right;">${item.price.toLocaleString('vi-VN')} đ</td>
-          <td style="text-align: right; font-weight: 700;">${item.amount.toLocaleString('vi-VN')} đ</td>
-        `;
-        tbody.appendChild(tr);
-      });
+      tbody.innerHTML = items.map((it, i) => `<tr>
+          <td><strong>${i + 1}. ${esc(it.name)}</strong></td>
+          <td style="text-align: center;">${it.qty}</td>
+          <td style="text-align: right;">${vnd(it.price)}</td>
+          <td style="text-align: right; font-weight: 700;">${vnd(it.amount)}</td>
+        </tr>`).join('');
 
-      document.getElementById('page-inv-subtotal').textContent = data.subtotal.toLocaleString('vi-VN') + ' đ';
-      document.getElementById('page-inv-vat').textContent = data.vat.toLocaleString('vi-VN') + ' đ';
-      document.getElementById('page-inv-discount').textContent = (data.discount ? ('-' + data.discount.toLocaleString('vi-VN') + ' đ') : '0 đ');
-      document.getElementById('page-inv-total').textContent = data.total.toLocaleString('vi-VN') + ' đ';
+      const subtotal = Math.round(o.total / (1 + VAT_RATE));
+      setText('page-inv-subtotal', vnd(subtotal));
+      setText('page-inv-vat', vnd(o.total - subtotal));
+      setText('page-inv-discount', discount ? '-' + vnd(discount) + (o.voucher ? ' (' + o.voucher + ')' : '') : '0 đ');
+      setText('page-inv-total', vnd(o.total));
 
-      document.getElementById('page-inv-payment-method').textContent = data.paymentMethod;
-      document.getElementById('page-inv-bank-code').textContent = data.bankTransCode;
-      document.getElementById('page-inv-status-note').innerHTML = '<strong>Ghi chú:</strong> ' + data.statusNote;
-      document.getElementById('page-inv-barcode-text').textContent = data.code;
+      setText('page-inv-payment-method', 'Chuyển khoản VietQR (SePay)');
+      setText('page-inv-bank-code', o.paid_at ? 'Đã nhận ' + vnd(o.paid_amount) + ' lúc ' + new Date(o.paid_at).toLocaleString('vi-VN') : 'Chưa ghi nhận giao dịch');
+      document.getElementById('page-inv-status-note').innerHTML = '<strong>Ghi chú:</strong> ' + esc(o.status_label + (o.status_sublabel ? ' – ' + o.status_sublabel : ''));
+      setText('page-inv-barcode-text', o.code);
 
-      let isRefunding = (data.code === 'BC2610227189') || 
-                          (data.statusBadge && data.statusBadge.includes('ĐANG XỬ LÝ HOÀN TIỀN'));
-      try {
-        const stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
-        if (stored.includes(data.code)) isRefunding = true;
-      } catch(e) {}
-
-      if (isRefunding) {
-        data.statusBadge = '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
-        document.getElementById('page-inv-status-badge').innerHTML = data.statusBadge;
-      }
-
-      const isPaid = (data.rawStatus === 'PAID') || 
-                     (data.status === 'PAID') || 
-                     (data.code === 'BC2610279854') || 
-                     (data.statusBadge && (data.statusBadge.includes('ĐÃ THANH TOÁN') || data.statusBadge.includes('SẮP CHIẾU')));
-
-      const barcodeSec = document.getElementById('page-inv-barcode-section');
-      const viewTicketBtn = document.getElementById('page-inv-view-ticket-btn');
-      const reportBtn = document.getElementById('page-inv-report-issue-btn');
-      const refundStepsSec = document.getElementById('page-inv-refund-steps-section');
-
-      if (isPaid) {
-        if (barcodeSec) barcodeSec.style.display = 'block';
-        if (viewTicketBtn) {
-          viewTicketBtn.style.display = 'inline-flex';
-          viewTicketBtn.href = 'ticket.html?order=' + encodeURIComponent(data.code);
-        }
-        if (reportBtn) reportBtn.style.display = 'none';
-        if (refundStepsSec) refundStepsSec.style.display = 'none';
-      } else if (isRefunding) {
-        if (barcodeSec) barcodeSec.style.display = 'none';
-        if (viewTicketBtn) viewTicketBtn.style.display = 'none';
-        if (reportBtn) reportBtn.style.display = 'none';
-        if (refundStepsSec) {
-          refundStepsSec.style.display = 'block';
-          const refEl = document.getElementById('page-inv-refund-ref-code');
-          if (refEl) refEl.textContent = 'REF-' + (data.code || '').slice(-6);
-        }
-      } else {
-        if (barcodeSec) barcodeSec.style.display = 'none';
-        if (viewTicketBtn) viewTicketBtn.style.display = 'none';
-        if (refundStepsSec) refundStepsSec.style.display = 'none';
-        if (reportBtn) {
-          reportBtn.style.display = 'inline-flex';
-          reportBtn.onclick = (e) => {
-            e.preventDefault();
-            try {
-              let stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
-              if (!stored.includes(data.code)) {
-                stored.push(data.code);
-                localStorage.setItem('reported_refund_orders', JSON.stringify(stored));
-              }
-            } catch(e) {}
-            window.location.href = 'betabot.html?order=' + encodeURIComponent(data.code);
-          };
-        }
-      }
+      const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? (el.tagName === 'A' ? 'inline-flex' : 'block') : 'none'; };
+      show('page-inv-barcode-section', state === 'paid');
+      show('page-inv-view-ticket-btn', state === 'paid');
+      show('page-inv-refund-steps-section', state === 'refunding');
+      show('page-inv-report-issue-btn', state === 'pending');
+      const tk = document.getElementById('page-inv-view-ticket-btn');
+      if (tk) tk.href = 'ticket.html?order=' + encodeURIComponent(o.code);
+      const rb = document.getElementById('page-inv-report-issue-btn');
+      if (rb) rb.onclick = (e) => { e.preventDefault(); location.href = 'betabot.html?order=' + encodeURIComponent(o.code); };
+      if (o.refund) setText('page-inv-refund-ref-code', o.refund.code);
     }
 
     loadInvoiceDetails();
