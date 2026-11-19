@@ -20,7 +20,15 @@ after(async () => {
 });
 
 const PAGES = fs.readdirSync(path.join(ROOT, 'public')).filter(f => f.endsWith('.html'));
-const SHOW = 'movie=an-mang-karaoke&cinema=Beta%20Thanh%20Xu%C3%A2n&date=T5%2019%2F11&time=19:45';
+// Ngày mai (không bị ảnh hưởng bởi suất "đã chiếu" trong hôm nay)
+const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const tm = new Date(Date.now() + 864e5);
+const TOMORROW = `${DOW[tm.getDay()]} ${String(tm.getDate()).padStart(2, '0')}/${String(tm.getMonth() + 1).padStart(2, '0')}`;
+const showQuery = time => `movie=an-mang-karaoke&cinema=Beta%20Thanh%20Xu%C3%A2n&date=${encodeURIComponent(TOMORROW)}&time=${time}`;
+
+// Ghế còn trống đầu tiên của một loại ghế trên trang chọn ghế
+const freeSeat = (page, type) => page.evaluate(t =>
+  [...document.querySelectorAll(`.r i[data-type="${t}"]`)].map(e => e.dataset.id)[0], type);
 
 describe('Tất cả các trang', () => {
   test('mở được và không có lỗi JavaScript', async () => {
@@ -58,10 +66,17 @@ describe('Tất cả các trang', () => {
 describe('Luồng đặt vé', () => {
   test('chọn ghế → combo → thanh toán → vé → lịch sử tài khoản', async () => {
     const page = await newPage(browser);
+    // Lấy một suất còn bán được của ngày mai từ trang đặt vé
+    await page.goto(B + 'booking.html?movie=an-mang-karaoke&date=' + encodeURIComponent(TOMORROW));
+    const time = await page.getAttribute('.sl.on', 'data-time');
+    const SHOW = showQuery(time);
+
     await page.goto(B + 'seats.html?' + SHOW);
     assert.equal(await text(page, '#checkout-selected-seats'), 'Chưa chọn ghế');
 
-    for (const id of ['F3', 'A1']) {
+    const vip = await freeSeat(page, 'vip');
+    const std = await freeSeat(page, 'standard');
+    for (const id of [vip, std]) {
       await page.evaluate(i => document.querySelector(`.r i[data-id="${i}"]`).click(), id);
     }
     assert.match(await text(page, '#checkout-meta-detail'), /1 Ghế VIP \+ 1 Ghế Thường/);
@@ -78,7 +93,7 @@ describe('Luồng đặt vé', () => {
     assert.equal(await text(page, '#qty-couple'), '1');
     await page.click('#btn-back-seats');
     await page.waitForURL(/seats\.html/);
-    assert.equal(await text(page, '#checkout-selected-seats'), 'F3, A1');
+    assert.equal(await text(page, '#checkout-selected-seats'), `${vip}, ${std}`);
 
     await page.click('#btn-next-step, #btn-next-checkout');
     await page.click('#btn-next-checkout');
@@ -91,17 +106,51 @@ describe('Luồng đặt vé', () => {
     await page.evaluate(() => triggerSimulation('OK')).catch(() => {});
     await page.waitForURL(/ticket\.html/, { timeout: 15000 });
 
-    // Ghế vừa mua bị khóa ở đúng suất đó, suất khác vẫn trống
+    // Ghế vừa mua bị khóa ở đúng suất đó
     await page.goto(B + 'seats.html?' + SHOW);
-    assert.equal(await page.getAttribute('.r i[data-id="F3"]', 'class'), 'x');
-    await page.goto(B + 'seats.html?' + SHOW.replace('19:45', '22:15'));
-    assert.notEqual(await page.getAttribute('.r i[data-id="F3"]', 'class'), 'x');
+    assert.equal(await page.getAttribute(`.r i[data-id="${vip}"]`, 'class'), 'x');
+    assert.equal(await page.getAttribute(`.r i[data-id="${std}"]`, 'class'), 'x');
 
     await page.goto(B + 'account.html');
     const card = page.locator(`.order-history-item[data-code="${code}"]`);
     await card.waitFor({ timeout: 10000 });
     assert.match(await card.innerText(), /Combo Couple × 1/);
     assert.deepEqual(page.jsErrors, []);
+    await page.context().close();
+  });
+});
+
+describe('Suất chiếu', () => {
+  test('cùng phim / rạp / ngày cho cùng suất ở mọi trang, đổi ngày thì đổi suất', async () => {
+    const page = await newPage(browser);
+    const q = 'movie=suzume&cinema=Beta%20M%E1%BB%B9%20%C4%90%C3%ACnh&date=' + encodeURIComponent(TOMORROW);
+    await page.goto(B + 'booking.html?' + q);
+    const booking = await page.$$eval('.sl', els => els.map(e => e.dataset.time + '/' + e.dataset.available));
+    assert.ok(booking.length >= 5, 'mỗi ngày có ít nhất 5 suất');
+    await page.reload();
+    assert.deepEqual(await page.$$eval('.sl', els => els.map(e => e.dataset.time + '/' + e.dataset.available)), booking);
+
+    // Trang lịch chiếu của rạp đó có đủ phim đang chiếu và cùng các giờ chiếu
+    await page.goto(B + 'schedule.html?cinema=Beta%20M%E1%BB%B9%20%C4%90%C3%ACnh');
+    await page.locator('.date-item-official').nth(1).click();
+    assert.ok(await page.locator('.sch-movie-row').count() >= 8);
+    const row = page.locator('.sch-movie-row', { hasText: 'Suzume' });
+    const times = await row.locator('.sch-slot-time').allTextContents();
+    assert.deepEqual(times, booking.map(x => x.split('/')[0]));
+
+    // Số ghế trống ở trang đặt vé khớp với sơ đồ ghế
+    const [t, avail] = booking[0].split('/');
+    await page.goto(B + 'seats.html?' + q + '&time=' + t);
+    const free = await page.$$eval('.r i', els => els.filter(e => !/^(x|h|k)$/.test(e.className)).length);
+    assert.equal(free, Number(avail));
+    await page.context().close();
+  });
+
+  test('phim sắp chiếu không bán vé trước ngày khởi chiếu', async () => {
+    const page = await newPage(browser);
+    await page.goto(B + 'booking.html?movie=me-min');
+    assert.equal(await page.locator('.sl').count(), 0);
+    assert.match(await text(page, '#showtime-groups'), /khởi chiếu từ/);
     await page.context().close();
   });
 });

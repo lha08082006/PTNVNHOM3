@@ -336,8 +336,8 @@
         <u>B</u>
         <i data-id="B1" data-type="standard" data-price="45000">1</i>
         <i data-id="B2" data-type="standard" data-price="45000">2</i>
-        <i class="x" data-id="B3" data-type="sold" title="Đã bán">✕</i>
-        <i class="x" data-id="B4" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="B3" data-type="standard" data-price="45000">3</i>
+        <i data-id="B4" data-type="standard" data-price="45000">4</i>
         <i data-id="B5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="B6" data-type="standard" data-price="45000">6</i>
@@ -358,7 +358,7 @@
         <i data-id="C5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="C6" data-type="standard" data-price="45000">6</i>
-        <i class="x" data-id="C7" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="C7" data-type="standard" data-price="45000">7</i>
         <i data-id="C8" data-type="standard" data-price="45000">8</i>
         <i data-id="C9" data-type="standard" data-price="45000">9</i>
         <i data-id="C10" data-type="standard" data-price="45000">10</i>
@@ -385,14 +385,14 @@
       <!-- Hàng E (Standard - E1 đang giữ, E7 khóa) -->
       <div class="r" data-row="E">
         <u>E</u>
-        <i class="h" data-id="E1" data-type="held" title="Đang được giữ">⏳</i>
+        <i data-id="E1" data-type="standard" data-price="45000">1</i>
         <i data-id="E2" data-type="standard" data-price="45000">2</i>
         <i data-id="E3" data-type="standard" data-price="45000">3</i>
         <i data-id="E4" data-type="standard" data-price="45000">4</i>
         <i data-id="E5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="E6" data-type="standard" data-price="45000">6</i>
-        <i class="k" data-id="E7" data-type="blocked" title="Tạm khóa">⛔</i>
+        <i data-id="E7" data-type="standard" data-price="45000">7</i>
         <i data-id="E8" data-type="standard" data-price="45000">8</i>
         <i data-id="E9" data-type="standard" data-price="45000">9</i>
         <i data-id="E10" data-type="standard" data-price="45000">10</i>
@@ -410,8 +410,8 @@
         <b style="width: 24px;"></b>
         <i data-id="F6" data-type="vip" data-price="50000">6</i>
         <i data-id="F7" data-type="vip" data-price="50000">7</i>
-        <i class="x" data-id="F8" data-type="sold" title="Đã bán">✕</i>
-        <i class="x" data-id="F9" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="F8" data-type="vip" data-price="50000">8</i>
+        <i data-id="F9" data-type="vip" data-price="50000">9</i>
         <i data-id="F10" data-type="vip" data-price="50000">10</i>
         <u>F</u>
       </div>
@@ -439,7 +439,7 @@
         <i data-id="H1-H2" data-type="sweetbox" data-price="100000">H1-H2</i>
         <i data-id="H3-H4" data-type="sweetbox" data-price="100000">H3-H4</i>
         <b style="width: 24px;"></b>
-        <i class="x" data-id="H5-H6" data-type="sold" title="Đã bán">✕</i>
+        <i data-id="H5-H6" data-type="sweetbox" data-price="100000">H5-H6</i>
         <i data-id="H7-H8" data-type="sweetbox" data-price="100000">H7-H8</i>
         <u>H</u>
       </div>
@@ -498,6 +498,7 @@
 
   <!-- Script xử lý chọn ghế & tính tiền tương tác thời gian thực -->
   <script src="js/pay-client.js"></script>
+  <script src="js/showtimes.js"></script>
   <script>
 
     // Danh sách ghế đang được chọn
@@ -543,25 +544,19 @@
       updateSummary();
     }
 
-    // Ghế đã được bán trong các đơn đã thanh toán của CÙNG suất chiếu -> khóa lại
+    // Trạng thái ghế theo suất chiếu (js/showtimes.js): đã bán, đang được giữ
     function markSoldSeatsFromOrders() {
-      if (!window.Pay || !Pay.getLocalOrders) return;
-      const orders = Object.values(Pay.getLocalOrders());
-      orders.forEach(o => {
-        if (o.status !== 'PAID') return;
-        if (o.movie_key !== currentMovieKey || o.cinema !== currentCinema ||
-            o.show_date !== currentDate || o.show_time !== currentTime) return;
-        const list = Array.isArray(o.seats) ? o.seats : String(o.seats || '').split(',');
-        list.map(x => String(x).trim()).filter(Boolean).forEach(id => {
-          const el = document.querySelector(`.r i[data-id="${id}"]`);
-          if (el) {
-            el.className = 'x';
-            el.dataset.type = 'sold';
-            el.title = 'Đã bán';
-            el.textContent = '✕';
-          }
-        });
-      });
+      const st = Showtimes.seatStatus(currentMovieKey, currentCinema, currentDate, currentTime);
+      const mark = (id, cls, title, icon, type) => {
+        const el = document.querySelector(`.r i[data-id="${id}"]`);
+        if (!el) return;
+        el.className = cls;
+        el.dataset.type = type;
+        el.title = title;
+        el.textContent = icon;
+      };
+      st.sold.forEach(id => mark(id, 'x', 'Đã bán', '✕', 'sold'));
+      st.held.forEach(id => mark(id, 'h', 'Đang được giữ', '⏳', 'held'));
     }
 
     // Khôi phục ghế đã chọn khi quay lại từ combo.html (?seats=F3, F4)

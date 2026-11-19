@@ -99,6 +99,7 @@
       border-bottom: 1px solid #f1f5f9;
       align-items: flex-start;
     }
+    a.sch-poster-box { display: block; }
     .sch-poster-box {
       position: relative;
       width: 100%;
@@ -231,7 +232,8 @@
       .sch-movie-row {
         grid-template-columns: 1fr;
       }
-      .sch-poster-box {
+      a.sch-poster-box { display: block; }
+    .sch-poster-box {
         max-width: 240px;
       }
     }
@@ -296,311 +298,92 @@
       <span>Suất chiếu muộn từ 22h00</span>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- PHIM 1: ÁN MẠNG KARAOKE (CHÍNH XÁC 100% THEO ẢNH NGƯỜI DÙNG CUNG CẤP) -->
-    <!-- ================================================================= -->
-    <div class="sch-movie-row">
-      <!-- Cột Trái: Poster Phim & Badge T16 -->
-      <div class="sch-poster-box">
-        <span class="age-badge-corner">T16</span>
-        <img src="images/posters/an-mang-karaoke.jpg" alt="Án Mạng Karaoke">
-      </div>
-
-      <!-- Cột Phải: Thông Tin & Lưới Suất Chiếu -->
-      <div class="sch-movie-details">
-        <h2 class="sch-movie-title">Án Mạng Karaoke</h2>
-        
-        <div class="sch-movie-meta-tags">
-          <span><span style="color: #03599d;">🏷</span> Trinh thám, Hài hước</span>
-          <span><span style="color: #03599d;">⏱</span> 96 phút</span>
-        </div>
-
-        <!-- Định dạng 2D Phụ Đề -->
-        <div class="sch-format-title">2D PHỤ ĐỀ</div>
-
-        <!-- Lưới Ô Suất Chiếu -->
-        <div class="sch-slots-grid">
-          <!-- Hàng 1: Suất ban ngày / trước 22h (Nền xám) -->
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">14:45</span>
-            <span class="sch-slot-seats">98 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">16:00</span>
-            <span class="sch-slot-seats">76 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">16:30</span>
-            <span class="sch-slot-seats">99 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">17:45</span>
-            <span class="sch-slot-seats">77 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">18:15</span>
-            <span class="sch-slot-seats">99 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">19:00</span>
-            <span class="sch-slot-seats">41 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">19:30</span>
-            <span class="sch-slot-seats">73 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">20:00</span>
-            <span class="sch-slot-seats">96 ghế trống</span>
-          </a>
-
-          <!-- Hàng 2: Tiếp tục -->
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">21:00</span>
-            <span class="sch-slot-seats">27 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">21:15</span>
-            <span class="sch-slot-seats">73 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">21:45</span>
-            <span class="sch-slot-seats">98 ghế trống</span>
-          </a>
-
-          <!-- Suất chiếu muộn sau 22h00 (Nền xanh lam nhạt #b9d5f3) -->
-          <a href="seats.html" class="sch-slot-card late">
-            <span class="sch-slot-time">23:00</span>
-            <span class="sch-slot-date">27/10</span>
-            <span class="sch-slot-seats">79 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card late">
-            <span class="sch-slot-time">23:30</span>
-            <span class="sch-slot-date">27/10</span>
-            <span class="sch-slot-seats">100 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card late">
-            <span class="sch-slot-time">23:45</span>
-            <span class="sch-slot-date">27/10</span>
-            <span class="sch-slot-seats">65 ghế trống</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- PHIM 2: LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ -->
-    <!-- ================================================================= -->
-    <div class="sch-movie-row">
-      <div class="sch-poster-box">
-        <span class="age-badge-corner red">T18</span>
-        <img src="images/posters/linh-gioi-dai-chien.jpg" alt="Linh Giới Đại Chiến">
-      </div>
-
-      <div class="sch-movie-details">
-        <h2 class="sch-movie-title">Linh Giới Đại Chiến: Thần Sư Chung Quỳ</h2>
-        
-        <div class="sch-movie-meta-tags">
-          <span><span style="color: #03599d;">🏷</span> Hành động, Giả tưởng, Thần thoại</span>
-          <span><span style="color: #03599d;">⏱</span> 128 phút</span>
-        </div>
-
-        <div class="sch-format-title">2D PHỤ ĐỀ (DOLBY ATMOS)</div>
-
-        <div class="sch-slots-grid">
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">13:15</span>
-            <span class="sch-slot-seats">62 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">15:45</span>
-            <span class="sch-slot-seats">45 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">18:30</span>
-            <span class="sch-slot-seats">12 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">20:45</span>
-            <span class="sch-slot-seats">30 ghế trống</span>
-          </a>
-
-          <!-- Suất chiếu muộn -->
-          <a href="seats.html" class="sch-slot-card late">
-            <span class="sch-slot-time">22:30</span>
-            <span class="sch-slot-date">27/10</span>
-            <span class="sch-slot-seats">70 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card late">
-            <span class="sch-slot-time">23:15</span>
-            <span class="sch-slot-date">27/10</span>
-            <span class="sch-slot-seats">85 ghế trống</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- PHIM 3: QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI -->
-    <!-- ================================================================= -->
-    <div class="sch-movie-row">
-      <div class="sch-poster-box">
-        <span class="age-badge-corner red">T18</span>
-        <img src="images/posters/quy-an-tang-4.jpg" alt="Quỷ Ăn Tạng 4">
-      </div>
-
-      <div class="sch-movie-details">
-        <h2 class="sch-movie-title">Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại</h2>
-        
-        <div class="sch-movie-meta-tags">
-          <span><span style="color: #03599d;">🏷</span> Kinh dị, Bí ẩn, Giật gân</span>
-          <span><span style="color: #03599d;">⏱</span> 115 phút</span>
-        </div>
-
-        <div class="sch-format-title">2D LỒNG TIẾNG</div>
-
-        <div class="sch-slots-grid">
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">14:00</span>
-            <span class="sch-slot-seats">58 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">16:30</span>
-            <span class="sch-slot-seats">40 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">19:15</span>
-            <span class="sch-slot-seats">8 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card">
-            <span class="sch-slot-time">21:30</span>
-            <span class="sch-slot-seats">50 ghế trống</span>
-          </a>
-
-          <a href="seats.html" class="sch-slot-card late">
-            <span class="sch-slot-time">22:45</span>
-            <span class="sch-slot-date">27/10</span>
-            <span class="sch-slot-seats">60 ghế trống</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
+    <!-- Danh sách phim & suất chiếu render từ js/showtimes.js theo rạp + ngày -->
+    <div id="schedule-list"></div>
   </main>
 
   <!-- CHÂN TRANG FOOTER CHÍNH THỨC -->
   <script>Layout.footer()</script>
 
-  <!-- Script chọn ngày & rạp tương tác & đồng bộ hóa suất chiếu -->
+  <script src="js/pay-client.js"></script>
+  <script src="js/showtimes.js"></script>
   <script>
-    let currentCinema = 'Beta Trần Quang Khải';
-    let currentDate = '27/10';
+    // Lịch chiếu theo rạp: chọn rạp (header) + ngày (thanh ngày) -> danh sách phim và suất
+    let currentCinema = Showtimes.canonicalCinema(document.getElementById('schedule-cinema-select').value);
+    let currentDate = Showtimes.dateTag(new Date());
 
-    function updateSlotLinks() {
-      const selectEl = document.getElementById('schedule-cinema-select');
-      if (selectEl) currentCinema = selectEl.value;
-
-      document.querySelectorAll('.sch-movie-row').forEach(row => {
-        let movieKey = 'an-mang-karaoke';
-        const img = row.querySelector('img');
-        const imgSrc = img ? img.src.toLowerCase() : '';
-        const titleEl = row.querySelector('.sch-movie-title');
-        const titleText = titleEl ? titleEl.textContent.toLowerCase() : '';
-
-        if (imgSrc.includes('linh-gioi') || imgSrc.includes('400x633') || titleText.includes('linh giới')) {
-          movieKey = 'linh-gioi-dai-chien';
-        } else if (imgSrc.includes('quy-an-tang') || titleText.includes('quỷ ăn tạng')) {
-          movieKey = 'quy-an-tang-4';
-        } else if (imgSrc.includes('an-mang-karaoke') || titleText.includes('án mạng')) {
-          movieKey = 'an-mang-karaoke';
-        }
-
-        row.querySelectorAll('.sch-slot-card').forEach(slot => {
-          const timeEl = slot.querySelector('.sch-slot-time');
-          const time = timeEl ? timeEl.textContent.trim() : '18:30';
-          slot.href = 'seats.html?movie=' + encodeURIComponent(movieKey) + '&cinema=' + encodeURIComponent(currentCinema) + '&date=' + encodeURIComponent(currentDate) + '&time=' + encodeURIComponent(time);
-        });
-      });
+    function esc(t) {
+      return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     }
 
-    function selectDate(el, dateText) {
-      document.querySelectorAll('.date-item-official').forEach(item => {
-        item.classList.remove('active');
-      });
-      el.classList.add('active');
-      currentDate = dateText || '27/10';
-      updateSlotLinks();
+    function renderSchedule() {
+      const box = document.getElementById('schedule-list');
+      const movies = Showtimes.moviesOn(currentCinema, currentDate);
+      if (!movies.length) {
+        box.innerHTML = '<p style="padding: 40px 0; text-align: center; color: #64748b;">Rạp chưa có suất chiếu trong ngày này.</p>';
+        return;
+      }
+      box.innerHTML = movies.map(({ key, slots }) => {
+        const m = Pay.getMovieDetail(key);
+        const groups = {};
+        slots.forEach(x => { (groups[x.format] = groups[x.format] || []).push(x); });
+        const grids = Object.keys(groups).map(fmt => `
+          <div class="sch-format-title">${esc(fmt.toUpperCase())}</div>
+          <div class="sch-slots-grid">${groups[fmt].map(x => {
+            const off = x.past || x.available <= 0;
+            const href = `seats.html?movie=${encodeURIComponent(key)}&cinema=${encodeURIComponent(currentCinema)}&date=${encodeURIComponent(currentDate)}&time=${encodeURIComponent(x.time)}`;
+            return `<a ${off ? 'aria-disabled="true"' : `href="${href}"`} class="sch-slot-card${x.late ? ' late' : ''}"${off ? ' style="opacity: 0.45; pointer-events: none;"' : ''}>
+              <span class="sch-slot-time">${x.time}</span>
+              ${x.late ? `<span class="sch-slot-date">${esc(currentDate)}</span>` : ''}
+              <span class="sch-slot-seats">${x.past ? 'Đã chiếu' : x.available <= 0 ? 'Hết vé' : x.available + ' ghế trống'}</span>
+            </a>`;
+          }).join('')}</div>`).join('');
+        return `
+    <div class="sch-movie-row">
+      <a class="sch-poster-box" href="movie-detail.html?movie=${key}">
+        <span class="age-badge-corner">${esc(m.age)}</span>
+        <img src="${m.poster}" alt="${esc(m.shortTitle)}" loading="lazy">
+      </a>
+      <div class="sch-movie-details">
+        <h2 class="sch-movie-title"><a href="movie-detail.html?movie=${key}" style="color: inherit; text-decoration: none;">${esc(m.shortTitle)}</a></h2>
+        <div class="sch-movie-meta-tags">
+          <span><span style="color: #03599d;">🏷</span> ${esc(m.genre)}</span>
+          <span><span style="color: #03599d;">⏱</span> ${esc(m.duration)}</span>
+        </div>
+        ${grids}
+      </div>
+    </div>`;
+      }).join('');
     }
 
     function changeCinema(cinemaName) {
-      currentCinema = cinemaName;
-      console.log('Đã chọn rạp: ' + cinemaName);
-      updateSlotLinks();
+      currentCinema = Showtimes.canonicalCinema(cinemaName);
+      renderSchedule();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      renderScheduleRealtimeDates();
-      updateSlotLinks();
-    });
-
-    // Tự động render 7 ngày chiếu theo thời gian thực chuẩn rạp
+    // Thanh 7 ngày tới
     function renderScheduleRealtimeDates() {
       const bar = document.getElementById('official-date-bar');
-      if (!bar) return;
-
-      const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-      const now = new Date();
       bar.innerHTML = '';
-
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(now);
-        d.setDate(now.getDate() + i);
-        const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
-        const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
-        const dow = daysOfWeek[d.getDay()];
-        const shortDate = `${day}/${month}`;
-
+      Showtimes.upcomingDates(7).forEach(d => {
         const item = document.createElement('div');
-        item.className = 'date-item-official' + (i === 0 ? ' active' : '');
-        item.onclick = function() { selectDate(this, dow + ' ' + shortDate); };
-
-        item.innerHTML = `
-          <span class="d-number">${day}</span>
-          <span class="d-sub">/${month} - ${dow}</span>
-        `;
-
+        item.className = 'date-item-official' + (d.tag === currentDate ? ' active' : '');
+        item.setAttribute('role', 'button');
+        item.tabIndex = 0;
+        item.innerHTML = `<span class="d-number">${d.day}</span><span class="d-sub">/${d.month} - ${d.dow}</span>`;
+        item.onclick = () => {
+          bar.querySelectorAll('.date-item-official').forEach(x => x.classList.remove('active'));
+          item.classList.add('active');
+          currentDate = d.tag;
+          renderSchedule();
+        };
+        item.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } };
         bar.appendChild(item);
-
-        if (i === 0) {
-          currentDate = dow + ' ' + shortDate; // cùng định dạng với booking.html: "T5 19/11"
-        }
-      }
-
-      // Cập nhật nhãn ngày trên các slot chiếu
-      document.querySelectorAll('.sch-slot-date').forEach(el => {
-        el.textContent = currentDate;
       });
     }
 
-    setTimeout(updateSlotLinks, 100);
+    renderScheduleRealtimeDates();
+    renderSchedule();
   </script>
 
 </body>

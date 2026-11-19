@@ -348,54 +348,8 @@
               style="color: var(--text-light); font-weight: 700;">14</span> người đang xem suất này
           </p>
 
-          <!-- Nhóm 1: 2D Phụ đề -->
-          <div style="margin-top: 4px;">
-            <p style="font-weight: 700; margin-bottom: 10px; font-size: 14.5px; color: var(--text-light);">2D Phụ đề</p>
-            <div class="g" id="showtime-group-1">
-              <!-- Suất 1: Hết vé -->
-              <button class="sl" disabled>
-                <b>09:30</b>
-                <span class="bar"><i style="width: 100%; background: #64748b;"></i></span>
-                <span class="m" style="font-size: 12px; color: #ef4444;">Hết vé</span>
-              </button>
-
-              <!-- Suất 2: Đang chọn mặc định -->
-              <button class="sl on" data-time="12:15" data-format="2D Phụ đề" data-available="85" data-total="120"
-                onclick="handleShowtimeClick(this)">
-                <b>12:15</b>
-                <span class="bar"><i style="width: 29%;"></i></span>
-                <span class="m" style="font-size: 12px;">85/120 ghế</span>
-              </button>
-
-              <!-- Suất 3: Sắp hết -->
-              <button class="sl lo" data-time="19:45" data-format="2D Phụ đề" data-available="12" data-total="120"
-                onclick="handleShowtimeClick(this)">
-                <b>19:45</b>
-                <span class="bar"><i style="width: 90%;"></i></span>
-                <span class="m" style="font-size: 12px; color: var(--status-warning);">Sắp hết · 12/120 ghế</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Nhóm 2: 3D IMAX -->
-          <div style="margin-top: 10px;">
-            <p style="font-weight: 700; margin-bottom: 10px; font-size: 14.5px; color: var(--text-light);">3D IMAX</p>
-            <div class="g" id="showtime-group-2">
-              <button class="sl" data-time="20:30" data-format="3D IMAX" data-available="96" data-total="120"
-                onclick="handleShowtimeClick(this)">
-                <b>20:30</b>
-                <span class="bar"><i style="width: 20%;"></i></span>
-                <span class="m" style="font-size: 12px;">96/120 ghế</span>
-              </button>
-
-              <button class="sl" data-time="22:15" data-format="3D IMAX" data-available="110" data-total="120"
-                onclick="handleShowtimeClick(this)">
-                <b>22:15</b>
-                <span class="bar"><i style="width: 8%;"></i></span>
-                <span class="m" style="font-size: 12px;">110/120 ghế</span>
-              </button>
-            </div>
-          </div>
+          <!-- Các suất chiếu render từ js/showtimes.js theo phim / rạp / ngày -->
+          <div id="showtime-groups"></div>
 
         </section>
 
@@ -452,6 +406,7 @@
   </div>
 
   <script src="js/pay-client.js"></script>
+  <script src="js/showtimes.js"></script>
 
   <!-- Script xử lý dữ liệu động & tương tác thời gian thực -->
   <script>
@@ -459,18 +414,19 @@
     const MOVIE_DATA = Pay.MOVIES;
 
     let selectedMovieKey = 'linh-gioi-dai-chien';
-    let selectedDate = 'Hôm nay';
-    let selectedTime = '12:15';
-    let selectedFormat = '2D Phụ đề';
+    let selectedDate = Showtimes.dateTag(new Date());
+    let selectedTime = '';
+    let selectedFormat = '';
     let selectedCinema = 'Beta Thanh Xuân';
 
-    // Đọc URL param
+    // Đọc URL param (?movie=&cinema=&date=&time=)
     function initFromUrl() {
       const params = new URLSearchParams(window.location.search);
       const movieParam = params.get('movie');
-      if (movieParam && MOVIE_DATA[movieParam]) {
-        selectedMovieKey = movieParam;
-      }
+      if (movieParam && MOVIE_DATA[movieParam]) selectedMovieKey = movieParam;
+      if (params.get('cinema')) selectedCinema = Showtimes.canonicalCinema(params.get('cinema'));
+      if (params.get('date')) selectedDate = params.get('date');
+      if (params.get('time')) selectedTime = params.get('time');
 
       const movie = MOVIE_DATA[selectedMovieKey];
       document.getElementById('detail-movie-title').textContent = movie.title;
@@ -479,52 +435,100 @@
       document.getElementById('detail-movie-poster').src = movie.poster;
       document.getElementById('summary-movie').textContent = movie.shortTitle;
 
-      updateSummary();
+      const sel = document.getElementById('cinema-select');
+      if (sel) sel.value = selectedCinema;
+      document.getElementById('cinema-name-tag').textContent = selectedCinema;
+
+      renderRealtimeDateBar();
+      renderShowtimes();
     }
 
     // Chọn rạp
     document.getElementById('cinema-select').addEventListener('change', function (e) {
       selectedCinema = e.target.value;
       document.getElementById('cinema-name-tag').textContent = selectedCinema;
-      document.getElementById('summary-cinema').textContent = selectedCinema;
-      updateSeatLink();
+      renderShowtimes();
     });
 
-    // Chọn ngày chiếu
-    document.querySelectorAll('.date-btn').forEach(btn => {
-      btn.addEventListener('click', function () {
-        document.querySelectorAll('.date-btn').forEach(b => {
-          b.className = 'o date-btn';
-        });
-        this.className = 'b date-btn';
-        selectedDate = this.dataset.date;
+    // Vẽ các suất chiếu của phim / rạp / ngày đang chọn, nhóm theo định dạng
+    function renderShowtimes() {
+      const box = document.getElementById('showtime-groups');
+      const slots = Showtimes.forDay(selectedMovieKey, selectedCinema, selectedDate);
+      box.innerHTML = '';
+
+      if (!slots.length) {
+        const st = Showtimes.movieStatus(selectedMovieKey);
+        box.innerHTML = `<p class="m" style="padding: 16px; background: #f8fafc; border-radius: 10px; border: 1px dashed var(--border-dark);">
+          ${st.status === 'soon' ? 'Phim khởi chiếu từ <strong>' + st.release + '</strong>. Vui lòng chọn ngày khác.' : 'Không có suất chiếu nào trong ngày này. Vui lòng chọn ngày hoặc rạp khác.'}</p>`;
+        selectedTime = '';
         updateSummary();
+        return;
+      }
+
+      const bookable = slots.filter(x => !x.past && x.available > 0);
+      if (!bookable.some(x => x.time === selectedTime)) selectedTime = bookable.length ? bookable[0].time : '';
+
+      const groups = {};
+      slots.forEach(x => { (groups[x.format] = groups[x.format] || []).push(x); });
+      Object.keys(groups).forEach(fmt => {
+        const wrap = document.createElement('div');
+        wrap.style.marginTop = '4px';
+        wrap.innerHTML = `<p style="font-weight: 700; margin-bottom: 10px; font-size: 14.5px; color: var(--text-light);">${fmt}</p><div class="g"></div>`;
+        const grid = wrap.querySelector('.g');
+        groups[fmt].forEach(x => {
+          const btn = document.createElement('button');
+          const soldPct = Math.round((x.total - x.available) / x.total * 100);
+          const off = x.past || x.available <= 0;
+          btn.className = 'sl' + (x.available > 0 && x.available < 15 ? ' lo' : '') + (x.time === selectedTime ? ' on' : '');
+          btn.dataset.time = x.time;
+          btn.dataset.format = x.format;
+          btn.dataset.available = x.available;
+          if (off) btn.disabled = true;
+          const note = x.past ? '<span class="m" style="font-size: 12px;">Đã chiếu</span>'
+            : x.available <= 0 ? '<span class="m" style="font-size: 12px; color: #ef4444;">Hết vé</span>'
+            : x.available < 15 ? `<span class="m" style="font-size: 12px; color: var(--status-warning);">Sắp hết · ${x.available}/${x.total} ghế</span>`
+            : `<span class="m" style="font-size: 12px;">${x.available}/${x.total} ghế · ${x.room}</span>`;
+          btn.innerHTML = `<b>${x.time}</b><span class="bar"><i style="width: ${soldPct}%;${off ? ' background: #64748b;' : ''}"></i></span>${note}`;
+          btn.onclick = () => handleShowtimeClick(btn);
+          grid.appendChild(btn);
+          if (x.time === selectedTime) {
+            selectedFormat = x.format;
+            document.getElementById('summary-available-count').textContent = x.available;
+          }
+        });
+        box.appendChild(wrap);
       });
-    });
+      updateSummary();
+    }
 
     // Chọn suất chiếu
     function handleShowtimeClick(btn) {
-      if (btn.hasAttribute('disabled')) return;
+      if (btn.disabled) return;
       document.querySelectorAll('.sl').forEach(s => s.classList.remove('on'));
       btn.classList.add('on');
-
       selectedTime = btn.dataset.time;
       selectedFormat = btn.dataset.format;
-      const available = btn.dataset.available || '85';
-
-      document.getElementById('summary-available-count').textContent = available;
+      document.getElementById('summary-available-count').textContent = btn.dataset.available;
       updateSummary();
     }
 
     function updateSummary() {
-      document.getElementById('summary-showtime').textContent = `${selectedDate} · ${selectedTime}`;
-      document.getElementById('summary-format').textContent = selectedFormat;
+      document.getElementById('summary-showtime').textContent = selectedTime ? `${selectedDate} · ${selectedTime}` : `${selectedDate} · chưa chọn suất`;
+      document.getElementById('summary-format').textContent = selectedFormat || '—';
       document.getElementById('summary-cinema').textContent = selectedCinema;
       updateSeatLink();
     }
 
     function updateSeatLink() {
       const btnSeats = document.getElementById('btn-submit-seats');
+      if (!selectedTime) {
+        btnSeats.removeAttribute('href');
+        btnSeats.style.opacity = '0.5';
+        btnSeats.style.pointerEvents = 'none';
+        return;
+      }
+      btnSeats.style.opacity = '';
+      btnSeats.style.pointerEvents = '';
       btnSeats.href = `seats.html?movie=${encodeURIComponent(selectedMovieKey)}&cinema=${encodeURIComponent(selectedCinema)}&time=${encodeURIComponent(selectedTime)}&date=${encodeURIComponent(selectedDate)}`;
     }
 
@@ -533,57 +537,36 @@
       const viewerEl = document.getElementById('live-viewer-count');
       if (viewerEl) {
         let count = parseInt(viewerEl.textContent) || 14;
-        let delta = Math.floor(Math.random() * 3) - 1; // -1, 0, +1
-        let newCount = Math.max(8, Math.min(32, count + delta));
-        viewerEl.textContent = newCount;
+        let delta = Math.floor(Math.random() * 3) - 1;
+        viewerEl.textContent = Math.max(8, Math.min(32, count + delta));
       }
     }, 4000);
 
-    renderRealtimeDateBar();
-    initFromUrl();
-
-    // Tự động sinh danh sách 7 ngày chiếu theo thời gian thực (Bắt đầu từ hôm nay)
+    // Thanh chọn 7 ngày tới (bắt đầu từ hôm nay)
     function renderRealtimeDateBar() {
       const dateSelector = document.getElementById('date-selector');
       if (!dateSelector) return;
-
-      const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-      const now = new Date();
       dateSelector.innerHTML = '';
+      const days = Showtimes.upcomingDates(7);
+      if (!days.some(d => d.tag === selectedDate)) selectedDate = days[0].tag;
 
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(now);
-        d.setDate(now.getDate() + i);
-        const day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
-        const month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
-        const dow = daysOfWeek[d.getDay()];
-        const tag = `${dow} ${day}/${month}`;
-
+      days.forEach(d => {
         const btn = document.createElement('button');
-        btn.className = (i === 0 ? 'b date-btn' : 'o date-btn');
-        btn.setAttribute('data-date', tag);
+        btn.className = (d.tag === selectedDate ? 'b' : 'o') + ' date-btn';
+        btn.dataset.date = d.tag;
         btn.style.cssText = 'min-width: 76px; text-align: center; line-height: 1.3; cursor: pointer;';
-        btn.innerHTML = `${dow}<br>${day}/${month}`;
-
-        btn.addEventListener('click', function() {
-          document.querySelectorAll('.date-btn').forEach(b => {
-            b.classList.remove('b');
-            b.classList.add('o');
-          });
-          this.classList.remove('o');
-          this.classList.add('b');
-          selectedDate = tag;
-          updateSummary();
+        btn.innerHTML = `${d.dow}<br>${d.day}/${d.month}`;
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.date-btn').forEach(b => { b.className = 'o date-btn'; });
+          this.className = 'b date-btn';
+          selectedDate = d.tag;
+          renderShowtimes();
         });
-
         dateSelector.appendChild(btn);
-
-        if (i === 0) {
-          selectedDate = tag;
-        }
-      }
+      });
     }
 
+    initFromUrl();
   </script>
 </body>
 
