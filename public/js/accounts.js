@@ -12,9 +12,17 @@
     passHash: 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f'
   };
 
+  // Tài khoản quản trị (admin.html) — đổi mật khẩu ngay khi đưa vào sử dụng thật
+  const ADMIN = {
+    name: 'QUẢN TRỊ VIÊN', phone: '0900000000', email: 'admin@betacinemas.vn', dob: '2000-01-01', role: 'admin',
+    // sha256("admin12345")
+    passHash: '41e5653fc7aeb894026d6bb7b2db7f65902b454945fa8fd65a6327047b5277fb'
+  };
+
   function load() {
     let list = [];
     try { list = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
+    if (!list.some(a => a.email === ADMIN.email)) list.unshift(Object.assign({}, ADMIN));
     if (!list.some(a => a.email === DEMO.email)) list.unshift(Object.assign({}, DEMO));
     return list;
   }
@@ -94,5 +102,5 @@
     return find(req.email);
   }
 
-  window.Accounts = { DEMO, load, find, verify, register, setPassword, update, validatePassword, requestReset, confirmReset, sha256 };
+  window.Accounts = { DEMO, ADMIN, load, find, verify, register, setPassword, update, validatePassword, requestReset, confirmReset, sha256 };
 })();

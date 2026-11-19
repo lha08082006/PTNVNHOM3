@@ -704,7 +704,7 @@
       // 4. Voucher / khuyến mãi
       if (/voucher|khuyến mãi|mã giảm|ưu đãi/.test(lower)) {
         appendBotMessage('<p>Các mã giảm giá đang có:</p><ul style="margin: 6px 0 0 18px;">' +
-          Pay.VOUCHERS.map(v => `<li><strong>${v.code}</strong>: ${escapeHtml(v.title)}</li>`).join('') +
+          Pay.allVouchers().map(v => `<li><strong>${v.code}</strong>: ${escapeHtml(v.title)}</li>`).join('') +
           '</ul><p style="margin-top: 6px;">Nhập mã ở bước thanh toán nhé.</p>');
         return true;
       }

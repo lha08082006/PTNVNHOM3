@@ -518,7 +518,9 @@
           acc: acc,
           owner: owner,
           note: note,
-          refund_code: resRefundCode
+          refund_code: resRefundCode,
+          status: 'RECONCILING',
+          created_at: new Date().toISOString()
         };
         localStorage.setItem('refund_detail_' + orderParam, JSON.stringify(refundDetail));
       } catch (e) {}

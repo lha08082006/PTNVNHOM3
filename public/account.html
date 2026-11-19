@@ -1763,12 +1763,17 @@
         const poster = (movieObj && movieObj.poster) || 'images/posters/linh-gioi-dai-chien.jpg';
 
         // Xử lý huy hiệu trạng thái & phân loại mục tab
-        const isRef = isOrderInRefundList(ord.code) || ord.status === 'REFUNDING';
+        const isRefunded = ord.status === 'REFUNDED';
+        const isRef = !isRefunded && (isOrderInRefundList(ord.code) || ord.status === 'REFUNDING');
         let badgeHtml = '';
         let borderStyle = 'border-left: 4px solid #10b981; background: #fafdfc;';
         let statusClass = 'upcoming';
 
-        if (isRef) {
+        if (isRefunded) {
+          statusClass = 'refunded';
+          badgeHtml = '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">🎉 ĐÃ HOÀN TIỀN</span>';
+          borderStyle = 'border-left: 4px solid #2563eb; background: #f8fafc;';
+        } else if (isRef) {
           statusClass = 'unrefunded';
           badgeHtml = '<span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>';
           borderStyle = 'border-left: 4px solid #3b82f6; background: #f8fafc;';
@@ -1810,6 +1815,8 @@
         card.setAttribute('data-status', statusClass);
         if (isRef) {
           card.setAttribute('data-refund', 'unrefunded');
+        } else if (isRefunded) {
+          card.setAttribute('data-refund', 'refunded');
         }
         card.setAttribute('data-title', movieObj.title);
         card.setAttribute('data-code', ord.code);
@@ -1819,7 +1826,13 @@
         card.onclick = () => openInvoiceModal(ord.code);
 
         let actionBtns = '';
-        if (isRef) {
+        if (isRefunded) {
+          actionBtns = `
+            <a href="ticket-refunded.html?order=${ord.code}" class="btn btn-primary btn-sm" onclick="event.stopPropagation();" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
+              <span>🎉</span> Xem Chi Tiết Hoàn Tiền
+            </a>
+          `;
+        } else if (isRef) {
           actionBtns = `
             <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openInvoiceModal('${ord.code}');" style="background: #2563eb; border-color: #2563eb; font-weight: 700;">
               <span>⏱️</span> Theo Dõi Tình Trạng Hoàn Tiền
@@ -2760,7 +2773,7 @@
 
   function renderVouchers() {
     const used = Pay.usedVouchers();
-    const list = Pay.VOUCHERS.map(v => {
+    const list = Pay.allVouchers().map(v => {
       const isUsed = v.oncePerUser && used.indexOf(v.code) >= 0;
       const value = v.type === 'percent' ? 'Giảm ' + v.value + '%' + (v.max ? ' (tối đa ' + Pay.vnd(v.max) + ')' : '')
         : v.type === 'perSeat' ? 'Giảm ' + Pay.vnd(v.value) + ' / vé' : 'Giảm ' + Pay.vnd(v.value);
@@ -2775,7 +2788,7 @@
       </div>`;
     });
     document.getElementById('voucher-list').innerHTML = list.join('');
-    document.getElementById('voucher-count').textContent = Pay.VOUCHERS.length - Pay.VOUCHERS.filter(v => v.oncePerUser && used.indexOf(v.code) >= 0).length;
+    document.getElementById('voucher-count').textContent = Pay.allVouchers().length - Pay.allVouchers().filter(v => v.oncePerUser && used.indexOf(v.code) >= 0).length;
   }
 
   window.addEventListener('DOMContentLoaded', () => {

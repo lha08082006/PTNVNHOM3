@@ -352,11 +352,12 @@
     // Sau khi đăng nhập quay về trang khách đang xem (?next=...), mặc định là trang tài khoản
     function goNext() {
       const next = new URLSearchParams(location.search).get('next') || '';
-      location.href = /^[a-z0-9-]+\.html(\?[^#]*)?$/i.test(next) ? next : 'account.html';
+      const user = Layout.getUser() || {};
+      location.href = /^[a-z0-9-]+\.html(\?[^#]*)?$/i.test(next) ? next : (user.role === 'admin' ? 'admin.html' : 'account.html');
     }
 
     function startSession(acc) {
-      Layout.setUser({ name: acc.name, email: acc.email, phone: acc.phone, dob: acc.dob });
+      Layout.setUser({ name: acc.name, email: acc.email, phone: acc.phone, dob: acc.dob, role: acc.role || 'member' });
     }
 
     async function handleLogin() {

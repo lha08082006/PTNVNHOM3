@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Trị - Beta Cinemas</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  <style>
+    body { background: #f1f5f9; }
+    .admin-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; margin: 28px auto 60px; }
+    .admin-nav { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 100px; align-self: start; }
+    .admin-nav button {
+      text-align: left; padding: 12px 14px; border-radius: 10px; border: none; background: white;
+      font-weight: 700; color: #334155; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    }
+    .admin-nav button.active { background: #005198; color: white; }
+    .admin-nav .count { background: #ff5400; color: white; border-radius: 999px; font-size: 11px; padding: 1px 8px; }
+    .admin-card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
+    .admin-card h2 { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; color: #005198; margin-bottom: 16px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .stat { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
+    .stat .label { font-size: 12.5px; color: #64748b; font-weight: 600; }
+    .stat .value { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 900; color: #0f172a; margin-top: 6px; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .toolbar input, .toolbar select, .admin-form input, .admin-form select, .admin-form textarea {
+      height: 40px; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font: inherit; font-size: 14px; background: white;
+    }
+    .admin-form textarea { height: auto; padding: 10px 12px; width: 100%; }
+    .table-wrap { overflow-x: auto; }
+    table.admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .admin-table th { text-align: left; color: #64748b; font-weight: 700; font-size: 12px; text-transform: uppercase; padding: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+    .admin-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    .admin-table tr:hover td { background: #f8fafc; }
+    .mono { font-family: monospace; font-weight: 700; color: #005198; }
+    .muted { color: #64748b; font-size: 12.5px; }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-xs { padding: 5px 10px; font-size: 12px; border-radius: 7px; border: 1.5px solid #cbd5e1; background: white; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn-xs.primary { background: #005198; border-color: #005198; color: white; }
+    .btn-xs.danger { border-color: #fca5a5; color: #b91c1c; }
+    .empty { padding: 30px; text-align: center; color: #64748b; }
+    .ticket { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+    .notice { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; }
+    @media (max-width: 900px) {
+      .admin-layout { grid-template-columns: minmax(0, 1fr); }
+      .admin-nav { position: static; flex-direction: row; overflow-x: auto; }
+      .admin-nav button { flex-shrink: 0; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+  <script src="js/layout.js"></script>
+  <script>Layout.requireAdmin();</script>
+  <script src="js/pay-client.js"></script>
+</head>
+<body>
+  <script>Layout.header({ active: 'none' })</script>
+
+  <main class="container admin-layout">
+    <nav class="admin-nav" aria-label="Quản trị">
+      <button type="button" data-tab="overview" class="active">📊 Tổng quan</button>
+      <button type="button" data-tab="orders">🎟️ Đơn hàng</button>
+      <button type="button" data-tab="refunds">💸 Hoàn tiền <span class="count" id="count-refunds" hidden></span></button>
+      <button type="button" data-tab="tickets">💬 Hỗ trợ <span class="count" id="count-tickets" hidden></span></button>
+      <button type="button" data-tab="vouchers">🎁 Voucher</button>
+    </nav>
+
+    <section>
+      <p class="notice">Bản demo: dữ liệu đọc / ghi trên trình duyệt này (localStorage) và quyền quản trị kiểm tra ở phía trình duyệt.
+        Khi nối database cần kiểm tra quyền ở server.</p>
+
+      <!-- TỔNG QUAN -->
+      <div data-panel="overview">
+        <div class="stats" id="stats"></div>
+        <div class="admin-card">
+          <h2>Đơn hàng mới nhất</h2>
+          <div class="table-wrap" id="recent-orders"></div>
+        </div>
+      </div>
+
+      <!-- ĐƠN HÀNG -->
+      <div data-panel="orders" hidden>
+        <div class="admin-card">
+          <h2>Đơn hàng</h2>
+          <div class="toolbar">
+            <input type="search" id="order-search" placeholder="Tìm mã đơn, SĐT, tên khách, phim..." style="flex: 1; min-width: 200px;">
+            <select id="order-status" aria-label="Lọc trạng thái">
+              <option value="">Tất cả trạng thái</option>
+              <option value="PAID">Đã thanh toán</option>
+              <option value="HOLDING">Chờ thanh toán</option>
+              <option value="PARTIAL">Chuyển thiếu</option>
+              <option value="EXPIRED">Quá hạn</option>
+              <option value="CANCELLED">Đã hủy</option>
+              <option value="REFUNDED">Đã hoàn tiền</option>
+            </select>
+          </div>
+          <div class="table-wrap" id="orders-table"></div>
+        </div>
+      </div>
+
+      <!-- HOÀN TIỀN -->
+      <div data-panel="refunds" hidden>
+        <div class="admin-card">
+          <h2>Hồ sơ hoàn tiền</h2>
+          <p class="muted" style="margin-bottom: 14px;">Quy trình: Đang đối soát → Nhân viên xử lý (bước 4/5) → Đã hoàn tiền (bước 5/5). Khách theo dõi ở trang Theo dõi hoàn tiền.</p>
+          <div class="table-wrap" id="refunds-table"></div>
+        </div>
+      </div>
+
+      <!-- HỖ TRỢ -->
+      <div data-panel="tickets" hidden>
+        <div class="admin-card">
+          <h2>Phiếu hỗ trợ / khiếu nại</h2>
+          <div class="toolbar">
+            <select id="ticket-status" aria-label="Lọc trạng thái phiếu">
+              <option value="">Tất cả</option>
+              <option value="NEW">Mới tiếp nhận</option>
+              <option value="PROCESSING">Đang xử lý</option>
+              <option value="DONE">Đã giải quyết</option>
+            </select>
+          </div>
+          <div id="tickets-list"></div>
+        </div>
+      </div>
+
+      <!-- VOUCHER -->
+      <div data-panel="vouchers" hidden>
+        <div class="admin-card" style="margin-bottom: 20px;">
+          <h2>Tạo voucher mới</h2>
+          <form id="voucher-form" class="admin-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end;">
+            <label class="muted">Mã<br><input id="v-code" required maxlength="20" placeholder="VD: TET2027" style="width: 100%; text-transform: uppercase;"></label>
+            <label class="muted">Tên hiển thị<br><input id="v-title" required placeholder="Giảm giá Tết" style="width: 100%;"></label>
+            <label class="muted">Loại<br>
+              <select id="v-type" style="width: 100%;">
+                <option value="amount">Giảm số tiền</option>
+                <option value="percent">Giảm %</option>
+                <option value="perSeat">Giảm theo vé</option>
+              </select>
+            </label>
+            <label class="muted">Giá trị<br><input id="v-value" type="number" min="1" required style="width: 100%;"></label>
+            <label class="muted">Giảm tối đa (đ)<br><input id="v-max" type="number" min="0" style="width: 100%;"></label>
+            <label class="muted">Đơn tối thiểu (đ)<br><input id="v-min" type="number" min="0" style="width: 100%;"></label>
+            <label class="muted">Hạn dùng<br><input id="v-expires" type="date" required style="width: 100%;"></label>
+            <button type="submit" class="btn btn-primary" style="height: 40px;">Thêm voucher</button>
+          </form>
+          <p id="voucher-form-msg" role="alert" class="muted" style="margin-top: 10px;"></p>
+        </div>
+        <div class="admin-card">
+          <h2>Danh sách voucher</h2>
+          <div class="table-wrap" id="vouchers-table"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>Layout.footer()</script>
+
+  <script>
+    const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const STATUS_TEXT = { PAID: 'Đã thanh toán', HOLDING: 'Chờ thanh toán', PARTIAL: 'Chuyển thiếu', EXPIRED: 'Quá hạn', CANCELLED: 'Đã hủy', REFUNDING: 'Đang hoàn tiền', REFUNDED: 'Đã hoàn tiền' };
+    const REFUND_STEP = { RECONCILING: ['#fef3c7', '#b45309', 'Đang đối soát (3/5)'], FALLBACK_STAFF: ['#dbeafe', '#1e40af', 'Nhân viên xử lý (4/5)'], DONE: ['#d1fae5', '#065f46', 'Đã hoàn tiền (5/5)'] };
+    const TICKET_STATUS = { NEW: ['#fef3c7', '#b45309', 'Mới tiếp nhận'], PROCESSING: ['#dbeafe', '#1e40af', 'Đang xử lý'], DONE: ['#d1fae5', '#065f46', 'Đã giải quyết'] };
+    const pill = s => `<span class="badge" style="background: ${s[0]}; color: ${s[1]}; font-weight: 800; font-size: 11px; white-space: nowrap;">${s[2]}</span>`;
+
+    let ORDERS = [];
+
+    // ---------------------------------------------------------------- Tabs
+    function showTab(tab) {
+      document.querySelectorAll('.admin-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('[data-panel]').forEach(p => { p.hidden = p.dataset.panel !== tab; });
+      history.replaceState(null, '', '#' + tab);
+    }
+    document.querySelectorAll('.admin-nav button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+    // ---------------------------------------------------------------- Đơn hàng
+    async function loadOrders() {
+      ORDERS = await Pay.getOrders({ limit: 50 });
+    }
+
+    function orderRow(o, withActions) {
+      const m = Pay.getMovie(o.movie_key);
+      const seats = Array.isArray(o.seats) ? o.seats.join(', ') : (o.seats || '');
+      let actions = `<a class="btn-xs" href="invoice.html?order=${encodeURIComponent(o.code)}" target="_blank">Hóa đơn</a>`;
+      if (o.status === 'HOLDING' || o.status === 'PARTIAL') {
+        actions += `<button class="btn-xs primary" onclick="setOrderStatus('${esc(o.code)}', 'PAID')">Xác nhận đã thanh toán</button>`;
+      }
+      if (o.status !== 'CANCELLED' && o.status !== 'REFUNDED' && o.status !== 'PAID') {
+        actions += `<button class="btn-xs danger" onclick="setOrderStatus('${esc(o.code)}', 'CANCELLED')">Hủy đơn</button>`;
+      }
+      return `<tr>
+        <td><span class="mono">${esc(o.code)}</span><div class="muted">${new Date(o.created_at || Date.now()).toLocaleString('vi-VN')}</div></td>
+        <td>${esc(o.customer_name || '—')}<div class="muted">${esc(o.phone || '')}</div></td>
+        <td>${esc(m.shortTitle)}<div class="muted">${esc(o.show_time || '')} • ${esc(o.show_date || '')} · ${esc(o.cinema || '')} · ${esc(seats)}</div></td>
+        <td style="white-space: nowrap; font-weight: 700;">${Pay.vnd(o.total)}</td>
+        <td>${Pay.statusBadge(o.status)}</td>
+        ${withActions ? `<td><div class="actions">${actions}</div></td>` : ''}
+      </tr>`;
+    }
+
+    function table(head, rows, empty) {
+      if (!rows.length) return `<p class="empty">${empty}</p>`;
+      return `<table class="admin-table"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+    }
+
+    function renderOrders() {
+      const q = document.getElementById('order-search').value.trim().toLowerCase();
+      const st = document.getElementById('order-status').value;
+      const list = ORDERS.filter(o => (!st || o.status === st) &&
+        (!q || [o.code, o.phone, o.customer_name, Pay.getMovie(o.movie_key).shortTitle].join(' ').toLowerCase().includes(q)));
+      document.getElementById('orders-table').innerHTML =
+        table(['Mã đơn', 'Khách hàng', 'Phim / suất', 'Tổng tiền', 'Trạng thái', 'Thao tác'], list.map(o => orderRow(o, true)), 'Không có đơn hàng phù hợp.');
+    }
+
+    function setOrderStatus(code, status) {
+      const label = status === 'PAID' ? 'xác nhận đã thanh toán' : 'hủy';
+      if (!confirm(`Bạn chắc chắn muốn ${label} đơn ${code}?`)) return;
+      const o = ORDERS.find(x => x.code === code) || { code };
+      const patch = { status };
+      if (status === 'PAID') Object.assign(patch, { paid_amount: o.total, paid_at: new Date().toISOString() });
+      Pay.saveLocalOrder(Object.assign({}, o, patch));
+      refresh();
+    }
+
+    // ---------------------------------------------------------------- Hoàn tiền
+    function renderRefunds() {
+      const list = Pay.getRefundRequests();
+      const pending = list.filter(r => r.status !== 'DONE').length;
+      const badge = document.getElementById('count-refunds');
+      badge.hidden = !pending;
+      badge.textContent = pending;
+
+      const rows = list.map(r => {
+        const m = Pay.getMovie(r.movie);
+        let actions = '';
+        if (r.status === 'RECONCILING') actions = `<button class="btn-xs primary" onclick="refundStep('${esc(r.order)}', 'FALLBACK_STAFF')">Tiếp nhận xử lý</button>`;
+        if (r.status === 'FALLBACK_STAFF') actions = `<button class="btn-xs primary" onclick="refundDone('${esc(r.order)}')">Hoàn tất (nhập mã GD)</button>`;
+        if (r.status === 'DONE') actions = `<span class="muted">Mã GD: <strong>${esc(r.refund_ref || '')}</strong></span>`;
+        return `<tr>
+          <td><span class="mono">${esc(r.refund_code)}</span><div class="muted">Đơn ${esc(r.order)}</div></td>
+          <td>${esc(m.shortTitle)}<div class="muted">${esc(r.time || '')} • ${esc(r.date || '')}</div></td>
+          <td style="white-space: nowrap; font-weight: 700;">${Pay.vnd(r.total)}</td>
+          <td>${esc(r.bank)}<div class="muted">${esc(r.acc)} · ${esc(r.owner)}</div></td>
+          <td>${pill(REFUND_STEP[r.status] || REFUND_STEP.RECONCILING)}</td>
+          <td><div class="actions">${actions}</div></td>
+        </tr>`;
+      });
+      document.getElementById('refunds-table').innerHTML =
+        table(['Mã hồ sơ', 'Phim', 'Số tiền', 'Tài khoản nhận', 'Trạng thái', 'Thao tác'], rows, 'Chưa có hồ sơ hoàn tiền nào.');
+    }
+
+    function refundStep(order, status) {
+      Pay.updateRefund(order, { status });
+      refresh();
+    }
+
+    function refundDone(order) {
+      const ref = prompt('Nhập mã giao dịch chuyển khoản hoàn tiền (VD: FT26111912345678):', 'FT' + Date.now().toString().slice(-12));
+      if (!ref) return;
+      Pay.updateRefund(order, { status: 'DONE', refund_ref: ref.trim(), done_at: new Date().toISOString() });
+      refresh();
+    }
+
+    // ---------------------------------------------------------------- Phiếu hỗ trợ
+    function renderTickets() {
+      const filter = document.getElementById('ticket-status').value;
+      const all = Pay.getTickets();
+      const open = all.filter(t => t.status !== 'DONE').length;
+      const badge = document.getElementById('count-tickets');
+      badge.hidden = !open;
+      badge.textContent = open;
+
+      const list = all.filter(t => !filter || t.status === filter);
+      document.getElementById('tickets-list').innerHTML = list.length ? list.map(t => `
+        <div class="ticket">
+          <div style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+            <div><span class="mono">${esc(t.code)}</span> ${t.order_code ? '· Đơn <span class="mono">' + esc(t.order_code) + '</span>' : ''}</div>
+            ${pill(TICKET_STATUS[t.status] || TICKET_STATUS.NEW)}
+          </div>
+          <div class="muted" style="margin-top: 4px;">${esc(t.type)} · ${esc(t.customer_name || 'Khách')} · ${esc(t.phone)} · ${new Date(t.created_at).toLocaleString('vi-VN')}${t.amount ? ' · ' + Pay.vnd(t.amount) : ''}</div>
+          <p style="margin-top: 8px; font-size: 14px;">${esc(t.description)}</p>
+          ${(t.replies || []).map(r => `<div style="margin-top: 8px; background: #f0f9ff; border-radius: 8px; padding: 8px 10px; font-size: 13.5px;"><strong>CSKH:</strong> ${esc(r.text)} <span class="muted">· ${new Date(r.at).toLocaleString('vi-VN')}</span></div>`).join('')}
+          <form class="admin-form" style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;" onsubmit="event.preventDefault(); replyTicket('${esc(t.code)}', this)">
+            <input name="reply" placeholder="Nhập phản hồi cho khách..." style="flex: 1; min-width: 200px;">
+            <select name="status" aria-label="Trạng thái">
+              ${Object.keys(TICKET_STATUS).map(k => `<option value="${k}"${k === t.status ? ' selected' : ''}>${TICKET_STATUS[k][2]}</option>`).join('')}
+            </select>
+            <button class="btn-xs primary" type="submit">Cập nhật</button>
+          </form>
+        </div>`).join('') : '<p class="empty">Không có phiếu hỗ trợ nào.</p>';
+    }
+
+    function replyTicket(code, form) {
+      const list = Pay.getTickets();
+      const t = list.find(x => x.code === code);
+      if (!t) return;
+      const text = form.reply.value.trim();
+      if (text) (t.replies = t.replies || []).push({ text, at: new Date().toISOString() });
+      t.status = form.status.value;
+      Pay.saveTickets(list);
+      refresh();
+    }
+
+    // ---------------------------------------------------------------- Voucher
+    function renderVouchers() {
+      const rows = Pay.allVouchers().map(v => {
+        const value = v.type === 'percent' ? v.value + '%' + (v.max ? ' (tối đa ' + Pay.vnd(v.max) + ')' : '')
+          : v.type === 'perSeat' ? Pay.vnd(v.value) + ' / vé' : Pay.vnd(v.value);
+        return `<tr>
+          <td><span class="mono">${esc(v.code)}</span></td>
+          <td>${esc(v.title)}</td>
+          <td>${value}</td>
+          <td>${v.minTotal ? Pay.vnd(v.minTotal) : '—'}</td>
+          <td>${esc(v.expires)}</td>
+          <td>${v.custom ? `<button class="btn-xs danger" onclick="deleteVoucher('${esc(v.code)}')">Xóa</button>` : '<span class="muted">Mặc định</span>'}</td>
+        </tr>`;
+      });
+      document.getElementById('vouchers-table').innerHTML =
+        table(['Mã', 'Tên', 'Giá trị', 'Đơn tối thiểu', 'Hạn dùng', ''], rows, 'Chưa có voucher.');
+    }
+
+    document.getElementById('voucher-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      const msg = document.getElementById('voucher-form-msg');
+      const code = v('v-code').toUpperCase().replace(/\s+/g, '');
+      if (!/^[A-Z0-9]{3,20}$/.test(code)) { msg.textContent = 'Mã chỉ gồm chữ và số, 3-20 ký tự.'; return; }
+      if (Pay.getVoucher(code)) { msg.textContent = 'Mã ' + code + ' đã tồn tại.'; return; }
+      const value = Number(v('v-value'));
+      if (v('v-type') === 'percent' && value > 100) { msg.textContent = 'Giảm % không được quá 100.'; return; }
+      const [y, mo, d] = v('v-expires').split('-');
+      const voucher = { code, title: v('v-title'), type: v('v-type'), value, expires: `${d}/${mo}/${y}` };
+      if (Number(v('v-max'))) voucher.max = Number(v('v-max'));
+      if (Number(v('v-min'))) voucher.minTotal = Number(v('v-min'));
+      Pay.saveCustomVouchers(Pay.customVouchers().concat([voucher]));
+      e.target.reset();
+      msg.textContent = '✓ Đã thêm voucher ' + code + '. Khách có thể dùng ngay ở bước thanh toán.';
+      renderVouchers();
+    });
+
+    function deleteVoucher(code) {
+      if (!confirm('Xóa voucher ' + code + '?')) return;
+      Pay.saveCustomVouchers(Pay.customVouchers().filter(v => v.code !== code));
+      renderVouchers();
+    }
+
+    // ---------------------------------------------------------------- Tổng quan
+    function renderOverview() {
+      const paid = ORDERS.filter(o => o.status === 'PAID');
+      const revenue = paid.reduce((s, o) => s + Number(o.total || 0), 0);
+      const refunds = Pay.getRefundRequests().filter(r => r.status !== 'DONE').length;
+      const tickets = Pay.getTickets().filter(t => t.status === 'NEW').length;
+      const stat = (label, value, tab) => `<div class="stat" ${tab ? `role="button" tabindex="0" style="cursor: pointer;" onclick="showTab('${tab}')"` : ''}><div class="label">${label}</div><div class="value">${value}</div></div>`;
+      document.getElementById('stats').innerHTML =
+        stat('Tổng số đơn', ORDERS.length, 'orders') +
+        stat('Doanh thu đã thanh toán', Pay.vnd(revenue)) +
+        stat('Hoàn tiền chờ xử lý', refunds, 'refunds') +
+        stat('Phiếu hỗ trợ mới', tickets, 'tickets');
+      document.getElementById('recent-orders').innerHTML =
+        table(['Mã đơn', 'Khách hàng', 'Phim / suất', 'Tổng tiền', 'Trạng thái'], ORDERS.slice(0, 5).map(o => orderRow(o, false)), 'Chưa có đơn hàng.');
+    }
+
+    async function refresh() {
+      await loadOrders();
+      renderOverview();
+      renderOrders();
+      renderRefunds();
+      renderTickets();
+      renderVouchers();
+    }
+
+    document.getElementById('order-search').addEventListener('input', renderOrders);
+    document.getElementById('order-status').addEventListener('change', renderOrders);
+    document.getElementById('ticket-status').addEventListener('change', renderTickets);
+
+    showTab((location.hash || '#overview').slice(1).replace(/[^a-z]/g, '') || 'overview');
+    refresh();
+  </script>
+</body>
+</html>

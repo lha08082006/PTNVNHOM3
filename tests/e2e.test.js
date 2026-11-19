@@ -368,3 +368,83 @@ describe('Voucher, mật khẩu, hỗ trợ, BetaBot', () => {
     await page.context().close();
   });
 });
+
+describe('Trang quản trị', () => {
+  const loginAs = async (page, id, pass) => {
+    await page.goto(B + 'home.html');
+    await page.evaluate(() => Layout.setUser(null));
+    await page.goto(B + 'auth.html#login');
+    await page.fill('#login-id', id);
+    await page.fill('#input-login-password', pass);
+    await page.click('#view-login .btn-b');
+  };
+
+  test('tài khoản thường không vào được trang quản trị', async () => {
+    const page = await newPage(browser);
+    await page.goto(B + 'admin.html');
+    await page.waitForURL(/auth\.html\?next=admin\.html/);
+    await page.context().close();
+  });
+
+  test('hoàn tiền, phiếu hỗ trợ và voucher đi trọn quy trình', async () => {
+    const page = await newPage(browser);
+    // Khách: một đơn đã hủy + hồ sơ hoàn tiền + phiếu hỗ trợ
+    await page.goto(B + 'support.html');
+    await page.evaluate(() => {
+      Pay.saveLocalOrder({ code: 'BC5550001111', status: 'EXPIRED', movie_key: 'blue-lock', cinema: 'Beta Mỹ Đình',
+        show_date: 'T7 21/11', show_time: '19:15', seats: ['C1', 'C2'], total: 90000, phone: '0987654321', customer_name: 'LƯƠNG HỒNG ANH' });
+      localStorage.setItem('reported_refund_orders', JSON.stringify(['BC5550001111']));
+      localStorage.setItem('refund_detail_BC5550001111', JSON.stringify({ order: 'BC5550001111', movie: 'blue-lock', total: 90000,
+        date: 'T7 21/11', time: '19:15', bank: 'MB Bank', acc: '0987654321', owner: 'LUONG HONG ANH', refund_code: 'REF-001111',
+        status: 'RECONCILING', created_at: new Date().toISOString() }));
+    });
+    await page.fill('#tk-desc', 'Chưa nhận được tiền hoàn của đơn BC5550001111');
+    await page.click('#support-form button[type=submit]');
+
+    // Quản trị viên
+    await loginAs(page, 'admin@betacinemas.vn', 'admin12345');
+    await page.waitForURL(/admin\.html/);
+    await page.click('[data-tab=refunds]');
+    await page.click('#refunds-table >> text=Tiếp nhận xử lý');
+    page.removeAllListeners('dialog');
+    page.on('dialog', d => d.accept(d.type() === 'prompt' ? 'FT999888777' : undefined));
+    await page.click('#refunds-table >> text=Hoàn tất');
+    await page.waitForSelector('#refunds-table >> text=FT999888777');
+
+    await page.click('[data-tab=tickets]');
+    const t = page.locator('.ticket').first();
+    await t.locator('input[name=reply]').fill('Đã hoàn tiền về tài khoản của bạn.');
+    await t.locator('select[name=status]').selectOption('DONE');
+    await t.locator('button[type=submit]').click();
+
+    await page.click('[data-tab=vouchers]');
+    await page.fill('#v-code', 'TEST50');
+    await page.fill('#v-title', 'Giảm thử 50k');
+    await page.fill('#v-value', '50000');
+    await page.fill('#v-expires', '2099-12-31');
+    await page.click('#voucher-form button[type=submit]');
+    assert.match(await text(page, '#voucher-form-msg'), /Đã thêm voucher TEST50/);
+
+    // Khách thấy kết quả
+    await loginAs(page, 'luonghonganh@betacinemas.vn', '12345678');
+    await page.waitForURL(/account\.html/);
+    const card = page.locator('.order-history-item[data-code="BC5550001111"]');
+    await card.waitFor({ timeout: 10000 });
+    assert.match(await card.innerText(), /ĐÃ HOÀN TIỀN/);
+
+    await page.goto(B + 'refund-track.html?order=BC5550001111&code=REF-001111');
+    await page.waitForTimeout(500);
+    assert.equal(await page.locator('.timeline-list .timeline-dot.done').count(), 5);
+
+    await page.goto(B + 'support.html');
+    assert.match(await text(page, '#my-tickets'), /Đã giải quyết.*Đã hoàn tiền về tài khoản/);
+
+    await page.goto(B + 'checkout.html?movie=suzume&cinema=Beta%20Th%C3%A1i%20Nguy%C3%AAn&date=' + encodeURIComponent(TOMORROW) +
+      '&time=10:15&seats=A1,%20A2&seatsTotal=90000&total=90000');
+    await page.fill('#voucher-input', 'test50');
+    await page.click('button[onclick="applyVoucher()"]');
+    assert.equal(await text(page, '#summary-discount-amount'), '-50.000 đ');
+    assert.deepEqual(page.jsErrors, []);
+    await page.context().close();
+  });
+});

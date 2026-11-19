@@ -317,7 +317,49 @@ const Pay = {
   },
 
   // refund-track.html: Tra cứu thông tin hồ sơ hoàn tiền
-  getRefunds: (query) => Pay.call('refund?' + new URLSearchParams(query)),
+  async getRefunds(query) {
+    const local = Pay.getRefundRequests().find(r => r.order === query.order || r.refund_code === query.code);
+    if (local) {
+      return { ok: true, refund: {
+        code: local.refund_code, status: local.status, amount: Number(local.total || 0),
+        bank_name: local.bank, acc_number: local.acc, acc_name: local.owner, refund_ref: local.refund_ref || ''
+      } };
+    }
+    return Pay.call('refund?' + new URLSearchParams(query));
+  },
+
+  // Hồ sơ hoàn tiền khách gửi ở refund.html (refund_detail_<mã đơn>)
+  // status: RECONCILING (đang đối soát) -> FALLBACK_STAFF (nhân viên xử lý) -> DONE (đã hoàn)
+  getRefundRequests() {
+    const out = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf('refund_detail_') === 0) {
+          const r = JSON.parse(localStorage.getItem(k));
+          if (r && r.order) out.push(Object.assign({ status: 'RECONCILING' }, r));
+        }
+      }
+    } catch (e) {}
+    return out.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  },
+
+  updateRefund(order, fields) {
+    const key = 'refund_detail_' + order;
+    let r = {};
+    try { r = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) {}
+    Object.assign(r, fields, { updated_at: new Date().toISOString() });
+    try { localStorage.setItem(key, JSON.stringify(r)); } catch (e) {}
+    // Hoàn tất -> đơn chuyển sang ĐÃ HOÀN TIỀN
+    if (fields.status === 'DONE') {
+      Pay.saveLocalOrder(Object.assign({}, Pay.getLocalOrder(order) || { code: order }, { status: 'REFUNDED' }));
+      try {
+        const list = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]').filter(c => c !== order);
+        localStorage.setItem('reported_refund_orders', JSON.stringify(list));
+      } catch (e) {}
+    }
+    return r;
+  },
 
   // Demo Sandbox: Giả lập Webhook SePay (Chạy được cả trên Backend lẫn Live Server Client-side)
   async simulate(scenario, orderCode, customAmount, extra = {}) {
@@ -718,9 +760,22 @@ const Pay = {
     { code: 'HSSV', title: 'Học sinh - sinh viên giảm 10.000đ / vé', type: 'perSeat', value: 10000, expires: '31/12/2026' }
   ],
 
+  // Mã do trang quản trị tạo thêm (lưu trình duyệt)
+  customVouchers() {
+    try { return JSON.parse(localStorage.getItem('BETA_CUSTOM_VOUCHERS') || '[]'); } catch (e) { return []; }
+  },
+
+  saveCustomVouchers(list) {
+    try { localStorage.setItem('BETA_CUSTOM_VOUCHERS', JSON.stringify(list)); } catch (e) {}
+  },
+
+  allVouchers() {
+    return Pay.VOUCHERS.concat(Pay.customVouchers().map(v => Object.assign({ custom: true }, v)));
+  },
+
   getVoucher(code) {
     code = String(code || '').trim().toUpperCase();
-    return Pay.VOUCHERS.find(v => v.code === code) || null;
+    return Pay.allVouchers().find(v => v.code === code) || null;
   },
 
   _usedKey() {

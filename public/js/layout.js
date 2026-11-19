@@ -103,6 +103,7 @@
         <a href="betabot.html">Hỗ trợ CSKH</a>`;
     } else if (user && user.name) {
       links = `<span style="color: #005198;">Xin chào, <strong id="top-user-name">${esc(user.name)}</strong></span><span>|</span>
+        ${user.role === 'admin' ? '<a href="admin.html" style="color: #ff5400 !important;">Quản trị</a><span>|</span>' : ''}
         <a href="account.html">Tài khoản</a><span>|</span>
         <a href="javascript:void(0)" onclick="Layout.logout()">Đăng xuất</a>`;
     } else {
@@ -329,5 +330,15 @@
   else mountQuickDock();
 
   window.toggleQuickDock = toggleQuickDock;
-  window.Layout = { header, footer, toggleMenu, getUser, setUser, logout, requireLogin, CINEMAS };
+  // Trang chỉ dành cho quản trị viên
+  function requireAdmin() {
+    if (!requireLogin()) return false;
+    if ((getUser() || {}).role !== 'admin') {
+      location.replace('auth.html?next=admin.html#login');
+      return false;
+    }
+    return true;
+  }
+
+  window.Layout = { header, footer, toggleMenu, getUser, setUser, logout, requireLogin, requireAdmin, CINEMAS };
 })();
