@@ -308,41 +308,34 @@
       <div class="movie-hero-grid">
         <!-- Poster -->
         <div class="detail-poster-box">
-          <img src="images/posters/linh-gioi-dai-chien.jpg" alt="Linh Giới Đại Chiến Poster">
+          <img id="md-poster" src="images/posters/linh-gioi-dai-chien.jpg" alt="">
         </div>
 
-        <!-- Info -->
+        <!-- Info: render từ Pay.getMovieDetail(?movie=) -->
         <div>
-          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-            <span class="badge badge-age-18">T18 - Người từ đủ 18 tuổi</span>
-            <span class="badge badge-format">2D Dolby Atmos</span>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+            <span id="md-age" class="badge badge-age-18"></span>
+            <span id="md-format" class="badge badge-format"></span>
           </div>
-          <h1 class="movie-main-title">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</h1>
-          <div class="movie-sub-title">Realm of Spirits: Zhong Kui Master (2026)</div>
+          <h1 class="movie-main-title" id="md-title"></h1>
+          <div class="movie-sub-title" id="md-subtitle"></div>
 
-          <div class="movie-stat-pills">
-            <div class="stat-pill">⭐ 9.4 / 10 IMDb</div>
-            <div class="stat-pill">⏱️ 128 Phút</div>
-            <div class="stat-pill">📅 Khởi chiếu: 25/10/2026</div>
-            <div class="stat-pill">🌐 Tiếng Trung - Phụ đề Tiếng Việt</div>
-          </div>
+          <div class="movie-stat-pills" id="md-stats"></div>
 
-          <p class="synopsis-text">
-            Chuyện phim xoay quanh trận quyết chiến kinh thiên động địa giữa hai cõi nhân - linh, nơi thần sư Chung Quỳ cùng các đồng môn dốc toàn lực bảo vệ phong ấn thượng cổ ngăn chặn ma thần thức tỉnh. Với kỹ xảo hoành tráng và những pha hành động mãn nhãn, bộ phim mang đến trải nghiệm điện ảnh đỉnh cao cho khán giả yêu mến dòng phim tiên hiệp kỳ ảo.
-          </p>
+          <p class="synopsis-text" id="md-synopsis"></p>
 
           <div class="crew-list">
             <div>
               <div class="crew-label">Đạo Diễn</div>
-              <div class="crew-name">Bùi Thạc Chuyên</div>
+              <div class="crew-name" id="md-director"></div>
             </div>
             <div>
               <div class="crew-label">Diễn Viên Chính</div>
-              <div class="crew-name">Thái Hòa, Quang Tuấn, Diễm My</div>
+              <div class="crew-name" id="md-cast"></div>
             </div>
             <div>
               <div class="crew-label">Thể Loại</div>
-              <div class="crew-name">Hành động, Giả tưởng, Thần thoại</div>
+              <div class="crew-name" id="md-genre"></div>
             </div>
           </div>
 
@@ -350,7 +343,7 @@
             <a href="#booking-area" class="btn btn-primary btn-lg">
               <span>🎟️</span> Đặt Suất Chiếu Nhanh
             </a>
-            <button class="btn btn-outline btn-lg" style="color: white; border-color: rgba(255,255,255,0.4);" onclick="openTrailerModal('linh-gioi-dai-chien', 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ')">
+            <button id="md-trailer-btn" class="btn btn-outline btn-lg" style="color: white; border-color: rgba(255,255,255,0.4);">
               <span>▶</span> Xem Trailer Official
             </button>
           </div>
@@ -358,6 +351,50 @@
       </div>
     </div>
   </section>
+
+  <script src="js/pay-client.js"></script>
+  <script>
+    // Hiển thị đúng phim theo ?movie=<mã-phim>
+    (function renderMovieHero() {
+      const key = new URLSearchParams(location.search).get('movie') || 'linh-gioi-dai-chien';
+      const m = Pay.getMovieDetail(key);
+      const AGE_TEXT = { P: 'P - Phổ biến mọi độ tuổi', T13: 'T13 - Người từ đủ 13 tuổi', T16: 'T16 - Người từ đủ 16 tuổi', T18: 'T18 - Người từ đủ 18 tuổi' };
+      const $ = id => document.getElementById(id);
+      const setText = (id, v) => { $(id).textContent = v; };
+
+      document.title = m.title + ' - Beta Cinemas';
+      $('md-poster').src = m.poster;
+      $('md-poster').alt = m.shortTitle + ' Poster';
+      $('md-age').className = 'badge badge-age-' + m.age.replace(/^T/, '').toLowerCase();
+      setText('md-age', AGE_TEXT[m.age] || m.age);
+      setText('md-format', m.format);
+      setText('md-title', m.title);
+      setText('md-subtitle', m.subtitle);
+      $('md-subtitle').style.display = m.subtitle ? '' : 'none';
+      setText('md-synopsis', m.synopsis);
+      setText('md-director', m.director);
+      setText('md-cast', m.cast);
+      setText('md-genre', m.genre);
+
+      const stats = [
+        m.rating && '⭐ ' + m.rating,
+        m.duration && '⏱️ ' + m.duration,
+        m.release && '📅 Khởi chiếu: ' + m.release,
+        m.language && '🌐 ' + m.language
+      ].filter(Boolean);
+      $('md-stats').innerHTML = '';
+      stats.forEach(t => {
+        const d = document.createElement('div');
+        d.className = 'stat-pill';
+        d.textContent = t;
+        $('md-stats').appendChild(d);
+      });
+
+      const btn = $('md-trailer-btn');
+      if (m.trailer) btn.onclick = () => openTrailerModal(m.key, m.title);
+      else btn.style.display = 'none';
+    })();
+  </script>
 
   <!-- Booking & Showtimes Area -->
   <main class="container movie-booking-section" id="booking-area">
@@ -526,19 +563,8 @@
   </div>
 
   <script>
-    const MOVIE_TRAILERS = {
-      'linh-gioi-dai-chien': 'https://www.youtube.com/watch?v=mJ2pu6FazEA',
-      'dia-dao': 'https://www.youtube.com/watch?v=mJ2pu6FazEA',
-      'quy-an-tang-4': 'https://www.youtube.com/watch?v=7eRbgbj_AfM',
-      'trai-buon-nguoi': 'https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s',
-      'blue-lock': 'https://www.youtube.com/watch?v=8VMMDfAYi34',
-      'an-mang-karaoke': 'https://www.youtube.com/watch?v=aV4qtcKmkQo',
-      'ut-lan-2': 'https://www.youtube.com/watch?v=TpwGd81RSKk',
-      'co-dau-hao-mon': 'https://www.youtube.com/watch?v=TpwGd81RSKk',
-      'suzume': 'https://www.youtube.com/watch?v=EWLo2IF_NPU',
-      'ca-voi-nuot-chung': 'https://www.youtube.com/watch?v=ZyGPPlhPI8M',
-      'me-min': 'https://www.youtube.com/watch?v=mTylSVV6zSo'
-    };
+    // Trailer lấy từ danh mục phim dùng chung (js/pay-client.js)
+    const MOVIE_TRAILERS = Object.fromEntries(Object.keys(Pay.MOVIES).map(k => [k, Pay.getMovieDetail(k).trailer]));
 
     function extractYouTubeVideoId(input) {
       if (!input) return '';
@@ -684,7 +710,7 @@
 
     function syncMovieDetailShowtimes(selectedDateStr) {
       const p = new URLSearchParams(window.location.search);
-      const m = p.get("movie") || "linh-gioi-dai-chien";
+      const m = Pay.getMovieDetail(p.get("movie")).key;
       const dateVal = selectedDateStr || "Hôm nay";
 
       document.querySelectorAll("a[href*='seats.html']").forEach(a => {

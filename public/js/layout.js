@@ -72,6 +72,21 @@
     location.href = 'auth.html#login';
   }
 
+  // Trang hiện tại dạng "account.html?x=y" (dùng cho ?next= sau khi đăng nhập)
+  function currentPage() {
+    return (location.pathname.split('/').pop() || 'index.html').replace(/^([^.]+)$/, '$1.html') + location.search;
+  }
+
+  // Gọi ở <head> của trang cần đăng nhập: chưa đăng nhập -> chuyển sang trang đăng nhập
+  function requireLogin() {
+    const u = getUser();
+    if (!u || !u.name) {
+      location.replace('auth.html?next=' + encodeURIComponent(currentPage()) + '#login');
+      return false;
+    }
+    return true;
+  }
+
   // Ghi HTML ngay trước thẻ <script> đang chạy
   function writeHere(html) {
     const s = document.currentScript;
@@ -91,8 +106,9 @@
         <a href="account.html">Tài khoản</a><span>|</span>
         <a href="javascript:void(0)" onclick="Layout.logout()">Đăng xuất</a>`;
     } else {
-      links = `<a href="auth.html#login">Đăng nhập</a><span>|</span>
-        <a href="auth.html#register">Đăng ký</a><span>|</span>
+      const next = encodeURIComponent(currentPage());
+      links = `<a href="auth.html?next=${next}#login">Đăng nhập</a><span>|</span>
+        <a href="auth.html?next=${next}#register">Đăng ký</a><span>|</span>
         <a href="betabot.html">Hỗ trợ CSKH</a>`;
     }
     return `
@@ -313,5 +329,5 @@
   else mountQuickDock();
 
   window.toggleQuickDock = toggleQuickDock;
-  window.Layout = { header, footer, toggleMenu, getUser, setUser, logout, CINEMAS };
+  window.Layout = { header, footer, toggleMenu, getUser, setUser, logout, requireLogin, CINEMAS };
 })();

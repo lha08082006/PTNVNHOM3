@@ -201,6 +201,7 @@
     }
   </style>
   <script src="js/layout.js"></script>
+  <script src="js/pay-client.js"></script>
 </head>
 <body>
 
@@ -255,7 +256,7 @@
                 </div>
                 
                 <p style="font-size: 13px; color: #64748b; margin-bottom: 4px;">
-                  Hành động, Hồi hộp · 118 phút · <strong>2D Phụ đề Tiếng Anh</strong>
+                  <span id="cancel-movie-meta">Hành động, Hồi hộp · 118 phút · <strong>2D Phụ đề Tiếng Anh</strong></span>
                 </p>
                 <p style="font-size: 13px; color: #475569; margin-bottom: 4px;">
                   📍 <strong id="cancel-cinema">Beta Thanh Xuân (Hà Nội)</strong> · Phòng chiếu 01
@@ -273,7 +274,7 @@
 
               <div class="line-row">
                 <span class="label-muted">Combo bắp nước kèm theo:</span>
-                <span class="value-bold">01x Combo Solo (Bắp lớn + Nước lớn)</span>
+                <span class="value-bold" id="cancel-combos">01x Combo Solo (Bắp lớn + Nước lớn)</span>
               </div>
 
               <div class="line-row">
@@ -448,22 +449,22 @@
   <script>
     (function initCancelledPage() {
       const params = new URLSearchParams(window.location.search);
-      const order = params.get('order') || localStorage.getItem('last_active_order') || 'BC1317376612';
-      const movieKey = params.get('movie') || 'quy-an-tang-4';
-      const total = Number(params.get('total') || 90000);
-      const cinema = params.get('cinema') || 'Beta Thanh Xuân (Hà Nội)';
-      const seats = params.get('seats') || 'D5, D6';
-      const date = params.get('date') || 'Hôm nay';
-      const time = params.get('time') || '18:30';
+      // Đơn đã lưu / đơn mẫu / tham số URL (xem Pay.getOrderView)
+      // Không có mã đơn -> dùng đơn mẫu đã hủy BC2610264412
+      const view = (params.get('order') && Pay.getOrderView()) || Pay.getOrderView('BC2610264412');
+      const order = view.code;
+      const movieTitle = view.movie.shortTitle || view.movie.title;
+      const poster = view.movie.poster;
+      const cinema = view.cinema;
+      const seats = view.seats;
+      const total = view.total;
       const refundCode = params.get('refund_code') || ('REF-' + order.slice(-6));
+      const totalFmt = Pay.vnd(total);
 
-      const movieTitle = (movieKey === 'quy-an-tang-4') ? 'Quỷ Ăn Tạng 4' : 'Trại Buôn Người: Vùng Cấm Biên Giới';
-      const poster = (movieKey === 'quy-an-tang-4') 
-        ? 'images/posters/quy-an-tang-4.jpg' 
-        : 'images/posters/trai-buon-nguoi.jpg';
-
-      const totalFmt = total.toLocaleString('vi-VN') + ' đ';
-
+      const meta = document.getElementById('cancel-movie-meta');
+      if (meta) meta.textContent = [view.movie.meta.split('·').slice(0, 2).join('·').trim(), view.movie.format].join(' · ');
+      const cbEl = document.getElementById('cancel-combos');
+      if (cbEl) cbEl.textContent = view.combosText;
       const ordEl = document.getElementById('cancel-order-code');
       if (ordEl) ordEl.textContent = order;
       const tEl = document.getElementById('cancel-movie-title');
@@ -473,7 +474,7 @@
       const cEl = document.getElementById('cancel-cinema');
       if (cEl) cEl.textContent = cinema;
       const stEl = document.getElementById('cancel-showtime');
-      if (stEl) stEl.textContent = `${time} • ${date}`;
+      if (stEl) stEl.textContent = view.showtime;
       const sEl = document.getElementById('cancel-seats');
       if (sEl) sEl.textContent = seats;
       const totEl = document.getElementById('cancel-total');

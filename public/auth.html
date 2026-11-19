@@ -144,6 +144,15 @@
       flex-wrap: wrap;
     }
 
+      .auth-error {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13.5px;
+    }
   </style>
   <script src="js/layout.js"></script>
 </head>
@@ -160,31 +169,35 @@
     <section class="card-box" id="view-login" aria-label="Đăng nhập">
       <div>
         <h1 style="font-size: 28px; font-weight: 800;">Đăng nhập</h1>
-        <p class="text-muted" style="margin-top: 4px;">Chào mừng trở lại Beta Cinema, <strong>LƯƠNG HỒNG ANH</strong></p>
+        <p class="text-muted" style="margin-top: 4px;">Chào mừng trở lại Beta Cinemas</p>
       </div>
 
       <label class="form-field">
         Email / Số điện thoại
-        <input type="text" placeholder="Nhập email hoặc số điện thoại" value="luonghonganh@betacinemas.vn">
+        <input type="text" id="login-id" placeholder="Nhập email hoặc số điện thoại" autocomplete="username">
       </label>
 
       <div style="display: flex; gap: 8px; align-items: flex-end;">
         <label class="form-field" style="flex: 1;">
           Mật khẩu
-          <input type="password" id="input-login-password" value="12345678">
+          <input type="password" id="input-login-password" placeholder="••••••••" autocomplete="current-password">
         </label>
         <button type="button" class="btn-o" style="padding: 0 16px;" onclick="togglePasswordVisibility('input-login-password', this)">Hiện</button>
       </div>
 
       <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 14px;">
         <label style="display: flex; gap: 8px; align-items: center; cursor: pointer;">
-          <input type="checkbox" checked>
+          <input type="checkbox" id="login-remember" checked>
           Ghi nhớ đăng nhập
         </label>
         <a href="javascript:void(0)" onclick="alert('Vui lòng liên hệ hotline 1900 636 807 để khôi phục mật khẩu tài khoản.')" style="color: var(--accent-gold);">Quên mật khẩu?</a>
       </div>
 
-      <button class="btn-b" onclick="handleAuthAction('login')">Đăng nhập</button>
+      <p class="auth-error" id="login-error" role="alert"></p>
+      <button class="btn-b" onclick="handleLogin()">Đăng nhập</button>
+      <p class="text-muted" style="font-size: 12.5px; text-align: center; margin-top: -6px;">
+        Tài khoản demo: <strong>luonghonganh@betacinemas.vn</strong> / <strong>12345678</strong>
+      </p>
 
       <p class="text-muted" style="text-align: center;">hoặc tiếp tục với</p>
 
@@ -209,41 +222,42 @@
 
       <label class="form-field">
         Họ tên
-        <input type="text" placeholder="LƯƠNG HỒNG ANH" value="LƯƠNG HỒNG ANH">
+        <input type="text" id="reg-name" placeholder="Nguyễn Văn A" autocomplete="name">
       </label>
 
       <label class="form-field">
         Số điện thoại
-        <input type="text" placeholder="09xxxxxxxx">
+        <input type="tel" id="reg-phone" placeholder="09xxxxxxxx" autocomplete="tel">
       </label>
 
       <label class="form-field">
         Email
-        <input type="text" placeholder="name@example.com">
+        <input type="email" id="reg-email" placeholder="name@example.com" autocomplete="email">
       </label>
 
       <label class="form-field">
         Ngày sinh
-        <input type="date" value="2000-01-01">
+        <input type="date" id="reg-dob">
         <span style="font-weight: 400; font-size: 12px; color: var(--text-muted);">Dùng để đối chiếu độ tuổi xem phim</span>
       </label>
 
       <label class="form-field">
         Mật khẩu
-        <input type="password" placeholder="••••••••">
+        <input type="password" id="reg-password" placeholder="Tối thiểu 8 ký tự" autocomplete="new-password">
       </label>
 
       <label class="form-field">
         Xác nhận mật khẩu
-        <input type="password" placeholder="••••••••">
+        <input type="password" id="reg-password2" placeholder="••••••••" autocomplete="new-password">
       </label>
 
       <label style="display: flex; gap: 8px; font-size: 13px; align-items: flex-start; cursor: pointer; color: var(--text-muted);">
-        <input type="checkbox" checked style="margin-top: 2px;">
+        <input type="checkbox" id="reg-agree" style="margin-top: 2px;">
         <span>Tôi đồng ý điều khoản sử dụng và chính sách bảo mật</span>
       </label>
 
-      <button class="btn-b" onclick="handleAuthAction('register')">Tạo tài khoản</button>
+      <p class="auth-error" id="register-error" role="alert"></p>
+      <button class="btn-b" onclick="handleRegister()">Tạo tài khoản</button>
 
       <p class="text-muted" style="text-align: center;">hoặc tiếp tục với</p>
 
@@ -294,13 +308,106 @@
       }
     }
 
-    function handleAuthAction(type) {
-      alert(type === 'login' ? 'Đăng nhập thành công! Chào mừng LƯƠNG HỒNG ANH quay trở lại.' : 'Đăng ký thành công! Chào mừng LƯƠNG HỒNG ANH gia nhập Beta Club!');
-      window.location.href = 'account.html';
+    // =====================================================================
+    // ĐĂNG NHẬP / ĐĂNG KÝ (bản demo lưu trên trình duyệt — khi có database
+    // sẽ thay bằng API; mật khẩu chỉ lưu dạng băm SHA-256)
+    // =====================================================================
+    const ACCOUNTS_KEY = 'BETA_ACCOUNTS';
+    const DEMO_ACCOUNT = {
+      name: 'LƯƠNG HỒNG ANH', phone: '0987654321', email: 'luonghonganh@betacinemas.vn', dob: '2006-08-08',
+      // sha256("12345678")
+      passHash: 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f'
+    };
+
+    function loadAccounts() {
+      try {
+        const list = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]');
+        if (!list.some(a => a.email === DEMO_ACCOUNT.email)) list.unshift(DEMO_ACCOUNT);
+        return list;
+      } catch (e) {
+        return [DEMO_ACCOUNT];
+      }
     }
 
+    function saveAccounts(list) {
+      try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); } catch (e) {}
+    }
+
+    async function sha256(text) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg || '';
+      el.style.display = msg ? 'block' : 'none';
+    }
+
+    // Sau khi đăng nhập quay về trang khách đang xem (?next=...), mặc định là trang tài khoản
+    function goNext() {
+      const next = new URLSearchParams(location.search).get('next') || '';
+      location.href = /^[a-z0-9-]+\.html(\?[^#]*)?$/i.test(next) ? next : 'account.html';
+    }
+
+    function startSession(acc) {
+      Layout.setUser({ name: acc.name, email: acc.email, phone: acc.phone, dob: acc.dob });
+    }
+
+    async function handleLogin() {
+      const id = document.getElementById('login-id').value.trim().toLowerCase();
+      const pass = document.getElementById('input-login-password').value;
+      if (!id || !pass) return showError('login-error', 'Vui lòng nhập email/số điện thoại và mật khẩu.');
+
+      const acc = loadAccounts().find(a => a.email.toLowerCase() === id || a.phone === id);
+      if (!acc || acc.passHash !== await sha256(pass)) {
+        return showError('login-error', 'Email/số điện thoại hoặc mật khẩu không đúng.');
+      }
+      showError('login-error', '');
+      startSession(acc);
+      goNext();
+    }
+
+    async function handleRegister() {
+      const v = id => document.getElementById(id).value.trim();
+      const name = v('reg-name').toUpperCase();
+      const phone = v('reg-phone').replace(/[\s.]/g, '');
+      const email = v('reg-email').toLowerCase();
+      const dob = v('reg-dob');
+      const pass = document.getElementById('reg-password').value;
+      const pass2 = document.getElementById('reg-password2').value;
+
+      let err = '';
+      if (name.length < 2) err = 'Vui lòng nhập họ tên.';
+      else if (!/^0\d{9}$/.test(phone)) err = 'Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0.';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) err = 'Email không hợp lệ.';
+      else if (!dob) err = 'Vui lòng chọn ngày sinh.';
+      else if (pass.length < 8) err = 'Mật khẩu phải có ít nhất 8 ký tự.';
+      else if (pass !== pass2) err = 'Mật khẩu xác nhận không khớp.';
+      else if (!document.getElementById('reg-agree').checked) err = 'Bạn cần đồng ý điều khoản sử dụng.';
+
+      const list = loadAccounts();
+      if (!err && list.some(a => a.email === email)) err = 'Email này đã được đăng ký.';
+      if (!err && list.some(a => a.phone === phone)) err = 'Số điện thoại này đã được đăng ký.';
+      if (err) return showError('register-error', err);
+
+      const acc = { name, phone, email, dob, passHash: await sha256(pass) };
+      list.push(acc);
+      saveAccounts(list);
+      showError('register-error', '');
+      startSession(acc);
+      goNext();
+    }
+
+    // Enter để gửi form
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      if (document.getElementById('view-login').style.display !== 'none') handleLogin();
+      else handleRegister();
+    });
+
     function handleSocialAuth(provider) {
-      alert('Đang kết nối xác thực tài khoản qua ' + provider + '...');
+      alert('Đăng nhập bằng ' + provider + ' sẽ được hỗ trợ trong phiên bản sau.');
     }
 
     // Tự động kiểm tra URL Hash khi tải trang (#register hoặc #login)

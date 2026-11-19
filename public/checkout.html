@@ -207,6 +207,7 @@
     }
   </style>
   <script src="js/layout.js"></script>
+  <script>Layout.requireLogin();</script>
 </head>
 <body>
 
@@ -637,6 +638,7 @@
         const localOrderCode = 'BC' + Math.floor(1000000000 + Math.random() * 9000000000);
         let finalOrderCode = localOrderCode;
 
+        const currentUser = Layout.getUser() || {};
         // Thử gọi API để lấy mã đơn chính thức
         try {
           const o = await Pay.post('create-order', {
@@ -648,9 +650,9 @@
             combos: combosPayload,
             voucher: discountAmount > 0 ? 'BETAVIP' : null,
             total: finalTotal,
-            phone: '0987654321',
-            customer_name: 'LƯƠNG HỒNG ANH',
-            email: 'luonghonganh.cinema@gmail.com'
+            phone: currentUser.phone || null,
+            customer_name: currentUser.name || null,
+            email: currentUser.email || null
           });
           if (o && o.code) {
             finalOrderCode = o.code;
@@ -671,6 +673,9 @@
           total: finalTotal,
           show_date: currentDate,
           show_time: currentTime,
+          phone: currentUser.phone || null,
+          customer_name: currentUser.name || null,
+          email: currentUser.email || null,
           created_at: new Date().toISOString()
         });
 

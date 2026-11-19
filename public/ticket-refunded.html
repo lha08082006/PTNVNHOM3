@@ -386,20 +386,13 @@
       if (stored) refundDet = JSON.parse(stored);
     } catch (e) {}
 
-    // Tra cứu từ pay-client nếu có
-    const localOrd = (window.Pay && Pay.getLocalOrder) ? Pay.getLocalOrder(orderCode) : null;
+    // Thông tin đơn: đơn đã lưu / đơn mẫu / tham số URL (xem Pay.getOrderView)
+    const view = Pay.getOrderView(orderCode) || Pay.getOrderView('BC2610208819');
+    const movieObj = view.movie;
 
-    // Trích xuất các trường dữ liệu
-    const movieKey = (refundDet && refundDet.movie) || urlParams.get('movie') || (localOrd && localOrd.movie_key) || 'quy-an-tang-4';
-    const cinema = (refundDet && refundDet.cinema) || urlParams.get('cinema') || (localOrd && localOrd.cinema) || 'Beta Thanh Xuân (Hà Nội)';
-    const seats = (refundDet && refundDet.seats) || urlParams.get('seats') || (localOrd && (Array.isArray(localOrd.seats) ? localOrd.seats.join(', ') : localOrd.seats)) || 'D5, D6';
-    const rawCombos = (refundDet && refundDet.combos) || urlParams.get('combos') || '';
-    const date = (refundDet && refundDet.date) || urlParams.get('date') || 'Hôm nay';
-    const time = (refundDet && refundDet.time) || urlParams.get('time') || '18:30';
-    const total = Number((refundDet && refundDet.total) || urlParams.get('total') || (localOrd && localOrd.total) || 179000);
+    // Thông tin tài khoản nhận hoàn tiền (khách nhập ở refund.html)
     const bank = (refundDet && refundDet.bank) || urlParams.get('bank') || 'MB Bank (Ngân hàng Quân Đội)';
     const acc = (refundDet && refundDet.acc) || urlParams.get('acc') || '0987654321';
-    const owner = (refundDet && refundDet.owner) || urlParams.get('owner') || 'LƯƠNG HỒNG ANH';
     const refundCode = (refundDet && refundDet.refund_code) || urlParams.get('refund_code') || ('REF-' + orderCode.slice(-6));
 
     // Mask số tài khoản: ví dụ 0987654321 -> ****4321
@@ -407,55 +400,35 @@
     const last4Acc = acc.length >= 4 ? acc.slice(-4) : acc;
     const maskedAccText = `${cleanBank} ****${last4Acc}`;
 
-    // Format tiền VND
-    const formattedTotal = (window.Pay && Pay.vnd) ? Pay.vnd(total) : total.toLocaleString('vi-VN') + ' đ';
-
-    // Xử lý chuỗi combo
-    let combosText = 'Không kèm bắp nước';
-    if (rawCombos) {
-      if (typeof rawCombos === 'string' && rawCombos.startsWith('{')) {
-        try {
-          const parsed = JSON.parse(rawCombos);
-          const txt = (window.Pay && Pay.comboText) ? Pay.comboText(parsed)
-            : Object.keys(parsed).map(k => `Combo (${k}) × ${parsed[k]}`).join(', ');
-          if (txt) combosText = txt;
-        } catch (e) {
-          combosText = rawCombos;
-        }
-      } else {
-        combosText = rawCombos;
-      }
-    } else {
-      combosText = 'Combo 1 (1 Bắp Ngọt + 1 Coca) × 1';
-    }
-
-    // Thời gian hoàn tiền (mặc định lấy thời điểm hiện tại hoặc lùi vài phút)
+    // Thời gian hoàn tiền (mặc định lấy thời điểm hiện tại)
     const now = new Date();
     const pad = (n) => n.toString().padStart(2, '0');
-    const timeFormatted = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const dateFormatted = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
-    const fullRefundTime = `${dateFormatted} ${timeFormatted}`;
+    const fullRefundTime = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-    // Tạo mã giao dịch ngân hàng
+    // Mã giao dịch ngân hàng hoàn tiền
     const transCode = 'FT' + orderCode.slice(-8) + Math.floor(1000 + Math.random() * 9000);
 
-    // Dữ liệu mặc định chuẩn cho đơn Trại Buôn Người nếu mở BC2610208819
-    const isTraiBuonNguoi = (orderCode === 'BC2610208819') || (movieKey === 'trai-buon-nguoi');
+    // Đơn mẫu BC2610208819 có sẵn mốc hoàn tiền cố định để trình diễn
+    const DEMO_REFUND = {
+      BC2610208819: {
+        refundCode: 'REF-2610-889', transCode: 'FT26102088198842', refundTime: '20/10/2026 17:45',
+        steps: ['20/10/2026 17:30', '20/10/2026 17:35', '20/10/2026 17:40', '20/10/2026 17:45']
+      }
+    };
+    const demo = DEMO_REFUND[orderCode];
 
-    // Xử lý tên phim và poster
-    const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
-    let movieTitle = isTraiBuonNguoi ? 'Trại Buôn Người: Vùng Cấm Biên Giới' : ((movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4');
-    let poster = isTraiBuonNguoi ? 'images/posters/trai-buon-nguoi.jpg' : ((movieObj && movieObj.poster) || 'images/posters/quy-an-tang-4.jpg');
-    let movieAge = isTraiBuonNguoi ? 'T18' : 'C18';
-    let movieGenre = isTraiBuonNguoi ? 'Tâm Lý, Tội Phạm · 118 phút · 2D phụ đề' : 'Kinh Dị, Giật Gân · 110 phút · 2D phụ đề';
-    let actualCinema = isTraiBuonNguoi ? 'Beta Thanh Xuân (HN) · Phòng 02' : (`${cinema} · Phòng 01`);
-    let actualShowtime = isTraiBuonNguoi ? '20/10/2026 · 21:00' : (`${date} · ${time}`);
-    let actualSeats = isTraiBuonNguoi ? 'G09, G10' : seats;
-    let actualCombos = isTraiBuonNguoi ? 'Combo Solo (1 Bắp Ngọt + 1 Coca) × 1' : combosText;
-    let actualTotal = isTraiBuonNguoi ? '180.000 đ' : formattedTotal;
-    let actualRefundCode = isTraiBuonNguoi ? 'REF-2610-889' : refundCode;
-    let actualTransCode = isTraiBuonNguoi ? 'FT26102088198842' : transCode;
-    let actualRefundTime = isTraiBuonNguoi ? '20/10/2026 17:45' : fullRefundTime;
+    const movieTitle = movieObj.shortTitle || movieObj.title;
+    const poster = movieObj.poster;
+    const movieAge = movieObj.age;
+    const movieGenre = movieObj.meta;
+    const actualCinema = view.cinema;
+    const actualShowtime = view.showtime;
+    const actualSeats = view.seats;
+    const actualCombos = view.combosText;
+    const actualTotal = Pay.vnd(view.total);
+    const actualRefundCode = demo ? demo.refundCode : refundCode;
+    const actualTransCode = demo ? demo.transCode : transCode;
+    const actualRefundTime = demo ? demo.refundTime : fullRefundTime;
 
     // Gán dữ liệu vào HTML
     document.getElementById('order-code-display').textContent = orderCode;
@@ -473,7 +446,6 @@
     document.getElementById('refund-bank-acc').textContent = maskedAccText;
     document.getElementById('refund-trans-code').textContent = actualTransCode;
     document.getElementById('refund-time-display').textContent = actualRefundTime;
-    document.getElementById('top-user-name').textContent = owner;
 
     // Cập nhật mốc thời gian lịch sử đơn
     const t0 = new Date(now.getTime() - 15 * 60000);
@@ -481,11 +453,8 @@
     const t2 = new Date(now.getTime() - 5 * 60000);
     const formatStepTime = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())} · Hoàn tất`;
 
-    if (isTraiBuonNguoi) {
-      document.getElementById('time-step-1').textContent = '20/10/2026 17:30 · Hoàn tất';
-      document.getElementById('time-step-2').textContent = '20/10/2026 17:35 · Hoàn tất';
-      document.getElementById('time-step-3').textContent = '20/10/2026 17:40 · Hoàn tất';
-      document.getElementById('time-step-4').textContent = '20/10/2026 17:45 · Hoàn tất';
+    if (demo) {
+      demo.steps.forEach((t, k) => { document.getElementById('time-step-' + (k + 1)).textContent = t + ' · Hoàn tất'; });
     } else {
       document.getElementById('time-step-1').textContent = formatStepTime(t0);
       document.getElementById('time-step-2').textContent = formatStepTime(t1);

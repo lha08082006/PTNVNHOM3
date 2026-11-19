@@ -520,6 +520,391 @@ const Pay = {
     }
   },
 
+  // 6 đơn mẫu của tài khoản demo (dùng ở account.html và invoice.html)
+  DEMO_INVOICES: {
+    'BC2885539882': {
+      code: 'BC2885539882',
+      invoiceNumber: 'HD-2026-009140',
+      symbol: '1C26TBB',
+      createdAt: '05/11/2026 21:56:43',
+      movieTitle: 'QUỶ ĂN TẠNG 4: LỜI NGUYỄN TRỞ LẠI',
+      moviePoster: 'images/posters/quy-an-tang-4.jpg',
+      movieAge: 'C18',
+      format: '2D Phụ Đề',
+      cinema: 'Beta Thanh Xuân (Hà Nội)',
+      room: 'Phòng chiếu 02',
+      showtime: '12:15 • Thứ 5 (05/11/2026)',
+      seats: 'D5 (Ghế VIP)',
+      customerName: 'LƯƠNG HỒNG ANH',
+      customerPhone: '0912 345 678',
+      customerEmail: 'luonghonganh@email.com',
+      memberId: 'BM-99281 (Beta VIP Gold)',
+      paymentMethod: 'VietQR / SePay (Cấp bù vé)',
+      bankTransCode: 'VQR-261105-39882',
+      statusBadge: '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (CẤP BÙ VÉ)</span>',
+      statusNote: 'Hóa đơn đã được đối soát thành công và cấp bù vé mới theo chính sách bồi hoàn sự cố thanh toán. Vé hợp lệ vào phòng chiếu.',
+      items: [
+        { name: 'Vé xem phim 2D VIP (Ghế D5) - Cấp bù vé', qty: 1, price: 45000, amount: 45000 }
+      ],
+      subtotal: 41667,
+      vat: 3333,
+      discount: 0,
+      total: 45000
+    },
+
+    'BC2610279854': {
+      code: 'BC2610279854',
+      invoiceNumber: 'HD-2026-008921',
+      symbol: '1C26TBB',
+      createdAt: '27/10/2026 18:14:02',
+      movieTitle: 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ',
+      moviePoster: 'images/posters/linh-gioi-dai-chien.jpg',
+      movieAge: 'C18',
+      format: '2D Phụ Đề (IMAX Sound)',
+      cinema: 'Beta Thanh Xuân (Hà Nội)',
+      room: 'Phòng chiếu 01',
+      showtime: '18:30 • Hôm nay (29/10/2026)',
+      seats: 'F07, F08 (Ghế VIP)',
+      customerName: 'LƯƠNG HỒNG ANH',
+      customerPhone: '0912 345 678',
+      customerEmail: 'luonghonganh@email.com',
+      memberId: 'BM-99281 (Beta VIP Gold)',
+      paymentMethod: 'VietQR / SePay (Tài khoản ngân hàng)',
+      bankTransCode: 'VQR-261027-88291',
+      statusBadge: '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN (HỢP LỆ)</span>',
+      statusNote: 'Hóa đơn đã được thanh toán đầy đủ và hợp lệ. Vé sẵn sàng quét mã vào cửa tại cụm rạp Beta Thanh Xuân.',
+      items: [
+        { name: 'Vé xem phim 2D VIP (Ghế F07, F08)', qty: 2, price: 65000, amount: 130000 },
+        { name: 'Combo Solo (1 Bắp ngọt lớn + 1 Nước ngọt 32oz)', qty: 1, price: 49000, amount: 49000 }
+      ],
+      subtotal: 165741,
+      vat: 13259,
+      discount: 0,
+      total: 179000
+    },
+    'BC2610264412': {
+      code: 'BC2610264412',
+      invoiceNumber: 'HD-2026-008650',
+      symbol: '1C26TBB',
+      createdAt: '24/10/2026 18:28:44',
+      movieTitle: 'ÚT LAN 2',
+      moviePoster: 'images/posters/ut-lan-2.jpg',
+      movieAge: 'C16',
+      format: '2D Phụ Đề',
+      cinema: 'Beta Trần Quang Khải (Hà Nội)',
+      room: 'Phòng chiếu 01',
+      showtime: '18:30 • 24/10/2026',
+      seats: 'E07, E08 (Ghế Thường)',
+      customerName: 'LƯƠNG HỒNG ANH',
+      customerPhone: '0912 345 678',
+      customerEmail: 'luonghonganh@email.com',
+      memberId: 'BM-99281 (Beta VIP Gold)',
+      paymentMethod: 'VietQR Chuyển khoản',
+      bankTransCode: 'ERR-TIMEOUT-4412',
+      statusBadge: '<span class="badge" style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 11px;">⚠️ ĐÃ HỦY (CHƯA HOÀN TIỀN)</span>',
+      statusNote: 'Giao dịch bị lỗi timeout giữ ghế rạp nhưng tài khoản ngân hàng đã bị trừ tiền 150.000 đ. Đơn hàng đang chờ khách hàng gửi form yêu cầu hoàn tiền hoặc nhờ BetaBot đối soát.',
+      items: [
+        { name: 'Vé xem phim 2D Thường (Ghế E07, E08)', qty: 2, price: 75000, amount: 150000 }
+      ],
+      subtotal: 138889,
+      vat: 11111,
+      discount: 0,
+      total: 150000
+    },
+    'BC2610227189': {
+      code: 'BC2610227189',
+      invoiceNumber: 'HD-2026-008339',
+      symbol: '1C26TBB',
+      createdAt: '22/10/2026 19:40:55',
+      movieTitle: 'ÁN MẠNG KARAOKE',
+      moviePoster: 'images/posters/an-mang-karaoke.jpg',
+      movieAge: 'C16',
+      format: '2D Phụ Đề',
+      cinema: 'Beta Mỹ Đình (Hà Nội)',
+      room: 'Phòng chiếu 03',
+      showtime: '20:00 • 22/10/2026',
+      seats: 'F11, F12 (Ghế VIP) + 1x Bắp Phô Mai',
+      customerName: 'LƯƠNG HỒNG ANH',
+      customerPhone: '0912 345 678',
+      customerEmail: 'luonghonganh@email.com',
+      memberId: 'BM-99281 (Beta VIP Gold)',
+      paymentMethod: 'SePay VietQR',
+      bankTransCode: 'REF-2610-915',
+      statusBadge: '<span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 11px;">⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)</span>',
+      statusNote: 'Hồ sơ hoàn tiền đã được kế toán rạp duyệt hợp lệ. Hiện đang ở Bước 3/5 (Hệ thống phát lệnh tự động chuyển tiền hoàn lại, nếu quá 24h sẽ chuyển sang Bước 4: Nhân viên xử lý).',
+      items: [
+        { name: 'Vé xem phim 2D VIP (Ghế F11, F12)', qty: 2, price: 80000, amount: 160000 },
+        { name: 'Bắp Rang Phô Mai Lớn', qty: 1, price: 50000, amount: 50000 }
+      ],
+      subtotal: 194444,
+      vat: 15556,
+      discount: 0,
+      total: 210000
+    },
+    'BC2610208819': {
+      code: 'BC2610208819',
+      invoiceNumber: 'HD-2026-008105',
+      symbol: '1C26TBB',
+      createdAt: '20/10/2026 17:30:10',
+      movieTitle: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI',
+      moviePoster: 'images/posters/trai-buon-nguoi.jpg',
+      movieAge: 'C16',
+      format: '2D Phụ Đề Tiếng Anh',
+      cinema: 'Beta Thanh Xuân (Hà Nội)',
+      room: 'Phòng chiếu 02',
+      showtime: '21:00 • 20/10/2026',
+      seats: 'G09, G10 (Ghế VIP)',
+      customerName: 'LƯƠNG HỒNG ANH',
+      customerPhone: '0912 345 678',
+      customerEmail: 'luonghonganh@email.com',
+      memberId: 'BM-99281 (Beta VIP Gold)',
+      paymentMethod: 'VietQR (Đã hoàn tiền 100%)',
+      bankTransCode: 'REF-2610-889',
+      statusBadge: '<span class="badge" style="background: rgb(106, 166, 255); color: rgb(18, 20, 28); font-weight: 800; font-size: 11px;">ĐÃ HOÀN TIỀN</span>',
+      statusNote: 'Hóa đơn đã hủy theo yêu cầu của khách hàng trước giờ chiếu 120 phút. Đã giải ngân hoàn tiền 100% (180.000 đ) qua VietQR ngày 20/10/2026.',
+      items: [
+        { name: 'Vé xem phim 2D VIP (Ghế G09, G10)', qty: 2, price: 90000, amount: 180000 }
+      ],
+      subtotal: 166667,
+      vat: 13333,
+      discount: 0,
+      total: 180000
+    },
+    'BC2610153321': {
+      code: 'BC2610153321',
+      invoiceNumber: 'HD-2026-007412',
+      symbol: '1C26TBB',
+      createdAt: '15/10/2026 19:42:15',
+      movieTitle: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI',
+      moviePoster: 'images/posters/quy-an-tang-4.jpg',
+      movieAge: 'C18',
+      format: '2D Phụ Đề',
+      cinema: 'Beta Giải Phóng (Hà Nội)',
+      room: 'Phòng chiếu 02',
+      showtime: '20:15 • 15/10/2026',
+      seats: 'D05, D06 (Ghế VIP)',
+      customerName: 'LƯƠNG HỒNG ANH',
+      customerPhone: '0912 345 678',
+      customerEmail: 'luonghonganh@email.com',
+      memberId: 'BM-99281 (Beta VIP Gold)',
+      paymentMethod: 'VNPAY-QR',
+      bankTransCode: 'VNP-261015-33210',
+      statusBadge: '<span class="badge" style="background: #e2e8f0; color: #475569; font-weight: 800; font-size: 11px;">✓ ĐÃ XEM HOÀN TẤT</span>',
+      statusNote: 'Suất chiếu đã kết thúc. Hóa đơn điện tử đã được đối soát và lưu trữ vào sổ sách kế toán điện tử.',
+      items: [
+        { name: 'Vé xem phim 2D VIP (Ghế D05, D06)', qty: 2, price: 65000, amount: 130000 }
+      ],
+      subtotal: 120370,
+      vat: 9630,
+      discount: 0,
+      total: 130000
+    }
+  },
+
+  // Bản sao để trang có thể thêm / sửa mà không đụng dữ liệu gốc
+  demoInvoices() {
+    return JSON.parse(JSON.stringify(Pay.DEMO_INVOICES));
+  },
+
+  // Nhãn trạng thái đơn hàng dùng chung
+  STATUS_BADGES: {
+    PAID:      ['#d1fae5', '#065f46', '✓ ĐÃ THANH TOÁN'],
+    PARTIAL:   ['#fef3c7', '#b45309', '⚠️ CHUYỂN THIẾU TIỀN'],
+    HOLDING:   ['#f1f5f9', '#475569', '⏳ CHỜ THANH TOÁN'],
+    EXPIRED:   ['#fee2e2', '#b91c1c', '❌ ĐÃ HỦY (QUÁ HẠN)'],
+    CANCELLED: ['#fee2e2', '#b91c1c', '❌ ĐÃ HỦY'],
+    REFUNDING: ['#dbeafe', '#1e40af', '⏳ ĐÃ HỦY (ĐANG XỬ LÝ HOÀN TIỀN)'],
+    REFUNDED:  ['#dbeafe', '#1e40af', '🎉 ĐÃ HOÀN TIỀN']
+  },
+
+  statusBadge(status) {
+    const b = Pay.STATUS_BADGES[status] || Pay.STATUS_BADGES.HOLDING;
+    return `<span class="badge" style="background: ${b[0]}; color: ${b[1]}; font-weight: 800; font-size: 11px;">${b[2]}</span>`;
+  },
+
+  // Dựng dữ liệu hóa đơn (cùng cấu trúc với DEMO_INVOICES) từ một đơn hàng bất kỳ
+  buildInvoice(ord, user) {
+    if (!ord || !ord.code) return null;
+    user = user || (typeof Layout !== 'undefined' && Layout.getUser && Layout.getUser()) || {};
+    const m = Pay.getMovie(ord.movie_key);
+    const seats = Array.isArray(ord.seats) ? ord.seats : String(ord.seats || '').split(',').map(x => x.trim()).filter(Boolean);
+    const seatsStr = seats.join(', ');
+    let combos = ord.combos || {};
+    if (typeof combos === 'string') { try { combos = JSON.parse(combos); } catch (e) { combos = {}; } }
+
+    const total = Number(ord.total || 0);
+    const comboItems = Object.keys(combos).filter(k => Number(combos[k]) > 0).map(k => {
+      const c = Pay.COMBOS[k] || { name: k, price: 0 };
+      const qty = Number(combos[k]);
+      return { name: c.name, qty, price: c.price, amount: c.price * qty };
+    });
+    const comboAmount = comboItems.reduce((sum, i) => sum + i.amount, 0);
+    const ticketAmount = Math.max(0, total - comboAmount);
+    const subtotal = Math.round(total / 1.08);
+    const notes = {
+      PAID: 'Hóa đơn đã được thanh toán đầy đủ và hợp lệ. Vé sẵn sàng quét mã vào cửa.',
+      PARTIAL: 'Đơn hàng chưa nhận đủ tiền. Vui lòng chuyển khoản phần còn thiếu trước khi hết giờ giữ ghế.',
+      HOLDING: 'Đơn hàng đang chờ thanh toán.',
+      EXPIRED: 'Đơn hàng đã hủy do quá thời gian giữ ghế. Số tiền đã chuyển (nếu có) sẽ được hoàn lại.',
+      REFUNDING: 'Đơn hàng đang được xử lý hoàn tiền.',
+      REFUNDED: 'Đơn hàng đã được hoàn tiền thành công.'
+    };
+
+    return {
+      code: ord.code,
+      rawStatus: ord.status,
+      status: ord.status,
+      invoiceNumber: 'HD-2026-' + ord.code.slice(-6),
+      symbol: '1C26TBB',
+      createdAt: new Date(ord.created_at || Date.now()).toLocaleString('vi-VN'),
+      movieTitle: m.title,
+      moviePoster: m.poster,
+      movieAge: m.age,
+      format: m.format,
+      cinema: ord.cinema || 'Beta Thanh Xuân',
+      room: 'Phòng chiếu 01',
+      showtime: (ord.show_time || '') + ' • ' + (ord.show_date || ''),
+      seats: seatsStr,
+      customerName: ord.customer_name || user.name || '',
+      customerPhone: ord.phone || user.phone || '',
+      customerEmail: ord.email || user.email || '',
+      memberId: 'BM-2026-VIP',
+      paymentMethod: 'VietQR / SePay (Ngân hàng MSB)',
+      bankTransCode: 'MSB-' + ord.code.slice(-8),
+      statusBadge: Pay.statusBadge(ord.status),
+      statusNote: notes[ord.status] || notes.HOLDING,
+      items: [
+        { name: 'Vé xem phim (Ghế ' + seatsStr + ')', qty: seats.length || 1, price: Math.round(ticketAmount / Math.max(1, seats.length)), amount: ticketAmount }
+      ].concat(comboItems),
+      subtotal,
+      vat: total - subtotal,
+      discount: 0,
+      total
+    };
+  },
+
+  // Thông tin đơn hàng đã chuẩn hóa cho các trang chi tiết đơn (vé hủy, đã hoàn, hóa đơn...)
+  // Thứ tự nguồn: đơn lưu trên trình duyệt -> đơn mẫu (DEMO_INVOICES) -> tham số URL
+  getOrderView(code) {
+    const p = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
+    let last = null;
+    try { last = localStorage.getItem('last_active_order'); } catch (e) {}
+    code = code || p.get('order') || last || 'BC2610279854';
+
+    const fromOrder = (ord) => {
+      const m = Pay.getMovie(ord.movie_key);
+      const seats = Array.isArray(ord.seats) ? ord.seats.join(', ') : String(ord.seats || '');
+      return {
+        code: ord.code || code,
+        movieKey: ord.movie_key,
+        movie: m,
+        cinema: ord.cinema || '',
+        showtime: [ord.show_time, ord.show_date].filter(Boolean).join(' • '),
+        seats,
+        combosText: Pay.comboText(ord.combos) || 'Không kèm bắp nước',
+        total: Number(ord.total || 0),
+        status: ord.status || 'HOLDING',
+        customerName: ord.customer_name || ''
+      };
+    };
+
+    const local = Pay.getLocalOrder(code);
+    if (local) return fromOrder(local);
+
+    const inv = Pay.DEMO_INVOICES[code];
+    if (inv) {
+      const key = Object.keys(Pay.MOVIES).find(k => Pay.MOVIES[k].poster === inv.moviePoster) || '';
+      return {
+        code,
+        movieKey: key,
+        movie: Object.assign({}, Pay.getMovie(key), { title: inv.movieTitle }),
+        cinema: inv.cinema + (inv.room ? ' · ' + inv.room : ''),
+        showtime: inv.showtime,
+        seats: inv.seats.replace(/\s*\(.*\)\s*$/, ''),
+        combosText: inv.items.slice(1).map(i => i.name + ' × ' + i.qty).join(', ') || 'Không kèm bắp nước',
+        total: inv.total,
+        status: inv.status || inv.rawStatus || '',
+        customerName: inv.customerName
+      };
+    }
+
+    if (p.get('movie')) return fromOrder(Object.assign(Pay.buildOrderFromUrl(code), { code }));
+    return null;
+  },
+
+  // Thông tin chi tiết cho trang movie-detail (tóm tắt, ê-kíp, trailer)
+  MOVIE_INFO: {
+    'an-mang-karaoke': {
+      release: '30/10/2026',
+      trailer: 'https://www.youtube.com/watch?v=aV4qtcKmkQo',
+      synopsis: 'Một buổi tiệc sinh nhật trong phòng karaoke biến thành án mạng khi chủ tiệc bất ngờ gục ngã. Cả nhóm bạn bị giữ lại và phải tự tìm ra hung thủ trước khi trời sáng, giữa những bí mật và tiếng cười dở khóc dở mếu.'
+    },
+    'linh-gioi-dai-chien': {
+      subtitle: 'Realm of Spirits: Zhong Kui Master (2026)',
+      release: '25/10/2026',
+      rating: '9.4 / 10 IMDb',
+      director: 'Bùi Thạc Chuyên',
+      cast: 'Thái Hòa, Quang Tuấn, Diễm My',
+      trailer: 'https://www.youtube.com/watch?v=mJ2pu6FazEA',
+      synopsis: 'Chuyện phim xoay quanh trận quyết chiến kinh thiên động địa giữa hai cõi nhân - linh, nơi thần sư Chung Quỳ cùng các đồng môn dốc toàn lực bảo vệ phong ấn thượng cổ ngăn chặn ma thần thức tỉnh. Với kỹ xảo hoành tráng và những pha hành động mãn nhãn, bộ phim mang đến trải nghiệm điện ảnh đỉnh cao cho khán giả yêu mến dòng phim tiên hiệp kỳ ảo.'
+    },
+    'quy-an-tang-4': {
+      release: '09/10/2026',
+      trailer: 'https://www.youtube.com/watch?v=7eRbgbj_AfM',
+      synopsis: 'Lời nguyền cổ xưa trở lại ngôi làng hẻo lánh, nơi những cái chết bí ẩn liên tiếp xảy ra. Một gia đình phải đối mặt với thế lực tà ác đang săn lùng nội tạng người sống.'
+    },
+    'trai-buon-nguoi': {
+      release: '17/10/2026',
+      trailer: 'https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s',
+      synopsis: 'Một thanh niên bị lừa qua biên giới với lời hứa việc nhẹ lương cao và rơi vào trại lừa đảo khép kín. Anh phải tìm cách trốn thoát và giải cứu những người cùng cảnh ngộ.'
+    },
+    'blue-lock': {
+      trailer: 'https://www.youtube.com/watch?v=8VMMDfAYi34',
+      synopsis: 'Câu chuyện của Nagi Seishiro – thiên tài bóng đá lười biếng – từ lúc được phát hiện cho đến khi bước vào dự án Blue Lock, nơi tìm kiếm tiền đạo xuất sắc nhất Nhật Bản.'
+    },
+    'ut-lan-2': {
+      release: '23/10/2026',
+      trailer: 'https://www.youtube.com/watch?v=TpwGd81RSKk',
+      synopsis: 'Út Lan trở lại với hành trình mới đầy nước mắt và tiếng cười, khi những bí mật gia đình dần hé lộ và cô phải lựa chọn giữa tình thân và hạnh phúc riêng.'
+    },
+    'suzume': {
+      director: 'Makoto Shinkai',
+      trailer: 'https://www.youtube.com/watch?v=EWLo2IF_NPU',
+      synopsis: 'Cô gái 17 tuổi Suzume vô tình mở ra những cánh cửa dẫn tới thảm họa trên khắp Nhật Bản, và bắt đầu hành trình khép lại chúng.'
+    },
+    'ca-voi-nuot-chung': {
+      trailer: 'https://www.youtube.com/watch?v=ZyGPPlhPI8M',
+      synopsis: 'Một nhóm thợ lặn bị mắc kẹt giữa đại dương sau khi con tàu bị tấn công, và phải chiến đấu để sinh tồn trước sinh vật khổng lồ dưới lòng biển.'
+    },
+    'me-min': {
+      trailer: 'https://www.youtube.com/watch?v=mTylSVV6zSo',
+      synopsis: 'Những đứa trẻ trong làng lần lượt mất tích, dẫn tới lời nguyền huyết ngải bị chôn giấu suốt nhiều thập kỷ.'
+    },
+    'shaun-the-sheep': {
+      synopsis: 'Chú cừu Shaun cùng cả nông trại bước vào chuyến phiêu lưu ngoài hành tinh đầy bất ngờ và tiếng cười.'
+    }
+  },
+
+  // Gộp MOVIES + MOVIE_INFO, tách thể loại / thời lượng / ngôn ngữ từ meta
+  getMovieDetail(key) {
+    const k = Pay.MOVIES[key] ? key : 'linh-gioi-dai-chien';
+    const base = Pay.MOVIES[k];
+    const parts = (base.meta || '').split('·').map(x => x.trim());
+    return Object.assign({
+      key: k,
+      genre: parts[0] || '',
+      duration: parts[1] || '',
+      language: parts[2] || '',
+      subtitle: '',
+      release: '',
+      rating: '',
+      director: 'Đang cập nhật',
+      cast: 'Đang cập nhật',
+      trailer: '',
+      synopsis: 'Nội dung phim đang được cập nhật.'
+    }, base, Pay.MOVIE_INFO[k] || {});
+  },
+
   // Lấy thông tin phim chuẩn theo key
   getMovie(key) {
     if (!key) return this.MOVIES['an-mang-karaoke'] || this.MOVIES['linh-gioi-dai-chien'];
@@ -547,7 +932,7 @@ const Pay = {
     const seatsEls = document.querySelectorAll('#invoice-seats, #summary-seats');
     const s = Array.isArray(ord.seats) ? ord.seats.join(', ') : (ord.seats || 'D5, D6');
     const count = Array.isArray(ord.seats) ? ord.seats.length : (ord.seats ? ord.seats.split(',').length : 2);
-    seatsEls.forEach(el => { el.textContent = s + ' (' + count + ' Ghế VIP)'; });
+    seatsEls.forEach(el => { el.textContent = s + ' (' + count + ' Ghế)'; });
 
     const ageEls = document.querySelectorAll('#invoice-movie-age, #summary-movie-age, #ticket-movie-age, .dynamic-movie-age');
     ageEls.forEach(el => { el.textContent = m.age; });

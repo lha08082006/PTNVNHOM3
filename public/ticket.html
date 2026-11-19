@@ -142,7 +142,7 @@
           Đặt Vé Thành Công!
         </h1>
         <p style="font-size: 14.5px; color: #64748b; max-width: 580px; margin: 0 auto;" id="ticket-sent-info">
-          Cảm ơn bạn <strong style="color: #005198;">LƯƠNG HỒNG ANH</strong>. Vé điện tử đã sẵn sàng. Thông tin vé và mã soát vé đã được gửi về cho khách hàng <strong style="color: #005198;" id="ticket-customer-name">LƯƠNG HỒNG ANH</strong> qua email <strong style="color: #0f172a;" id="ticket-customer-email">luonghonganh.cinema@gmail.com</strong> và SMS số <strong style="color: #0f172a;" id="ticket-customer-phone">0987654321</strong>.
+          Cảm ơn bạn <strong style="color: #005198;" id="ticket-thanks-name">LƯƠNG HỒNG ANH</strong>. Vé điện tử đã sẵn sàng. Thông tin vé và mã soát vé đã được gửi về cho khách hàng <strong style="color: #005198;" id="ticket-customer-name">LƯƠNG HỒNG ANH</strong> qua email <strong style="color: #0f172a;" id="ticket-customer-email">luonghonganh.cinema@gmail.com</strong> và SMS số <strong style="color: #0f172a;" id="ticket-customer-phone">0987654321</strong>.
         </p>
       </div>
 
@@ -520,7 +520,7 @@
       if (ord.seats && ord.seats.length > 0) {
         const s = Array.isArray(ord.seats) ? ord.seats.join(', ') : ord.seats;
         const count = Array.isArray(ord.seats) ? ord.seats.length : ord.seats.split(',').length;
-        document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' Ghế VIP)';
+        document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' Ghế)';
       }
 
       if (ord.total) {
@@ -539,9 +539,12 @@
         }
       }
 
-      const custName = ord.customer_name || 'LƯƠNG HỒNG ANH';
-      const custEmail = ord.email || 'luonghonganh.cinema@gmail.com';
-      const custPhone = ord.phone || '0987654321';
+      const user = Layout.getUser() || {};
+      const custName = ord.customer_name || user.name || 'Khách hàng';
+      const custEmail = ord.email || user.email || '';
+      const custPhone = ord.phone || user.phone || '';
+      const thankEl = document.getElementById('ticket-thanks-name');
+      if (thankEl) thankEl.textContent = custName;
 
       const custNameEl = document.getElementById('ticket-customer-name');
       if (custNameEl) custNameEl.textContent = custName;
@@ -579,7 +582,7 @@
     if (seatsParam) {
       const s = decodeURIComponent(seatsParam);
       const count = s.split(',').length;
-      document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' Ghế VIP)';
+      document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' Ghế)';
     }
 
     if (totalParam) {
@@ -602,7 +605,11 @@
       }
     }
 
-    // 2. Tra cứu chi tiết đơn hàng từ API hoặc Storage
+    // 2. Hiện ngay đơn đã lưu trên trình duyệt (nếu có), sau đó cập nhật từ API
+    if (orderParam && window.Pay) {
+      const cached = Pay.getLocalOrder(orderParam);
+      if (cached) applyOrderToTicket(cached);
+    }
     if (orderParam && window.Pay && Pay.getOrder) {
       Pay.getOrder(orderParam).then(ord => {
         if (ord) applyOrderToTicket(ord);
