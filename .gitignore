@@ -25,3 +25,6 @@ mockups-png/
 
 # Chỉ mục CodeGraph (sinh tự động trên máy)
 .codegraph/
+
+# Bản sao lưu dữ liệu (npm run backup) – có thông tin khách hàng, không đưa lên git
+backups/

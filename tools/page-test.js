@@ -48,6 +48,8 @@ async function startServer() {
         page.on('request', r => EXTERNAL.test(r.url()) ? r.abort() : r.continue());
         const errs = [];
         page.on('pageerror', e => errs.push(e.message));
+        // Header bảo mật (CSP) chặn nhầm tài nguyên của chính web -> coi là lỗi
+        page.on('console', m => { if (m.type() === 'error' && /Content Security Policy|Refused to (load|execute|connect|frame|apply)/i.test(m.text())) errs.push('CSP: ' + m.text().slice(0, 200)); });
         page.on('dialog', d => d.dismiss());
         try {
           await page.goto(srv.url + file, { waitUntil: 'networkidle2', timeout: 20000 });

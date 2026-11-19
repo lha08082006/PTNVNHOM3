@@ -298,7 +298,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -375,6 +375,15 @@
       <!-- Hàng ghế vẽ theo sơ đồ phòng của suất chiếu (Đợt 3) -->
       <div id="seat-rows" style="display: flex; flex-direction: column; gap: 8px; align-items: center;"><p class="m">Đang tải sơ đồ ghế…</p></div>
 
+    </div>
+
+    <!-- Đợt 5: chọn giúp ghế đẹp nhất còn trống (liền nhau, gần giữa phòng, hàng 2/3 phía sau) -->
+    <div id="auto-pick" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; font-size: 14px;">
+      <span style="font-weight: 700;">Chọn giúp tôi</span>
+      <select id="ap-count" aria-label="Số ghế" style="height: 38px; border-radius: 8px; border: 1.5px solid var(--border-dark, #cbd5e1); padding: 0 8px;"></select>
+      <select id="ap-type" aria-label="Loại ghế" style="height: 38px; border-radius: 8px; border: 1.5px solid var(--border-dark, #cbd5e1); padding: 0 8px;"></select>
+      <button type="button" class="o" id="ap-go" style="min-height: 38px; padding: 0 14px;">Chọn ghế đẹp nhất</button>
+      <span id="ap-msg" role="status" style="font-size: 13px; color: #b45309;"></span>
     </div>
 
     <!-- Chú Giải Trạng Thái Ghế -->
@@ -672,6 +681,55 @@
     }
 
     // Đánh dấu ghế đang có người giữ / đã bán theo dữ liệu thật của suất chiếu (NFR-05)
+    // Chọn giúp ghế đẹp: tìm dãy ghế trống liền nhau (không vượt lối đi / ghế bỏ trống) cùng loại,
+    // ưu tiên hàng ở khoảng 2/3 phía sau màn hình và gần giữa hàng nhất.
+    function setupAutoPick() {
+      const types = [...new Set(LAYOUT.rows.map(r => r.type))];
+      const label = { standard: 'Ghế thường', vip: 'Ghế VIP', sweetbox: 'Ghế đôi' };
+      const typeSel = document.getElementById('ap-type'), countSel = document.getElementById('ap-count');
+      typeSel.innerHTML = types.map(t => '<option value="' + t + '"' + (t === 'vip' ? ' selected' : '') + '>' + label[t] + '</option>').join('');
+      const fillCount = () => {
+        const max = typeSel.value === 'sweetbox' ? Math.floor(BetaCatalog.MAX_SEATS / 2) : BetaCatalog.MAX_SEATS;
+        const cur = Number(countSel.value) || 2;
+        countSel.innerHTML = Array.from({ length: max }, (_, i) => '<option value="' + (i + 1) + '"' + (i + 1 === Math.min(cur, max) ? ' selected' : '') + '>' + (i + 1) + (typeSel.value === 'sweetbox' ? ' cặp' : ' ghế') + '</option>').join('');
+      };
+      typeSel.onchange = fillCount;
+      fillCount();
+      document.getElementById('ap-go').onclick = () => {
+        const want = Number(countSel.value), type = typeSel.value, msg = document.getElementById('ap-msg');
+        msg.textContent = '';
+        const free = (id) => { const el = document.querySelector('.r i[data-id="' + id + '"]'); return el && !el.classList.contains('x') && !el.classList.contains('h') && !el.classList.contains('k'); };
+        const target = (LAYOUT.rows.length - 1) * 0.6;
+        let best = null;
+        LAYOUT.rows.forEach((x, ri) => {
+          if (x.type !== type) return;
+          const idOf = (k) => x.type === 'sweetbox' ? x.r + (2 * k - 1) + '-' + x.r + (2 * k) : x.r + k;
+          let run = [];
+          const flush = () => {
+            for (let s = 0; s + want <= run.length; s++) {
+              const win = run.slice(s, s + want);
+              const mid = (win[0] + win[win.length - 1]) / 2;
+              const score = Math.abs(ri - target) * 2 + Math.abs(mid - (x.n + 1) / 2) / Math.max(1, x.n / 6);
+              if (!best || score < best.score) best = { score, ids: win.map(idOf) };
+            }
+            run = [];
+          };
+          for (let k = 1; k <= x.n; k++) {
+            if ((x.off || []).includes(k) || !free(idOf(k))) flush(); else run.push(k);
+            if ((x.gaps || []).includes(k)) flush();
+          }
+          flush();
+        });
+        if (!best) { msg.textContent = 'Không còn ' + want + ' ' + (type === 'sweetbox' ? 'cặp ghế đôi' : 'ghế') + ' liền nhau loại này. Thử ít ghế hơn hoặc loại khác.'; return; }
+        selectedSeats.slice().forEach(s => { const el = document.querySelector('.r i[data-id="' + s.id + '"]'); if (el) el.click(); });
+        best.ids.forEach(id => { const el = document.querySelector('.r i[data-id="' + id + '"]'); if (el) el.click(); });
+        const first = document.querySelector('.r i[data-id="' + best.ids[0] + '"]');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        msg.style.color = '#15803d';
+        msg.textContent = 'Đã chọn ' + best.ids.join(', ');
+      };
+    }
+
     async function markTakenSeats() {
       if (!window.Pay || !Pay.getTakenSeats) return;
       if (!SHOWTIME) return;
@@ -708,6 +766,7 @@
       if (pr && pr.ticket_types) TYPES = pr.ticket_types;
       ['standard', 'vip', 'sweetbox'].forEach(t => { const el = document.getElementById('lg-' + t); if (el) el.textContent = Pay.vnd(PRICES[t]).replace(' ', ''); });
       renderGrid();
+      setupAutoPick();
       initParams();
       markTakenSeats();
     })();

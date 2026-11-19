@@ -145,7 +145,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         
@@ -346,6 +346,13 @@
       <div class="ticket-actions" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 30px;">
         <button type="button" class="btn btn-primary" id="btn-save-ticket" onclick="saveTicketImage()">
           <i class="ph-tray-arrow-down" aria-hidden="true"></i> Lưu Ảnh Vé Về Điện Thoại
+        </button>
+        <!-- Đợt 5: thêm vào lịch điện thoại, mời bạn đi cùng (không chia sẻ mã QR) -->
+        <button type="button" class="btn btn-outline" id="btn-add-cal" hidden onclick="addToCalendar()">
+          <i class="ph-calendar" aria-hidden="true"></i> Thêm Vào Lịch
+        </button>
+        <button type="button" class="btn btn-outline" id="btn-invite" hidden onclick="inviteFriends()">
+          <i class="ph-paper-plane-right" aria-hidden="true"></i> Mời Bạn Đi Cùng
         </button>
         <button type="button" class="btn btn-outline" id="btn-resend-ticket" onclick="Pay.resendTicketUI(new URLSearchParams(location.search).get('order'), this)">
           <i class="ph-envelope" aria-hidden="true"></i> Gửi Lại Vé Qua Email
@@ -710,8 +717,49 @@
     }
     window.saveTicketImage = saveTicketImage;
 
+    // Lịch & lời mời (Đợt 5)
+    let ORDER_FOR_CAL = null;
+    function calInfo() {
+      const o = ORDER_FOR_CAL;
+      const title = (o.movie && o.movie.title) || document.getElementById('ticket-movie-title').textContent.trim();
+      const start = new Date(o.show_at);
+      const end = new Date(start.getTime() + ((o.movie && o.movie.duration_min) || 120) * 60000 + 15 * 60000);
+      return { o, title, start, end, where: o.cinema + (CINEMA_ADDRESSES[o.cinema] ? ', ' + CINEMA_ADDRESSES[o.cinema] : '') };
+    }
+    function addToCalendar() {
+      const c = calInfo();
+      const ics = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+      const esc = (s) => String(s).replace(/[\\;,]/g, (m) => '\\' + m).replace(/\n/g, '\\n');
+      const body = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Beta Cinemas//Ve xem phim//VI', 'BEGIN:VEVENT',
+        'UID:' + c.o.code + '@betacinemas', 'DTSTAMP:' + ics(new Date()), 'DTSTART:' + ics(c.start), 'DTEND:' + ics(c.end),
+        'SUMMARY:' + esc('🎬 ' + c.title), 'LOCATION:' + esc(c.where),
+        'DESCRIPTION:' + esc('Ghế ' + (c.o.seats || []).join(', ') + ' · Mã đơn ' + c.o.code + '. Mở vé QR trong mục Tài khoản trước khi vào rạp.'),
+        'BEGIN:VALARM', 'TRIGGER:-PT1H', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc('1 giờ nữa: ' + c.title), 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([body], { type: 'text/calendar;charset=utf-8' }));
+      a.download = 've-' + c.o.code + '.ics';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    async function inviteFriends() {
+      const c = calInfo();
+      const when = c.start.toLocaleString('vi-VN', { weekday: 'long', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
+      const text = 'Đi xem "' + c.title + '" cùng mình nhé! ' + when + ' tại ' + c.o.cinema + ', ghế ' + (c.o.seats || []).join(', ') + '.';
+      const url = location.origin + '/phim/' + encodeURIComponent(c.o.movie_key);
+      try {
+        if (navigator.share) await navigator.share({ title: c.title, text, url });
+        else { await navigator.clipboard.writeText(text + ' ' + url); alert('Đã sao chép lời mời – dán vào Zalo / Messenger để gửi bạn bè.'); }
+      } catch (e) { if (e && e.name !== 'AbortError') alert('Không chia sẻ được: ' + e.message); }
+    }
+    window.addToCalendar = addToCalendar;
+    window.inviteFriends = inviteFriends;
+
     function applyOrderToTicket(ord) {
       if (!ord) return;
+      if (ord.kind !== 'FNB' && ord.show_at) {
+        ORDER_FOR_CAL = ord;
+        document.getElementById('btn-add-cal').hidden = false;
+        document.getElementById('btn-invite').hidden = false;
+      }
       const movieObj = ord.kind === 'FNB' ? Pay.FNB_MOVIE : resolveMovie(ord.movie_key);
       if (ord.kind === 'FNB') {
         // Đơn bắp nước: không có suất / ghế – nhân viên quầy quét QR để giao món

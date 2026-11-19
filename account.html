@@ -429,7 +429,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         
@@ -523,6 +523,9 @@
         <button class="account-nav-btn active" id="btn-tab-orders" onclick="switchAccountTab('orders')">
           <span><i class="ph-ticket" aria-hidden="true"></i></span> Lịch Sử Đặt Vé & Đơn Hàng
         </button>
+        <button class="account-nav-btn" id="btn-tab-movies" onclick="switchAccountTab('movies')">
+          <span><i class="ph-film-strip" aria-hidden="true"></i></span> Phim Của Tôi
+        </button>
         <button class="account-nav-btn" id="btn-tab-points" onclick="switchAccountTab('points')">
           <span><i class="ph-coins" aria-hidden="true"></i></span> Điểm Beta Club
         </button>
@@ -615,6 +618,18 @@
             </button>
           </div>
 
+        </div>
+      </div>
+
+      <!-- Panel: Phim của tôi (Đợt 5) – yêu thích & đã xem -->
+      <div id="panel-movies" style="display: none;">
+        <div class="card" style="padding: 26px; margin-bottom: 18px;">
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--beta-navy); margin: 0 0 14px;">Phim yêu thích</h3>
+          <div id="mv-favs" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px;"><p style="color: #64748b;">Đang tải…</p></div>
+        </div>
+        <div class="card" style="padding: 26px;">
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--beta-navy); margin: 0 0 14px;">Phim đã xem</h3>
+          <div id="mv-history"><p style="color: #64748b;">Đang tải…</p></div>
         </div>
       </div>
 
@@ -864,6 +879,10 @@
         html += `<a href="refund.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #dc2626; border-color: #dc2626; font-weight: 700;"><i class=ph-note-pencil aria-hidden=true></i> Điền biểu mẫu nhận hoàn tiền</a>`;
       }
       html += `<a href="order.html?code=${c}" class="btn btn-outline btn-sm" ${stop} style="border-color: #005198; color: #005198; font-weight: 700;"><i class=ph-trend-up aria-hidden=true></i> Theo dõi đơn hàng</a>`;
+      // Đặt lại một chạm (Đợt 5): vé -> trang phim chọn suất mới; bắp nước -> giỏ cùng món
+      const combos = Object.fromEntries(Object.entries(o.combos || {}).filter(([, q]) => q > 0));
+      if (o.kind === 'FNB') html += `<a href="bap-nuoc.html?combos=${encodeURIComponent(JSON.stringify(combos))}" class="btn btn-outline btn-sm" ${stop} style="font-weight: 700;"><i class=ph-repeat aria-hidden=true></i> Đặt lại</a>`;
+      else if (o.movie_key) html += `<a href="phim/${encodeURIComponent(o.movie_key)}#booking-area" class="btn btn-outline btn-sm" ${stop} style="font-weight: 700;"><i class=ph-repeat aria-hidden=true></i> Đặt lại phim này</a>`;
       return html;
     }
 
@@ -958,9 +977,9 @@
     }
 
     function switchAccountTab(tab) {
-      if (!['orders', 'points', 'profile', 'password'].includes(tab)) tab = 'orders';
+      if (!['orders', 'movies', 'points', 'profile', 'password'].includes(tab)) tab = 'orders';
       document.querySelectorAll('.account-nav-btn').forEach(btn => btn.classList.remove('active'));
-      ['orders', 'points', 'profile', 'password'].forEach(t => {
+      ['orders', 'movies', 'points', 'profile', 'password'].forEach(t => {
         document.getElementById('panel-' + t).style.display = t === tab ? 'block' : 'none';
       });
       document.getElementById('btn-tab-' + tab).classList.add('active');
@@ -1007,6 +1026,29 @@
       }
     }
 
+    // Phim của tôi (Đợt 5): yêu thích + đã xem (đơn đã soát vé)
+    async function loadMyMovies() {
+      try {
+        const [f, h] = await Promise.all([Pay.call('member?action=favorites'), Pay.call('member?action=history')]);
+        document.getElementById('mv-favs').innerHTML = f.favorites.length ? f.favorites.map(m => `
+          <div style="text-align: center;">
+            <a href="phim/${encodeURIComponent(m.key)}"><img src="${esc(m.poster || 'images/logo-official.png')}" alt="" loading="lazy" style="width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 10px; background: #e2e8f0;"></a>
+            <a href="phim/${encodeURIComponent(m.key)}" style="display: block; font-size: 13px; font-weight: 700; color: #0f172a; margin: 6px 0 4px; text-decoration: none;">${esc(m.title)}</a>
+            <button type="button" class="btn btn-outline btn-sm" onclick="unFav('${esc(m.key)}')">Bỏ yêu thích</button>
+          </div>`).join('') : '<p style="color: #64748b; font-size: 13.5px;">Chưa có phim yêu thích. Bấm ♡ Yêu thích ở trang phim để lưu lại.</p>';
+        document.getElementById('mv-history').innerHTML = h.history.length ? h.history.map(x => `
+          <div style="display: flex; gap: 12px; align-items: center; border-top: 1px solid #f1f5f9; padding: 10px 0;">
+            <img src="${esc(x.poster || 'images/logo-official.png')}" alt="" loading="lazy" style="width: 46px; height: 68px; object-fit: cover; border-radius: 6px; background: #e2e8f0;">
+            <div style="flex: 1; min-width: 0;"><b style="font-size: 14px;">${esc(x.title)}</b>
+              <div style="font-size: 12.5px; color: #64748b;">${esc(x.cinema)} · ${esc(x.show_time)} ${esc(x.show_date)}</div></div>
+            ${x.my_rating ? `<span style="color: #f59e0b; font-weight: 800;" aria-label="Bạn chấm ${x.my_rating} sao">${'★'.repeat(x.my_rating)}</span>` : `<a class="btn btn-outline btn-sm" href="phim/${encodeURIComponent(x.movie_key)}#reviews">Đánh giá</a>`}
+          </div>`).join('') : '<p style="color: #64748b; font-size: 13.5px;">Chưa có phim đã xem (tính khi vé được soát tại rạp).</p>';
+      } catch (e) { document.getElementById('mv-favs').innerHTML = '<p style="color: #b91c1c;">' + esc(e.message) + '</p>'; }
+    }
+    async function unFav(key) {
+      try { await Pay.post('member?action=favorite', { movie: key, on: false }); loadMyMovies(); } catch (e) { alert(e.message); }
+    }
+
     // Beta Club: điểm, hạng, lịch sử điểm
     async function loadPoints() {
       try {
@@ -1048,6 +1090,7 @@
       document.getElementById('member-since').textContent = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '—';
       switchAccountTab(new URLSearchParams(location.search).get('tab') || 'orders');
       loadPoints();
+      loadMyMovies();
       await loadOrders();
       setInterval(() => { if (!document.hidden) loadOrders(); }, 20000);
     })();

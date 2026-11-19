@@ -1106,6 +1106,79 @@ async function test(name, fn) {
     assert.strictEqual(tr('Thanh toán ngay'), 'Pay now');
   });
 
+  // ======================= Đợt 5: vận hành, chặn spam, SEO trang phim, phim yêu thích =======================
+  await test('Đợt 5: lỗi 5xx được ghi log, không lộ chi tiết; lỗi dồn dập -> cảnh báo 1 lần / giờ', async () => {
+    const Store = require('../lib/store');
+    const Ops = require('../lib/ops');
+    const { fail } = require('../lib/api-util');
+    let out;
+    const res = { __route: 'thu-nghiem', status(c) { this.code = c; return this; }, json(d) { out = d; return this; } };
+    await fail(res, new Error('connection reset by peer at db:5432'));
+    assert.strictEqual(res.code, 500);
+    assert.ok(!/5432/.test(out.error), 'không lộ lỗi kỹ thuật cho khách');
+    await fail(res, Object.assign(new Error('Ghế đã bán'), { http: 409 }));
+    assert.strictEqual(out.error, 'Ghế đã bán');
+    for (let i = 0; i < 5; i++) await Ops.error('api:thu-nghiem', new Error('lỗi ' + i));
+    const alerts = (await Store.find('notifications', { order_code: 'ALERT', event: 'ALERT:error-burst' }));
+    assert.strictEqual(alerts.length, 1, 'chỉ gửi 1 cảnh báo dù nhiều lỗi');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const s = (await ql.get('system_status')).data;
+    assert.ok(s.errors_24h >= 6 && s.recent_alerts.length >= 1);
+    assert.strictEqual((await asStaff(await staffLogin('ketoan@beta.local')).get('system_status')).status, 403);
+  });
+
+  await test('Đợt 5: health, sao lưu chỉ Quản lý, cron ghi lần chạy, chặn spam theo IP', async () => {
+    assert.strictEqual((await call('health')).data.db, 'ok');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const bk = await call('admin', { query: { action: 'backup' }, headers: { authorization: 'Bearer ' + ql.token } });
+    assert.strictEqual(bk.status, 200);
+    const data = JSON.parse(bk.body);
+    assert.ok(Array.isArray(data.tables.orders) && data.tables.orders.length > 0 && Array.isArray(data.tables.customers));
+    assert.strictEqual((await asStaff(await staffLogin('cskh@beta.local')).get('backup')).status, 403);
+    await call('cron');
+    assert.ok((await ql.get('system_status')).data.last_cron);
+    // Dispatcher: 31 lần POST liên tiếp cùng IP vào cùng API -> lần thứ 31 bị chặn 429
+    const dispatch = require('../api/[route].js');
+    let last;
+    for (let i = 0; i < 31; i++) {
+      const res = { headers: {}, status(c) { this.code = c; return this; }, json(d) { this.data = d; return this; }, setHeader(k, v) { this.headers[k] = v; }, end() {} };
+      await dispatch({ method: 'POST', query: { route: 'events' }, body: {}, headers: { 'x-forwarded-for': '203.0.113.9' } }, res);
+      last = res;
+    }
+    assert.strictEqual(last.code, 429);
+    assert.ok(Number(last.headers['Retry-After']) > 0);
+    // IP khác không bị ảnh hưởng; webhook không bị giới hạn
+    const other = { headers: {}, status(c) { this.code = c; return this; }, json(d) { this.data = d; return this; }, setHeader() {}, end() {} };
+    await dispatch({ method: 'POST', query: { route: 'events' }, body: {}, headers: { 'x-forwarded-for': '198.51.100.7' } }, other);
+    assert.strictEqual(other.code, 400);
+  });
+
+  await test('Đợt 5: trang /phim/<mã> có sẵn tiêu đề, mô tả, ảnh chia sẻ, dữ liệu có cấu trúc', async () => {
+    const r = await call('movie-page', { query: { slug: 'suzume' }, headers: { host: 'beta.test', 'x-forwarded-proto': 'https' } });
+    assert.strictEqual(r.status, 200);
+    assert.ok(/<title>KHÓA CHẶT CỬA NÀO SUZUME - Lịch chiếu &amp; đặt vé \| Beta Cinemas<\/title>/.test(r.body));
+    assert.ok(r.body.includes('<link rel="canonical" href="https://beta.test/phim/suzume">'));
+    assert.ok(r.body.includes('property="og:image" content="https://beta.test/images/'));
+    const ld = JSON.parse(r.body.match(/<script type="application\/ld\+json" id="ld-movie">(.*?)<\/script>/)[1]);
+    assert.strictEqual(ld['@type'], 'Movie');
+    assert.strictEqual(ld.director.name, 'Makoto Shinkai');
+    assert.strictEqual((await call('movie-page', { query: { slug: 'khong-co' } })).status, 404);
+    assert.strictEqual((await call('movie-page', { query: { slug: '<script>' } })).status, 404);
+  });
+
+  await test('Đợt 5: phim yêu thích & phim đã xem', async () => {
+    assert.strictEqual((await call('member', { method: 'POST', token: tokE, query: { action: 'favorite' }, body: { movie: 'khong-co' } })).status, 404);
+    const f = await call('member', { method: 'POST', token: tokE, query: { action: 'favorite' }, body: { movie: 'suzume' } });
+    assert.deepStrictEqual(f.data.favorites.map(x => x.key), ['suzume']);
+    await call('member', { method: 'POST', token: tokE, query: { action: 'favorite' }, body: { movie: 'suzume' } }); // bấm lại không trùng
+    assert.strictEqual((await call('member', { token: tokE, query: { action: 'favorites' } })).data.favorites.length, 1);
+    assert.strictEqual((await call('member', { method: 'POST', token: tokE, query: { action: 'favorite' }, body: { movie: 'suzume', on: false } })).data.favorites.length, 0);
+    const h = (await call('member', { token: tokE, query: { action: 'history' } })).data.history;
+    assert.ok(h.length >= 1, 'đơn đã soát vé ở kiểm thử đánh giá phải hiện là đã xem');
+    assert.ok(h.every(x => x.order_code && x.title));
+    assert.ok(h.some(x => x.my_rating === 5));
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

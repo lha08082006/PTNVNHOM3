@@ -13,6 +13,7 @@
   7. `migrations/2026-11-24_dot-2-beta-club.sql` — Beta Club (điểm thưởng, hạng, quà sinh nhật), đánh giá phim, mua bắp nước riêng
   8. `migrations/2026-11-25_dot-3-phong-chieu-thue-rap.sql` — phòng chiếu có sơ đồ ghế riêng, thuê rạp / vé nhóm / Private Show, "Nhắc tôi khi mở bán"
   9. `migrations/2026-11-26_dot-4-cong-thanh-toan-hoa-don.sql` — phiên thanh toán VNPay / MoMo / ZaloPay, yêu cầu xuất hóa đơn điện tử
+  10. `migrations/2026-11-27_dot-5-van-hanh-yeu-thich.sql` — ghi lỗi máy chủ, cảnh báo, trạng thái vận hành, phim yêu thích
 
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 
@@ -30,6 +31,7 @@
 | `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET` | tùy chọn | Bật nút VNPay. Mặc định gọi **sandbox**; production đặt thêm `VNPAY_PAY_URL`, `VNPAY_API_URL`. Khai báo IPN URL `<SITE_URL>/api/pay?action=ipn&provider=vnpay` trên cổng VNPay |
 | `MOMO_PARTNER_CODE`, `MOMO_ACCESS_KEY`, `MOMO_SECRET_KEY` | tùy chọn | Bật nút MoMo (sandbox mặc định; production đặt `MOMO_ENDPOINT=https://payment.momo.vn`) |
 | `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2` | tùy chọn | Bật nút ZaloPay (sandbox mặc định; production đặt `ZALOPAY_ENDPOINT=https://openapi.zalopay.vn`) |
+| `ALERT_EMAILS` | tùy chọn | Email nhận cảnh báo hệ thống (cách nhau dấu phẩy). Trống → gửi cho mọi tài khoản Quản lý. Cần `RESEND_API_KEY` để gửi thật |
 | `INVOICE_REQUEST_HOURS` | tùy chọn | Số giờ sau khi thanh toán khách còn được gửi yêu cầu hóa đơn (mặc định 24 – Kế toán xác nhận theo quy định) |
 | `SITE_URL` | tùy chọn | Dùng cho link "Xem đơn hàng" trong email |
 | `ALLOW_SANDBOX` | **không** đặt trên production | `1` = mở `/api/simulate-payment` (vẫn cần `x-admin-key`) cho UAT |
@@ -68,6 +70,13 @@ Phải tự làm trên các dịch vụ bên ngoài, code không làm thay đư�
   - [ ] Hồ sơ hoàn tiền thủ công: CSKH gửi → Kế toán trả về → gửi lại → chi → hoàn tất.
 - [ ] Rà lại nội dung `policy.html` (điều khoản, bảo mật, hoàn tiền) với người phụ trách pháp lý/kế toán trước khi công bố.
 - [ ] Gửi `https://<tên-miền>/sitemap.xml` lên Google Search Console.
+
+### Giám sát & sao lưu (Đợt 5)
+
+- Đăng ký một dịch vụ giám sát miễn phí (UptimeRobot, Better Stack…) gọi `https://<tên-miền>/api/health` mỗi 5 phút: trả 503 = database không trả lời.
+- Hệ thống tự gửi email cảnh báo cho Quản lý khi: lỗi máy chủ dồn dập, webhook / IPN bị từ chối liên tục (sai khóa), Job hằng ngày lỗi, hồ sơ hoàn tiền thủ công quá 24 giờ. Xem lại ở admin.html → IT / Dev → Tình trạng hệ thống.
+- Sao lưu: admin.html → IT / Dev → **Tải bản sao lưu dữ liệu**, hoặc trên máy có `.env`: `npm run backup` (file vào thư mục `backups/`). Nên làm mỗi tuần, cất ở nơi an toàn (file có dữ liệu khách hàng).
+- Ảnh mới: chạy `node tools/optimize-images.js --write` để tạo bản WebP + bản 800px cho điện thoại. Đo tốc độ: `node tools/perf.js http://localhost:5000`.
 
 ### Theo dõi hằng ngày sau khi mở bán
 

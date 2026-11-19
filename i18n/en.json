@@ -160,6 +160,26 @@
   [
    "^(T[2-7]|CN|Hôm nay) - (\\d{1,2}/\\d{1,2})$",
    "{1} - $2"
+  ],
+  [
+   "^(\\d+) ghế$",
+   "$1 seat(s)"
+  ],
+  [
+   "^(\\d+) cặp$",
+   "$1 pair(s)"
+  ],
+  [
+   "^Đã chọn (.+)$",
+   "Selected $1"
+  ],
+  [
+   "^Không còn (\\d+) (ghế|cặp ghế đôi) liền nhau loại này\\. Thử ít ghế hơn hoặc loại khác\\.$",
+   "No $1 adjacent seats of this type left. Try fewer seats or another type."
+  ],
+  [
+   "^Bạn thao tác quá nhanh, vui lòng thử lại sau (\\d+) giây$",
+   "Too many requests, please try again in $1 seconds"
   ]
  ],
  "strings": {
@@ -819,6 +839,25 @@
   "Vé đã lưu": "Saved tickets",
   "Thông tin cá nhân": "Personal info",
   "Không đăng nhập được": "Could not log in",
-  "Đã gửi mã. Kiểm tra email của bạn.": "Code sent. Check your email."
+  "Đã gửi mã. Kiểm tra email của bạn.": "Code sent. Check your email.",
+  "Phim Của Tôi": "My Movies",
+  "Phim yêu thích": "Favourite movies",
+  "Phim đã xem": "Movies watched",
+  "Bỏ yêu thích": "Remove",
+  "♡ Yêu thích": "♡ Favourite",
+  "♥ Đã yêu thích": "♥ Favourited",
+  "Đánh giá": "Review",
+  "Chưa có phim yêu thích. Bấm ♡ Yêu thích ở trang phim để lưu lại.": "No favourites yet. Tap ♡ Favourite on a movie page to save it.",
+  "Chưa có phim đã xem (tính khi vé được soát tại rạp).": "No movies watched yet (counted when your ticket is scanned at the cinema).",
+  "Đặt lại": "Order again",
+  "Đặt lại phim này": "Book this movie again",
+  "Chọn giúp tôi": "Pick for me",
+  "Chọn ghế đẹp nhất": "Pick the best seats",
+  "Số ghế": "Number of seats",
+  "Loại ghế": "Seat type",
+  "Thêm Vào Lịch": "Add to calendar",
+  "Mời Bạn Đi Cùng": "Invite friends",
+  "Đã sao chép lời mời – dán vào Zalo / Messenger để gửi bạn bè.": "Invitation copied – paste it into Zalo / Messenger to send to friends.",
+  "Hệ thống đang bận, vui lòng thử lại sau ít phút": "The system is busy, please try again in a few minutes"
  }
 }

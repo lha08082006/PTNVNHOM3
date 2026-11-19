@@ -74,18 +74,22 @@
   function nextSkip(w, el) { var n = w.nextSibling(); while (!n && w.parentNode()) n = w.nextSibling(); return n; }
   function run(root) { busy = true; try { doNode(root); var tt = translate(document.title); if (tt) document.title = tt; } finally { busy = false; } }
 
+  // Nút có sẵn trong HTML (#lang-toggle, đặt ở thanh trên cùng – không làm xô lệch bố cục);
+  // trang nào chưa có thì tạo thêm vào thanh điều hướng.
   function mountToggle() {
-    if (document.getElementById('lang-toggle')) return;
-    var b = document.createElement('button');
-    b.type = 'button'; b.id = 'lang-toggle'; b.setAttribute('data-no-i18n', '');
+    var b = document.getElementById('lang-toggle');
+    if (!b) {
+      b = document.createElement('button');
+      b.type = 'button'; b.id = 'lang-toggle'; b.className = 'lang-toggle'; b.setAttribute('data-no-i18n', '');
+      b.style.cssText = 'margin-left:10px;border:1.5px solid currentColor;background:transparent;color:inherit;border-radius:999px;padding:0 10px;font:700 12px/22px inherit;cursor:pointer;height:24px';
+      var slot = document.querySelector('.top-header-inner > div') || document.querySelector('header nav') || document.querySelector('header .in');
+      if (slot) slot.appendChild(b);
+      else { b.style.cssText += ';position:fixed;top:10px;right:12px;z-index:9991;background:#fff;color:#005198'; document.body.appendChild(b); }
+    }
     b.textContent = lang === 'en' ? 'VI' : 'EN';
     b.setAttribute('aria-label', lang === 'en' ? 'Chuyển sang tiếng Việt' : 'Switch to English');
     b.title = b.getAttribute('aria-label');
-    b.style.cssText = 'margin-left:10px;border:1.5px solid currentColor;background:transparent;color:inherit;border-radius:999px;padding:2px 10px;font:700 12px/1.4 inherit;cursor:pointer;min-height:26px';
     b.onclick = function () { store(lang === 'en' ? 'vi' : 'en'); location.href = location.href.replace(/([?&])lang=(vi|en)&?/, '$1').replace(/[?&]$/, ''); };
-    var slot = document.querySelector('.top-header-inner > div') || document.querySelector('header nav') || document.querySelector('header .in');
-    if (slot) slot.appendChild(b);
-    else { b.style.cssText += ';position:fixed;top:10px;right:12px;z-index:9991;background:#fff;color:#005198'; document.body.appendChild(b); }
   }
 
   window.BetaI18n = {

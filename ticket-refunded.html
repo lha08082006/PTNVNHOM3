@@ -180,7 +180,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         
@@ -267,7 +267,7 @@
             <!-- Header Phim + Poster -->
             <div style="display: flex; gap: 16px; align-items: flex-start;">
               <img id="movie-poster" 
-                   src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg" 
+                   src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp" 
                    alt="Poster phim" 
                    style="flex: none; width: 76px; height: 112px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12);"
                    onerror="this.src='images/400x633-145627-230926-40.jpg';">
@@ -539,7 +539,7 @@
     // Xử lý tên phim và poster
     const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
     let movieTitle = isTraiBuonNguoi ? 'Trại Buôn Người: Vùng Cấm Biên Giới' : ((movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4');
-    let poster = isTraiBuonNguoi ? 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg' : ((movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg');
+    let poster = isTraiBuonNguoi ? 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.webp' : ((movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp');
     let movieAge = isTraiBuonNguoi ? 'T18' : 'C18';
     let movieGenre = isTraiBuonNguoi ? 'Tâm Lý, Tội Phạm · 118 phút · 2D phụ đề' : 'Kinh Dị, Giật Gân · 110 phút · 2D phụ đề';
     let actualCinema = isTraiBuonNguoi ? 'Beta Thanh Xuân (HN) · Phòng 02' : (`${cinema} · Phòng 01`);

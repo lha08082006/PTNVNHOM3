@@ -10,7 +10,8 @@
     "mockups:inline": "node tools/build-inlined-html.js",
     "mockups:capture": "node tools/capture-fullpage.js",
     "test": "node tools/smoke-test.js",
-    "test:pages": "node tools/page-test.js"
+    "test:pages": "node tools/page-test.js",
+    "backup": "node tools/backup.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

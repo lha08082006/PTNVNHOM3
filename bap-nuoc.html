@@ -108,6 +108,11 @@
             <button type="button" data-k="${k}" data-d="-1" aria-label="Bớt ${esc(c.name)}">−</button><span id="q-${k}">0</span><button type="button" data-k="${k}" data-d="1" aria-label="Thêm ${esc(c.name)}">+</button>
           </div>
         </div>`).join('');
+      // Đặt lại từ đơn cũ: ?combos={"solo":2}
+      try {
+        const pre = JSON.parse(new URLSearchParams(location.search).get('combos') || '{}');
+        for (const [k, n] of Object.entries(pre)) if (C.COMBOS[k] && Number.isInteger(n) && n > 0) { qty[k] = Math.min(C.MAX_COMBO_QTY, n); $('q-' + k).textContent = qty[k]; }
+      } catch (e) { /* tham số sai: bỏ qua */ }
       $('items').onclick = (e) => {
         const b = e.target.closest('button[data-k]');
         if (!b) return;

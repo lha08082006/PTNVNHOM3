@@ -133,6 +133,9 @@
       color: #ff5400;
     }
 
+    /* Đợt 5: thẻ phim ẩn tạm (vẫn giữ chỗ) tới khi đồng bộ với database xong -> không xô lệch bố cục (CLS) */
+    #movie-grid.syncing > .movie-card { visibility: hidden; }
+
     /* Carousel Banner Slider lớn chuẩn 1702x621 hiển thị trọn vẹn 100% không bị cắt */
     .slider-official-wrap {
       position: relative;
@@ -452,7 +455,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -507,13 +510,13 @@
   <!-- Banner Slider Carousel lớn (Tỉ lệ 1702x621 chuẩn Beta Cinemas) -->
   <section class="slider-official-wrap">
     <div class="slider-item active">
-      <img fetchpriority="high" src="images/phimhayt10-1702x621-1-135337-300926-58.webp" alt="Tháng Phim Bom Tấn Beta">
+      <img fetchpriority="high" src="images/phimhayt10-1702x621-1-135337-300926-58.webp" srcset="images/phimhayt10-1702x621-1-135337-300926-58-800w.webp 800w, images/phimhayt10-1702x621-1-135337-300926-58.webp 1702w" sizes="100vw" width="1702" height="621" alt="Tháng Phim Bom Tấn Beta">
     </div>
     <div class="slider-item">
-      <img loading="lazy" decoding="async" src="images/uudaitv-1702x621-144325-140926-19.webp" alt="Ưu Đãi Thành Viên Beta">
+      <img loading="lazy" decoding="async" src="images/uudaitv-1702x621-144325-140926-19.webp" srcset="images/uudaitv-1702x621-144325-140926-19-800w.webp 800w, images/uudaitv-1702x621-144325-140926-19.webp 1702w" sizes="100vw" width="1702" height="621" alt="Ưu Đãi Thành Viên Beta">
     </div>
     <div class="slider-item">
-      <img loading="lazy" src="images/khai-truong-1702x621-111037-290926-41.webp" alt="Khai Trương Cụm Rạp Mới">
+      <img loading="lazy" src="images/khai-truong-1702x621-111037-290926-41.webp" srcset="images/khai-truong-1702x621-111037-290926-41-800w.webp 800w, images/khai-truong-1702x621-111037-290926-41.webp 1702w" sizes="100vw" width="1702" height="621" alt="Khai Trương Cụm Rạp Mới">
     </div>
 
     <!-- Nút điều hướng -->
@@ -541,8 +544,8 @@
 
     <!-- Grid Phim -->
     <!-- Lọc phim theo thể loại (dựng từ danh mục phim) -->
-    <div id="genre-chips" role="group" aria-label="Lọc theo thể loại" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: -6px 0 18px;"></div>
-    <div class="grid-4" id="movie-grid">
+    <div id="genre-chips" role="group" aria-label="Lọc theo thể loại" style="display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; justify-content: safe center; min-height: 42px; align-items: center; margin: -6px 0 18px; padding-bottom: 4px;"></div>
+    <div class="grid-4 syncing" id="movie-grid">
       
       <!-- Phim 1: Linh Giới Đại Chiến -->
       <div class="movie-card" data-tab="now special">
@@ -569,7 +572,7 @@
       <!-- Phim 2: Quỷ Ăn Tạng 4 -->
       <div class="movie-card" data-tab="now">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg" alt="Quỷ Ăn Tạng 4">
+          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp" alt="Quỷ Ăn Tạng 4">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
           </div>
@@ -590,7 +593,7 @@
       <!-- Phim 3: Trại Buôn Người -->
       <div class="movie-card" data-tab="now">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.jpg" alt="Trại Buôn Người">
+          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.webp" alt="Trại Buôn Người">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
           </div>
@@ -611,7 +614,7 @@
       <!-- Phim 4: Blue Lock -->
       <div class="movie-card" data-tab="now">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.jpg" alt="Blue Lock">
+          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.webp" alt="Blue Lock">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
           </div>
@@ -633,7 +636,7 @@
       <!-- Phim 5: Án Mạng Karaoke -->
       <div class="movie-card" data-tab="now">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg" alt="Án Mạng Karaoke">
+          <img loading="lazy" class="movie-poster-img" src="images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.webp" alt="Án Mạng Karaoke">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
           </div>
@@ -654,7 +657,7 @@
       <!-- Phim 6: Út Lan 2 -->
       <div class="movie-card" data-tab="now">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/ul2-main-dam-hoi-digital-094550-140926-42.jpg" alt="Út Lan 2">
+          <img loading="lazy" class="movie-poster-img" src="images/ul2-main-dam-hoi-digital-094550-140926-42.webp" alt="Út Lan 2">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
           </div>
@@ -675,7 +678,7 @@
       <!-- Phim 7: Khóa Chặt Cửa Nào Suzume -->
       <div class="movie-card" data-tab="now special">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.jpg" alt="Khóa Chặt Cửa Nào Suzume">
+          <img loading="lazy" class="movie-poster-img" src="images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.webp" alt="Khóa Chặt Cửa Nào Suzume">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
           </div>
@@ -696,7 +699,7 @@
       <!-- Phim 8: Cá Voi Nuốt Chửng -->
       <div class="movie-card" data-tab="now">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.jpg" alt="Cá Voi Nuốt Chửng">
+          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.webp" alt="Cá Voi Nuốt Chửng">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/c-13.png" alt="C13" onerror="this.outerHTML='<span class=\'badge badge-age-13\'>C13</span>'">
           </div>
@@ -717,7 +720,7 @@
       <!-- Phim 9: Mẹ Mìn (Sắp Chiếu) -->
       <div class="movie-card" data-tab="soon" style="display: none;">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.jpg" alt="Mẹ Mìn">
+          <img loading="lazy" class="movie-poster-img" src="images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.webp" alt="Mẹ Mìn">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
           </div>
@@ -738,7 +741,7 @@
       <!-- Phim 10: Shaun The Sheep (Sắp Chiếu) -->
       <div class="movie-card" data-tab="soon" style="display: none;">
         <div class="movie-poster-wrap">
-          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.jpg" alt="Shaun The Sheep">
+          <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.webp" alt="Shaun The Sheep">
           <div class="movie-age-tag">
             <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
           </div>
@@ -1329,8 +1332,12 @@
         if (typeof switchMovieTab === 'function') switchMovieTab(active ? active.id.replace('tab-', '') : 'now');
       } catch (e) {
         console.warn('Không đồng bộ được danh sách phim:', e.message);
+      } finally {
+        document.getElementById('movie-grid').classList.remove('syncing');
       }
     })();
+    // Mạng chậm / lỗi: không giữ ẩn quá 4 giây
+    setTimeout(() => { const g = document.getElementById('movie-grid'); if (g) g.classList.remove('syncing'); }, 4000);
   </script>
   <script src="site-chrome.js" defer></script>
 </body>

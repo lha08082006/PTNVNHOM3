@@ -49,6 +49,13 @@ const server = http.createServer(async (req, res) => {
     return this;
   };
 
+  // Header bảo mật giống vercel.json (không có upgrade-insecure-requests vì chạy http://localhost)
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' https:; connect-src 'self' https://cdnjs.cloudflare.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; worker-src 'self'; manifest-src 'self'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'");
+  res.setHeader('Permissions-Policy', "camera=(self), geolocation=(self), microphone=(), payment=(), usb=()");
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -65,6 +72,9 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/sitemap.xml') pathname = '/api/sitemap';
   if (pathname === '/favicon.ico') pathname = '/images/icon-ticket.png';
   if (pathname === '/robots.txt') { pathname = '/api/sitemap'; parsedUrl.query = { ...(parsedUrl.query || {}), robots: '1' }; }
+  // Trang phim /phim/<mã-phim>: máy chủ chèn sẵn thẻ SEO (lib/routes/movie-page.js), giống rewrite trên Vercel
+  const phim = pathname.match(/^\/phim\/([a-z0-9-]+)\/?$/);
+  if (phim) { pathname = '/api/movie-page'; parsedUrl.query = { ...(parsedUrl.query || {}), slug: phim[1] }; }
 
   if (pathname.startsWith('/api/')) {
     const name = pathname.slice('/api/'.length);
@@ -107,8 +117,6 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // Đường dẫn đẹp cho trang phim (Đợt 3): /phim/<mã-phim> -> movie-detail.html (giống rewrite trên Vercel)
-  if (/^\/phim\/[a-z0-9-]+\/?$/.test(pathname)) pathname = '/movie-detail.html';
 
   // 2. Xử lý Static Files (HTML, CSS, JS, Images)
   let filePath = path.join(PUBLIC_DIR, decodeURIComponent(pathname === '/' ? 'home.html' : pathname));

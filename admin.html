@@ -457,6 +457,17 @@
     <!-- ===================== IT / DEV ===================== -->
     <section id="tab-it" hidden>
       <div id="alerts"></div>
+      <!-- Đợt 5: tình trạng hệ thống, lỗi máy chủ, cảnh báo, sao lưu -->
+      <div class="card">
+        <h2>Tình trạng hệ thống <small>cảnh báo gửi email cho Quản lý (hoặc ALERT_EMAILS) · giám sát ngoài: /api/health</small></h2>
+        <div id="sys-status" class="kv"><div class="empty">Đang tải…</div></div>
+        <div class="row-actions">
+          <button class="btn" onclick="loadSystem()"><i class="ph-arrows-clockwise" aria-hidden="true"></i> Làm mới</button>
+          <button class="btn primary" onclick="downloadBackup()"><i class="ph-tray-arrow-down" aria-hidden="true"></i> Tải bản sao lưu dữ liệu (JSON)</button>
+        </div>
+        <div class="hint" style="margin-top: 6px;">Bản sao lưu chứa dữ liệu khách hàng – lưu ở nơi an toàn, không gửi qua chat / email.</div>
+        <div id="sys-errors" style="margin-top: 12px;"></div>
+      </div>
       <div class="grid2">
         <div class="card">
           <h2>Tham số vận hành <small>SOP 6.5.3</small></h2>
@@ -1352,7 +1363,35 @@
     }
 
     // ---------------- IT ----------------
+    // Vận hành (Đợt 5)
+    async function loadSystem() {
+      try {
+        const s = await api('admin?action=system_status');
+        const since = (iso) => iso ? t(iso) + ' (' + Math.round((Date.now() - new Date(iso)) / 3600e3) + ' giờ trước)' : '<span style="color:#b91c1c">chưa ghi nhận</span>';
+        document.getElementById('sys-status').innerHTML = [
+          ['Cơ sở dữ liệu', esc(s.db)], ['Email', esc(s.mail)], ['Người nhận cảnh báo', s.alert_to ? s.alert_to + ' địa chỉ' : '<span style="color:#b91c1c">chưa có – tạo tài khoản Quản lý hoặc đặt ALERT_EMAILS</span>'],
+          ['Job đối soát hằng ngày chạy lần cuối', since(s.last_cron)], ['Webhook / IPN thanh toán gần nhất', since(s.last_webhook)],
+          ['Lỗi máy chủ 24 giờ qua', s.errors_24h ? '<b style="color:#b91c1c">' + s.errors_24h + '</b>' : '0'],
+          ['Hồ sơ hoàn tiền thủ công', s.manual_refunds], ['Phiếu hỗ trợ đang mở', s.open_tickets], ['Đơn chờ thanh toán / đối soát', s.waiting_orders]
+        ].map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join('');
+        document.getElementById('sys-errors').innerHTML = (s.last_errors.length ? `<h3 style="font-size:14px;margin:8px 0">Lỗi gần nhất</h3><table><tbody>${s.last_errors.map(e => `<tr><td class="hint">${t(e.at)}</td><td class="mono">${esc(e.source)}</td><td>${esc(e.message)}</td></tr>`).join('')}</tbody></table>` : '')
+          + (s.recent_alerts.length ? `<h3 style="font-size:14px;margin:12px 0 8px">Cảnh báo đã gửi</h3><table><tbody>${s.recent_alerts.map(a => `<tr><td class="hint">${t(a.at)}</td><td><b>${esc(a.title)}</b><div class="hint">${esc(a.message)}</div></td></tr>`).join('')}</tbody></table>` : '');
+      } catch (e) { document.getElementById('sys-status').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+    async function downloadBackup() {
+      if (!confirm('Tải toàn bộ dữ liệu (gồm thông tin khách hàng)? Hãy lưu file ở nơi an toàn.')) return;
+      try {
+        const r = await fetch(API + 'admin?action=backup', { headers: TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {} });
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'HTTP ' + r.status);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(await r.blob());
+        a.download = (/filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '') || [])[1] || 'beta-backup.json';
+        document.body.appendChild(a); a.click(); a.remove();
+      } catch (e) { alert('Không tải được bản sao lưu: ' + e.message); }
+    }
+
     function renderIt() {
+      loadSystem();
       const al = overview.alerts;
       badge('c-it', al.filter(a => a.level === 'danger').length);
       document.getElementById('alerts').innerHTML = al.map(a => `<div class="alert ${a.level}">${a.level === 'danger' ? '<i class=ph-siren aria-hidden=true></i>' : a.level === 'warn' ? '<i class=ph-warning aria-hidden=true></i>' : '<i class=ph-info aria-hidden=true></i>'} ${esc(a.text)}</div>`).join('');

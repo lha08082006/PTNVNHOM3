@@ -1448,3 +1448,7 @@ summary:focus-visible,
 
 /* Chữ chỉ dành cho trình đọc màn hình */
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+/* Nút chuyển ngôn ngữ VI / EN (lang.js) – có sẵn trong HTML để không làm xô lệch bố cục */
+.lang-toggle { margin-left: 10px; border: 1.5px solid currentColor; background: transparent; color: inherit; border-radius: 999px; padding: 0 10px; font: 700 12px/22px inherit; cursor: pointer; height: 24px; vertical-align: middle; }
+.lang-toggle:focus-visible { outline: 2px solid #005198; outline-offset: 2px; }

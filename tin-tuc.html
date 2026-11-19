@@ -86,6 +86,8 @@
       const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('vi-VN') : '';
       const until = (p) => p.ends_at ? 'Đến hết ' + fmtDate(p.ends_at) : '';
       const img = (p) => p.image || 'images/logo-official.png';
+      // Ảnh banner 1702px của web có sẵn bản 800px (tools/optimize-images.js) -> thẻ tin dùng bản nhỏ
+      const small = (p) => /^images\/[^/]*1702x621[^/]*\.webp$/.test(p.image || '') ? p.image.replace(/\.webp$/, '-800w.webp') : img(p);
       const params = new URLSearchParams(location.search);
 
       // Chi tiết một bài: ?id=<mã bài>
@@ -129,7 +131,7 @@
         const list = all.filter(p => !current || p.type === current);
         $('tt-grid').innerHTML = list.length ? list.map(p => `
           <a class="tt-card" href="tin-tuc.html?id=${encodeURIComponent(p.id)}">
-            <img loading="lazy" src="${esc(img(p))}" alt="" onerror="this.src='images/logo-official.png'">
+            <img loading="lazy" decoding="async" src="${esc(small(p))}" width="800" height="292" alt="" onerror="this.src='${esc(img(p))}'; this.onerror=null;">
             <div class="b">
               <span class="tt-badge ${esc(p.type)}">${p.pinned ? '<i class="ph-tag" aria-hidden="true"></i> Ghim · ' : ''}${esc(p.type_label)}</span>
               <h2>${esc(p.title)}</h2>

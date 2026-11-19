@@ -11,7 +11,7 @@
     'an-mang-karaoke': {
       title: 'ÁN MẠNG KARAOKE', shortTitle: 'Án Mạng Karaoke', age: 'T16',
       meta: 'Trinh thám, Hài hước, Bí ẩn · 96 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg',
+      poster: 'images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.webp',
       format: '2D Phụ đề Tiếng Anh', badge: '2D PHỤ ĐỀ'
     },
     'linh-gioi-dai-chien': {
@@ -23,49 +23,49 @@
     'quy-an-tang-4': {
       title: 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI', shortTitle: 'Quỷ Ăn Tạng 4', age: 'T18',
       meta: 'Kinh dị, Bí ẩn, Giật gân · 115 phút · Tiếng Thái - Phụ đề Tiếng Việt',
-      poster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg',
+      poster: 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp',
       format: '2D Phụ đề Tiếng Việt', badge: '2D PHỤ ĐỀ'
     },
     'trai-buon-nguoi': {
       title: 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI', shortTitle: 'Trại Buôn Người', age: 'T16',
       meta: 'Tâm lý, Tội phạm, Gay cấn · 118 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.jpg',
+      poster: 'images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.webp',
       format: '2D Phụ đề Tiếng Anh', badge: '2D PHỤ ĐỀ'
     },
     'blue-lock': {
       title: 'BLUE LOCK: THE MOVIE - EPISODE NAGI', shortTitle: 'Blue Lock: Episode Nagi', age: 'P',
       meta: 'Hoạt hình, Thể thao, Anime · 95 phút · Tiếng Nhật - Phụ đề Tiếng Việt',
-      poster: 'images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.jpg',
+      poster: 'images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.webp',
       format: '2D Phụ đề Tiếng Việt', badge: '2D PHỤ ĐỀ'
     },
     'ut-lan-2': {
       title: 'ÚT LAN 2', shortTitle: 'Út Lan 2', age: 'T16',
       meta: 'Tâm lý, Tình cảm, Hài kịch · 114 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.jpg',
+      poster: 'images/ul2-main-dam-hoi-digital-094550-140926-42.webp',
       format: '2D Phụ đề Tiếng Anh', badge: '2D PHỤ ĐỀ'
     },
     'suzume': {
       title: 'KHÓA CHẶT CỬA NÀO SUZUME', shortTitle: 'Suzume No Tojimari', age: 'P',
       meta: 'Hoạt hình, Giả tưởng, Anime · 121 phút · Tiếng Nhật - Phụ đề Tiếng Việt',
-      poster: 'images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.jpg',
+      poster: 'images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.webp',
       format: '2D Phụ đề Tiếng Việt', badge: '2D PHỤ ĐỀ'
     },
     'ca-voi-nuot-chung': {
       title: 'CÁ VOI NUỐT CHỬNG', shortTitle: 'Cá Voi Nuốt Chửng', age: 'T13',
       meta: 'Sinh tồn, Hành động, Viễn tưởng · 98 phút · Tiếng Anh - Phụ đề Tiếng Việt',
-      poster: 'images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.jpg',
+      poster: 'images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.webp',
       format: '2D Phụ đề Tiếng Việt', badge: '2D PHỤ ĐỀ'
     },
     'me-min': {
       title: 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI', shortTitle: 'Mẹ Mìn', age: 'T18',
       meta: 'Kinh dị, Tâm lý, Giật gân · 105 phút · Tiếng Việt - Phụ đề Tiếng Anh',
-      poster: 'images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.jpg',
+      poster: 'images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.webp',
       format: '2D Phụ đề Tiếng Anh', badge: '2D PHỤ ĐỀ'
     },
     'shaun-the-sheep': {
       title: 'SHAUN THE SHEEP: CHUYẾN PHIÊU LƯU NGOÀI HÀNH TINH', shortTitle: 'Shaun The Sheep', age: 'P',
       meta: 'Hoạt hình, Phiêu lưu, Hài hước · 86 phút · Không thoại - Bản quyền Aardman',
-      poster: 'images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.jpg',
+      poster: 'images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.webp',
       format: '2D Lồng Tiếng', badge: '2D LỒNG TIẾNG'
     }
   };
