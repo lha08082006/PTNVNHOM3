@@ -11,15 +11,16 @@ const api = (name) => require('../lib/routes/' + name);
 // Gọi handler kiểu Vercel trong cùng tiến trình
 async function call(name, { method = 'GET', query = {}, body = {}, token, headers = {} } = {}) {
   const req = { method, query, body, headers: { ...headers, ...(token ? { authorization: 'Bearer ' + token } : {}) } };
-  let status = 200;
+  let status = null;
   let data;
   const res = {
+    statusCode: 200, headers: {}, body: undefined,
     status(c) { status = c; return this; },
     json(d) { data = d; return this; },
-    setHeader() {}, end() {}
+    setHeader(k, v) { this.headers[k] = v; }, end(b) { this.body = b; }
   };
   await api(name)(req, res);
-  return { status, data };
+  return { status: status == null ? res.statusCode : status, data, headers: res.headers, body: res.body };
 }
 
 const results = [];
@@ -278,6 +279,7 @@ async function test(name, fn) {
     return r.data.token;
   };
   const asStaff = (tok) => ({
+    token: tok,
     post: (body) => call('admin', { method: 'POST', token: tok, body }),
     get: (action) => call('admin', { token: tok, query: { action } })
   });
@@ -547,9 +549,10 @@ async function test(name, fn) {
       const p = CatalogDB.priceOf({ starts_at: s.starts_at }, pr);
       assert.strictEqual(s.prices.standard, p.standard, s.date_label + ' ' + s.time);
     }
-    const weekend = all.find(s => /^(T6|T7|CN)/.test(s.date_label) && s.time >= '10:00' && s.time < '22:00');
-    const tuesday = all.find(s => /^T3/.test(s.date_label));
-    const early = all.find(s => s.time < '10:00' && !/^T3/.test(s.date_label));
+    const norm = all.filter(x => !x.prices.rules.includes('Giá riêng của suất'));
+    const weekend = norm.find(s => /^(T6|T7|CN)/.test(s.date_label) && s.time >= '10:00' && s.time < '22:00');
+    const tuesday = norm.find(s => /^T3/.test(s.date_label));
+    const early = norm.find(s => s.time < '10:00' && !/^T3/.test(s.date_label));
     if (weekend) assert.strictEqual(weekend.prices.standard, 55000);
     if (tuesday) assert.strictEqual(tuesday.prices.standard, 40000);
     if (early) assert.strictEqual(early.prices.standard, 40000);
@@ -963,6 +966,144 @@ async function test(name, fn) {
     assert.ok(!/movie-detail\?movie=/.test(r.body));
     const far = await call('catalog', { query: { action: 'showtimes', days: 30 } });
     assert.strictEqual(far.status, 200);
+  });
+
+  // ======================= Đợt 4: cổng VNPay / MoMo / ZaloPay, hóa đơn điện tử =======================
+  const Payments = require('../lib/payments');
+  const crypto4 = require('crypto');
+  const H = (alg, key, s) => crypto4.createHmac(alg, key).update(Buffer.from(s, 'utf-8')).digest('hex');
+  const order4 = async (tok, seats) => {
+    const r = await call('create-order', { method: 'POST', token: tok, body: { showtime_id: ST2.id, seats: seats || await freeSeats(ST2, 1) } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    return r.data;
+  };
+
+  await test('Đợt 4: cổng chỉ bật khi có khóa; VNPay – ký đúng, IPN xuất vé, IPN trùng / sai chữ ký bị chặn', async () => {
+    assert.deepStrictEqual((await call('pay', { query: { action: 'methods' } })).data.methods.map(m => m.id), ['VIETQR']);
+    Object.assign(process.env, { VNPAY_TMN_CODE: 'BETATEST', VNPAY_HASH_SECRET: 'vnp-secret-test', MOMO_PARTNER_CODE: 'MOMOBETA', MOMO_ACCESS_KEY: 'momo-ak', MOMO_SECRET_KEY: 'momo-sk', ZALOPAY_APP_ID: '2553', ZALOPAY_KEY1: 'zp-k1', ZALOPAY_KEY2: 'zp-k2', SITE_URL: 'https://beta.test' });
+    assert.deepStrictEqual((await call('pay', { query: { action: 'methods' } })).data.methods.map(m => m.id), ['VIETQR', 'VNPAY', 'MOMO', 'ZALOPAY']);
+    const o = await order4(tokE);
+    assert.strictEqual((await call('pay', { method: 'POST', token: tokC, query: { action: 'start' }, body: { order_code: o.code, provider: 'vnpay' } })).status, 404); // đơn người khác
+    const s = await call('pay', { method: 'POST', token: tokE, query: { action: 'start' }, body: { order_code: o.code, provider: 'vnpay' } });
+    assert.strictEqual(s.status, 200, JSON.stringify(s.data));
+    const u = new URL(s.data.pay_url);
+    assert.strictEqual(u.origin, 'https://sandbox.vnpayment.vn');
+    const p = Object.fromEntries(u.searchParams);
+    assert.strictEqual(p.vnp_Amount, String(o.total * 100));
+    assert.strictEqual(p.vnp_ReturnUrl, 'https://beta.test/api/pay?action=return&provider=vnpay');
+    // Chữ ký theo đúng công thức VNPay: sắp xếp khóa, encode, HMAC-SHA512
+    const { vnpSignData } = Payments._test;
+    assert.strictEqual(p.vnp_SecureHash, H('sha512', 'vnp-secret-test', vnpSignData(p)));
+    const ipn = { vnp_TmnCode: 'BETATEST', vnp_Amount: p.vnp_Amount, vnp_TxnRef: p.vnp_TxnRef, vnp_ResponseCode: '00', vnp_TransactionStatus: '00', vnp_TransactionNo: '14000001', vnp_BankCode: 'NCB', vnp_PayDate: p.vnp_CreateDate, vnp_OrderInfo: p.vnp_OrderInfo };
+    ipn.vnp_SecureHash = H('sha512', 'vnp-secret-test', vnpSignData(ipn));
+    const bad = await call('pay', { query: { action: 'ipn', provider: 'vnpay', ...ipn, vnp_Amount: '100' } });
+    assert.strictEqual(bad.data.RspCode, '97'); // sửa số tiền -> sai chữ ký
+    const r1 = await call('pay', { query: { action: 'ipn', provider: 'vnpay', ...ipn } });
+    assert.strictEqual(r1.data.RspCode, '00', JSON.stringify(r1.data));
+    assert.strictEqual((await call('order-status', { token: tokE, query: { code: o.code } })).data.status, 'CONFIRMED');
+    assert.strictEqual((await call('pay', { query: { action: 'ipn', provider: 'vnpay', ...ipn } })).data.RspCode, '02');
+    // Khách quay về từ VNPay -> chuyển tới trang đơn
+    const back = await call('pay', { query: { action: 'return', provider: 'vnpay', ...ipn } });
+    assert.strictEqual(back.status, 302);
+    assert.strictEqual(back.headers.Location, '/gateway.html?order=' + o.code);
+    // Đơn đã xuất vé không bắt đầu thanh toán lại được
+    assert.strictEqual((await call('pay', { method: 'POST', token: tokE, query: { action: 'start' }, body: { order_code: o.code, provider: 'vnpay' } })).status, 409);
+  });
+
+  await test('Đợt 4: MoMo – tạo phiên, IPN có chữ ký; chuyển thừa -> tự hoàn phần thừa về ví MoMo', async () => {
+    const sent = [];
+    Payments.net.fetch = async (url, opt) => {
+      const b = JSON.parse(opt.body); sent.push({ url, b });
+      const json = url.endsWith('/create') ? { resultCode: 0, payUrl: 'https://test-payment.momo.vn/pay/x' } : { resultCode: 0, transId: 9988 };
+      return { status: 200, text: async () => JSON.stringify(json) };
+    };
+    try {
+      const o = await order4(tokE);
+      const s = await call('pay', { method: 'POST', token: tokE, query: { action: 'start' }, body: { order_code: o.code, provider: 'momo' } });
+      assert.strictEqual(s.status, 200, JSON.stringify(s.data));
+      const c = sent[0].b;
+      const raw = `accessKey=momo-ak&amount=${c.amount}&extraData=&ipnUrl=${c.ipnUrl}&orderId=${c.orderId}&orderInfo=${c.orderInfo}&partnerCode=MOMOBETA&redirectUrl=${c.redirectUrl}&requestId=${c.requestId}&requestType=captureWallet`;
+      assert.strictEqual(c.signature, H('sha256', 'momo-sk', raw));
+      // Khách trả nhiều hơn (vd ví trừ hai lần) -> vẫn xuất vé và hoàn phần thừa qua API hoàn tiền của MoMo
+      const n = { partnerCode: 'MOMOBETA', orderId: c.orderId, requestId: c.requestId, amount: o.total + 10000, orderInfo: c.orderInfo, orderType: 'momo_wallet', transId: 4100001, resultCode: 0, message: 'Thành công.', payType: 'qr', responseTime: Date.now(), extraData: '' };
+      n.signature = H('sha256', 'momo-sk', `accessKey=momo-ak&amount=${n.amount}&extraData=&message=${n.message}&orderId=${n.orderId}&orderInfo=${n.orderInfo}&orderType=${n.orderType}&partnerCode=MOMOBETA&payType=qr&requestId=${n.requestId}&responseTime=${n.responseTime}&resultCode=0&transId=4100001`);
+      assert.strictEqual((await call('pay', { method: 'POST', query: { action: 'ipn', provider: 'momo' }, body: { ...n, signature: 'sai' } })).status, 400);
+      const r = await call('pay', { method: 'POST', query: { action: 'ipn', provider: 'momo' }, body: n });
+      assert.strictEqual(r.status, 204);
+      const v = (await call('order-status', { token: tokE, query: { code: o.code } })).data;
+      assert.strictEqual(v.status, 'CONFIRMED');
+      const rf = (await require('../lib/store').find('refunds', { order_code: o.code }))[0];
+      assert.strictEqual(rf.reason, 'EXCESS');
+      assert.strictEqual(rf.amount, 10000);
+      assert.strictEqual(rf.status, 'DONE', JSON.stringify(rf));
+      assert.match(rf.refund_ref, /^MOMO-RF:/);
+      const rq = sent.find(x => x.url.endsWith('/refund')).b;
+      assert.strictEqual(rq.transId, 4100001);
+      assert.strictEqual(rq.amount, 10000);
+    } finally { Payments.net.fetch = (...a) => fetch(...a); }
+  });
+
+  await test('Đợt 4: ZaloPay – callback có MAC đúng mới ghi tiền', async () => {
+    Payments.net.fetch = async (url, opt) => ({ status: 200, text: async () => JSON.stringify({ return_code: 1, order_url: 'https://qcgateway.zalopay.vn/openinapp?x=1', _sent: JSON.parse(opt.body) }) });
+    try {
+      const o = await order4(tokE);
+      const s = await call('pay', { method: 'POST', token: tokE, query: { action: 'start' }, body: { order_code: o.code, provider: 'zalopay' } });
+      assert.strictEqual(s.status, 200, JSON.stringify(s.data));
+      const att = await require('../lib/store').one('payment_attempts', { order_code: o.code, provider: 'ZALOPAY' });
+      const data = JSON.stringify({ app_id: 2553, app_trans_id: att.provider_ref, amount: o.total, zp_trans_id: 250000001, server_time: Date.now() });
+      assert.strictEqual((await call('pay', { method: 'POST', query: { action: 'ipn', provider: 'zalopay' }, body: { data, mac: 'sai' } })).data.return_code, -1);
+      const ok = await call('pay', { method: 'POST', query: { action: 'ipn', provider: 'zalopay' }, body: { data, mac: H('sha256', 'zp-k2', data) } });
+      assert.strictEqual(ok.data.return_code, 1);
+      assert.strictEqual((await call('order-status', { token: tokE, query: { code: o.code } })).data.status, 'CONFIRMED');
+      assert.strictEqual((await require('../lib/store').one('payment_attempts', { order_code: o.code })).status, 'PAID');
+    } finally {
+      Payments.net.fetch = (...a) => fetch(...a);
+      for (const k of ['VNPAY_TMN_CODE', 'VNPAY_HASH_SECRET', 'MOMO_PARTNER_CODE', 'MOMO_ACCESS_KEY', 'MOMO_SECRET_KEY', 'ZALOPAY_APP_ID', 'ZALOPAY_KEY1', 'ZALOPAY_KEY2', 'SITE_URL']) delete process.env[k];
+    }
+  });
+
+  await test('Đợt 4: hóa đơn điện tử – khách gửi MST trong hạn, Kế toán xuất CSV và nhập số hóa đơn', async () => {
+    const o = await order4(tokE);
+    const body = { order_code: o.code, buyer_type: 'COMPANY', tax_code: '0106633482', company_name: 'Công ty TNHH Thử Nghiệm', address: '1 Lê Văn Thiêm, Hà Nội', email: 'ketoan@thunghiem.vn' };
+    assert.strictEqual((await call('invoice', { method: 'POST', token: tokE, body })).status, 409); // chưa thanh toán
+    await payOK(o.code);
+    assert.strictEqual((await call('invoice', { method: 'POST', token: tokE, body: { ...body, tax_code: '12345' } })).status, 400);
+    assert.strictEqual((await call('invoice', { method: 'POST', token: tokC, body })).status, 404);
+    const r = await call('invoice', { method: 'POST', token: tokE, body });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.strictEqual(r.data.request.status, 'PENDING');
+    assert.strictEqual(r.data.request.amount, o.total);
+    // Sửa thông tin khi còn chờ
+    assert.strictEqual((await call('invoice', { method: 'POST', token: tokE, body: { ...body, company_name: 'Công ty TNHH Thử Nghiệm Mới' } })).data.request.company_name, 'Công ty TNHH Thử Nghiệm Mới');
+    const kt = asStaff(await staffLogin('ketoan@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    assert.strictEqual((await cs.get('invoice_list')).status, 403);
+    const list = await kt.get('invoice_list');
+    assert.ok(list.data.requests.some(x => x.order_code === o.code));
+    assert.strictEqual(list.data.provider, 'MANUAL');
+    const csv = await call('admin', { query: { action: 'invoice_list', format: 'csv' }, headers: { authorization: 'Bearer ' + kt.token } });
+    assert.ok(csv.body && csv.body.charCodeAt(0) === 0xfeff && csv.body.includes('0106633482'), String(csv.body).slice(0, 80));
+    assert.strictEqual((await kt.post({ action: 'invoice_issue', order_code: o.code, invoice_no: '0000123', lookup_url: 'http://sai' })).status, 400);
+    assert.strictEqual((await kt.post({ action: 'invoice_issue', order_code: o.code, invoice_no: '0000123', invoice_series: '1C26TBC', lookup_url: 'https://tracuu.example.vn/123' })).status, 200);
+    const g = (await call('invoice', { token: tokE, query: { code: o.code } })).data;
+    assert.strictEqual(g.request.status, 'ISSUED');
+    assert.strictEqual(g.request.invoice_no, '0000123');
+    assert.strictEqual(g.can_request, false);
+    assert.strictEqual((await call('invoice', { method: 'POST', token: tokE, body })).status, 409); // đã xuất thì không sửa
+  });
+
+  await test('Đợt 4: song ngữ – từ điển tiếng Anh hợp lệ, mẫu câu dịch đúng', async () => {
+    const en = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '../i18n/en.json'), 'utf8'));
+    assert.ok(Object.keys(en.strings).length > 500);
+    for (const [k, v] of Object.entries(en.strings)) assert.ok(typeof v === 'string' && v.trim(), 'thiếu bản dịch: ' + k);
+    const pats = en.patterns.map(([re, rep]) => [new RegExp(re), rep]);
+    const tr = (s) => { if (en.strings[s]) return en.strings[s]; for (const [re, rep] of pats) { const m = s.match(re); if (m) return rep.replace(/\{(\d)\}/g, (_, k) => en.strings[m[k]] || m[k]).replace(/\$(\d)/g, (_, k) => m[k] || ''); } return null; };
+    assert.strictEqual(tr('Ghế C5 thường, Đang có người giữ'), 'Seat C5 standard, held by another customer');
+    assert.strictEqual(tr('Bớt vé Trẻ em'), 'Remove Child ticket');
+    assert.strictEqual(tr('118 phút'), '118 min');
+    assert.strictEqual(tr('/11 - T6'), '/11 - Fri');
+    assert.strictEqual(tr('Mã COMBO30 chỉ áp dụng khi mua kèm bắp nước.'), 'Code COMBO30 requires a popcorn & drinks combo.');
+    assert.strictEqual(tr('Thanh toán ngay'), 'Pay now');
   });
 
   for (const [ok, name] of results) console.log(ok, name);

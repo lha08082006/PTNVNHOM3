@@ -12,6 +12,7 @@
   6. `migrations/2026-11-23_voucher-dieu-kien-phan-hoi-phieu.sql` — voucher có điều kiện (giảm %, đơn tối thiểu, kèm bắp nước, theo thứ), khách xem & trả lời phản hồi CSKH
   7. `migrations/2026-11-24_dot-2-beta-club.sql` — Beta Club (điểm thưởng, hạng, quà sinh nhật), đánh giá phim, mua bắp nước riêng
   8. `migrations/2026-11-25_dot-3-phong-chieu-thue-rap.sql` — phòng chiếu có sơ đồ ghế riêng, thuê rạp / vé nhóm / Private Show, "Nhắc tôi khi mở bán"
+  9. `migrations/2026-11-26_dot-4-cong-thanh-toan-hoa-don.sql` — phiên thanh toán VNPay / MoMo / ZaloPay, yêu cầu xuất hóa đơn điện tử
 
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 
@@ -26,6 +27,10 @@
 | `SEPAY_API_KEY` | ✔ | Khóa API SePay **mới** (khóa cũ đã lộ trong lịch sử git, phải thu hồi) |
 | `CRON_SECRET` | ✔ | Bảo vệ `/api/cron` (thiếu thì Job đối soát tự động bị tắt, trả 503) |
 | `RESEND_API_KEY`, `MAIL_FROM` | tùy chọn | Gửi email vé/hoàn tiền thật. Trống → chỉ ghi nhận, không gửi |
+| `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET` | tùy chọn | Bật nút VNPay. Mặc định gọi **sandbox**; production đặt thêm `VNPAY_PAY_URL`, `VNPAY_API_URL`. Khai báo IPN URL `<SITE_URL>/api/pay?action=ipn&provider=vnpay` trên cổng VNPay |
+| `MOMO_PARTNER_CODE`, `MOMO_ACCESS_KEY`, `MOMO_SECRET_KEY` | tùy chọn | Bật nút MoMo (sandbox mặc định; production đặt `MOMO_ENDPOINT=https://payment.momo.vn`) |
+| `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2` | tùy chọn | Bật nút ZaloPay (sandbox mặc định; production đặt `ZALOPAY_ENDPOINT=https://openapi.zalopay.vn`) |
+| `INVOICE_REQUEST_HOURS` | tùy chọn | Số giờ sau khi thanh toán khách còn được gửi yêu cầu hóa đơn (mặc định 24 – Kế toán xác nhận theo quy định) |
 | `SITE_URL` | tùy chọn | Dùng cho link "Xem đơn hàng" trong email |
 | `ALLOW_SANDBOX` | **không** đặt trên production | `1` = mở `/api/simulate-payment` (vẫn cần `x-admin-key`) cho UAT |
 

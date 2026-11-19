@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="lang.js"></script>
   <title>Cổng Thanh Toán VietQR - Beta Cinemas (Thiết Kế Mới 2026)</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="images/icon-ticket.png">
@@ -242,6 +243,13 @@
           <div id="report-error-status" style="font-size: 12px; color: #64748b; margin-top: 6px; display: none;"></div>
         </div>
 
+        <!-- Đợt 4: thanh toán bằng ví / thẻ (chỉ hiện các cổng đã bật trên máy chủ) -->
+        <div id="alt-pay" hidden style="margin-top: 14px; border-top: 1px dashed #cbd5e1; padding-top: 12px;">
+          <div style="font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 8px;">Hoặc thanh toán bằng ví / thẻ</div>
+          <div id="alt-pay-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+          <p id="alt-pay-msg" role="alert" style="font-size: 12.5px; color: #b91c1c; margin: 6px 0 0;"></p>
+        </div>
+
         <!-- Khách đổi ý trước khi chuyển khoản: hủy để nhả ghế ngay -->
         <button type="button" id="btn-cancel-order" onclick="Pay.confirmCancel(new URLSearchParams(location.search).get('order'), this)"
           style="width: 100%; margin-top: 10px; background: #fff; border: 1.5px solid #fecaca; color: #b91c1c; padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
@@ -412,7 +420,29 @@
     }
     window.handleReportError = handleReportError;
 
+    // Cổng ví / thẻ: máy chủ tạo phiên thanh toán và trả địa chỉ trang của cổng
+    async function loadAltPay() {
+      try {
+        if (new URLSearchParams(location.search).get('pay') === 'failed') document.getElementById('alt-pay-msg').textContent = 'Giao dịch qua ví / thẻ chưa thành công. Bạn có thể thử lại hoặc chuyển khoản VietQR.';
+        const methods = ((await Pay.call('pay?action=methods')).methods || []).filter(m => m.id !== 'VIETQR');
+        if (!methods.length) return;
+        const box = document.getElementById('alt-pay');
+        box.hidden = false;
+        document.getElementById('alt-pay-list').innerHTML = methods.map(m => '<button type="button" class="btn btn-outline" data-p="' + m.id + '" style="width: 100%; justify-content: center;">' + m.label.replace(/[<>&]/g, '') + '</button>').join('');
+        box.querySelectorAll('button[data-p]').forEach(b => b.onclick = async () => {
+          b.disabled = true;
+          document.getElementById('alt-pay-msg').textContent = '';
+          try {
+            const r = await Pay.post('pay?action=start', { order_code: orderCode, provider: b.dataset.p });
+            location.href = r.pay_url;
+          } catch (e) { document.getElementById('alt-pay-msg').textContent = e.message; b.disabled = false; }
+        });
+      } catch (e) { /* không lấy được danh sách cổng: vẫn thanh toán VietQR bình thường */ }
+    }
+
     function render(o) {
+      const alt = document.getElementById('alt-pay');
+      if (alt && o && o.status !== 'PENDING') alt.hidden = true;
       order = o;
       if (hasRedirected) return;
       document.getElementById('transfer-content').textContent = o.code;
@@ -472,6 +502,7 @@
       setRadar('<i class=ph-warning aria-hidden=true></i> <span>Thiếu mã đơn hàng. Vui lòng đặt vé lại từ bước chọn ghế.</span>', '#fee2e2', '#991b1b');
     } else {
       Pay.watch(orderCode, render, 3000);
+      loadAltPay();
     }
   </script>
 </body>

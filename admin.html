@@ -221,6 +221,14 @@
     <!-- ===================== KẾ TOÁN ===================== -->
     <section id="tab-ketoan" hidden>
       <div class="card">
+        <h2>Hóa đơn điện tử <small id="inv-sub">khách yêu cầu → xuất CSV lập hóa đơn trên phần mềm nhà cung cấp → nhập số hóa đơn (khách nhận email)</small></h2>
+        <div class="toolbar">
+          <select id="inv-status" onchange="loadInvoices()"><option value="PENDING">Chờ xuất</option><option value="ISSUED">Đã xuất</option><option value="CANCELLED">Đã hủy</option><option value="">Tất cả</option></select>
+          <button class="btn" onclick="downloadInvoices()"><i class="ph-tray-arrow-down" aria-hidden="true"></i> Xuất CSV</button>
+        </div>
+        <div id="invoices"><div class="empty">Đang tải…</div></div>
+      </div>
+      <div class="card">
         <h2>Duyệt chi hoàn tiền <small>hồ sơ nhân viên đã gửi · kiểm tra lại: đạt → chi & nhập mã GD, không đạt → trả về nhân viên</small></h2>
         <div id="kt-refunds"></div>
       </div>
@@ -1065,7 +1073,7 @@
     }
     const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
       remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', ticket_reply: 'Trả lời khách', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
-      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', room_save: 'Lưu phòng chiếu', review_hide: 'Ẩn/hiện đánh giá', event_update: 'Cập nhật yêu cầu thuê rạp', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
+      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', room_save: 'Lưu phòng chiếu', review_hide: 'Ẩn/hiện đánh giá', event_update: 'Cập nhật yêu cầu thuê rạp', invoice_issue: 'Xác nhận đã xuất hóa đơn', invoice_cancel: 'Hủy yêu cầu hóa đơn', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
       change_password: 'Đổi mật khẩu', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
     function renderAudit() {
       const q = document.getElementById('au-search').value.trim().toLowerCase();
@@ -1220,7 +1228,48 @@
     const sendOne = (code) => act(() => sendCodes([code]));
 
     // ---------------- KẾ TOÁN ----------------
+    // Hóa đơn điện tử (Đợt 4)
+    async function loadInvoices() {
+      const box = document.getElementById('invoices');
+      try {
+        const r = await api('admin?action=invoice_list' + (val('inv-status') ? '&status=' + val('inv-status') : ''));
+        document.getElementById('inv-sub').textContent = 'Khách gửi trong ' + r.hours + ' giờ sau khi thanh toán · nhà cung cấp: ' + (r.provider === 'MANUAL' ? 'chưa kết nối (nhập số hóa đơn thủ công)' : r.provider);
+        box.innerHTML = r.requests.length ? `<table><thead><tr><th>Đơn</th><th>Người mua</th><th>Email</th><th>Số tiền</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+          r.requests.map(x => `<tr><td class="mono">${esc(x.order_code)}<div class="hint">${t(x.created_at)}</div></td>
+            <td>${x.buyer_type === 'COMPANY' ? `<b>${esc(x.company_name)}</b><div class="hint mono">MST ${esc(x.tax_code)}</div><div class="hint">${esc(x.address)}</div>` : `<b>${esc(x.buyer_name)}</b><div class="hint">Cá nhân</div>`}</td>
+            <td>${esc(x.email)}</td><td>${vnd(x.amount)}</td>
+            <td>${pill(r.statuses[x.status] || x.status, x.status === 'PENDING' ? 'warn' : x.status === 'ISSUED' ? 'ok' : 'muted')}${x.invoice_no ? `<div class="hint">Số ${esc(x.invoice_no)}${x.invoice_series ? ' · ' + esc(x.invoice_series) : ''}</div>` : ''}${x.note ? `<div class="hint">${esc(x.note)}</div>` : ''}</td>
+            <td style="white-space: nowrap;">${x.status === 'PENDING' ? `<button class="btn ok" onclick="issueInvoice('${esc(x.order_code)}')">Đã xuất</button> <button class="btn danger" onclick="cancelInvoice('${esc(x.order_code)}')">Hủy</button>` : ''}</td></tr>`).join('')}</tbody></table>`
+          : '<div class="empty">Không có yêu cầu hóa đơn.</div>';
+      } catch (e) { box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+    const issueInvoice = (code) => act(async () => {
+      const no = prompt('Số hóa đơn đã xuất cho đơn ' + code + ':');
+      if (!no) return;
+      const series = prompt('Ký hiệu hóa đơn (vd 1C26TBC), có thể để trống:') || '';
+      const url = prompt('Link tra cứu hóa đơn (https://…), có thể để trống:') || '';
+      await post('invoice_issue', { order_code: code, invoice_no: no, invoice_series: series, lookup_url: url });
+      await loadInvoices();
+    });
+    const cancelInvoice = (code) => act(async () => {
+      const reason = prompt('Lý do không xuất được (gửi cho khách):');
+      if (!reason) return;
+      await post('invoice_cancel', { order_code: code, reason });
+      await loadInvoices();
+    });
+    async function downloadInvoices() {
+      try {
+        const r = await fetch(API + 'admin?action=invoice_list&format=csv' + (val('inv-status') ? '&status=' + val('inv-status') : ''), { headers: TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {} });
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'HTTP ' + r.status);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(await r.blob());
+        a.download = 'yeu-cau-hoa-don.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+      } catch (e) { alert('Không xuất được: ' + e.message); }
+    }
+
     function renderKetoan() {
+      if (can('report.view')) loadInvoices();
       const rf = overview.refunds.filter(r => r.status === 'CS_APPROVED')
         .sort((x, y) => new Date(x.reconciled_at || x.created_at) - new Date(y.reconciled_at || y.created_at));
       badge('c-ketoan', rf.length);

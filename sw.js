@@ -4,11 +4,11 @@
 //   - /api/*: KHÔNG lưu (đơn, thanh toán luôn lấy trực tiếp; vé offline do pay-client.js lưu ở localStorage)
 // Vercel bật cleanUrls (/ticket.html -> /ticket) nên trang được lưu theo khóa đã chuẩn hóa: bỏ ".html", "/" = "/home".
 // Đổi VERSION khi đổi danh sách PRECACHE để xóa bộ nhớ đệm cũ.
-const VERSION = 'beta-v1';
+const VERSION = 'beta-v2';
 const PAGES = ['/home.html', '/account.html', '/ticket.html', '/order.html', '/offline.html'];
 const ASSETS = [
   '/css/prototype-theme.css', '/css/icons.css',
-  '/catalog.js', '/pay-client.js', '/auth-client.js', '/site-chrome.js', '/quick-dock.js',
+  '/catalog.js', '/pay-client.js', '/auth-client.js', '/site-chrome.js', '/quick-dock.js', '/lang.js', '/i18n/en.json',
   '/images/logo-white-official.png', '/images/logo-official.png', '/images/pwa-192.png', '/images/icon-ticket.png',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
 ];
@@ -62,7 +62,7 @@ self.addEventListener('fetch', (e) => {
 
   const cdn = url.hostname === 'cdnjs.cloudflare.com';
   if (!same && !cdn) return;
-  if (!/\.(css|js|png|jpe?g|webp|svg|gif|woff2?)$/i.test(url.pathname)) return;
+  if (!/\.(css|js|json|png|jpe?g|webp|svg|gif|woff2?)$/i.test(url.pathname)) return;
   e.respondWith((async () => {
     const c = await caches.open(VERSION);
     const hit = await c.match(req);

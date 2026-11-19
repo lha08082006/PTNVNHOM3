@@ -42,6 +42,8 @@ async function startServer() {
       for (const file of PAGES) {
         const page = await browser.newPage();
         await page.setViewport(vp);
+        // PAGE_LANG=en: kiểm tra giao diện tiếng Anh (chữ dài hơn dễ tràn)
+        if (process.env.PAGE_LANG) await page.evaluateOnNewDocument((l) => { try { localStorage.setItem('BETA_LANG', l); } catch (e) {} }, process.env.PAGE_LANG);
         await page.setRequestInterception(true);
         page.on('request', r => EXTERNAL.test(r.url()) ? r.abort() : r.continue());
         const errs = [];
