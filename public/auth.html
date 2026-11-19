@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Đăng nhập - Beta Cinemas</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/prototype-theme.css">
+
+  <style>
+    :root {
+      --bg-light: #f8fafc;
+      --card-light: #ffffff;
+      --border-light: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-orange: #ff5400;
+      --accent-gold: #005198;
+      --beta-blue: #005198;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    /* Các nút chuẩn thiết kế Design Component */
+    .btn-b, .btn-o, input, select {
+      font: inherit;
+      min-height: 44px;
+      border-radius: 8px;
+      padding: 0 16px;
+      outline: none;
+    }
+
+    .btn-b {
+      border: 0;
+      background: var(--accent-orange);
+      color: #ffffff;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .btn-b:hover {
+      background: #e04b00;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255, 84, 0, 0.3);
+    }
+
+    .btn-o {
+      border: 1.5px solid var(--border-light);
+      background: #ffffff;
+      color: #334155;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .btn-o:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: var(--beta-blue);
+    }
+
+    input, select {
+      border: 1.5px solid var(--border-light);
+      background: #ffffff;
+      color: var(--text-main);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--beta-blue);
+      box-shadow: 0 0 0 3px rgba(0, 81, 152, 0.1);
+    }
+
+    input[type=checkbox] {
+      min-height: 0;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      accent-color: var(--accent-orange);
+      cursor: pointer;
+    }
+
+    .card-box {
+      background: var(--card-light);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 32px;
+      width: 440px;
+      max-width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0, 81, 152, 0.08);
+    }
+
+    .text-muted {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .flex-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+  </style>
+  <script src="js/layout.js"></script>
+</head>
+<body>
+
+  <script>Layout.header({"authPage": true})</script>
+
+  <!-- Main Container -->
+  <main style="flex: 1; padding: 40px 20px 80px; display: flex; align-items: center; justify-content: center;">
+    
+    <!-- ========================================== -->
+    <!-- FORM 1: ĐĂNG NHẬP (Auth.dc.html)           -->
+    <!-- ========================================== -->
+    <section class="card-box" id="view-login" aria-label="Đăng nhập">
+      <div>
+        <h1 style="font-size: 28px; font-weight: 800;">Đăng nhập</h1>
+        <p class="text-muted" style="margin-top: 4px;">Chào mừng trở lại Beta Cinema, <strong>LƯƠNG HỒNG ANH</strong></p>
+      </div>
+
+      <label class="form-field">
+        Email / Số điện thoại
+        <input type="text" placeholder="Nhập email hoặc số điện thoại" value="luonghonganh@betacinemas.vn">
+      </label>
+
+      <div style="display: flex; gap: 8px; align-items: flex-end;">
+        <label class="form-field" style="flex: 1;">
+          Mật khẩu
+          <input type="password" id="input-login-password" value="12345678">
+        </label>
+        <button type="button" class="btn-o" style="padding: 0 16px;" onclick="togglePasswordVisibility('input-login-password', this)">Hiện</button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 14px;">
+        <label style="display: flex; gap: 8px; align-items: center; cursor: pointer;">
+          <input type="checkbox" checked>
+          Ghi nhớ đăng nhập
+        </label>
+        <a href="javascript:void(0)" onclick="alert('Vui lòng liên hệ hotline 1900 636 807 để khôi phục mật khẩu tài khoản.')" style="color: var(--accent-gold);">Quên mật khẩu?</a>
+      </div>
+
+      <button class="btn-b" onclick="handleAuthAction('login')">Đăng nhập</button>
+
+      <p class="text-muted" style="text-align: center;">hoặc tiếp tục với</p>
+
+      <div class="flex-group" style="gap: 8px;">
+        <button class="btn-o" style="flex: 1;" onclick="handleSocialAuth('Google')">Google</button>
+        <button class="btn-o" style="flex: 1;" onclick="handleSocialAuth('Facebook')">Facebook</button>
+      </div>
+
+      <p class="text-muted" style="text-align: center;">
+        Chưa có tài khoản? <a href="javascript:void(0)" onclick="switchToView('register')" style="color: var(--accent-gold); font-weight: 600;">Đăng ký ngay</a>
+      </p>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- FORM 2: ĐĂNG KÝ (Register.dc.html)         -->
+    <!-- ========================================== -->
+    <section class="card-box" id="view-register" aria-label="Đăng ký" style="display: none;">
+      <div>
+        <h1 style="font-size: 28px; font-weight: 800;">Đăng ký</h1>
+        <p class="text-muted" style="margin-top: 4px;">Tạo tài khoản Beta Club để tích điểm và nhận ưu đãi</p>
+      </div>
+
+      <label class="form-field">
+        Họ tên
+        <input type="text" placeholder="LƯƠNG HỒNG ANH" value="LƯƠNG HỒNG ANH">
+      </label>
+
+      <label class="form-field">
+        Số điện thoại
+        <input type="text" placeholder="09xxxxxxxx">
+      </label>
+
+      <label class="form-field">
+        Email
+        <input type="text" placeholder="name@example.com">
+      </label>
+
+      <label class="form-field">
+        Ngày sinh
+        <input type="date" value="2000-01-01">
+        <span style="font-weight: 400; font-size: 12px; color: var(--text-muted);">Dùng để đối chiếu độ tuổi xem phim</span>
+      </label>
+
+      <label class="form-field">
+        Mật khẩu
+        <input type="password" placeholder="••••••••">
+      </label>
+
+      <label class="form-field">
+        Xác nhận mật khẩu
+        <input type="password" placeholder="••••••••">
+      </label>
+
+      <label style="display: flex; gap: 8px; font-size: 13px; align-items: flex-start; cursor: pointer; color: var(--text-muted);">
+        <input type="checkbox" checked style="margin-top: 2px;">
+        <span>Tôi đồng ý điều khoản sử dụng và chính sách bảo mật</span>
+      </label>
+
+      <button class="btn-b" onclick="handleAuthAction('register')">Tạo tài khoản</button>
+
+      <p class="text-muted" style="text-align: center;">hoặc tiếp tục với</p>
+
+      <div class="flex-group" style="gap: 8px;">
+        <button class="btn-o" style="flex: 1;" onclick="handleSocialAuth('Google')">Google</button>
+        <button class="btn-o" style="flex: 1;" onclick="handleSocialAuth('Facebook')">Facebook</button>
+      </div>
+
+      <p class="text-muted" style="text-align: center;">
+        Đã có tài khoản? <a href="javascript:void(0)" onclick="switchToView('login')" style="color: var(--accent-gold); font-weight: 600;">Đăng nhập</a>
+      </p>
+    </section>
+
+  </main>
+
+  <!-- CHÂN TRANG FOOTER CHÍNH THỨC -->
+  <script>Layout.footer()</script>
+
+
+  <!-- Script điều khiển hiển thị Đăng nhập / Đăng ký và Toggle mật khẩu -->
+  <script>
+    function switchToView(view) {
+      const loginSection = document.getElementById('view-login');
+      const registerSection = document.getElementById('view-register');
+      const title = document.getElementById('page-title');
+
+      if (view === 'register') {
+        loginSection.style.display = 'none';
+        registerSection.style.display = 'flex';
+        title.innerText = 'Đăng ký tài khoản - Beta Cinemas';
+        window.location.hash = 'register';
+      } else {
+        loginSection.style.display = 'flex';
+        registerSection.style.display = 'none';
+        title.innerText = 'Đăng nhập - Beta Cinemas';
+        window.location.hash = 'login';
+      }
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerText = 'Ẩn';
+      } else {
+        input.type = 'password';
+        btn.innerText = 'Hiện';
+      }
+    }
+
+    function handleAuthAction(type) {
+      alert(type === 'login' ? 'Đăng nhập thành công! Chào mừng LƯƠNG HỒNG ANH quay trở lại.' : 'Đăng ký thành công! Chào mừng LƯƠNG HỒNG ANH gia nhập Beta Club!');
+      window.location.href = 'account.html';
+    }
+
+    function handleSocialAuth(provider) {
+      alert('Đang kết nối xác thực tài khoản qua ' + provider + '...');
+    }
+
+    // Tự động kiểm tra URL Hash khi tải trang (#register hoặc #login)
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.location.hash === '#register') {
+        switchToView('register');
+      } else {
+        switchToView('login');
+      }
+    });
+  </script>
+
+</body>
+</html>
