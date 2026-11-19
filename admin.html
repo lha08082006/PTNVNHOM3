@@ -186,6 +186,10 @@
         <div id="tickets"></div>
       </div>
       <div class="card">
+        <h2>Đánh giá phim <small>chỉ khách đã soát vé mới đánh giá được · ẩn đánh giá vi phạm (spoil, xúc phạm, quảng cáo)</small></h2>
+        <div id="reviews"><div class="empty">Đang tải…</div></div>
+      </div>
+      <div class="card">
         <h2>Hồ sơ hoàn tiền thủ công <small>nhân viên lọc & đối chiếu → gửi Kế toán → Kế toán kiểm tra: đạt thì chi, không đạt thì trả về</small></h2>
         <div class="chips" id="cs-chips"></div>
         <div class="toolbar">
@@ -685,12 +689,14 @@
         ${msg ? `<div style="margin-top: 6px; font-weight: 700;">${esc(msg)}</div>` : ''}
         ${sm ? `<div style="margin-top: 10px; font-size: 14px; line-height: 1.6; background: rgba(255,255,255,.15); border-radius: 10px; padding: 10px 12px;">
           Đơn <b class="mono">${esc(sm.code)}</b>${sm.signed ? '' : ' (soát bằng mã đơn)'}<br>
-          ${sm.movie_title ? esc(sm.movie_title) + '<br>' : ''}${esc(sm.cinema)} · <b>${esc(sm.show_time)}</b> ${esc(sm.show_date)}<br>
-          Ghế: <b style="font-size: 18px;">${esc((sm.seats || []).join(', '))}</b>${sm.customer_name ? ' · ' + esc(sm.customer_name) : ''}
+          ${sm.kind === 'FNB'
+            ? `<b>PHIẾU BẮP NƯỚC</b> · ${esc(sm.cinema)}<br>Giao: <b style="font-size: 18px;">${(sm.items || []).map(x => esc(x.qty + ' × ' + x.name)).join(', ')}</b>${sm.customer_name ? ' · ' + esc(sm.customer_name) : ''}`
+            : `${sm.movie_title ? esc(sm.movie_title) + '<br>' : ''}${esc(sm.cinema)} · <b>${esc(sm.show_time)}</b> ${esc(sm.show_date)}<br>
+          Ghế: <b style="font-size: 18px;">${esc((sm.seats || []).join(', '))}</b>${sm.customer_name ? ' · ' + esc(sm.customer_name) : ''}`}
           ${(sm.special || []).length ? `<div style="margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #fef3c7; color: #78350f; font-weight: 700;"><i class="ph-warning" aria-hidden="true"></i> Kiểm tra giấy tờ: ${sm.special.map(x => esc(x.seat + ' – ' + x.label)).join(', ')}</div>` : ''}
         </div>` : ''}
       </div>`;
-      ckHistory.unshift({ at: new Date(), ok, code: sm ? sm.code : raw.slice(0, 20), seats: sm ? sm.seats.join(', ') : '' });
+      ckHistory.unshift({ at: new Date(), ok, code: sm ? sm.code : raw.slice(0, 20), seats: sm ? (sm.kind === 'FNB' ? 'Bắp nước' : sm.seats.join(', ')) : '' });
       document.getElementById('ck-history').innerHTML = '<table><tbody>' + ckHistory.slice(0, 15).map(h =>
         `<tr><td>${h.at.toLocaleTimeString('vi-VN')}</td><td class="mono">${esc(h.code)}</td><td>${esc(h.seats)}</td><td>${h.ok ? pill('Vào', 'ok') : pill('Từ chối', 'danger')}</td></tr>`).join('') + '</tbody></table>';
       try { navigator.vibrate && navigator.vibrate(ok ? 80 : [80, 60, 80]); } catch (e) {}
@@ -975,7 +981,21 @@
     function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
 
     // ---------------- CSKH ----------------
+    // Đánh giá phim (Đợt 2)
+    async function loadReviews() {
+      const box = document.getElementById('reviews');
+      try {
+        const r = await api('admin?action=review_list');
+        box.innerHTML = r.reviews.length ? `<table><thead><tr><th>Phim</th><th>Sao</th><th>Nội dung</th><th>Khách / đơn</th><th>Ngày</th><th></th></tr></thead><tbody>${
+          r.reviews.map(x => `<tr class="${x.hidden ? 'inactive' : ''}"><td class="mono">${esc(x.movie_id)}</td><td>${'★'.repeat(x.rating)}</td><td>${esc(x.content || '—')}${x.hidden ? `<div class="hint">Đã ẩn${x.moderated_by ? ' bởi ' + esc(x.moderated_by) : ''}</div>` : ''}</td>
+            <td>${esc(x.customer_name)}<div class="hint mono">${esc(x.order_code)}</div></td><td>${t(x.created_at)}</td>
+            <td><button class="btn ${x.hidden ? 'ok' : 'danger'}" onclick="hideReview('${esc(x.id)}', ${!x.hidden})">${x.hidden ? 'Hiện lại' : 'Ẩn'}</button></td></tr>`).join('')}</tbody></table>` : '<div class="empty">Chưa có đánh giá nào.</div>';
+      } catch (e) { box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+    const hideReview = (id, hidden) => act(async () => { await post('review_hide', { id, hidden }); await loadReviews(); });
+
     function renderCskh() {
+      loadReviews();
       const tk = overview.tickets;
       badge('c-cskh', tk.filter(x => x.status === 'OPEN').length);
       document.getElementById('tickets').innerHTML = tk.length ? `<table><thead><tr><th>Phiếu</th><th>Loại</th><th>Đơn</th><th>Nội dung</th><th>Trạng thái</th><th>Cập nhật</th><th></th></tr></thead><tbody>${

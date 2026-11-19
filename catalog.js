@@ -99,6 +99,24 @@
     sausage: { name: 'Xúc Xích Nướng Phô Mai', price: 25000, desc: '01 que xúc xích nướng phô mai, sốt mù tạt mật ong.', img: 'images/combo.webp' }
   };
   const MAX_COMBO_QTY = 10;
+
+  // Beta Club – điểm thưởng & hạng thành viên (Đợt 2). Hạng xét theo tổng chi tiêu 365 ngày gần nhất.
+  //   ticket / fnb: % tiền thực trả được quy ra điểm cho vé / bắp nước. 1 điểm = 1.000 đ khi dùng để trả tiền.
+  const LOYALTY = {
+    POINT_VALUE: 1000,
+    MAX_SHARE: 0.5,          // điểm trả tối đa 50% giá trị đơn (sau voucher)
+    EXPIRE_MONTHS: 12,       // điểm hết hạn sau 12 tháng
+    BIRTHDAY_POINTS: 50,     // quà sinh nhật: 50 điểm (= 50.000 đ), dùng trong 60 ngày
+    BIRTHDAY_DAYS: 60,
+    TIERS: [
+      { id: 'MEMBER', label: 'Thành viên', min: 0, ticket: 5, fnb: 3 },
+      { id: 'VIP', label: 'VIP', min: 2000000, ticket: 7, fnb: 4 },
+      { id: 'VVIP', label: 'VVIP', min: 4000000, ticket: 10, fnb: 5 }
+    ]
+  };
+  const tierOf = (spend) => LOYALTY.TIERS.filter(t => (spend || 0) >= t.min).pop();
+  // Số điểm tối đa được dùng cho một đơn có giá trị `amount` (sau voucher)
+  const maxPointsFor = (amount) => Math.max(0, Math.floor((amount || 0) * LOYALTY.MAX_SHARE / LOYALTY.POINT_VALUE));
   const MAX_SEATS = 8;
 
   // Voucher giảm thẳng vào tổng đơn (không giảm quá tổng)
@@ -154,11 +172,13 @@
   //   ticket_types : số vé theo loại, vd { STUDENT: 1, CHILD: 1 } (phần còn lại là Người lớn)
   //   types        : bảng loại vé đang áp dụng (mặc định TICKET_TYPES)
   //   show_dow     : thứ trong tuần của suất chiếu (để kiểm tra voucher chỉ áp dụng vài thứ)
-  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS, ticket_types = {}, types = TICKET_TYPES, show_dow = null } = {}) {
+  //   points       : số điểm Beta Club khách muốn dùng (máy chủ đã kiểm tra số dư)
+  //   fnb          : đơn chỉ mua bắp nước (không có ghế)
+  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS, ticket_types = {}, types = TICKET_TYPES, show_dow = null, points = 0, fnb = false } = {}) {
     prices = { ...SEAT_PRICES, ...(prices || {}) };
-    const list = (Array.isArray(seats) ? seats : String(seats).split(','))
+    const list = fnb ? [] : (Array.isArray(seats) ? seats : String(seats).split(','))
       .map(s => String(s).trim().toUpperCase()).filter(Boolean);
-    if (!list.length) throw err('Chưa chọn ghế');
+    if (!list.length && !fnb) throw err('Chưa chọn ghế');
     if (list.length > MAX_SEATS) throw err(`Mỗi đơn tối đa ${MAX_SEATS} ghế`);
     if (new Set(list).size !== list.length) throw err('Danh sách ghế bị trùng');
     const seatLines = list.map(id => {
@@ -198,14 +218,19 @@
       comboLines.push({ key, name: COMBOS[key].name, qty, price: COMBOS[key].price, amount: qty * COMBOS[key].price });
     }
     const combo_total = comboLines.reduce((s, x) => s + x.amount, 0);
+    if (fnb && !combo_total) throw err('Chưa chọn món bắp nước');
 
     const code = voucher ? String(voucher).trim().toUpperCase() : null;
     if (code && !(vouchers || {})[code]) throw err('Mã giảm giá không hợp lệ hoặc đã hết lượt dùng');
     const discount = code ? voucherDiscount(code, vouchers[code], { base: seat_total + combo_total, combo_total, seat_count: seatLines.length, show_dow }) : 0;
 
+    const after = seat_total + combo_total - discount;
+    const want_points = Math.max(0, Math.floor(Number(points) || 0));
+    if (want_points > maxPointsFor(after)) throw err('Điểm dùng tối đa ' + maxPointsFor(after) + ' điểm cho đơn này (không quá ' + Math.round(LOYALTY.MAX_SHARE * 100) + '% giá trị đơn).');
+    const points_discount = want_points * LOYALTY.POINT_VALUE;
     return {
       seats: seatLines, combos: comboLines, voucher: code, ticket_types: type_counts, type_discount,
-      seat_total, combo_total, discount, total: seat_total + combo_total - discount
+      seat_total, combo_total, discount, points_used: want_points, points_discount, total: after - points_discount
     };
   }
 
@@ -214,5 +239,5 @@
     return MOVIES[k] || null;
   }
 
-  return { voucherDiscount, MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, TICKET_TYPES, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
+  return { LOYALTY, tierOf, maxPointsFor, voucherDiscount, MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, TICKET_TYPES, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
 });

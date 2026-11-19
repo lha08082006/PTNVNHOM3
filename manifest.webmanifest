@@ -1,0 +1,22 @@
+{
+  "name": "Beta Cinemas – Đặt vé xem phim",
+  "short_name": "Beta Cinemas",
+  "description": "Đặt vé, xem vé QR (kể cả khi mất mạng), tích điểm Beta Club.",
+  "lang": "vi",
+  "start_url": "/home.html?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#005198",
+  "icons": [
+    { "src": "/images/pwa-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/images/pwa-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/images/pwa-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Vé của tôi", "url": "/account.html", "icons": [{ "src": "/images/pwa-192.png", "sizes": "192x192" }] },
+    { "name": "Lịch chiếu", "url": "/schedule.html", "icons": [{ "src": "/images/pwa-192.png", "sizes": "192x192" }] },
+    { "name": "Vé đã lưu (offline)", "url": "/offline.html", "icons": [{ "src": "/images/pwa-192.png", "sizes": "192x192" }] }
+  ]
+}

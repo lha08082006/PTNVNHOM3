@@ -99,7 +99,7 @@
         <ul class="main-menu-official">
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
           <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
@@ -168,7 +168,7 @@
     }
 
     function render(o) {
-      const m = Pay.getMovie(o.movie_key);
+      const m = Pay.movieOf(o);
       const tone = Pay.statusTone(o.status);
       const refunds = o.refunds || [];
       const reported = o.tickets && o.tickets.some(t => t.type === 'PAYMENT_REPORT');
@@ -181,7 +181,7 @@
           <div class="meta">
             <div style="font-size: 12px; color: #64748b; font-weight: 700;">ĐƠN HÀNG <span style="font-family: monospace; color: #0f172a;">#${esc(o.code)}</span></div>
             <h1>${esc(m.shortTitle || m.title)} <span style="font-size: 13px; color: #ea580c;">${esc(m.age || '')}</span></h1>
-            <div style="font-size: 13.5px; color: #475569;">${esc(o.cinema)} · ${esc(o.show_time)} ${esc(o.show_date)} · Ghế ${esc((o.seats || []).join(', '))}</div>
+            <div style="font-size: 13.5px; color: #475569;">${esc(Pay.slotText(o))}</div>
           </div>
           <div style="text-align: right;">
             <span class="badge tone-${tone}">● ${esc(o.status_label)}</span>

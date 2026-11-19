@@ -259,7 +259,7 @@
         <ul class="main-menu-official">
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
           <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
@@ -310,6 +310,17 @@
             </button>
           </div>
           <p id="voucher-msg" class="m" style="font-size: 13px;">Nhập voucher thành viên để nhận ưu đãi giảm giá đơn hàng.</p>
+          <!-- Beta Club: dùng điểm trả tiền (Đợt 2) -->
+          <div id="points-box" hidden style="border-top: 1px dashed var(--border-dark); padding-top: 12px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; cursor: pointer;">
+              <input type="checkbox" id="points-use" onchange="calcTotal()"> Dùng điểm Beta Club
+              <span class="m" style="font-weight: 500;">(có <b id="points-have">0</b> điểm · 1 điểm = 1.000 đ)</span>
+            </label>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+              <input aria-label="Số điểm muốn dùng" type="number" id="points-input" min="0" step="1" value="0" oninput="calcTotal()" style="width: 120px; height: 38px; border-radius: 8px; padding: 0 10px; border: 1.5px solid var(--border-dark);">
+              <span class="m" style="font-size: 12.5px;" id="points-hint"></span>
+            </div>
+          </div>
         </section>
 
         <!-- KHỐI 3: PHƯƠNG THỨC THANH TOÁN (THEO MOCKUP MỚI) -->
@@ -412,6 +423,11 @@
             <span id="summary-discount-amount" style="font-weight: 700;">-20.000 đ</span>
           </p>
 
+          <p class="ln" id="summary-points-row" style="display: none; color: var(--status-live);">
+            <span>Dùng điểm Beta Club</span>
+            <span id="summary-points-amount" style="font-weight: 700;"></span>
+          </p>
+
           <p class="ln">
             <span class="m">Phí tiện ích</span>
             <span style="color: var(--status-live); font-weight: 700;">Miễn phí</span>
@@ -512,7 +528,8 @@
 
     let baseSeatPrice = 90000;
     let discountAmount = 0;
-    let VOUCHER_DEF = null; // voucher đã kiểm tra trên máy chủ (gồm điều kiện)
+    let VOUCHER_DEF = null;
+    let POINTS_HAVE = 0, pointsUsed = 0; // Beta Club // voucher đã kiểm tra trên máy chủ (gồm điều kiện)
     let selectedSeatsStr = '';
     let currentMovie = 'linh-gioi-dai-chien';
     let currentCinema = 'Beta Thanh Xuân';
@@ -654,7 +671,28 @@
       const dAmt = document.getElementById('summary-discount-amount');
       if (dAmt) dAmt.textContent = '-' + new Intl.NumberFormat('vi-VN').format(discountAmount) + ' đ';
       voucherCode = discountAmount ? (VOUCHER_DEF && VOUCHER_DEF.code) : null;
-      const finalTotal = Math.max(0, baseSeatPrice + comboTotal - discountAmount);
+      // Điểm Beta Club: tối đa 50% giá trị đơn sau voucher và không quá số điểm đang có (máy chủ kiểm tra lại)
+      const afterVoucher = Math.max(0, baseSeatPrice + comboTotal - discountAmount);
+      pointsUsed = 0;
+      if (POINTS_HAVE > 0) {
+        const cap = Math.min(POINTS_HAVE, BetaCatalog.maxPointsFor(afterVoucher));
+        const inp = document.getElementById('points-input');
+        inp.max = cap;
+        document.getElementById('points-hint').textContent = 'Tối đa ' + cap + ' điểm cho đơn này';
+        if (document.getElementById('points-use').checked) {
+          let n = Math.floor(Number(inp.value) || 0);
+          if (!n) n = cap;
+          n = Math.max(0, Math.min(cap, n));
+          inp.value = n;
+          pointsUsed = n;
+        }
+      }
+      const pRow = document.getElementById('summary-points-row');
+      if (pRow) {
+        pRow.style.display = pointsUsed ? 'flex' : 'none';
+        document.getElementById('summary-points-amount').textContent = '-' + new Intl.NumberFormat('vi-VN').format(pointsUsed * 1000) + ' đ (' + pointsUsed + ' điểm)';
+      }
+      const finalTotal = Math.max(0, afterVoucher - pointsUsed * 1000);
       document.getElementById('summary-total-amount').textContent = new Intl.NumberFormat('vi-VN').format(finalTotal) + ' đ';
       return finalTotal;
     }
@@ -697,6 +735,7 @@
           combos: combosPayload,
           ticket_types: typeCounts,
           voucher: voucherCode,
+          points: pointsUsed,
           total: finalTotal
         });
       } catch (err) {
@@ -737,6 +776,16 @@
       const pr = await Pay.pricing();
       if (pr && pr.ticket_types) TYPES = pr.ticket_types;
       parseParams();
+      // Số điểm Beta Club hiện có
+      try {
+        const p = await Pay.call('member?action=points');
+        POINTS_HAVE = p.balance || 0;
+        if (POINTS_HAVE > 0) {
+          document.getElementById('points-have').textContent = POINTS_HAVE.toLocaleString('vi-VN');
+          document.getElementById('points-box').hidden = false;
+          calcTotal();
+        }
+      } catch (e) { /* chưa có điểm hoặc lỗi mạng: bỏ qua, vẫn thanh toán bình thường */ }
     })();
   </script>
   <script src="site-chrome.js" defer></script>

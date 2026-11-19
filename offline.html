@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vé đã lưu - Beta Cinemas</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#005198">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="images/icon-ticket.png">
+  <style>
+    body { margin: 0; font-family: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif; background: #f8fafc; color: #0f172a; }
+    header { background: #005198; color: #fff; padding: 14px 16px; }
+    header .in, main { max-width: 640px; margin: 0 auto; }
+    header img { height: 36px; display: block; }
+    main { padding: 22px 16px 40px; }
+    h1 { font-size: 22px; color: #005198; margin: 0 0 6px; }
+    .lead { color: #475569; font-size: 14.5px; line-height: 1.6; margin: 0 0 18px; }
+    .t { display: block; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; text-decoration: none; color: inherit; }
+    .t:hover, .t:focus-visible { border-color: #005198; }
+    .t b { color: #005198; font-size: 15.5px; }
+    .t small { display: block; color: #475569; margin-top: 4px; font-size: 13px; }
+    .net { display: inline-block; font-size: 12.5px; font-weight: 700; border-radius: 99px; padding: 3px 10px; margin-bottom: 14px; }
+    .btn { display: inline-block; background: #005198; color: #fff; border-radius: 10px; padding: 11px 18px; text-decoration: none; font-weight: 700; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header><div class="in"><a href="home.html" aria-label="Về trang chủ"><img src="images/logo-white-official.png" alt="Beta Cinemas"></a></div></header>
+  <main id="main">
+    <span class="net" id="net"></span>
+    <h1>Vé đã lưu trên máy</h1>
+    <p class="lead">Các vé bạn đã mở trên thiết bị này được lưu lại, nên vẫn xem được mã QR vào rạp khi mất mạng. Mở vé trước khi đến rạp để chắc chắn đã lưu bản mới nhất.</p>
+    <div id="list" aria-live="polite"></div>
+    <p><a class="btn" href="account.html">Mở Tài khoản (cần mạng)</a></p>
+  </main>
+  <script>
+    (function () {
+      var net = document.getElementById('net');
+      function paint() {
+        net.textContent = navigator.onLine ? 'Đang có mạng' : 'Đang mất mạng';
+        net.style.background = navigator.onLine ? '#dcfce7' : '#fee2e2';
+        net.style.color = navigator.onLine ? '#166534' : '#991b1b';
+      }
+      paint();
+      window.addEventListener('online', paint);
+      window.addEventListener('offline', paint);
+      var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+      var out = [];
+      try {
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k.indexOf('BETA_ORDER_') !== 0) continue;
+          var o = JSON.parse(localStorage.getItem(k) || 'null');
+          if (o && o.has_ticket && o.ticket_qr) out.push(o);
+        }
+      } catch (e) { /* trình duyệt chặn bộ nhớ: không có vé lưu */ }
+      out.sort(function (a, b) { return String(b.show_at || b.created_at).localeCompare(String(a.show_at || a.created_at)); });
+      document.getElementById('list').innerHTML = out.length ? out.map(function (o) {
+        var title = o.kind === 'FNB' ? 'Đơn bắp nước' : ((o.movie && o.movie.title) || o.movie_key || 'Vé xem phim');
+        var when = o.kind === 'FNB' ? 'Nhận tại quầy ' + (o.cinema || '') : [o.show_time, o.show_date, o.cinema].filter(Boolean).join(' · ');
+        return '<a class="t" href="ticket.html?order=' + encodeURIComponent(o.code) + '"><b>' + esc(title) + '</b>' +
+          '<small>' + esc(when) + (o.seats && o.seats.length ? ' · Ghế ' + esc(o.seats.join(', ')) : '') + '</small>' +
+          '<small>Mã đơn ' + esc(o.code) + (o.checked_in_at ? ' · đã soát vé' : '') + '</small></a>';
+      }).join('') : '<p class="lead">Chưa có vé nào được lưu trên thiết bị này.</p>';
+    })();
+  </script>
+</body>
+</html>

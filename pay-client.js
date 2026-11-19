@@ -279,6 +279,15 @@ const Pay = {
     return m || { title: "PHIM ĐANG CẬP NHẬT", shortTitle: "Phim đang cập nhật", age: "", meta: "", poster: "images/400x633-145627-230926-40.jpg", format: "2D", badge: "2D" };
   },
 
+  // Đơn bắp nước (Đợt 2) không có phim: trả "phim giả" để các trang hiển thị chung một khung
+  FNB_MOVIE: { title: "ĐƠN BẮP NƯỚC", shortTitle: "Đơn bắp nước", age: "", meta: "Nhận tại quầy trong 30 ngày", poster: "images/combo.webp", format: "Nhận tại quầy", badge: "BẮP NƯỚC" },
+  movieOf(o) { return o && o.kind === "FNB" ? Pay.FNB_MOVIE : Pay.getMovie(o && o.movie_key); },
+  // Dòng mô tả suất / ghế (đơn bắp nước: nơi nhận)
+  slotText(o) {
+    if (o && o.kind === "FNB") return (o.cinema || "") + " · nhận tại quầy trong 30 ngày";
+    return [o.cinema, [o.show_time, o.show_date].filter(Boolean).join(" "), "Ghế " + (o.seats || []).join(", ")].filter(Boolean).join(" · ");
+  },
+
   // Phim lấy từ database (qua API) được ghi nhớ để getMovie() dùng, kể cả phim Quản lý mới thêm
   _movies: {},
   _absorb(j) {
@@ -315,7 +324,7 @@ const Pay = {
   // Đồng bộ hóa thông tin phim & hóa đơn trên giao diện động
   renderInvoice(ord) {
     if (!ord) return;
-    const m = this.getMovie(ord.movie_key);
+    const m = this.movieOf(ord);
 
     const titleEls = document.querySelectorAll('#invoice-movie-title, #summary-movie-title, #ticket-movie-title, .dynamic-movie-title');
     titleEls.forEach(el => { el.textContent = (m.shortTitle || m.title) + (m.age ? ' · ' + m.age : ''); });

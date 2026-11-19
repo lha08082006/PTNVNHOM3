@@ -361,7 +361,7 @@
         <ul class="main-menu-official">
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official active">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
           <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
@@ -431,6 +431,18 @@
         </div>
       </div>
     </div>
+
+    <!-- Đánh giá phim (Đợt 2): chỉ khách đã soát vé mới đánh giá được -->
+    <section id="reviews" class="container" style="margin: 28px auto 40px;" aria-labelledby="rv-title">
+      <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;">
+          <h3 id="rv-title" style="font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--beta-navy); margin: 0;">Đánh giá từ khán giả đã xem</h3>
+          <div id="rv-avg" style="font-size: 14px; color: #475569;"></div>
+        </div>
+        <div id="rv-form"></div>
+        <div id="rv-list" aria-live="polite"><p class="m">Đang tải đánh giá…</p></div>
+      </div>
+    </section>
   </main>
 
   <!-- CHÂN TRANG FOOTER CHÍNH THỨC -->
@@ -772,6 +784,7 @@
         if (m.age) { $('md-age').hidden = false; $('md-age').textContent = m.age; }
         if (m.badge) { $('md-format').hidden = false; $('md-format').textContent = m.badge; }
         if (m.status === 'SOON') $('md-soon').hidden = false;
+        document.dispatchEvent(new CustomEvent('md:movie', { detail: m }));
         // Thông tin phim đầy đủ: thời lượng, khởi chiếu, ngôn ngữ, thể loại, đạo diễn, diễn viên, phân loại tuổi
         const fmtDate = (d) => d ? d.split('-').reverse().join('/') : '';
         const pills = [m.duration_min ? ['timer', m.duration_min + ' phút'] : null, m.release_date ? ['calendar', 'Khởi chiếu ' + fmtDate(m.release_date)] : null, m.language ? ['globe', m.language] : null].filter(Boolean);
@@ -857,6 +870,57 @@
         $('md-slots').innerHTML = '<p class="m">Không kết nối được máy chủ. <button type="button" class="btn btn-outline btn-sm" onclick="location.reload()">Thử lại</button></p>';
       }
     })();
+  </script>
+  <script>
+    // Đánh giá phim: danh sách công khai + form cho khách đã soát vé (mỗi đơn vé một đánh giá)
+    document.addEventListener('md:movie', async (ev) => {
+      const m = ev.detail;
+      const $ = (id) => document.getElementById(id);
+      const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const stars = (n) => '<span aria-hidden="true" style="color:#f59e0b; letter-spacing: 1px;">' + '★'.repeat(Math.round(n)) + '<span style="color:#cbd5e1">' + '★'.repeat(5 - Math.round(n)) + '</span></span>';
+      async function loadList() {
+        try {
+          const r = await Pay.call('member?action=reviews&movie=' + encodeURIComponent(m.key));
+          $('rv-avg').innerHTML = r.count ? stars(r.avg) + ' <b style="color: var(--beta-navy); font-size: 16px;">' + r.avg + '/5</b> · ' + r.count + ' đánh giá' : '';
+          $('rv-list').innerHTML = r.count ? r.reviews.map((x) => '<div style="border-top: 1px solid #f1f5f9; padding: 12px 0;">'
+            + '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13.5px;">' + stars(x.rating) + '<span class="sr-only">' + x.rating + ' sao</span> <b>' + esc(x.name) + '</b>'
+            + '<span style="font-size: 11.5px; font-weight: 700; color: #15803d; background: #f0fdf4; border-radius: 99px; padding: 1px 8px;">Đã xem tại rạp</span>'
+            + '<span style="color: #94a3b8; font-size: 12px;">' + new Date(x.created_at).toLocaleDateString('vi-VN') + '</span></div>'
+            + (x.content ? '<p style="margin: 6px 0 0; font-size: 14px; color: #1e293b; line-height: 1.6;">' + esc(x.content).replace(/\n/g, '<br>') + '</p>' : '') + '</div>').join('')
+            : '<p class="m" style="font-size: 14px;">Chưa có đánh giá. Khán giả đã xem phim tại rạp sẽ chấm điểm ở đây.</p>';
+        } catch (e) { $('rv-list').innerHTML = '<p class="m">Không tải được đánh giá.</p>'; }
+      }
+      async function loadForm() {
+        let token = null;
+        try { token = localStorage.getItem('BETA_AUTH_TOKEN'); } catch (e) {}
+        if (!token) { $('rv-form').innerHTML = '<p class="m" style="font-size: 13.5px; margin: 0 0 10px;">Đã xem phim tại Beta? <a href="' + esc(BetaAuth.loginUrl()) + '">Đăng nhập</a> để đánh giá.</p>'; return; }
+        try {
+          const r = await Pay.call('member?action=can_review&movie=' + encodeURIComponent(m.key));
+          if (!r.orders.length) { $('rv-form').innerHTML = ''; return; }
+          const o = r.orders[0];
+          $('rv-form').innerHTML = '<form id="rv-f" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 12px;">'
+            + '<div style="font-size: 13.5px; margin-bottom: 8px;">Bạn đã xem phim này (' + esc(o.show_time + ' ' + o.show_date + ' · ' + o.cinema) + '). Chấm điểm:</div>'
+            + '<fieldset style="border: 0; padding: 0; margin: 0 0 8px; display: flex; gap: 4px;" aria-label="Số sao"><legend class="sr-only">Số sao</legend>'
+            + [1, 2, 3, 4, 5].map((n) => '<label style="cursor: pointer; font-size: 26px; color: #cbd5e1;" data-n="' + n + '"><input type="radio" name="rating" value="' + n + '" required style="position: absolute; opacity: 0; width: 1px; height: 1px;"><span aria-hidden="true">★</span><span class="sr-only">' + n + ' sao</span></label>').join('')
+            + '</fieldset><textarea name="content" maxlength="1000" rows="3" class="form-input" style="width: 100%; height: auto; padding: 10px;" placeholder="Cảm nhận của bạn (không bắt buộc, không tiết lộ nội dung phim)"></textarea>'
+            + '<p id="rv-msg" role="status" style="font-size: 13px; margin: 6px 0;"></p><button class="btn btn-primary btn-sm" type="submit">Gửi đánh giá</button></form>';
+          const f = $('rv-f');
+          const paint = (v) => f.querySelectorAll('label[data-n]').forEach((l) => { l.style.color = Number(l.dataset.n) <= v ? '#f59e0b' : '#cbd5e1'; });
+          f.querySelectorAll('input[name=rating]').forEach((i) => i.addEventListener('change', () => paint(Number(i.value))));
+          f.onsubmit = async (e) => {
+            e.preventDefault();
+            const rating = Number((f.querySelector('input[name=rating]:checked') || {}).value);
+            try {
+              await Pay.post('member?action=review', { order_code: o.order_code, rating, content: f.content.value });
+              $('rv-form').innerHTML = '<p style="color: #15803d; font-weight: 700; font-size: 14px;">Cảm ơn bạn đã đánh giá!</p>';
+              loadList();
+            } catch (err) { $('rv-msg').textContent = err.message; $('rv-msg').style.color = '#b91c1c'; }
+          };
+        } catch (e) { $('rv-form').innerHTML = ''; }
+      }
+      loadList();
+      loadForm();
+    });
   </script>
   <script src="site-chrome.js" defer></script>
 </body>

@@ -187,7 +187,7 @@
         <ul class="main-menu-official">
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
           <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
@@ -709,7 +709,23 @@
 
     function applyOrderToTicket(ord) {
       if (!ord) return;
-      const movieObj = resolveMovie(ord.movie_key);
+      const movieObj = ord.kind === 'FNB' ? Pay.FNB_MOVIE : resolveMovie(ord.movie_key);
+      if (ord.kind === 'FNB') {
+        // Đơn bắp nước: không có suất / ghế – nhân viên quầy quét QR để giao món
+        document.getElementById('ticket-seats-list').textContent = 'Không có ghế';
+        document.getElementById('ticket-showtime').textContent = 'Nhận tại quầy trong 30 ngày kể từ ngày mua';
+        const cls = document.getElementById('ticket-seat-class');
+        if (cls) cls.textContent = 'PHIẾU BẮP NƯỚC';
+        const hall = document.getElementById('ticket-hall-name');
+        if (hall) { hall.textContent = 'Quầy bắp nước'; const lb = hall.previousElementSibling; if (lb) lb.textContent = 'Nơi nhận'; }
+        const st = document.getElementById('ticket-showtime');
+        if (st && st.previousElementSibling) st.previousElementSibling.textContent = 'Thời hạn nhận';
+        const h1 = document.querySelector('main h1');
+        if (h1) h1.textContent = 'Đặt Bắp Nước Thành Công!';
+        document.querySelectorAll('main div').forEach((d) => {
+          if (d.children.length === 0 && /^Đưa mã QR này cho nhân viên soát vé/.test(d.textContent.trim())) d.textContent = 'Đưa mã QR này cho nhân viên quầy bắp nước để nhận món. Mỗi phiếu chỉ dùng được một lần.';
+        });
+      }
       if (movieObj) {
         document.getElementById('ticket-movie-title').textContent = movieObj.title;
         document.getElementById('ticket-movie-format').textContent = movieObj.format;

@@ -701,6 +701,157 @@ async function test(name, fn) {
     assert.strictEqual(back.data.ticket.replies.length, 2);
   });
 
+  // ======================= Đợt 2: Beta Club, đánh giá phim, PWA, bắp nước, thư nhắc =======================
+  const tokE = await newCustomer('eee');
+  await require('../lib/throttle').reset('s:quay@beta.local'); // kiểm thử trước đã cố tình khóa tài khoản quầy
+  const payOK = async (c) => { const r = await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: c } }); assert.strictEqual(r.status, 200, JSON.stringify(r.data)); };
+  const freeSeats = async (st, n) => {
+    const taken = new Set((await call('seats', { query: { showtime_key: st.id } })).data.seats.map(x => x.seat));
+    return require('../catalog').SEAT_IDS.filter(id => require('../catalog').seatType(id) === 'standard' && !taken.has(id)).slice(0, n);
+  };
+  const ST2 = (await call('catalog', { query: { action: 'showtimes', days: 7 } })).data.showtimes.filter(s => new Date(s.starts_at) > Date.now() + 3 * 3600e3).pop();
+
+  await test('Đợt 2: Beta Club – tích điểm khi xuất vé, dùng điểm tối đa 50%, hoàn điểm khi đơn hủy', async () => {
+    const Points = require('../lib/points');
+    const me = (await call('auth', { token: tokE, query: { action: 'me' } })).data.user;
+    const seats = await freeSeats(ST2, 4);
+    const o1 = await call('create-order', { method: 'POST', token: tokE, body: { showtime_id: ST2.id, seats: seats.slice(0, 2), combos: { couple: 1 } } });
+    assert.strictEqual(o1.status, 200, JSON.stringify(o1.data));
+    await payOK(o1.data.code);
+    const v1 = (await call('order-status', { token: tokE, query: { code: o1.data.code } })).data;
+    // Hạng Thành viên: 5% tiền vé + 3% bắp nước, làm tròn xuống theo 1.000 đ
+    const seatT = Object.values(v1.seat_prices).reduce((s, x) => s + x, 0);
+    assert.strictEqual(v1.points_earned, Math.floor((seatT * 0.05 + 89000 * 0.03) / 1000));
+    await payOK(o1.data.code); // webhook trùng không cộng lại
+    let p = (await call('member', { token: tokE, query: { action: 'points' } })).data;
+    assert.strictEqual(p.balance, v1.points_earned);
+    assert.strictEqual(p.tier.id, 'MEMBER');
+    // Cộng thêm điểm để thử dùng điểm
+    await require('../lib/store').insert('point_ledger', { ref: 'ADJ:test:' + me.id, customer_id: me.id, kind: 'ADJUST', points: 200, expires_at: new Date(Date.now() + 90 * 864e5).toISOString() });
+    const have = await Points.balance(me.id);
+    // Vượt 50% giá trị đơn -> từ chối
+    const tooMany = await call('create-order', { method: 'POST', token: tokE, body: { showtime_id: ST2.id, seats: [seats[2]], points: 100 } });
+    assert.strictEqual(tooMany.status, 400);
+    assert.ok(/tối đa/.test(tooMany.data.error), tooMany.data.error);
+    const used = Math.floor(ST2.prices.standard * 0.5 / 1000);
+    const o2 = await call('create-order', { method: 'POST', token: tokE, body: { showtime_id: ST2.id, seats: [seats[2]], points: used, total: ST2.prices.standard - used * 1000 } });
+    assert.strictEqual(o2.status, 200, JSON.stringify(o2.data));
+    assert.strictEqual(o2.data.points_used, used);
+    assert.strictEqual(await Points.balance(me.id), have - used);
+    // Khách hủy đơn chưa thanh toán -> trả lại điểm (một lần)
+    const cancel = await call('order-action', { method: 'POST', token: tokE, query: { action: 'cancel', code: o2.data.code } });
+    assert.strictEqual(cancel.status, 200, JSON.stringify(cancel.data));
+    assert.strictEqual(await Points.balance(me.id), have);
+    // Không đủ điểm
+    const poor = await call('create-order', { method: 'POST', token: tokC, body: { showtime_id: ST2.id, seats: [seats[3]], points: 5 } });
+    assert.strictEqual(poor.status, 400);
+    p = (await call('member', { token: tokE, query: { action: 'points' } })).data;
+    assert.ok(p.history.some(h => h.kind === 'RETURN') && p.history.some(h => h.kind === 'REDEEM'));
+    assert.strictEqual((await call('member', { query: { action: 'points' } })).status, 401);
+  });
+
+  await test('Đợt 2: điểm hết hạn (dùng điểm sắp hết hạn trước), quà sinh nhật, hạng VIP', async () => {
+    const Points = require('../lib/points');
+    const Catalog = require('../catalog');
+    const day = 864e5, now = Date.now();
+    const rows = [
+      { points: 100, expires_at: new Date(now - day).toISOString() },      // đã hết hạn
+      { points: 50, expires_at: new Date(now + 10 * day).toISOString() },  // sắp hết hạn
+      { points: 70, expires_at: new Date(now + 200 * day).toISOString() },
+      { points: -120 }                                                      // đã dùng 120
+    ];
+    // 120 điểm đã dùng trừ vào 100 (hết hạn) + 20 (sắp hết hạn) -> không mất điểm nào, còn 30 sắp hết hạn
+    assert.deepStrictEqual(Points.summarize(rows, new Date(now)), { balance: 100, pendingExpire: 0, expiringSoon: 30 });
+    assert.deepStrictEqual(Points.summarize(rows.slice(0, 3), new Date(now)), { balance: 120, pendingExpire: 100, expiringSoon: 50 });
+    assert.strictEqual(Catalog.tierOf(1999999).id, 'MEMBER');
+    assert.strictEqual(Catalog.tierOf(2000000).id, 'VIP');
+    assert.strictEqual(Catalog.tierOf(9e9).id, 'VVIP');
+    // Sinh nhật trong tháng này -> cộng quà đúng 1 lần / năm
+    const vnMonth = new Date(Date.now() + 7 * 3600e3).toISOString().slice(5, 7);
+    const t = (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Sinh Nhat', email: 'sn@hopnhat.vn', phone: '0909111222', password: 'matkhau123', birthday: '2000-' + vnMonth + '-15' } })).data.token;
+    await Points.daily();
+    await Points.daily();
+    const p = (await call('member', { token: t, query: { action: 'points' } })).data;
+    assert.strictEqual(p.balance, Catalog.LOYALTY.BIRTHDAY_POINTS);
+    assert.strictEqual(p.history.filter(h => h.kind === 'BIRTHDAY').length, 1);
+  });
+
+  await test('Đợt 2: đánh giá phim – chỉ khách đã soát vé, mỗi đơn 1 lần, CSKH ẩn được', async () => {
+    const Store = require('../lib/store');
+    const seats = await freeSeats(ST2, 1);
+    const o = await call('create-order', { method: 'POST', token: tokE, body: { showtime_id: ST2.id, seats } });
+    await payOK(o.data.code);
+    const body = { order_code: o.data.code, rating: 5, content: 'Phim rất hay, âm thanh tốt' };
+    const early = await call('member', { method: 'POST', token: tokE, query: { action: 'review' }, body });
+    assert.strictEqual(early.status, 403); // chưa soát vé
+    assert.deepStrictEqual((await call('member', { token: tokE, query: { action: 'can_review', movie: ST2.movie_key } })).data.orders, []);
+    const row = await Store.one('orders', { code: o.data.code });
+    await Store.insert('ticket_checkins', { order_id: row.id, order_code: row.code, staff_name: 'Quầy', method: 'QR' });
+    assert.strictEqual((await call('member', { token: tokE, query: { action: 'can_review', movie: ST2.movie_key } })).data.orders.length, 1);
+    assert.strictEqual((await call('member', { method: 'POST', token: tokC, query: { action: 'review' }, body })).status, 404); // đơn của người khác
+    assert.strictEqual((await call('member', { method: 'POST', token: tokE, query: { action: 'review' }, body: { ...body, rating: 6 } })).status, 400);
+    const ok = await call('member', { method: 'POST', token: tokE, query: { action: 'review' }, body });
+    assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
+    assert.ok(!('customer_id' in ok.data.review) && !('order_code' in ok.data.review), 'không lộ khách / mã đơn');
+    assert.strictEqual((await call('member', { method: 'POST', token: tokE, query: { action: 'review' }, body })).status, 409);
+    let list = (await call('member', { query: { action: 'reviews', movie: ST2.movie_key } })).data;
+    assert.strictEqual(list.count, 1);
+    assert.strictEqual(list.avg, 5);
+    assert.strictEqual(list.reviews[0].name, 'eee K.'); // tên rút gọn, không lộ họ tên đầy đủ
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    assert.strictEqual((await quay.post({ action: 'review_hide', id: ok.data.review.id })).status, 403);
+    assert.strictEqual((await cs.post({ action: 'review_hide', id: ok.data.review.id, hidden: true })).status, 200);
+    list = (await call('member', { query: { action: 'reviews', movie: ST2.movie_key } })).data;
+    assert.strictEqual(list.count, 0);
+  });
+
+  await test('Đợt 2: mua bắp nước riêng – thanh toán, tích điểm, quầy soát 1 lần và hiện món', async () => {
+    const cin = (await call('catalog', { query: { action: 'cinemas' } })).data.cinemas[0];
+    assert.strictEqual((await call('create-order', { method: 'POST', token: tokE, body: { kind: 'FNB', cinema_id: cin.id, combos: {} } })).status, 400);
+    assert.strictEqual((await call('create-order', { method: 'POST', token: tokE, body: { kind: 'FNB', cinema_id: 'khong-co', combos: { solo: 1 } } })).status, 400);
+    const r = await call('create-order', { method: 'POST', token: tokE, body: { kind: 'FNB', cinema_id: cin.id, combos: { solo: 2, sausage: 1 }, total: 2 * 69000 + 25000 } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.strictEqual(r.data.kind, 'FNB');
+    assert.deepStrictEqual(r.data.seats, []);
+    await payOK(r.data.code);
+    const v = (await call('order-status', { token: tokE, query: { code: r.data.code } })).data;
+    assert.strictEqual(v.has_ticket, true);
+    assert.strictEqual(v.points_earned, Math.floor(163000 * 0.03 / 1000));
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    const ck = await quay.post({ action: 'checkin', qr: v.ticket_qr });
+    assert.strictEqual(ck.status, 200, JSON.stringify(ck.data));
+    assert.strictEqual(ck.data.summary.kind, 'FNB');
+    assert.deepStrictEqual(ck.data.summary.items.map(x => x.qty + 'x' + x.key).sort(), ['1xsausage', '2xsolo']);
+    assert.strictEqual((await quay.post({ action: 'checkin', qr: v.ticket_qr })).status, 409);
+    // Bắp nước không được để lại đánh giá phim
+    assert.strictEqual((await call('member', { method: 'POST', token: tokE, query: { action: 'review' }, body: { order_code: r.data.code, rating: 4 } })).status, 400);
+  });
+
+  await test('Đợt 2: thư nhắc suất chiếu hôm nay & mời đánh giá – mỗi loại gửi 1 lần', async () => {
+    const Store = require('../lib/store');
+    const Reminders = require('../lib/reminders');
+    // Suất chiếu hôm nay (giờ VN) 1 giờ nữa; nếu đã gần nửa đêm thì bỏ qua phần nhắc
+    const soonAt = new Date(Date.now() + 3600e3);
+    const sameDay = new Date(soonAt.getTime() + 7 * 3600e3).toISOString().slice(0, 10) === new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+    const today = await Store.insert('orders', { code: 'BC9000000001', user_id: null, email: 'nhac@test.vn', kind: 'TICKET', movie_key: 'suzume', cinema: 'Beta Thanh Xuân', show_date: 'Hôm nay', show_time: '20:00', show_at: soonAt.toISOString(), seats: ['A1'], combos: {}, total: 50000, status: 'CONFIRMED', history: [] });
+    const me = (await call('auth', { token: tokE, query: { action: 'me' } })).data.user;
+    const past = await Store.insert('orders', { code: 'BC9000000002', user_id: me.id, email: me.email, kind: 'TICKET', movie_key: 'suzume', cinema: 'Beta Thanh Xuân', show_date: 'Hôm qua', show_time: '20:00', show_at: new Date(Date.now() - 20 * 3600e3).toISOString(), seats: ['A2'], combos: {}, total: 50000, status: 'CONFIRMED', history: [] });
+    await Store.insert('ticket_checkins', { order_id: past.id, order_code: past.code, staff_name: 'Quầy', method: 'QR' });
+    const r1 = await Reminders.run();
+    const r2 = await Reminders.run();
+    const n = async (code, ev) => (await Store.find('notifications', { order_code: code, event: ev })).length;
+    if (sameDay) assert.ok(await n(today.code, 'SHOW_REMINDER') > 0);
+    assert.ok(await n(past.code, 'REVIEW_INVITE') > 0);
+    assert.strictEqual(r2.show_reminders, 0);
+    assert.strictEqual(r2.review_invites, 0);
+    assert.ok(r1.review_invites >= 1);
+    // Job cron trả kết quả thư nhắc kèm đối soát
+    const cron = await call('cron');
+    assert.strictEqual(cron.status, 200);
+    assert.ok(cron.data.reminders && !cron.data.reminders.error, JSON.stringify(cron.data.reminders));
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

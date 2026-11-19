@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mua bắp nước - Beta Cinemas</title>
+  <meta name="description" content="Đặt bắp nước online, thanh toán VietQR, nhận tại quầy bằng mã QR – không cần mua kèm vé. Tích điểm Beta Club.">
+  <meta property="og:title" content="Mua bắp nước online - Beta Cinemas">
+  <meta property="og:image" content="images/combo.webp">
+  <link rel="icon" href="images/icon-ticket.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
+  <style>
+    body { background: #f8fafc; color: #0f172a; margin: 0; font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
+    .bn-top { background: #005198; color: #fff; padding: 14px 16px; }
+    .bn-top .in { max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .bn-top img { height: 40px; display: block; }
+    .bn-top a { color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; }
+    .bn-wrap { max-width: 1040px; margin: 0 auto; padding: 26px 16px 60px; display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
+    h1 { font-family: Montserrat, sans-serif; font-size: 26px; color: #005198; margin: 0 0 6px; }
+    .lead { color: #475569; margin: 0 0 18px; font-size: 14.5px; line-height: 1.6; }
+    .box { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; }
+    .item { display: grid; grid-template-columns: 84px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid #f1f5f9; }
+    .item:first-child { border-top: 0; }
+    .item img { width: 84px; height: 64px; object-fit: cover; border-radius: 10px; background: #e2e8f0; }
+    .item b { color: #0f172a; font-size: 15px; }
+    .item p { margin: 3px 0 0; color: #64748b; font-size: 12.5px; line-height: 1.5; }
+    .price { color: #ea580c; font-weight: 800; font-size: 14px; margin-top: 4px; }
+    .qty { display: flex; align-items: center; gap: 6px; }
+    .qty button { width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #fff; font-size: 18px; font-weight: 800; cursor: pointer; color: #005198; }
+    .qty span { min-width: 22px; text-align: center; font-weight: 800; }
+    label.f { display: block; font-size: 13px; font-weight: 700; color: #334155; margin: 0 0 6px; }
+    select, input[type=text], input[type=number] { width: 100%; box-sizing: border-box; height: 42px; border-radius: 10px; border: 1.5px solid #cbd5e1; padding: 0 12px; font: inherit; font-size: 14px; background: #fff; }
+    .ln { display: flex; justify-content: space-between; font-size: 14px; margin: 8px 0; gap: 8px; }
+    .tot { font-size: 20px; font-weight: 900; color: #005198; }
+    .msg { font-size: 13px; margin: 6px 0 0; }
+    .side { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; }
+    @media (max-width: 820px) { .bn-wrap { grid-template-columns: 1fr; } .side { position: static; } h1 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link" style="position:absolute;left:-9999px;top:0" onfocus="this.style.left='8px'" onblur="this.style.left='-9999px'">Bỏ qua tới nội dung chính</a>
+  <header class="bn-top">
+    <div class="in">
+      <a href="home.html" aria-label="Về trang chủ Beta Cinemas"><img src="images/logo-white-official.png" alt="Beta Cinemas"></a>
+      <nav style="display:flex; gap:18px; flex-wrap:wrap" aria-label="Điều hướng">
+        <a href="schedule.html">Lịch chiếu</a>
+        <a href="bap-nuoc.html" aria-current="page">Bắp nước</a>
+        <a href="account.html">Tài khoản</a>
+        <a href="support.html">Hỗ trợ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="bn-wrap" id="main">
+    <div>
+      <h1>Mua bắp nước online</h1>
+      <p class="lead">Không cần mua kèm vé. Thanh toán VietQR, nhận mã QR và đưa cho nhân viên quầy để nhận món trong <b>30 ngày</b>. Đơn bắp nước cũng được tích điểm Beta Club.</p>
+      <div class="box" id="items" aria-live="polite"><p style="color:#64748b">Đang tải…</p></div>
+    </div>
+    <aside class="side" aria-label="Đơn bắp nước">
+      <div class="box">
+        <label class="f" for="bn-cinema">Rạp nhận món</label>
+        <select id="bn-cinema"><option>Đang tải…</option></select>
+      </div>
+      <div class="box">
+        <label class="f" for="bn-voucher">Mã giảm giá</label>
+        <div style="display:flex; gap:8px;"><input type="text" id="bn-voucher" placeholder="Nhập mã" aria-describedby="bn-vmsg"><button type="button" class="btn btn-outline btn-sm" id="bn-vbtn">Áp dụng</button></div>
+        <p class="msg" id="bn-vmsg" role="status"></p>
+        <div id="bn-points" hidden style="margin-top: 10px;">
+          <label style="display:flex; gap:8px; align-items:center; font-size:14px; font-weight:700;"><input type="checkbox" id="bn-puse"> Dùng điểm Beta Club (<span id="bn-phave">0</span> điểm)</label>
+          <input type="number" id="bn-pinput" min="0" value="0" aria-label="Số điểm muốn dùng" style="margin-top:6px; width: 140px;">
+          <p class="msg" id="bn-phint" style="color:#64748b"></p>
+        </div>
+      </div>
+      <div class="box">
+        <div class="ln"><span>Tạm tính</span><b id="bn-sub">0 đ</b></div>
+        <div class="ln" id="bn-drow" hidden style="color:#15803d"><span>Giảm giá</span><b id="bn-disc"></b></div>
+        <div class="ln" id="bn-prow" hidden style="color:#15803d"><span>Điểm Beta Club</span><b id="bn-pts"></b></div>
+        <div class="ln" style="border-top:1px solid #e2e8f0; padding-top:10px;"><span>Tổng thanh toán</span><span class="tot" id="bn-total">0 đ</span></div>
+        <p class="msg" id="bn-msg" role="alert" style="color:#b91c1c"></p>
+        <button type="button" class="btn btn-primary" id="bn-pay" style="width:100%; margin-top:6px;" disabled><i class="ph-device-mobile" aria-hidden="true"></i> Thanh toán VietQR</button>
+      </div>
+    </aside>
+  </main>
+
+  <script src="catalog.js"></script>
+  <script src="pay-client.js"></script>
+  <script src="auth-client.js"></script>
+  <script>
+    (async () => {
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const C = BetaCatalog;
+      const qty = {};
+      let VDEF = null, HAVE = 0;
+
+      await BetaAuth.requireLogin();
+      $('items').innerHTML = Object.entries(C.COMBOS).map(([k, c]) => `
+        <div class="item">
+          <img src="${esc(c.img)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+          <div><b>${esc(c.name)}</b><p>${esc(c.desc)}</p><div class="price">${Pay.vnd(c.price)}</div></div>
+          <div class="qty" role="group" aria-label="Số lượng ${esc(c.name)}">
+            <button type="button" data-k="${k}" data-d="-1" aria-label="Bớt ${esc(c.name)}">−</button><span id="q-${k}">0</span><button type="button" data-k="${k}" data-d="1" aria-label="Thêm ${esc(c.name)}">+</button>
+          </div>
+        </div>`).join('');
+      $('items').onclick = (e) => {
+        const b = e.target.closest('button[data-k]');
+        if (!b) return;
+        const k = b.dataset.k;
+        qty[k] = Math.max(0, Math.min(C.MAX_COMBO_QTY, (qty[k] || 0) + Number(b.dataset.d)));
+        $('q-' + k).textContent = qty[k];
+        calc();
+      };
+
+      function calc() {
+        const sub = Object.entries(qty).reduce((s, [k, n]) => s + C.COMBOS[k].price * n, 0);
+        let disc = 0;
+        $('bn-vmsg').textContent = '';
+        if (VDEF && sub) {
+          try { disc = C.voucherDiscount(VDEF.code, VDEF, { base: sub, combo_total: sub, seat_count: 0, show_dow: new Date(Date.now() + 7 * 3600e3).getUTCDay() }); $('bn-vmsg').textContent = '✓ Mã ' + VDEF.code + ': giảm ' + Pay.vnd(disc); $('bn-vmsg').style.color = '#15803d'; }
+          catch (e) { $('bn-vmsg').textContent = e.message; $('bn-vmsg').style.color = '#b91c1c'; }
+        }
+        const after = Math.max(0, sub - disc);
+        let pts = 0;
+        if (HAVE > 0) {
+          const cap = Math.min(HAVE, C.maxPointsFor(after));
+          $('bn-phint').textContent = 'Tối đa ' + cap + ' điểm cho đơn này';
+          $('bn-pinput').max = cap;
+          if ($('bn-puse').checked) { pts = Math.floor(Number($('bn-pinput').value) || 0) || cap; pts = Math.max(0, Math.min(cap, pts)); $('bn-pinput').value = pts; }
+        }
+        $('bn-sub').textContent = Pay.vnd(sub);
+        $('bn-drow').hidden = !disc; $('bn-disc').textContent = '-' + Pay.vnd(disc);
+        $('bn-prow').hidden = !pts; $('bn-pts').textContent = '-' + Pay.vnd(pts * 1000) + ' (' + pts + ' điểm)';
+        const total = after - pts * 1000;
+        $('bn-total').textContent = Pay.vnd(total);
+        $('bn-pay').disabled = !sub;
+        return { sub, disc, pts, total };
+      }
+      $('bn-puse').onchange = calc;
+      $('bn-pinput').oninput = calc;
+      $('bn-vbtn').onclick = async () => {
+        const code = $('bn-voucher').value.trim();
+        if (!code) { VDEF = null; return calc(); }
+        try { VDEF = (await Pay.catalog('voucher', { code })).voucher; calc(); }
+        catch (e) { VDEF = null; calc(); $('bn-vmsg').textContent = e.message; $('bn-vmsg').style.color = '#b91c1c'; }
+      };
+
+      try {
+        const cn = (await Pay.catalog('cinemas')).cinemas || [];
+        let saved = null;
+        try { saved = localStorage.getItem('BETA_CINEMA'); } catch (e) {}
+        $('bn-cinema').innerHTML = cn.map((c) => `<option value="${esc(c.id)}" ${c.id === saved ? 'selected' : ''}>${esc(c.name + (c.city ? ' (' + c.city + ')' : ''))}</option>`).join('');
+      } catch (e) { $('bn-msg').textContent = 'Không tải được danh sách rạp. Vui lòng thử lại.'; }
+      try {
+        const p = await Pay.call('member?action=points');
+        HAVE = p.balance || 0;
+        if (HAVE > 0) { $('bn-points').hidden = false; $('bn-phave').textContent = HAVE.toLocaleString('vi-VN'); }
+      } catch (e) { /* không có điểm */ }
+      calc();
+
+      $('bn-pay').onclick = async () => {
+        const c = calc();
+        const combos = Object.fromEntries(Object.entries(qty).filter(([, n]) => n > 0));
+        $('bn-pay').disabled = true;
+        $('bn-msg').textContent = '';
+        try {
+          await Pay.createOrderAndGo({ kind: 'FNB', cinema_id: $('bn-cinema').value, combos, voucher: c.disc ? VDEF.code : null, points: c.pts, total: c.total });
+        } catch (e) {
+          $('bn-msg').textContent = e.message;
+          $('bn-pay').disabled = false;
+        }
+      };
+    })();
+  </script>
+  <script src="site-chrome.js" defer></script>
+</body>
+</html>

@@ -470,7 +470,7 @@
         <ul class="main-menu-official">
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
           <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official active">THÀNH VIÊN</a></li>
@@ -488,7 +488,7 @@
         <div style="display: flex; align-items: center; gap: 12px;">
           <img src="images/logo-white-official.png" alt="Beta Cinemas"
             style="height: 45px;">
-          <span class="card-rank-badge">BETA CLUB</span>
+          <span class="card-rank-badge" id="member-tier">BETA CLUB</span>
         </div>
         <div class="member-card-id">
           CARD ID: <span id="member-card-id">----</span>
@@ -510,6 +510,7 @@
           <div style="font-size: 12px; opacity: 0.8; text-transform: uppercase;">Tổng Chi Tiêu</div>
           <div style="font-family: var(--font-display); font-size: 28px; font-weight: 900; color: #fde047;" id="member-spend">0 đ</div>
           <div style="font-size: 12px; opacity: 0.8;"><span id="member-paid-count">0</span> đơn đã xuất vé</div>
+          <div style="font-size: 13px; margin-top: 6px;"><i class="ph-coins" aria-hidden="true"></i> <strong id="member-points">0</strong> điểm Beta Club</div>
         </div>
       </div>
     </div>
@@ -521,6 +522,12 @@
         <button class="account-nav-btn active" id="btn-tab-orders" onclick="switchAccountTab('orders')">
           <span><i class="ph-ticket" aria-hidden="true"></i></span> Lịch Sử Đặt Vé & Đơn Hàng
         </button>
+        <button class="account-nav-btn" id="btn-tab-points" onclick="switchAccountTab('points')">
+          <span><i class="ph-coins" aria-hidden="true"></i></span> Điểm Beta Club
+        </button>
+        <a href="bap-nuoc.html" class="account-nav-btn" style="color: var(--beta-navy);">
+          <span><i class="ph-popcorn" aria-hidden="true"></i></span> Mua Bắp Nước
+        </a>
         <button class="account-nav-btn" id="btn-tab-profile" onclick="switchAccountTab('profile')">
           <span><i class="ph-user" aria-hidden="true"></i></span> Thông Tin Cá Nhân
         </button>
@@ -607,6 +614,21 @@
             </button>
           </div>
 
+        </div>
+      </div>
+
+      <!-- Panel: Điểm Beta Club (Đợt 2) -->
+      <div id="panel-points" style="display: none;">
+        <div class="card" style="padding: 26px;">
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--beta-navy); margin: 0 0 14px;">Điểm Beta Club</h3>
+          <div id="pt-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px;"></div>
+          <div id="pt-next" style="margin-bottom: 18px;"></div>
+          <details style="margin-bottom: 18px; font-size: 13.5px; color: #334155;">
+            <summary style="cursor: pointer; font-weight: 700; color: var(--beta-navy);">Cách tích & dùng điểm</summary>
+            <div id="pt-rules" style="margin-top: 10px; line-height: 1.7;"></div>
+          </details>
+          <h4 style="font-size: 15px; font-weight: 800; color: var(--beta-navy); margin: 0 0 8px;">Lịch sử điểm</h4>
+          <div id="pt-history" style="overflow-x: auto;"><p style="color: #64748b;">Đang tải…</p></div>
         </div>
       </div>
 
@@ -854,7 +876,7 @@
 
     function orderCard(o) {
       const st = STATUS_STYLE[o.status] || STATUS_STYLE.CANCELLED;
-      const m = Pay.getMovie(o.movie_key);
+      const m = Pay.movieOf(o);
       const card = document.createElement('div');
       card.className = 'order-history-item';
       card.dataset.code = o.code;
@@ -877,9 +899,9 @@
           </div>
           <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
             <i class=ph-map-pin aria-hidden=true></i> Rạp: <strong>${esc(o.cinema)}</strong><br>
-            <i class=ph-clock aria-hidden=true></i> Suất: <strong>${esc(o.show_time)} • ${esc(o.show_date)}</strong><br>
+            ${o.kind === 'FNB' ? '<i class=ph-popcorn aria-hidden=true></i> <strong>Nhận tại quầy trong 30 ngày</strong><br>' : `<i class=ph-clock aria-hidden=true></i> Suất: <strong>${esc(o.show_time)} • ${esc(o.show_date)}</strong><br>`}
             <i class=ph-calendar aria-hidden=true></i> Thời gian đặt vé: <strong>${new Date(o.created_at).toLocaleString('vi-VN')}</strong><br>
-            <i class=ph-armchair aria-hidden=true></i> Ghế: <strong>${esc((o.seats || []).join(', '))}</strong><br>
+            ${o.kind === 'FNB' ? '' : `<i class=ph-armchair aria-hidden=true></i> Ghế: <strong>${esc((o.seats || []).join(', '))}</strong><br>`}${o.points_used ? `<i class=ph-coins aria-hidden=true></i> Dùng <strong>${o.points_used}</strong> điểm<br>` : ''}${o.points_earned ? `<i class=ph-coins aria-hidden=true></i> Tích <strong>+${o.points_earned}</strong> điểm Beta Club<br>` : ''}
             <i class=ph-credit-card aria-hidden=true></i> Giá trị đơn: <strong>${Pay.vnd(o.total)}</strong> · Đã nhận: <strong>${Pay.vnd(o.paid_amount)}</strong>
           </div>
           ${refundMini(o)}
@@ -902,7 +924,7 @@
         .filter(o => currentFilter === 'all' || groupOf(o) === currentFilter)
         .filter(o => {
           if (!searchQuery) return true;
-          const m = Pay.getMovie(o.movie_key);
+          const m = Pay.movieOf(o);
           return [m.title, m.shortTitle, o.code, o.cinema, (o.seats || []).join(' ')].join(' ').toLowerCase().includes(searchQuery);
         })
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -933,9 +955,9 @@
     }
 
     function switchAccountTab(tab) {
-      if (!['orders', 'profile', 'password'].includes(tab)) tab = 'orders';
+      if (!['orders', 'points', 'profile', 'password'].includes(tab)) tab = 'orders';
       document.querySelectorAll('.account-nav-btn').forEach(btn => btn.classList.remove('active'));
-      ['orders', 'profile', 'password'].forEach(t => {
+      ['orders', 'points', 'profile', 'password'].forEach(t => {
         document.getElementById('panel-' + t).style.display = t === tab ? 'block' : 'none';
       });
       document.getElementById('btn-tab-' + tab).classList.add('active');
@@ -982,11 +1004,47 @@
       }
     }
 
+    // Beta Club: điểm, hạng, lịch sử điểm
+    async function loadPoints() {
+      try {
+        const p = await Pay.call('member?action=points');
+        const vnd = Pay.vnd;
+        document.getElementById('member-tier').textContent = 'BETA ' + p.tier.label.toUpperCase();
+        document.getElementById('member-points').textContent = p.balance.toLocaleString('vi-VN');
+        const box = (label, value, sub) => `<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;"><div style="font-size: 12px; color: #64748b; text-transform: uppercase;">${label}</div><div style="font-size: 22px; font-weight: 900; color: var(--beta-navy);">${value}</div><div style="font-size: 12.5px; color: #475569;">${sub}</div></div>`;
+        document.getElementById('pt-summary').innerHTML =
+          box('Điểm hiện có', p.balance.toLocaleString('vi-VN'), '= ' + vnd(p.balance_value) + ' khi trả tiền') +
+          box('Hạng', p.tier.label, 'Tích ' + p.tier.ticket + '% vé, ' + p.tier.fnb + '% bắp nước') +
+          box('Chi tiêu 12 tháng', vnd(p.spend_365), 'Dùng để xét hạng') +
+          (p.expiring_soon ? box('Sắp hết hạn', p.expiring_soon.toLocaleString('vi-VN'), 'điểm hết hạn trong 30 ngày') : '');
+        document.getElementById('pt-next').innerHTML = p.next_tier
+          ? `<div style="font-size: 13.5px; color: #334155; margin-bottom: 6px;">Chi tiêu thêm <strong>${vnd(p.next_tier.need)}</strong> để lên hạng <strong>${p.next_tier.label}</strong> (tích ${p.next_tier.ticket}% vé).</div>
+             <div style="height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden;" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(p.spend_365 / p.next_tier.min * 100)}"><div style="height: 100%; width: ${Math.min(100, p.spend_365 / p.next_tier.min * 100)}%; background: #f59e0b;"></div></div>`
+          : '<div style="font-size: 13.5px; color: #15803d; font-weight: 700;">Bạn đang ở hạng cao nhất.</div>';
+        const R = p.rules;
+        document.getElementById('pt-rules').innerHTML = `<ul style="margin: 0; padding-left: 18px;">
+          ${R.TIERS.map(t => `<li><b>${t.label}</b>${t.min ? ' (chi tiêu từ ' + vnd(t.min) + '/12 tháng)' : ''}: tích ${t.ticket}% tiền vé, ${t.fnb}% tiền bắp nước.</li>`).join('')}
+          <li>1 điểm = ${vnd(R.POINT_VALUE)} khi thanh toán; dùng tối đa ${Math.round(R.MAX_SHARE * 100)}% giá trị mỗi đơn.</li>
+          <li>Điểm được cộng khi đơn xuất vé, hết hạn sau ${R.EXPIRE_MONTHS} tháng (điểm sắp hết hạn được dùng trước).</li>
+          <li>Đơn không thành công (hủy, hoàn tiền) được trả lại điểm đã dùng.</li>
+          <li>Tháng sinh nhật: tặng ${R.BIRTHDAY_POINTS} điểm, dùng trong ${R.BIRTHDAY_DAYS} ngày (cập nhật ngày sinh ở Thông tin cá nhân).</li></ul>`;
+        document.getElementById('pt-history').innerHTML = p.history.length
+          ? `<table style="width: 100%; border-collapse: collapse; font-size: 13.5px;"><thead><tr style="text-align: left; color: #64748b;"><th style="padding: 6px;">Ngày</th><th style="padding: 6px;">Nội dung</th><th style="padding: 6px; text-align: right;">Điểm</th></tr></thead><tbody>${
+              p.history.map(h => `<tr style="border-top: 1px solid #f1f5f9;"><td style="padding: 6px; white-space: nowrap;">${new Date(h.at).toLocaleDateString('vi-VN')}</td>
+                <td style="padding: 6px;"><b>${esc(h.kind_label)}</b>${h.order_code ? ' · ' + esc(h.order_code) : ''}<div style="color: #64748b; font-size: 12px;">${esc(h.note)}${h.expires_at && h.points > 0 ? ' · hạn ' + new Date(h.expires_at).toLocaleDateString('vi-VN') : ''}</div></td>
+                <td style="padding: 6px; text-align: right; font-weight: 800; color: ${h.points > 0 ? '#15803d' : '#b91c1c'};">${h.points > 0 ? '+' : ''}${h.points}</td></tr>`).join('')}</tbody></table>`
+          : '<p style="color: #64748b; font-size: 13.5px;">Chưa có điểm. Đặt vé để bắt đầu tích điểm.</p>';
+      } catch (e) {
+        document.getElementById('pt-history').innerHTML = '<p style="color: #b91c1c;">Không tải được điểm: ' + esc(e.message) + '</p>';
+      }
+    }
+
     (async function init() {
       const u = await BetaAuth.requireLogin();
       document.getElementById('member-card-id').textContent = String(u.id || '').replace(/-/g, '').slice(0, 12).toUpperCase().replace(/(.{4})(?=.)/g, '$1-');
       document.getElementById('member-since').textContent = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '—';
       switchAccountTab(new URLSearchParams(location.search).get('tab') || 'orders');
+      loadPoints();
       await loadOrders();
       setInterval(() => { if (!document.hidden) loadOrders(); }, 20000);
     })();

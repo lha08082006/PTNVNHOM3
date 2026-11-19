@@ -34,6 +34,8 @@ create table if not exists orders (
   seats           jsonb not null default '[]',
   combos          jsonb not null default '{}',
   voucher         text,
+  kind            text not null default 'TICKET' check (kind in ('TICKET','FNB')),  -- FNB = đơn chỉ mua bắp nước
+  points_used     int not null default 0,             -- điểm Beta Club đã dùng trả tiền (1 điểm = 1.000 đ)
   total           bigint not null check (total >= 0),
   paid_amount     bigint not null default 0,
   status          text not null default 'PENDING' check (status in (
@@ -391,3 +393,38 @@ alter table ticket_types enable row level security;
 alter table price_rules  enable row level security;
 alter table holidays     enable row level security;
 alter table posts        enable row level security;
+
+-- ===================== Đợt 2: Beta Club, đánh giá phim, bắp nước =====================
+-- Beta Club: sổ điểm chỉ ghi thêm; "ref" duy nhất để cộng/trừ không bị trùng
+create table if not exists point_ledger (
+  id          uuid primary key default gen_random_uuid(),
+  ref         text unique not null,            -- EARN:<đơn> | REDEEM:<đơn> | RETURN:<đơn> | BDAY:<khách>:<năm> | EXPIRE:<khách>:<ngày>
+  customer_id uuid not null references customers(id),
+  order_code  text,
+  kind        text not null check (kind in ('EARN','REDEEM','RETURN','BIRTHDAY','EXPIRE','ADJUST')),
+  points      int not null,                    -- dương = cộng, âm = trừ
+  expires_at  timestamptz,                     -- hạn dùng của dòng cộng điểm
+  note        text,
+  created_at  timestamptz not null default now()
+);
+create index if not exists point_ledger_customer_idx on point_ledger(customer_id, created_at desc);
+
+-- Đánh giá phim: chỉ khách đã soát vé, mỗi đơn vé một đánh giá
+create table if not exists movie_reviews (
+  id            uuid primary key default gen_random_uuid(),
+  movie_id      text not null,
+  customer_id   uuid not null references customers(id),
+  customer_name text,                          -- tên rút gọn hiển thị công khai ("An N.")
+  order_code    text unique not null,
+  rating        int not null check (rating between 1 and 5),
+  content       text,
+  hidden        boolean not null default false,
+  moderated_by  text,
+  moderated_at  timestamptz,
+  created_at    timestamptz not null default now()
+);
+create index if not exists movie_reviews_movie_idx on movie_reviews(movie_id, hidden, created_at desc);
+
+alter table point_ledger  enable row level security;
+alter table movie_reviews enable row level security;
+
