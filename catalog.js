@@ -102,11 +102,35 @@
   const MAX_SEATS = 8;
 
   // Voucher giảm thẳng vào tổng đơn (không giảm quá tổng)
+  // Voucher: kind AMOUNT (giảm số tiền) | PERCENT (giảm %, có trần max_discount) | PER_SEAT (giảm mỗi ghế)
+  // Điều kiện: min_total (đơn tối thiểu, tính trước giảm), need_combo (phải mua kèm bắp nước),
+  // weekdays (chỉ suất chiếu vào các thứ này, 0 = Chủ nhật). Máy chủ lấy bản trong database.
   const VOUCHERS = {
-    BETAVIP: { discount: 20000, label: 'Giảm 20.000 đ cho thành viên' },
-    ALPHA:   { discount: 20000, label: 'Giảm 20.000 đ' },
-    CINEMA:  { discount: 20000, label: 'Giảm 20.000 đ' }
+    BETAVIP:   { discount: 20000, label: 'Giảm 20.000 đ cho thành viên' },
+    ALPHA:     { discount: 20000, label: 'Giảm 20.000 đ' },
+    CINEMA:    { discount: 20000, label: 'Giảm 20.000 đ' },
+    COMBO30:   { discount: 30000, label: 'Giảm 30.000 đ khi mua kèm bắp nước', need_combo: true },
+    T3VUIVE:   { kind: 'PERCENT', percent: 15, max_discount: 40000, weekdays: [2], label: 'Suất chiếu thứ Ba giảm 15% (tối đa 40.000 đ)' },
+    NEWMEMBER: { discount: 50000, min_total: 150000, per_customer: 1, label: 'Thành viên mới giảm 50.000 đ cho đơn từ 150.000 đ' }
   };
+  const DOW_NAME = ['Chủ nhật', 'thứ Hai', 'thứ Ba', 'thứ Tư', 'thứ Năm', 'thứ Sáu', 'thứ Bảy'];
+  const vndText = (n) => Number(n || 0).toLocaleString('vi-VN') + ' đ';
+
+  // Tính tiền giảm của một voucher cho đơn; không đạt điều kiện thì báo lỗi (http 400) nói rõ vì sao
+  function voucherDiscount(code, v, { base = 0, combo_total = 0, seat_count = 0, show_dow = null } = {}) {
+    if (v.min_total && base < Number(v.min_total)) throw err('Mã ' + code + ' áp dụng cho đơn từ ' + vndText(v.min_total) + ' (đơn hiện tại ' + vndText(base) + ').');
+    if (v.need_combo && !(combo_total > 0)) throw err('Mã ' + code + ' chỉ áp dụng khi mua kèm bắp nước.');
+    const days = Array.isArray(v.weekdays) ? v.weekdays.map(Number) : [];
+    if (days.length && show_dow != null && !days.includes(Number(show_dow))) {
+      throw err('Mã ' + code + ' chỉ áp dụng cho suất chiếu vào ' + days.map(d => DOW_NAME[d]).join(', ') + '.');
+    }
+    const kind = String(v.kind || 'AMOUNT').toUpperCase();
+    let d = kind === 'PERCENT' ? Math.round(base * (Number(v.percent) || 0) / 100)
+      : kind === 'PER_SEAT' ? (Number(v.discount) || 0) * seat_count
+      : (Number(v.discount) || 0);
+    if (Number(v.max_discount) > 0) d = Math.min(d, Number(v.max_discount));
+    return Math.max(0, Math.min(d, base));
+  }
 
   // Loại vé theo đối tượng: giảm thẳng vào giá ghế (không áp dụng cho ghế đôi Sweetbox).
   // Giá trị mặc định; máy chủ lấy bảng loại vé đang áp dụng trong database (admin > Danh mục > Bảng giá).
@@ -129,7 +153,8 @@
   //   vouchers : danh sách voucher hợp lệ (mặc định VOUCHERS; máy chủ truyền voucher đã kiểm tra trong DB)
   //   ticket_types : số vé theo loại, vd { STUDENT: 1, CHILD: 1 } (phần còn lại là Người lớn)
   //   types        : bảng loại vé đang áp dụng (mặc định TICKET_TYPES)
-  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS, ticket_types = {}, types = TICKET_TYPES } = {}) {
+  //   show_dow     : thứ trong tuần của suất chiếu (để kiểm tra voucher chỉ áp dụng vài thứ)
+  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS, ticket_types = {}, types = TICKET_TYPES, show_dow = null } = {}) {
     prices = { ...SEAT_PRICES, ...(prices || {}) };
     const list = (Array.isArray(seats) ? seats : String(seats).split(','))
       .map(s => String(s).trim().toUpperCase()).filter(Boolean);
@@ -176,7 +201,7 @@
 
     const code = voucher ? String(voucher).trim().toUpperCase() : null;
     if (code && !(vouchers || {})[code]) throw err('Mã giảm giá không hợp lệ hoặc đã hết lượt dùng');
-    const discount = code ? Math.min(vouchers[code].discount, seat_total + combo_total) : 0;
+    const discount = code ? voucherDiscount(code, vouchers[code], { base: seat_total + combo_total, combo_total, seat_count: seatLines.length, show_dow }) : 0;
 
     return {
       seats: seatLines, combos: comboLines, voucher: code, ticket_types: type_counts, type_discount,
@@ -189,5 +214,5 @@
     return MOVIES[k] || null;
   }
 
-  return { MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, TICKET_TYPES, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
+  return { voucherDiscount, MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, TICKET_TYPES, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
 });

@@ -1,0 +1,21 @@
+# Chạy kiểm thử mỗi lần push / mở pull request (ý tưởng từ nhánh GitHub, chỉnh cho kiến trúc hiện tại)
+name: test
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Kiểm thử luồng chính (bộ nhớ trong)
+        run: npm test
+      - name: Kiểm thử giao diện (lỗi JS, tràn ngang trên điện thoại)
+        run: npm run test:pages
+        env:
+          CHROME_PATH: /usr/bin/google-chrome

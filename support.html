@@ -247,6 +247,12 @@
               Gửi Yêu Cầu Cho Đội Ngũ CSKH
             </button>
           </form>
+
+          <!-- Phiếu hỗ trợ của thành viên + phản hồi của CSKH -->
+          <section id="my-tickets" hidden style="margin-top: 28px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+            <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--beta-navy); margin-bottom: 12px;">Phiếu hỗ trợ của tôi</h3>
+            <div id="my-tickets-list" aria-live="polite"></div>
+          </section>
         </div>
       </div>
 
@@ -477,6 +483,7 @@
           (r.status_label ? ' · Trạng thái đơn: ' + r.status_label : '') +
           '. CSKH sẽ liên hệ qua số điện thoại bạn cung cấp.';
         document.getElementById('sp-desc').value = '';
+        loadMyTickets();
       } catch (e) {
         msg.style.color = '#dc2626';
         msg.textContent = e.message;
@@ -485,6 +492,33 @@
         btn.disabled = false;
       }
     }
+
+    // Phiếu hỗ trợ của tôi (chỉ khi đã đăng nhập): xem phản hồi CSKH và trả lời ngay trên phiếu
+    async function loadMyTickets() {
+      let token = null;
+      try { token = localStorage.getItem('BETA_AUTH_TOKEN'); } catch (e) {}
+      const box = document.getElementById('my-tickets');
+      if (!token) { box.hidden = true; return; }
+      const esc2 = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      try {
+        const r = await Pay.call('support');
+        box.hidden = false;
+        document.getElementById('my-tickets-list').innerHTML = r.tickets.length ? r.tickets.map(t => `
+          <details style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; background: #fff;" ${t.status === 'WAITING_CUSTOMER' ? 'open' : ''}>
+            <summary style="cursor: pointer; font-size: 14px;"><b>${esc2(t.code)}</b> · ${esc2(t.category_label)} · <span style="color: ${t.status === 'RESOLVED' ? '#15803d' : t.status === 'WAITING_CUSTOMER' ? '#b45309' : '#1e40af'}; font-weight: 700;">${esc2(t.status_label)}</span></summary>
+            <p style="font-size: 13.5px; color: #475569; margin: 8px 0;">${esc2(t.description)}</p>
+            ${t.replies.map(x => `<div style="font-size: 13.5px; margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: ${x.from === 'STAFF' ? '#eff6ff' : '#f8fafc'};"><b>${esc2(x.name)}</b> <span style="color:#64748b; font-size: 12px;">${new Date(x.at).toLocaleString('vi-VN')}</span><br>${esc2(x.message)}</div>`).join('')}
+            ${t.status === 'RESOLVED' ? '' : `<form onsubmit="event.preventDefault(); replyMyTicket('${esc2(t.code)}', this);" style="display: flex; gap: 8px; margin-top: 8px;">
+              <input class="form-input" name="m" aria-label="Trả lời CSKH" placeholder="Trả lời CSKH…" required minlength="2" style="flex: 1;">
+              <button class="btn btn-outline" type="submit">Gửi</button></form>`}
+          </details>`).join('') : '<p style="font-size: 13.5px; color: #64748b;">Bạn chưa gửi phiếu hỗ trợ nào.</p>';
+      } catch (e) { box.hidden = true; }
+    }
+    async function replyMyTicket(code, form) {
+      try { await Pay.post('support?action=reply', { ticket_code: code, message: form.m.value.trim() }); await loadMyTickets(); }
+      catch (e) { alert(e.message); }
+    }
+    loadMyTickets();
 
     // Mở từ liên kết có sẵn mã đơn: support.html?order=BC...
     (function () {

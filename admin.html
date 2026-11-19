@@ -302,7 +302,13 @@
           <h2>Voucher <small>giới hạn lượt dùng & thời hạn</small></h2>
           <form class="form-grid" onsubmit="event.preventDefault(); saveVoucher()" style="margin-bottom: 12px;">
             <label>Mã<input id="vc-code" required style="text-transform: uppercase;"></label>
-            <label>Giảm (đ)<input id="vc-discount" type="number" min="1000" step="1000" required></label>
+            <label>Kiểu giảm<select id="vc-kind"><option value="AMOUNT">Số tiền / đơn</option><option value="PERCENT">Phần trăm</option><option value="PER_SEAT">Số tiền / mỗi ghế</option></select></label>
+            <label>Giảm (đ)<input id="vc-discount" type="number" min="0" step="1000"></label>
+            <label>Giảm (%)<input id="vc-percent" type="number" min="1" max="100"></label>
+            <label>Giảm tối đa (đ)<input id="vc-maxd" type="number" min="0" step="1000" placeholder="không giới hạn"></label>
+            <label>Đơn tối thiểu (đ)<input id="vc-min" type="number" min="0" step="1000" placeholder="không"></label>
+            <label>Phải kèm bắp nước<select id="vc-combo"><option value="false">Không</option><option value="true">Có</option></select></label>
+            <label>Chỉ thứ<span id="vc-days" style="display: flex; gap: 6px; flex-wrap: wrap; font-weight: 500; color: #0f172a;"></span></label>
             <label>Mô tả<input id="vc-label"></label>
             <label>Tổng lượt tối đa<input id="vc-max" type="number" min="1" placeholder="không giới hạn"></label>
             <label>Lượt / khách<input id="vc-per" type="number" min="1" placeholder="không giới hạn"></label>
@@ -825,7 +831,7 @@
           <td>${pill(CAT.statuses[m.status] || m.status, m.status === 'NOW' ? 'ok' : m.status === 'SOON' ? 'info' : 'muted')}</td>
           <td><button class="btn" onclick="editMovie('${esc(m.id)}')">Sửa</button></td></tr>`).join('')}</tbody></table>`;
       document.getElementById('vc-table').innerHTML = CAT.vouchers.length ? `<table><thead><tr><th>Mã</th><th>Giảm</th><th>Đã dùng</th><th>Hạn</th><th></th></tr></thead><tbody>${
-        CAT.vouchers.map(v => `<tr class="${v.active ? '' : 'inactive'}"><td class="mono"><b>${esc(v.id)}</b><div class="hint">${esc(v.label)}</div></td><td>${vnd(v.discount)}</td>
+        CAT.vouchers.map(v => `<tr class="${v.active ? '' : 'inactive'}"><td class="mono"><b>${esc(v.id)}</b><div class="hint">${esc(v.label)}</div></td><td>${vcText(v)}</td>
           <td>${v.used}${v.max_uses ? ' / ' + v.max_uses : ''}${v.per_customer ? `<div class="hint">${v.per_customer} lượt/khách</div>` : ''}</td>
           <td class="hint">${v.starts_at ? t(v.starts_at) : '—'}<br>${v.ends_at ? '→ ' + t(v.ends_at) : ''}</td>
           <td><button class="btn" onclick="editVoucher('${esc(v.id)}')">Sửa</button></td></tr>`).join('')}</tbody></table>` : '<div class="empty">Chưa có voucher.</div>';
@@ -877,17 +883,34 @@
       ['mv-id', 'mv-title', 'mv-short', 'mv-age', 'mv-dur', 'mv-meta', 'mv-poster', 'mv-format', 'mv-badge', 'mv-genre', 'mv-lang', 'mv-release', 'mv-director', 'mv-cast', 'mv-trailer', 'mv-synopsis'].forEach(id => { document.getElementById(id).value = ''; });
       await loadCatalog();
     });
+    const DOW_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    // Mô tả voucher có điều kiện cho bảng danh mục
+    function vcText(v) {
+      const k = String(v.kind || 'AMOUNT').toUpperCase();
+      const main = k === 'PERCENT' ? v.percent + '%' + (v.max_discount ? ' (tối đa ' + vnd(v.max_discount) + ')' : '') : k === 'PER_SEAT' ? vnd(v.discount) + ' / ghế' : vnd(v.discount);
+      const cond = [v.min_total ? 'đơn từ ' + vnd(v.min_total) : '', v.need_combo ? 'kèm bắp nước' : '', (v.weekdays || []).length ? v.weekdays.map(d => DOW_SHORT[d]).join(', ') : ''].filter(Boolean);
+      return main + (cond.length ? '<div class="hint">' + esc(cond.join(' · ')) + '</div>' : '');
+    }
+    function drawVcDays(sel = []) {
+      document.getElementById('vc-days').innerHTML = DOW_SHORT.map((n, i) => `<label style="display:inline-flex;gap:3px;align-items:center"><input type="checkbox" value="${i}" ${sel.includes(i) ? 'checked' : ''}>${n}</label>`).join('');
+    }
+    const vcDays = () => [...document.querySelectorAll('#vc-days input:checked')].map(x => Number(x.value));
+    document.addEventListener('DOMContentLoaded', () => { if (document.getElementById('vc-days')) drawVcDays(); });
     function editVoucher(id) {
       const v = CAT.vouchers.find(x => x.id === id);
       const loc = (iso) => iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
       const set = (k, x) => { document.getElementById(k).value = x == null ? '' : x; };
       set('vc-code', v.id); set('vc-discount', v.discount); set('vc-label', v.label); set('vc-max', v.max_uses); set('vc-per', v.per_customer);
       set('vc-start', loc(v.starts_at)); set('vc-end', loc(v.ends_at)); set('vc-active', String(v.active !== false));
+      set('vc-kind', String(v.kind || 'AMOUNT').toUpperCase()); set('vc-percent', v.percent); set('vc-maxd', v.max_discount); set('vc-min', v.min_total);
+      set('vc-combo', String(!!v.need_combo)); drawVcDays((v.weekdays || []).map(Number));
     }
     const saveVoucher = () => act(async () => {
-      await post('voucher_save', { code: val('vc-code'), discount: val('vc-discount'), label: val('vc-label'), max_uses: val('vc-max'), per_customer: val('vc-per'),
+      await post('voucher_save', { code: val('vc-code'), kind: val('vc-kind'), percent: val('vc-percent'), max_discount: val('vc-maxd'), min_total: val('vc-min'),
+        need_combo: val('vc-combo') === 'true', weekdays: vcDays(), discount: val('vc-discount'), label: val('vc-label'), max_uses: val('vc-max'), per_customer: val('vc-per'),
         starts_at: val('vc-start') ? new Date(val('vc-start')).toISOString() : '', ends_at: val('vc-end') ? new Date(val('vc-end')).toISOString() : '', active: val('vc-active') === 'true' });
-      ['vc-code', 'vc-discount', 'vc-label', 'vc-max', 'vc-per', 'vc-start', 'vc-end'].forEach(id => { document.getElementById(id).value = ''; });
+      ['vc-code', 'vc-discount', 'vc-label', 'vc-max', 'vc-per', 'vc-start', 'vc-end', 'vc-percent', 'vc-maxd', 'vc-min'].forEach(id => { document.getElementById(id).value = ''; });
+      drawVcDays();
       await loadCatalog();
     });
     function editCinema(id) {
@@ -920,7 +943,7 @@
       renderAudit();
     }
     const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
-      remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
+      remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', ticket_reply: 'Trả lời khách', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
       movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
       change_password: 'Đổi mật khẩu', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
     function renderAudit() {
@@ -958,8 +981,8 @@
       document.getElementById('tickets').innerHTML = tk.length ? `<table><thead><tr><th>Phiếu</th><th>Loại</th><th>Đơn</th><th>Nội dung</th><th>Trạng thái</th><th>Cập nhật</th><th></th></tr></thead><tbody>${
         tk.map(x => `<tr><td class="mono">${esc(x.code)}</td><td>${pill(TK_LABEL[x.type] || x.type, x.type === 'PAYMENT_REPORT' ? 'warn' : 'danger')}</td>
           <td class="mono">${x.order_code ? `<a href="#" onclick="openOrder('${esc(x.order_code)}'); return false;">${esc(x.order_code)}</a>` : '—'}</td>
-          <td>${esc(x.summary)}</td><td>${pill(TK_STATUS[x.status] || x.status, x.status === 'OPEN' ? 'danger' : 'info')}</td><td>${t(x.updated_at || x.created_at)}</td>
-          <td><button class="btn" onclick="resolveTicket('${esc(x.code)}')">Đóng phiếu</button></td></tr>`).join('')
+          <td>${esc(x.summary)}${(x.replies || []).length ? `<div class="hint">${(x.replies || []).slice(-3).map(r => (r.from === 'STAFF' ? 'CSKH ' : 'Khách ') + esc(r.name || '') + ': ' + esc(r.message)).join('<br>')}</div>` : ''}</td><td>${pill(TK_STATUS[x.status] || x.status, x.status === 'OPEN' ? 'danger' : 'info')}</td><td>${t(x.updated_at || x.created_at)}</td>
+          <td>${x.customer_id ? `<button class="btn" onclick="replyTicket('${esc(x.code)}')">Trả lời</button> ` : ''}<button class="btn" onclick="resolveTicket('${esc(x.code)}')">Đóng phiếu</button></td></tr>`).join('')
       }</tbody></table>` : '<div class="empty">Không có phiếu nào cần xử lý <i class=ph-confetti aria-hidden=true></i></div>';
 
       renderCsRefunds();
@@ -1166,6 +1189,7 @@
       await post('accounting_paid', { refund_code: code, refund_ref: ref });
     });
     const confirmDone = (code) => act(async () => { if (confirm('Xác nhận khách đã nhận tiền hoàn? Đơn sẽ chuyển REFUNDED và gửi thông báo kết quả cuối.')) await post('confirm_done', { refund_code: code }); });
+    const replyTicket = (code) => act(async () => { const message = prompt('Trả lời khách (khách xem ở trang Hỗ trợ):'); if (message) await post('ticket_reply', { ticket_code: code, message }); });
     const resolveTicket = (code) => act(async () => { const note = prompt('Kết quả xử lý:'); if (note !== null) await post('resolve_ticket', { ticket_code: code, note }); });
 
     // ---------------- Chi tiết đơn (một màn hình duy nhất – US-05) ----------------

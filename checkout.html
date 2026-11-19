@@ -512,6 +512,7 @@
 
     let baseSeatPrice = 90000;
     let discountAmount = 0;
+    let VOUCHER_DEF = null; // voucher đã kiểm tra trên máy chủ (gồm điều kiện)
     let selectedSeatsStr = '';
     let currentMovie = 'linh-gioi-dai-chien';
     let currentCinema = 'Beta Thanh Xuân';
@@ -602,12 +603,12 @@
       try {
         const v = (await Pay.catalog('voucher', { code })).voucher;
         voucherCode = v.code;
-        discountAmount = v.discount;
+        VOUCHER_DEF = v;
         msgEl.textContent = '✓ Áp dụng thành công mã ' + v.code + (v.label ? ': ' + v.label : '') + '!';
         msgEl.style.color = 'var(--status-live)';
-        document.getElementById('summary-discount-row').style.display = 'flex';
       } catch (e) {
         voucherCode = null;
+        VOUCHER_DEF = null;
         discountAmount = 0;
         msgEl.textContent = e.message || 'Mã giảm giá không hợp lệ hoặc đã hết lượt dùng.';
         msgEl.style.color = '#ef4444';
@@ -634,6 +635,25 @@
         }
       }
 
+      // Voucher có điều kiện (đơn tối thiểu, kèm combo, thứ trong tuần, giảm %) – cùng công thức máy chủ
+      discountAmount = 0;
+      const dRow = document.getElementById('summary-discount-row');
+      if (VOUCHER_DEF) {
+        const msgEl = document.getElementById('voucher-msg');
+        try {
+          const dow = SHOWTIME ? new Date(new Date(SHOWTIME.starts_at).getTime() + 7 * 3600e3).getUTCDay() : null;
+          discountAmount = BetaCatalog.voucherDiscount(VOUCHER_DEF.code, VOUCHER_DEF, { base: baseSeatPrice + comboTotal, combo_total: comboTotal, seat_count: selectedSeatsStr.split(',').filter(Boolean).length, show_dow: dow });
+          msgEl.textContent = '✓ Áp dụng mã ' + VOUCHER_DEF.code + ': giảm ' + Pay.vnd(discountAmount) + (VOUCHER_DEF.label ? ' (' + VOUCHER_DEF.label + ')' : '') + '.';
+          msgEl.style.color = 'var(--status-live)';
+        } catch (e) {
+          msgEl.textContent = e.message;
+          msgEl.style.color = '#ef4444';
+        }
+      }
+      if (dRow) dRow.style.display = discountAmount ? 'flex' : 'none';
+      const dAmt = document.getElementById('summary-discount-amount');
+      if (dAmt) dAmt.textContent = '-' + new Intl.NumberFormat('vi-VN').format(discountAmount) + ' đ';
+      voucherCode = discountAmount ? (VOUCHER_DEF && VOUCHER_DEF.code) : null;
       const finalTotal = Math.max(0, baseSeatPrice + comboTotal - discountAmount);
       document.getElementById('summary-total-amount').textContent = new Intl.NumberFormat('vi-VN').format(finalTotal) + ' đ';
       return finalTotal;

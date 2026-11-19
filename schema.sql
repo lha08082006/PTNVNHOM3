@@ -140,10 +140,13 @@ create table if not exists support_tickets (
   context     jsonb,                                  -- BR-11: ngữ cảnh giao dịch gom sẵn
   decision    text,
   note        text,
+  customer_id uuid,                                   -- thành viên gửi phiếu (xem & trả lời ở support.html)
+  replies     jsonb not null default '[]',            -- [{at, from: STAFF|CUSTOMER, name, message}]
   updated_at  timestamptz,
   created_at  timestamptz not null default now()
 );
 create index if not exists tickets_order_idx on support_tickets(order_code);
+create index if not exists tickets_customer_idx on support_tickets(customer_id);
 
 -- 6) Thông báo đa kênh (BR-09) -----------------------------------------
 create table if not exists notifications (
@@ -256,7 +259,13 @@ create index if not exists showtimes_movie_time_idx on showtimes(movie_id, start
 -- Voucher: giới hạn tổng lượt, lượt mỗi khách, thời hạn
 create table if not exists vouchers (
   id           text primary key,                  -- mã voucher (chữ in hoa)
-  discount     bigint not null check (discount > 0),
+  kind         text not null default 'AMOUNT' check (kind in ('AMOUNT','PERCENT','PER_SEAT')),
+  discount     bigint not null default 0 check (discount >= 0),   -- số tiền giảm (AMOUNT / mỗi ghế với PER_SEAT)
+  percent      int check (percent between 1 and 100),             -- % giảm (PERCENT)
+  max_discount bigint,                            -- trần tiền giảm
+  min_total    bigint,                            -- đơn tối thiểu (trước giảm)
+  need_combo   boolean not null default false,    -- phải mua kèm bắp nước
+  weekdays     jsonb not null default '[]',       -- chỉ suất chiếu vào các thứ này (0 = CN); [] = mọi ngày
   label        text,
   max_uses     int,
   per_customer int,

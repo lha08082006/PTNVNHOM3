@@ -630,6 +630,77 @@ async function test(name, fn) {
     assert.strictEqual((await call('admin', { query: { action: 'post_list' } })).status, 401);
   });
 
+  // Khách mới cho các kiểm thử hợp nhất (token cũ có thể đã hết hạn do đổi / quên mật khẩu)
+  const newCustomer = async (n) => (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach ' + n, email: n + '@hopnhat.vn', phone: '09020000' + String(n.length).padStart(2, '0') + n.charCodeAt(0) % 10, password: 'matkhau123' } })).data.token;
+  const tokC = await newCustomer('c'), tokD = await newCustomer('dd');
+
+  await test('Hợp nhất GitHub: voucher có điều kiện (đơn tối thiểu, kèm combo, theo thứ, giảm %)', async () => {
+    const Catalog = require('../catalog');
+    const vd = Catalog.voucherDiscount;
+    assert.strictEqual(vd('P', { kind: 'PERCENT', percent: 20, max_discount: 50000 }, { base: 100000 }), 20000);
+    assert.strictEqual(vd('P', { kind: 'PERCENT', percent: 20, max_discount: 50000 }, { base: 400000 }), 50000);
+    assert.strictEqual(vd('S', { kind: 'PER_SEAT', discount: 10000 }, { base: 200000, seat_count: 3 }), 30000);
+    assert.throws(() => vd('N', { discount: 50000, min_total: 150000 }, { base: 90000 }), /150\.000/);
+    assert.throws(() => vd('C', { discount: 30000, need_combo: true }, { base: 90000, combo_total: 0 }), /bắp nước/);
+    assert.throws(() => vd('T', { kind: 'PERCENT', percent: 15, weekdays: [2] }, { base: 90000, show_dow: 3 }), /thứ Ba/);
+
+    // Máy chủ: kiểm tra điều kiện theo suất chiếu thật
+    const dowOf = (s) => new Date(new Date(s.starts_at).getTime() + 7 * 3600e3).getUTCDay();
+    const all = (await call('catalog', { query: { action: 'showtimes', days: 7 } })).data.showtimes.filter(s => new Date(s.starts_at) > Date.now() + 3600e3);
+    const notTue = all.filter(s => dowOf(s) !== 2).pop();
+    const tue = all.filter(s => dowOf(s) === 2).pop();
+    const free = Catalog.SEAT_IDS.filter(id => Catalog.seatType(id) === 'standard').slice(-6);
+    const order = (st, seats, extra) => call('create-order', { method: 'POST', token: tokC, body: { showtime_id: st.id, seats, ...extra } });
+    const noCombo = await order(notTue, [free[0]], { voucher: 'COMBO30' });
+    assert.strictEqual(noCombo.status, 400);
+    assert.ok(/bắp nước/.test(noCombo.data.error), noCombo.data.error);
+    const withCombo = await order(notTue, [free[0]], { voucher: 'combo30', combos: { couple: 1 } });
+    assert.strictEqual(withCombo.status, 200, JSON.stringify(withCombo.data));
+    assert.strictEqual(withCombo.data.discount !== undefined ? withCombo.data.discount : 30000, 30000);
+    const wrongDay = await order(notTue, [free[1]], { voucher: 'T3VUIVE' });
+    assert.strictEqual(wrongDay.status, 400);
+    assert.ok(/thứ Ba/.test(wrongDay.data.error));
+    if (tue) {
+      const ok = await order(tue, [free[2], free[3]], { voucher: 'T3VUIVE' });
+      assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
+    }
+    const small = await order(notTue, [free[4]], { voucher: 'NEWMEMBER' });
+    assert.strictEqual(small.status, 400); // đơn dưới 150.000 đ
+
+    // Quản lý tạo voucher giảm % chỉ cuối tuần
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    assert.strictEqual((await ql.post({ action: 'voucher_save', code: 'SAIPHAN', kind: 'PERCENT', percent: 150 })).status, 400);
+    const sv = await ql.post({ action: 'voucher_save', code: 'CUOITUAN', kind: 'PERCENT', percent: 10, max_discount: 30000, weekdays: [0, 6] });
+    assert.strictEqual(sv.status, 200, JSON.stringify(sv.data));
+    assert.deepStrictEqual(sv.data.voucher.weekdays, [0, 6]);
+    const ck = await call('catalog', { token: tokC, query: { action: 'voucher', code: 'cuoituan' } });
+    const thu2 = await ql.post({ action: 'voucher_save', code: 'MOINGAY', discount: 5000 });
+    assert.deepStrictEqual(thu2.data.voucher.weekdays, [], 'không chọn thứ = mọi ngày');
+    assert.strictEqual(ck.data.voucher.kind, 'PERCENT');
+    assert.strictEqual(ck.data.voucher.percent, 10);
+  });
+
+  await test('Hợp nhất GitHub: khách xem & trả lời phản hồi CSKH trên phiếu hỗ trợ', async () => {
+    assert.strictEqual((await call('support')).status, 401);
+    const sent = await call('support', { method: 'POST', token: tokC, body: { category: 'SERVICE', phone: '0902000003', description: 'Phòng chiếu số 3 quá lạnh' } });
+    assert.strictEqual(sent.status, 200, JSON.stringify(sent.data));
+    const code = sent.data.ticket_code;
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const rep = await cs.post({ action: 'ticket_reply', ticket_code: code, message: 'Rạp đã chỉnh nhiệt độ, cảm ơn bạn.' });
+    assert.strictEqual(rep.status, 200, JSON.stringify(rep.data));
+    const mine = await call('support', { token: tokC });
+    const t = mine.data.tickets.find(x => x.code === code);
+    assert.strictEqual(t.status, 'WAITING_CUSTOMER');
+    assert.strictEqual(t.replies[0].name, 'CSKH Beta');
+    assert.ok(!('note' in t) && !('context' in t), 'không lộ dữ liệu nội bộ');
+    assert.strictEqual((await call('support', { token: tokD })).data.tickets.some(x => x.code === code), false);
+    assert.strictEqual((await call('support', { method: 'POST', token: tokD, query: { action: 'reply' }, body: { ticket_code: code, message: 'chen ngang' } })).status, 404);
+    const back = await call('support', { method: 'POST', token: tokC, query: { action: 'reply' }, body: { ticket_code: code, message: 'Cảm ơn rạp!' } });
+    assert.strictEqual(back.status, 200);
+    assert.strictEqual(back.data.ticket.status, 'OPEN');
+    assert.strictEqual(back.data.ticket.replies.length, 2);
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

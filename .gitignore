@@ -22,3 +22,6 @@ scratch/
 # Ảnh/HTML sinh ra từ tools/ (chạy lại bằng npm run mockups:*)
 inlined-mockups/
 mockups-png/
+
+# Chỉ mục CodeGraph (sinh tự động trên máy)
+.codegraph/
