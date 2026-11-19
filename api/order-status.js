@@ -3,6 +3,7 @@
 // khi máy chủ là serverless (Vercel không có tiến trình chạy nền).
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
+const Access = require('../lib/access');
 const { fail, orderCodeOf } = require('../lib/api-util');
 
 module.exports = async function handler(req, res) {
@@ -13,7 +14,8 @@ module.exports = async function handler(req, res) {
     let order = await Store.one('orders', { code });
     if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn hàng #' + code });
     order = (await Flow.tick(order)) || (await Store.one('orders', { code }));
-    return res.status(200).json(await Flow.view(order));
+    // Chủ đơn / nhân viên xem đầy đủ; người chỉ biết mã đơn chỉ thấy trạng thái (lib/access.js)
+    return res.status(200).json(await Access.viewFor(req, order));
   } catch (e) {
     return fail(res, e);
   }

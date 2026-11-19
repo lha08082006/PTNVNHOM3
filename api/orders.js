@@ -1,9 +1,10 @@
 // api/orders.js - Lịch sử đơn hàng của khách (US-03: nhãn trạng thái + tiến trình hoàn tiền)
 //   Đã đăng nhập  -> các đơn của chính thành viên đó
-//   Chưa đăng nhập -> chỉ tra được theo ?codes=BC...,BC... (mã đơn khách đang giữ)
+//   Chưa đăng nhập -> chỉ tra được theo ?codes=BC...,BC... và chỉ thấy trạng thái (không có thông tin cá nhân / mã QR)
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
 const Auth = require('../lib/auth');
+const Access = require('../lib/access');
 const { fail, clean } = require('../lib/api-util');
 
 module.exports = async function handler(req, res) {
@@ -22,7 +23,8 @@ module.exports = async function handler(req, res) {
     const out = [];
     for (let o of rows) {
       if (['PENDING', 'EXPIRED', 'REFUND_REQUESTED'].includes(o.status)) o = (await Flow.tick(o)) || o;
-      out.push(await Flow.view(o));
+      const v = await Flow.view(o);
+      out.push(me ? v : Access.redact(v));
     }
     return res.status(200).json({ ok: true, orders: out });
   } catch (e) {

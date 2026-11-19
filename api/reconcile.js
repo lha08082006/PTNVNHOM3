@@ -3,6 +3,7 @@
 // có sẵn ngữ cảnh), buộc tra cứu cổng thanh toán ngay, rồi trả lời theo trạng thái thật của đơn.
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
+const Access = require('../lib/access');
 const { fail, clean } = require('../lib/api-util');
 
 module.exports = async function handler(req, res) {
@@ -22,7 +23,7 @@ module.exports = async function handler(req, res) {
     }
 
     const { order: after, ticket } = await Flow.reportIssue(order, { bank_ref: bankRef, note: 'Báo lỗi qua BetaBot' });
-    const v = await Flow.view(after);
+    const v = await Access.viewFor(req, after);
     const base = { ok: true, code: v.code, order: v, ticket_code: ticket.code, track_url: `order.html?code=${v.code}` };
 
     if (v.has_ticket) {

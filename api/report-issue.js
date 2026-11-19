@@ -2,6 +2,7 @@
 // Tạo SupportTicket ưu tiên, kèm sẵn ngữ cảnh giao dịch, và tra cứu cổng thanh toán ngay.
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
+const Access = require('../lib/access');
 const { fail, orderCodeOf, clean } = require('../lib/api-util');
 
 module.exports = async function handler(req, res) {
@@ -15,7 +16,7 @@ module.exports = async function handler(req, res) {
       note: clean(b.note).slice(0, 500),
       bank_ref: clean(b.bank_ref).slice(0, 40)
     });
-    return res.status(200).json({ ...(await Flow.view(after)), ticket_code: ticket.code });
+    return res.status(200).json({ ...(await Access.viewFor(req, after)), ticket_code: ticket.code });
   } catch (e) {
     return fail(res, e);
   }

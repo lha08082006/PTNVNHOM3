@@ -3,6 +3,8 @@
 // thất bại hoặc dữ liệu giao dịch mâu thuẫn. Bình thường khách không phải điền gì.
 const Store = require('../lib/store');
 const Flow = require('../lib/flow');
+const Auth = require('../lib/auth');
+const Access = require('../lib/access');
 const { fail, clean } = require('../lib/api-util');
 
 const MAX_RECEIPT_BYTES = 5 * 1024 * 1024;
@@ -34,7 +36,7 @@ module.exports = async function handler(req, res) {
       }
       if (!order) return res.status(404).json({ error: 'Không tìm thấy hồ sơ hoàn tiền' });
       order = (await Flow.tick(order)) || order;
-      return res.status(200).json(await Flow.view(order));
+      return res.status(200).json(await Access.viewFor(req, order));
     }
 
     if (req.method === 'POST') {
@@ -49,8 +51,14 @@ module.exports = async function handler(req, res) {
       if (!/^\d{6,20}$/.test(accNumber)) return res.status(400).json({ error: 'Số tài khoản chỉ gồm 6–20 chữ số' });
       const receipt = checkReceipt(b.receipt);
 
+      // Chỉ chủ đơn (đã đăng nhập) mới khai được tài khoản nhận hoàn tiền: mã đơn nằm trong nội dung
+      // chuyển khoản nên người khác có thể biết, không được để họ khai tài khoản của mình để nhận tiền.
+      const me = await Auth.currentCustomer(req);
+      if (!me) return res.status(401).json({ error: 'Vui lòng đăng nhập đúng tài khoản đã đặt vé để gửi biểu mẫu hoàn tiền' });
       const order = orderCode ? await Store.one('orders', { code: orderCode }) : null;
-      if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn hàng #' + orderCode });
+      if (!order || order.user_id !== me.id) {
+        return res.status(404).json({ error: 'Không tìm thấy đơn hàng #' + orderCode + ' trong tài khoản của bạn. Nếu đơn đặt trước khi có tài khoản, vui lòng liên hệ CSKH 1900 636 807.' });
+      }
       const refunds = await Store.find('refunds', { order_code: order.code, status: 'MANUAL_REVIEW' });
       const rf = refunds[0];
       if (!rf) {

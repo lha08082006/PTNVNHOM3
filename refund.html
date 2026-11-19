@@ -591,6 +591,8 @@
 
     async function load() {
       if (!orderCode) return lockForm('Thiếu mã đơn hàng.');
+      // Chỉ chủ đơn mới khai được tài khoản nhận hoàn tiền
+      if (window.BetaAuth) await BetaAuth.requireLogin();
       try {
         const o = await Pay.call('refund?order_code=' + encodeURIComponent(orderCode));
         const m = Pay.getMovie(o.movie_key);

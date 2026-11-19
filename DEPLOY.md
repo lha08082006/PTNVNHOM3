@@ -18,7 +18,7 @@
 | `ADMIN_KEY` | ✔ | Chỉ dùng **một lần** để tạo tài khoản Quản lý đầu tiên trên `admin.html`; sau đó mỗi người đăng nhập bằng tài khoản riêng |
 | `SEPAY_WEBHOOK_KEY` | ✔ | Đặt trùng với API Key trong cấu hình webhook SePay. Thiếu → webhook bị từ chối (503) |
 | `SEPAY_API_KEY` | ✔ | Khóa API SePay **mới** (khóa cũ đã lộ trong lịch sử git, phải thu hồi) |
-| `CRON_SECRET` | nên có | Bảo vệ `/api/cron` |
+| `CRON_SECRET` | ✔ | Bảo vệ `/api/cron` (thiếu thì Job đối soát tự động bị tắt, trả 503) |
 | `RESEND_API_KEY`, `MAIL_FROM` | tùy chọn | Gửi email vé/hoàn tiền thật. Trống → chỉ ghi nhận, không gửi |
 | `SITE_URL` | tùy chọn | Dùng cho link "Xem đơn hàng" trong email |
 | `ALLOW_SANDBOX` | **không** đặt trên production | `1` = mở `/api/simulate-payment` (vẫn cần `x-admin-key`) cho UAT |

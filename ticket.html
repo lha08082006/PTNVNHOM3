@@ -781,6 +781,12 @@
         box.innerHTML = '';
         new QRCode(box, { text: ord.ticket_qr, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
       }
+      // Chỉ chủ vé (đăng nhập đúng tài khoản đặt vé) mới thấy mã QR vào rạp
+      if (ord.limited) {
+        const box = document.getElementById('ticket-qr');
+        const next = encodeURIComponent('ticket.html?order=' + ord.code);
+        box.innerHTML = '<div style="padding: 14px; text-align: center; color: #475569; font-size: 14px; line-height: 1.5;">🔒 Mã QR vào rạp chỉ hiện với tài khoản đã đặt vé.<br><a href="auth.html?next=' + next + '#login" style="font-weight: 700; color: #005198;">Đăng nhập để xem mã QR →</a></div>';
+      }
       const ck = document.getElementById('ticket-checkin-state');
       if (ck && ord.checked_in_at) { ck.style.display = 'block'; ck.textContent = '✓ Vé đã được soát lúc ' + new Date(ord.checked_in_at).toLocaleString('vi-VN'); }
       const foot = document.getElementById('ticket-order-code-foot');

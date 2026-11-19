@@ -94,7 +94,7 @@ async function test(name, fn) {
   await test('Thanh toán (sandbox) -> xuất vé', async () => {
     const r = await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: code } });
     assert.strictEqual(r.status, 200, JSON.stringify(r.data));
-    const s = await call('order-status', { query: { code } });
+    const s = await call('order-status', { query: { code }, token: tokA }); // chủ đơn xem đầy đủ
     assert.strictEqual(s.data.status, 'CONFIRMED');
     assert.strictEqual(s.data.has_ticket, true);
     assert.strictEqual(s.data.customer_name, 'Khach A');
@@ -402,7 +402,7 @@ async function test(name, fn) {
     const unpaid = await quay.post({ action: 'checkin', qr: SOON_CODE });
     assert.strictEqual(unpaid.status, 409);
     await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: SOON_CODE } });
-    const view = await call('order-status', { query: { code: SOON_CODE } });
+    const view = await call('order-status', { query: { code: SOON_CODE }, token: tokB }); // chủ vé mới thấy mã QR
     assert.match(view.data.ticket_qr, /^BETA1\.BC\d{10}\.[A-Za-z0-9_-]{16}$/);
     assert.strictEqual((await cs.post({ action: 'checkin', qr: view.data.ticket_qr })).status, 403);
     const forged = await quay.post({ action: 'checkin', qr: view.data.ticket_qr.slice(0, -2) + 'xx' });
@@ -497,6 +497,44 @@ async function test(name, fn) {
     // Nhân viên cũng bị khóa khi sai nhiều lần
     for (let i = 0; i < 5; i++) await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'quay@beta.local', password: 'sai' } });
     assert.strictEqual((await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'quay@beta.local', password: 'beta-admin' } })).status, 429);
+  });
+
+  await test('Chỉ biết mã đơn thì không xem được thông tin cá nhân / mã QR, không khai được tài khoản nhận hoàn', async () => {
+    const Store = require('../lib/store');
+    const login = async (l, p) => (await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: l, password: p } })).data.token;
+    const tokA2 = await login('a@test.vn', 'matkhaumoi1');
+    const tokB = await login('b@test.vn', 'matkhaumoi9');
+    assert.ok(tokA2 && tokB, 'không đăng nhập lại được tài khoản test');
+    // Người lạ (không đăng nhập) và khách khác (tokB) chỉ thấy trạng thái
+    for (const tok of [undefined, tokB]) {
+      const v = (await call('order-status', { query: { code }, token: tok })).data;
+      assert.strictEqual(v.limited, true);
+      for (const k of ['phone', 'email', 'customer_name', 'ticket_qr', 'history', 'notifications']) assert.strictEqual(v[k], undefined, k + ' bị lộ');
+      assert.ok(v.status && v.code === code);
+    }
+    const g = await call('orders', { query: { codes: code } });
+    assert.strictEqual(g.data.orders[0].ticket_qr, undefined);
+    assert.strictEqual(g.data.orders[0].email, undefined);
+    const rep = await call('report-issue', { method: 'POST', body: { order_code: code } });
+    assert.strictEqual(rep.data.phone, undefined);
+    const rec = await call('reconcile', { method: 'POST', body: { order_code: code } });
+    assert.strictEqual(rec.data.order.ticket_qr, undefined);
+    // Chủ đơn và nhân viên vẫn xem đầy đủ
+    const own = (await call('order-status', { query: { code }, token: tokA2 })).data;
+    assert.ok(own.ticket_qr && own.email && !own.limited);
+    const cs = await staffLogin('cskh@beta.local');
+    assert.ok((await call('order-status', { query: { code }, token: cs })).data.ticket_qr);
+
+    // Form nhận hoàn tiền: chỉ chủ đơn
+    const order = await Store.one('orders', { code });
+    await Store.insert('refunds', { code: 'REF-ACC1', order_id: order.id, order_code: code, amount: 10000, reason: 'MISMATCH', status: 'MANUAL_REVIEW',
+      idempotency_key: 'test-acc1', deadline_at: new Date().toISOString(), is_manual: true });
+    const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+    const form = { order_code: code, bank_name: 'MB', acc_number: '0123456789', acc_name: 'KE GIAN', receipt: PNG };
+    assert.strictEqual((await call('refund', { method: 'POST', body: form })).status, 401);
+    assert.strictEqual((await call('refund', { method: 'POST', body: form, token: tokB })).status, 404);
+    const ok = await call('refund', { method: 'POST', body: { ...form, acc_name: 'KHACH A' }, token: tokA2 });
+    assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
   });
 
   for (const [ok, name] of results) console.log(ok, name);
