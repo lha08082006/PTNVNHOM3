@@ -492,7 +492,7 @@
       const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
       const box = document.getElementById('date-selector');
       box.innerHTML = '';
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 14; i++) {
         const date = addDays(today, i);
         const [, mm, dd] = date.split('-');
         const btn = document.createElement('button');
@@ -546,6 +546,7 @@
                 : `<button class="sl${low ? ' lo' : ''}" data-id="${esc(st.id)}" onclick="pickShowtime('${esc(st.id)}')">
                      <b>${st.time}</b><span class="bar"><i style="width: ${used}%;"></i></span>
                      <span class="m" style="font-size: 12px;${low ? ' color: var(--status-warning);' : ''}">${low ? 'Sắp hết · ' : ''}${st.seats_free}/${st.seats_total} ghế</span>
+                     ${st.end_time ? `<span class="m" style="font-size: 11.5px;">~${st.end_time} kết thúc</span>` : ''}
                    </button>`;
             }).join('')}</div>
           </div>`).join('');
@@ -563,13 +564,16 @@
 
     (async function init() {
       try {
-        const [mv, cn, week] = await Promise.all([Pay.catalog('movies'), Pay.catalog('cinemas'), Pay.catalog('showtimes', { movie: movieKey, days: 7 })]);
+        const [mv, cn, week] = await Promise.all([Pay.catalog('movies'), Pay.catalog('cinemas'), Pay.catalog('showtimes', { movie: movieKey, days: 14 })]);
         const m = mv.movies.find(x => x.key === movieKey);
         if (!m) { location.replace('home.html'); return; }
         renderMovie(m);
         // Chỉ liệt kê các rạp có chiếu phim này trong 7 ngày tới
         const showing = new Set(week.showtimes.map(x => x.cinema_id));
-        CINEMAS = cn.cinemas.filter(c => showing.has(c.id));
+        // Rạp yêu thích (đã lưu ở trang Lịch chiếu) lên đầu danh sách
+        let fav = []; try { fav = JSON.parse(localStorage.getItem('BETA_FAV_CINEMAS') || '[]'); } catch (e) {}
+        CINEMAS = cn.cinemas.filter(c => showing.has(c.id)).sort((a, b) => fav.includes(b.id) - fav.includes(a.id));
+        if (!params.get('cinema') && CINEMAS[0] && fav.includes(CINEMAS[0].id)) cinemaId = CINEMAS[0].id;
         if (!CINEMAS.length) {
           document.getElementById('showtime-groups').innerHTML = '<p class="m">Phim chưa có lịch chiếu trong 7 ngày tới.</p>';
           updateSummary();

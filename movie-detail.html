@@ -771,9 +771,13 @@
         if (m.age) { $('md-age').hidden = false; $('md-age').textContent = m.age; }
         if (m.badge) { $('md-format').hidden = false; $('md-format').textContent = m.badge; }
         if (m.status === 'SOON') $('md-soon').hidden = false;
-        const parts = String(m.meta || '').split('·').map((x) => x.trim()).filter(Boolean);
-        $('md-pills').innerHTML = parts.slice(1).map((x) => '<div class="stat-pill">' + esc(x) + '</div>').join('');
-        $('md-meta').textContent = parts[0] ? 'Thể loại: ' + parts[0] : '';
+        // Thông tin phim đầy đủ: thời lượng, khởi chiếu, ngôn ngữ, thể loại, đạo diễn, diễn viên, phân loại tuổi
+        const fmtDate = (d) => d ? d.split('-').reverse().join('/') : '';
+        const pills = [m.duration_min ? '⏱ ' + m.duration_min + ' phút' : '', m.release_date ? '📅 Khởi chiếu ' + fmtDate(m.release_date) : '', m.language ? '🗣 ' + m.language : ''].filter(Boolean);
+        $('md-pills').innerHTML = pills.map((x) => '<div class="stat-pill">' + esc(x) + '</div>').join('');
+        const rows = [['Thể loại', m.genre], ['Đạo diễn', m.director], ['Diễn viên', m.cast], ['Phân loại', m.age ? m.age + (m.age_note ? ' – ' + m.age_note : '') : '']].filter(([, v]) => v);
+        $('md-meta').innerHTML = (m.synopsis ? '<span style="display:block;margin-bottom:10px;">' + esc(m.synopsis) + '</span>' : '') +
+          rows.map(([k, v]) => '<span style="display:block;"><b>' + k + ':</b> ' + esc(v) + '</span>').join('');
         const meta = document.querySelector('meta[name="description"]');
         if (meta) meta.content = 'Xem lịch chiếu và đặt vé ' + (m.shortTitle || m.title) + ' tại Beta Cinemas. ' + (m.meta || '');
         const trailer = m.trailer || (typeof MOVIE_TRAILERS !== 'undefined' && MOVIE_TRAILERS[m.key]);
@@ -799,8 +803,10 @@
           byFormat[f].map((s) => {
             const full = s.seats_free === 0;
             return '<a class="md-slot' + (full ? ' full' : '') + '" href="seats.html?showtime=' + encodeURIComponent(s.id) + '"' + (full ? ' aria-disabled="true" tabindex="-1"' : '') + '>' +
-              '<b>' + esc(s.time) + (s.late ? ' 🌙' : '') + '</b><small>' + esc(s.room || '') + ' • ' + (full ? 'Hết ghế' : 'Còn ' + s.seats_free + ' ghế') + '</small></a>';
-          }).join('')).join('');
+              '<b>' + esc(s.time) + (s.late ? ' 🌙' : '') + '</b>' + (s.end_time ? '<small>~ ' + esc(s.end_time) + ' kết thúc</small>' : '') +
+              '<small>' + esc(s.room || '') + ' • ' + (full ? 'Hết ghế' : 'Còn ' + s.seats_free + ' ghế') + '</small></a>';
+          }).join('')).join('') +
+          '<p class="m" style="flex-basis: 100%; font-size: 12.5px; margin: 4px 0 0;">Giờ kết thúc là dự kiến; suất chiếu có thể bắt đầu muộn 10–15 phút do quảng cáo và giới thiệu phim.</p>';
       };
 
       const fillDates = () => {
@@ -823,14 +829,14 @@
         }
         key = m.key;
         renderMovie(m);
-        const wk = await Pay.catalog('showtimes', { movie: key, days: 7 });
+        const wk = await Pay.catalog('showtimes', { movie: key, days: 14 });
         week = wk.showtimes || [];
         const has = new Set(week.map((s) => s.cinema_id));
         const cinemas = (cn.cinemas || []).filter((c) => has.has(c.id));
         if (!cinemas.length) {
           $('md-cinema').innerHTML = '<option>Chưa có rạp chiếu</option>';
           $('md-date').innerHTML = '<option>—</option>';
-          $('md-slots').innerHTML = '<p class="m">' + (m.status === 'SOON' ? 'Phim sắp khởi chiếu, lịch chiếu sẽ được cập nhật sớm.' : 'Phim chưa có suất chiếu trong 7 ngày tới.') + '</p>';
+          $('md-slots').innerHTML = '<p class="m">' + (m.status === 'SOON' ? 'Phim sắp khởi chiếu, lịch chiếu sẽ được cập nhật sớm.' : 'Phim chưa có suất chiếu trong 14 ngày tới.') + '</p>';
           return;
         }
         $('md-cinema').innerHTML = cinemas.map((c) => '<option value="' + esc(c.id) + '">' + esc(c.name + (c.city ? ' (' + c.city + ')' : '')) + '</option>').join('');

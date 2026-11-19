@@ -531,6 +531,8 @@
     </div>
 
     <!-- Grid Phim -->
+    <!-- Lọc phim theo thể loại (dựng từ danh mục phim) -->
+    <div id="genre-chips" role="group" aria-label="Lọc theo thể loại" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: -6px 0 18px;"></div>
     <div class="grid-4" id="movie-grid">
       
       <!-- Phim 1: Linh Giới Đại Chiến -->
@@ -1065,7 +1067,9 @@
       cards.forEach(card => {
         const cardTab = card.getAttribute('data-tab') || 'now';
         const tabList = cardTab.split(' ');
-        if (tabList.includes(tab) || tabList.includes('all')) {
+        const g = window.__genre || '';
+        const genreOk = !g || (card.dataset.genre || '').toLowerCase().split(',').map(x => x.trim()).includes(g.toLowerCase());
+        if ((tabList.includes(tab) || tabList.includes('all')) && genreOk) {
           card.style.display = '';
         } else {
           card.style.display = 'none';
@@ -1305,9 +1309,24 @@
         grid.querySelectorAll('.movie-card').forEach(card => {
           const buy = card.querySelector('a[href*="booking.html?movie="]');
           const key = buy ? new URL(buy.href).searchParams.get('movie') : null;
+          if (key && byKey[key]) card.dataset.genre = byKey[key].genre || '';
           const t = card.querySelector('.movie-title-official a');
           if (key && t) t.href = 'movie-detail.html?movie=' + encodeURIComponent(key);
         });
+        // Nút lọc thể loại: gom từ thể loại của các phim đang có
+        const genres = [...new Set(movies.flatMap(m => String(m.genre || '').split(',').map(x => x.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b, 'vi'));
+        const chips = document.getElementById('genre-chips');
+        const chipCss = (on) => 'border: 1.5px solid ' + (on ? '#005198' : '#cbd5e1') + '; background: ' + (on ? '#005198' : '#fff') + '; color: ' + (on ? '#fff' : '#0f172a') + '; border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; min-height: 36px;';
+        const drawChips = () => {
+          chips.innerHTML = ['', ...genres].map(g => `<button type="button" aria-pressed="${(window.__genre || '') === g}" style="${chipCss((window.__genre || '') === g)}" data-genre="${esc(g)}">${g ? esc(g) : 'Tất cả thể loại'}</button>`).join('');
+          chips.querySelectorAll('button').forEach(b => b.onclick = () => {
+            window.__genre = b.dataset.genre;
+            drawChips();
+            const act = document.querySelector('.movie-tab-btn.active');
+            switchMovieTab(act ? act.id.replace('tab-', '') : 'now');
+          });
+        };
+        if (genres.length > 1) drawChips();
         const active = document.querySelector('.movie-tab-btn.active');
         if (typeof switchMovieTab === 'function') switchMovieTab(active ? active.id.replace('tab-', '') : 'now');
       } catch (e) {

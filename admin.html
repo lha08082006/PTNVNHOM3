@@ -282,6 +282,13 @@
             <label>Ảnh poster (đường dẫn)<input id="mv-poster" placeholder="images/..."></label>
             <label>Định dạng<input id="mv-format" placeholder="2D Phụ đề Tiếng Việt"></label>
             <label>Nhãn định dạng<input id="mv-badge" placeholder="2D PHỤ ĐỀ"></label>
+            <label>Thể loại<input id="mv-genre" placeholder="Hành động, Giả tưởng"></label>
+            <label>Ngôn ngữ / phụ đề<input id="mv-lang" placeholder="Tiếng Anh – Phụ đề Tiếng Việt"></label>
+            <label>Khởi chiếu<input id="mv-release" type="date"></label>
+            <label>Đạo diễn<input id="mv-director"></label>
+            <label>Diễn viên<input id="mv-cast" placeholder="Cách nhau bởi dấu phẩy"></label>
+            <label>Trailer (link YouTube)<input id="mv-trailer" placeholder="https://www.youtube.com/watch?v=..."></label>
+            <label style="grid-column: 1 / -1;">Nội dung phim<textarea id="mv-synopsis" rows="3"></textarea></label>
             <button class="btn primary">Lưu phim</button>
           </form>
           <div id="mv-table"></div>
@@ -310,6 +317,8 @@
           <label>Tên rạp<input id="cn-name" required></label>
           <label>Thành phố<input id="cn-city"></label>
           <label>Địa chỉ<input id="cn-address"></label>
+          <label>Vĩ độ (lat)<input id="cn-lat" type="number" step="0.0001" placeholder="21.0005"></label>
+          <label>Kinh độ (lng)<input id="cn-lng" type="number" step="0.0001" placeholder="105.8148"></label>
           <label>Hoạt động<select id="cn-active"><option value="true">Có</option><option value="false">Tạm đóng</option></select></label>
           <button class="btn primary">Lưu rạp</button>
         </form>
@@ -790,12 +799,16 @@
       const set = (k, v) => { document.getElementById(k).value = v == null ? '' : v; };
       set('mv-id', m.id); set('mv-title', m.title); set('mv-short', m.short_title); set('mv-age', m.age); set('mv-dur', m.duration_min);
       set('mv-status', m.status || 'NOW'); set('mv-meta', m.meta); set('mv-poster', m.poster); set('mv-format', m.format); set('mv-badge', m.badge);
+      set('mv-genre', m.genre); set('mv-lang', m.language); set('mv-release', m.release_date); set('mv-director', m.director);
+      set('mv-cast', m.cast_list); set('mv-trailer', m.trailer); set('mv-synopsis', m.synopsis);
       document.getElementById('mv-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     const saveMovie = () => act(async () => {
       await post('movie_save', { id: val('mv-id'), title: val('mv-title'), short_title: val('mv-short'), age: val('mv-age'), duration_min: val('mv-dur'),
-        status: val('mv-status'), meta: val('mv-meta'), poster: val('mv-poster'), format: val('mv-format'), badge: val('mv-badge') });
-      ['mv-id', 'mv-title', 'mv-short', 'mv-age', 'mv-dur', 'mv-meta', 'mv-poster', 'mv-format', 'mv-badge'].forEach(id => { document.getElementById(id).value = ''; });
+        status: val('mv-status'), meta: val('mv-meta'), poster: val('mv-poster'), format: val('mv-format'), badge: val('mv-badge'),
+        genre: val('mv-genre'), language: val('mv-lang'), release_date: val('mv-release'), director: val('mv-director'), cast: val('mv-cast'),
+        trailer: val('mv-trailer'), synopsis: val('mv-synopsis') });
+      ['mv-id', 'mv-title', 'mv-short', 'mv-age', 'mv-dur', 'mv-meta', 'mv-poster', 'mv-format', 'mv-badge', 'mv-genre', 'mv-lang', 'mv-release', 'mv-director', 'mv-cast', 'mv-trailer', 'mv-synopsis'].forEach(id => { document.getElementById(id).value = ''; });
       await loadCatalog();
     });
     function editVoucher(id) {
@@ -816,10 +829,11 @@
       document.getElementById('cn-id').value = c.id; document.getElementById('cn-name').value = c.name;
       document.getElementById('cn-city').value = c.city || ''; document.getElementById('cn-address').value = c.address || '';
       document.getElementById('cn-active').value = String(c.active);
+      document.getElementById('cn-lat').value = c.lat == null ? '' : c.lat; document.getElementById('cn-lng').value = c.lng == null ? '' : c.lng;
     }
     const saveCinema = () => act(async () => {
-      await post('cinema_save', { id: val('cn-id'), name: val('cn-name'), city: val('cn-city'), address: val('cn-address'), active: val('cn-active') === 'true' });
-      ['cn-id', 'cn-name', 'cn-city', 'cn-address'].forEach(id => { document.getElementById(id).value = ''; });
+      await post('cinema_save', { id: val('cn-id'), name: val('cn-name'), city: val('cn-city'), address: val('cn-address'), active: val('cn-active') === 'true', lat: val('cn-lat'), lng: val('cn-lng') });
+      ['cn-id', 'cn-name', 'cn-city', 'cn-address', 'cn-lat', 'cn-lng'].forEach(id => { document.getElementById(id).value = ''; });
       await loadCatalog();
     });
 

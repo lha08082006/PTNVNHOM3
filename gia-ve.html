@@ -88,7 +88,7 @@
     </section>
 
     <section class="gv-sec">
-      <h2>Giá theo rạp (7 ngày tới)</h2>
+      <h2>Giá theo rạp (14 ngày tới)</h2>
       <p class="sub">Khoảng giá lấy từ các suất chiếu đang mở bán của từng rạp.</p>
       <div class="gv-table-wrap">
         <table class="gv-table">
@@ -168,7 +168,7 @@
         return lo === hi ? vnd(lo) : vnd(lo) + ' – ' + vnd(hi);
       };
       try {
-        const [cn, st] = await Promise.all([Pay.catalog('cinemas'), Pay.catalog('showtimes', { days: 7 })]);
+        const [cn, st] = await Promise.all([Pay.catalog('cinemas'), Pay.catalog('showtimes', { days: 14 })]);
         const shows = st.showtimes || [];
         const rows = (cn.cinemas || []).map((c) => {
           const list = shows.filter((s) => s.cinema_id === c.id);
