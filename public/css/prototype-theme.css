@@ -1255,3 +1255,205 @@ textarea {
     right: 16px !important;
   }
 }
+/* ==========================================================================
+   RESPONSIVE MOBILE (header ☰, quick-dock, chống tràn ngang)
+   ========================================================================== */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img, video, iframe {
+  max-width: 100%;
+}
+
+.menu-toggle-official {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .main-nav-official {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-header-official {
+    font-size: 12px;
+  }
+
+  .top-header-inner > div:first-child {
+    display: none;
+  }
+
+  .top-header-inner {
+    justify-content: flex-end;
+  }
+
+  .top-auth-links {
+    gap: 8px;
+  }
+
+  .header-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 8px 0;
+  }
+
+  .official-logo {
+    height: 40px;
+  }
+
+  .header-row > div:has(> .cinema-select-official) {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .cinema-select-official {
+    min-width: 0;
+    width: 100%;
+    font-size: 13px;
+    padding: 8px 32px 8px 14px;
+  }
+
+  .menu-toggle-official {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    color: #005198;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .main-nav-official {
+    display: none;
+    width: 100%;
+  }
+
+  .header-main-official.menu-open .main-nav-official {
+    display: block;
+  }
+
+  .main-nav-official .main-menu-official {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    overflow: visible;
+    padding: 0 0 6px;
+  }
+
+  .main-nav-official .menu-link-official {
+    display: block;
+    padding: 12px 4px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .main-nav-official .menu-link-official.active::after {
+    display: none;
+  }
+
+  /* Quick-dock: menu xổ dọc phía trên nút ⚡ thay vì tràn ngang */
+  .quick-dock-widget {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .quick-dock-menu {
+    position: absolute;
+    right: 0;
+    bottom: 64px;
+    flex-direction: column;
+    align-items: stretch;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+  }
+
+  .quick-dock-menu .dock-label {
+    display: none;
+  }
+}
+
+/* Lưới 1 cột trên điện thoại: cho phép cột co nhỏ hơn nội dung (tránh tràn ngang) */
+@media (max-width: 768px) {
+  .account-layout,
+  .betabot-grid,
+  .movie-hero-grid,
+  .sch-movie-row,
+  .support-grid,
+  .details-grid,
+  .underpay-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .account-layout > *,
+  .betabot-grid > *,
+  .movie-hero-grid > *,
+  .sch-movie-row > *,
+  .support-grid > *,
+  .details-grid > *,
+  .underpay-grid > * {
+    min-width: 0;
+  }
+}
+
+/* Các thành phần co giãn trên điện thoại */
+.form-input,
+select,
+input,
+textarea {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.chat-input-field {
+  min-width: 0;
+}
+
+.order-history-item > div {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .btn {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .form-row-2 {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .order-history-item > div > div:first-child {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-nav-official .menu-link-official {
+    padding: 12px 8px;
+  }
+
+  .quick-dock-fab {
+    width: 44px;
+    height: 44px;
+    font-size: 17px;
+  }
+
+  .order-item-poster {
+    width: 72px !important;
+    height: 108px !important;
+    flex-shrink: 0;
+  }
+
+  .sch-poster-box {
+    max-width: 200px !important;
+  }
+}

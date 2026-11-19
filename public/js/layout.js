@@ -149,13 +149,23 @@
              onerror="this.onerror=null; this.src='images/ui/logo-official.png';" alt="Beta Cinemas">
       </a>
       ${cinemaSelect(opts)}
-      <nav>
+      <button type="button" class="menu-toggle-official" aria-label="Mở menu" aria-expanded="false"
+              onclick="Layout.toggleMenu(this)">☰</button>
+      <nav class="main-nav-official">
         <ul class="main-menu-official">
           ${menu}
         </ul>
       </nav>
     </div>
   </header>`);
+  }
+
+  // Nút ☰ trên điện thoại: mở / đóng menu chính
+  function toggleMenu(btn) {
+    const header = btn.closest('.header-main-official');
+    const open = header.classList.toggle('menu-open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = open ? '✕' : '☰';
   }
 
   function footer(opts) {
@@ -303,5 +313,5 @@
   else mountQuickDock();
 
   window.toggleQuickDock = toggleQuickDock;
-  window.Layout = { header, footer, getUser, setUser, logout, CINEMAS };
+  window.Layout = { header, footer, toggleMenu, getUser, setUser, logout, CINEMAS };
 })();

@@ -125,6 +125,25 @@
       text-transform: uppercase;
       transition: color 0.2s;
     }
+    @media (max-width: 600px) {
+      .betabot-float {
+        right: 16px !important;
+        bottom: 72px !important;
+        padding: 8px !important;
+        gap: 0 !important;
+      }
+      .betabot-float-text,
+      .betabot-float > span:last-child {
+        display: none;
+      }
+      .movie-tabs-official {
+        gap: 8px;
+      }
+      .movie-tab-btn {
+        font-size: 14px;
+        padding: 10px 4px 12px;
+      }
+    }
     .movie-tab-btn:hover {
       color: #005198;
     }
@@ -722,9 +741,9 @@
   </div>
 
   <!-- Floating BetaBot Chat Launcher Button -->
-  <a href="betabot.html" style="position: fixed; bottom: 84px; right: 24px; z-index: 9998; display: flex; align-items: center; gap: 10px; background: #FF5A3C; color: white; padding: 10px 18px; border-radius: 999px; box-shadow: 0 8px 24px rgba(255, 90, 60, 0.45); text-decoration: none; font-weight: 800; font-size: 13.5px; transition: all 0.25s;">
+  <a href="betabot.html" class="betabot-float" aria-label="Hỗ trợ đối soát BetaBot 24/7" style="position: fixed; bottom: 84px; right: 24px; z-index: 9998; display: flex; align-items: center; gap: 10px; background: #FF5A3C; color: white; padding: 10px 18px; border-radius: 999px; box-shadow: 0 8px 24px rgba(255, 90, 60, 0.45); text-decoration: none; font-weight: 800; font-size: 13.5px; transition: all 0.25s;">
     <img src="images/ui/betabot-avatar.png" alt="BetaBot" style="width: 28px; height: 28px; border-radius: 50%; background: #0f172a; border: 1.5px solid white;" onerror="this.src='images/ui/logo.png'">
-    <span>Hỗ trợ đối soát • BetaBot 24/7</span>
+    <span class="betabot-float-text">Hỗ trợ đối soát • BetaBot 24/7</span>
     <span style="width: 8px; height: 8px; background: #3ddc97; border-radius: 50%;"></span>
   </a>
 
