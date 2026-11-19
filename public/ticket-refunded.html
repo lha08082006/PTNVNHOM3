@@ -159,6 +159,7 @@
       }
     }
   </style>
+  <script src="js/store.js"></script>
   <script src="js/layout.js"></script>
 </head>
 <body>
@@ -375,12 +376,12 @@
   <script>
     // 1. Phân tích tham số từ URL
     const urlParams = new URLSearchParams(window.location.search);
-    const orderCode = urlParams.get('order') || localStorage.getItem('last_active_order') || 'BC2610279854';
+    const orderCode = urlParams.get('order') || Store.getRaw('last_active_order') || 'BC2610279854';
     
     // 2. Tra cứu dữ liệu từ localStorage
     let refundDet = null;
     try {
-      const stored = localStorage.getItem('refund_detail_' + orderCode);
+      const stored = Store.getRaw('refund_detail_' + orderCode);
       if (stored) refundDet = JSON.parse(stored);
     } catch (e) {}
 

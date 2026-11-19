@@ -55,7 +55,7 @@
   // Phiên đăng nhập demo: chưa có key -> coi như đã đăng nhập bằng tài khoản demo
   function getUser() {
     try {
-      const raw = localStorage.getItem('BETA_USER');
+      const raw = Store.getRaw('BETA_USER');
       if (raw === null) return DEMO_USER;
       return JSON.parse(raw);
     } catch (e) {
@@ -64,7 +64,7 @@
   }
 
   function setUser(user) {
-    try { localStorage.setItem('BETA_USER', JSON.stringify(user || null)); } catch (e) {}
+    try { Store.setRaw('BETA_USER', JSON.stringify(user || null)); } catch (e) {}
   }
 
   function logout() {
@@ -272,7 +272,7 @@
     fab.classList.toggle('active', open);
     fab.querySelector('.fab-icon-open').style.display = open ? 'none' : 'inline';
     fab.querySelector('.fab-icon-close').style.display = open ? 'inline' : 'none';
-    try { localStorage.setItem('quick_dock_state', open ? 'open' : 'closed'); } catch (e) {}
+    try { Store.setRaw('quick_dock_state', open ? 'open' : 'closed'); } catch (e) {}
   }
 
   function toggleQuickDock() {
@@ -287,8 +287,8 @@
     const cur = new URLSearchParams(location.search);
     let lastOrder = null;
     try {
-      if (cur.get('order')) localStorage.setItem('last_active_order', cur.get('order'));
-      lastOrder = localStorage.getItem('last_active_order');
+      if (cur.get('order')) Store.setRaw('last_active_order', cur.get('order'));
+      lastOrder = Store.getRaw('last_active_order');
     } catch (e) {}
     const query = new URLSearchParams({
       order: cur.get('order') || lastOrder || 'BC1317376612',
@@ -316,7 +316,7 @@
     </nav>
   </div>`);
 
-    try { if (localStorage.getItem('quick_dock_state') === 'open') setDockOpen(true); } catch (e) {}
+    try { if (Store.getRaw('quick_dock_state') === 'open') setDockOpen(true); } catch (e) {}
 
     // Đóng khi click ra ngoài
     document.addEventListener('click', e => {

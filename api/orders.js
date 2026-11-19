@@ -8,8 +8,12 @@ module.exports = async function handler(req, res) {
 
   try {
     const limit = Math.min(50, Number(req.query.limit || 20));
-    const phone = req.query.phone || null;
-    const orders = await DB.getOrders({ limit, phone });
+    const phone = String(req.query.phone || '').replace(/\D/g, '');
+    // Không trả toàn bộ đơn của mọi khách: bắt buộc lọc theo số điện thoại
+    if (!/^0\d{9}$/.test(phone)) {
+      return res.status(200).json({ ok: true, orders: [] });
+    }
+    const orders = (await DB.getOrders({ limit, phone })).filter(o => o.phone === phone);
 
     return res.status(200).json({
       ok: true,

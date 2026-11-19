@@ -430,6 +430,7 @@
       }
     }
   </style>
+  <script src="js/store.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/pay-client.js"></script>
   <script src="js/showtimes.js"></script>
@@ -1221,10 +1222,10 @@
 
       if (orderCode) {
         try {
-          let list = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+          let list = JSON.parse(Store.getRaw('reported_refund_orders') || '[]');
           if (!list.includes(orderCode)) {
             list.push(orderCode);
-            localStorage.setItem('reported_refund_orders', JSON.stringify(list));
+            Store.setRaw('reported_refund_orders', JSON.stringify(list));
           }
         } catch(e) {}
         currentActiveOrder = await resolveOrderInfo(orderCode);

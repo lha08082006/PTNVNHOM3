@@ -1,10 +1,20 @@
 // api/simulate-payment.js - Bảng điều khiển giả lập Webhook Sandbox (Dành cho nhóm báo cáo & test)
 const DB = require('../lib/db');
-const sepayWebhookHandler = require('./sepay-webhook');
+const { processTransaction } = require('./sepay-webhook');
+
+// Sandbox giả lập chuyển khoản: chỉ bật khi chạy local hoặc đặt ALLOW_SIMULATE=1.
+// Trên môi trường thật (NODE_ENV=production) bị tắt để không ai tự "thanh toán" đơn;
+// giao diện khi đó tự chuyển sang mô phỏng phía trình duyệt (Pay.simulateLocal).
+function simulateEnabled() {
+  return process.env.ALLOW_SIMULATE === '1' || process.env.NODE_ENV !== 'production';
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+  if (!simulateEnabled()) {
+    return res.status(403).json({ error: 'Sandbox giả lập thanh toán đã tắt trên môi trường thật' });
   }
 
   try {
@@ -140,7 +150,7 @@ module.exports = async function handler(req, res) {
       }
     };
 
-    await sepayWebhookHandler(fakeWebhookReq, fakeWebhookRes);
+    await processTransaction(fakeWebhookReq, fakeWebhookRes);
 
     return res.status(statusCode).json({
       ok: true,

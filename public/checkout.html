@@ -215,6 +215,7 @@
       }
     }
   </style>
+  <script src="js/store.js"></script>
   <script src="js/layout.js"></script>
   <script>Layout.requireLogin();</script>
 </head>
@@ -639,7 +640,7 @@
         return;
       }
 
-      const finalTotal = calcTotal();
+      let finalTotal = calcTotal();
       const seatArray = selectedSeatsStr.split(',').map(s => s.trim()).filter(Boolean);
       const combosPayload = {};
       for (let k in COMBOS) {
@@ -684,6 +685,8 @@
           });
           if (o && o.code) {
             finalOrderCode = o.code;
+            // Số tiền chính thức do server tính lại
+            if (Number(o.total) > 0) finalTotal = Number(o.total);
           }
         } catch (apiErr) {
           console.warn('[Checkout] API tạo đơn lỗi, dùng mã local:', apiErr.message);

@@ -1,14 +1,40 @@
 // api/sepay-webhook.js - Xử lý Webhook SePay VietQR (Tự động hóa 3 tình huống lỗi thanh toán)
 const DB = require('../lib/db');
 
-module.exports = async function handler(req, res) {
+// Xác thực webhook: SePay gửi header "Authorization: Apikey <API_KEY>" khi cấu hình
+// webhook với API Key. Đặt SEPAY_API_KEY trong biến môi trường để bật kiểm tra.
+function isAuthorized(req) {
+  const key = process.env.SEPAY_API_KEY;
+  if (!key) return true; // chưa cấu hình key (chạy local / demo)
+  const header = String((req.headers && (req.headers.authorization || req.headers.Authorization)) || '');
+  const m = header.match(/^Apikey\s+(.+)$/i);
+  if (!m) return false;
+  const a = Buffer.from(m[1].trim());
+  const b = Buffer.from(key);
+  return a.length === b.length && require('crypto').timingSafeEqual(a, b);
+}
+
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
+  if (!isAuthorized(req)) {
+    console.warn('[SePay Webhook] Từ chối request không có / sai API key');
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+  return processTransaction(req, res);
+}
 
+// Lõi xử lý giao dịch (simulate-payment gọi trực tiếp, không qua kiểm tra key)
+async function processTransaction(req, res) {
   try {
     const body = req.body || {};
     console.log('[SePay Webhook Received]:', JSON.stringify(body));
+
+    // Chỉ xử lý tiền VÀO tài khoản; giao dịch tiền ra / số tiền không hợp lệ thì bỏ qua
+    if (String(body.transferType || 'in').toLowerCase() !== 'in' || !(Number(body.transferAmount || body.amount) > 0)) {
+      return res.status(200).json({ success: true, result: 'IGNORED', message: 'Bỏ qua giao dịch không phải tiền vào' });
+    }
 
     const transferAmount = Number(body.transferAmount || body.amount || 0);
     const referenceCode = body.referenceCode || body.reference_code || ('FT' + Date.now());
@@ -23,19 +49,8 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // Fallback thông minh: Nếu không tìm thấy mã BC... trong nội dung (ví dụ khách quên gõ mã hoặc test mặc định của SePay)
-    if (!orderCode) {
-      try {
-        const recentOrders = await DB.getOrders({ limit: 5 });
-        const pendingOrder = (recentOrders || []).find(o => o.status === 'HOLDING' || o.status === 'PARTIAL');
-        if (pendingOrder) {
-          orderCode = pendingOrder.code;
-          console.log('[SePay Webhook Fallback]: Tự động ghép giao dịch vào đơn đang chờ:', orderCode);
-        }
-      } catch (err) {
-        console.warn('[SePay Webhook Fallback Error]:', err.message);
-      }
-    }
+    // Không tìm thấy mã đơn trong nội dung -> KHÔNG tự ghép vào đơn khác (tránh cấp vé nhầm);
+    // giao dịch được lưu UNMATCHED để nhân viên đối soát thủ công.
 
     // 2. Chống xử lý trùng giao dịch (Idempotency)
     const existingTx = await DB.findBankTransaction(referenceCode, null);
@@ -59,22 +74,16 @@ module.exports = async function handler(req, res) {
     // 4. Tìm đơn hàng tương ứng trong CSDL (Nếu chưa có thì tự động tạo để cứu vé cho khách)
     let order = await DB.getOrderByCode(orderCode);
     if (!order) {
-      console.log('[SePay Webhook] Tự động tạo đơn dự phòng để ghi nhận giao dịch:', orderCode);
-      try {
-        order = await DB.createOrder({
-          code: orderCode,
-          movie_key: 'linh-gioi-dai-chien',
-          cinema: 'Beta Thanh Xuân (Hà Nội)',
-          show_date: 'Hôm nay',
-          show_time: '18:30',
-          seats: ['F07', 'F08'],
-          total: transferAmount > 0 ? transferAmount : 179000,
-          status: 'HOLDING',
-          paid_amount: 0
-        });
-      } catch (createErr) {
-        console.warn('[SePay Webhook Auto-create Error]:', createErr.message);
-      }
+      // Có mã nhưng không có đơn tương ứng -> lưu để đối soát, không tự tạo đơn
+      await DB.saveBankTransaction({
+        ...body,
+        code: orderCode,
+        reference_code: referenceCode,
+        amount: transferAmount,
+        result: 'UNMATCHED',
+        note: 'Không tìm thấy đơn hàng ' + orderCode
+      });
+      return res.status(200).json({ success: true, result: 'UNMATCHED', message: 'Không tìm thấy đơn hàng', code: orderCode });
     }
 
     const orderTotal = Number(order.total || 0);
@@ -201,4 +210,7 @@ module.exports = async function handler(req, res) {
     console.error('[SePay Webhook Error]:', error);
     return res.status(500).json({ error: error.message || 'Lỗi xử lý webhook' });
   }
-};
+}
+
+module.exports = handler;
+module.exports.processTransaction = processTransaction;

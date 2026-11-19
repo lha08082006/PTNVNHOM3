@@ -1,5 +1,6 @@
 // api/create-order.js
 const DB = require('../lib/db');
+const { priceOrder } = require('../lib/pricing');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,8 +9,10 @@ module.exports = async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    if (!body.total || body.total <= 0) {
-      return res.status(400).json({ error: 'Số tiền đơn hàng không hợp lệ' });
+    // Server tự tính tiền từ ghế + combo; không dùng thẳng số tiền trình duyệt gửi
+    const price = priceOrder({ seats: body.seats, combos: body.combos, total: body.total });
+    if (!price.ok) {
+      return res.status(400).json({ error: price.error });
     }
 
     const order = await DB.createOrder({
@@ -17,11 +20,11 @@ module.exports = async function handler(req, res) {
       cinema: body.cinema,
       show_date: body.show_date,
       show_time: body.show_time,
-      seats: body.seats || [],
+      seats: price.seats,
       combos: body.combos || {},
-      voucher: body.voucher || null,
-      total: body.total,
-      phone: body.phone || '0987654321'
+      voucher: price.discount > 0 ? (body.voucher || null) : null,
+      total: price.total,
+      phone: body.phone || null
     });
 
     return res.status(200).json({

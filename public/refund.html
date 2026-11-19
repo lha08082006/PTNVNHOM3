@@ -158,6 +158,7 @@
       }
     }
   </style>
+  <script src="js/store.js"></script>
   <script src="js/layout.js"></script>
 </head>
 <body>
@@ -472,10 +473,10 @@
 
       // Lưu hồ sơ hoàn tiền vào localStorage để account.html đọc
       try {
-        let reported = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+        let reported = JSON.parse(Store.getRaw('reported_refund_orders') || '[]');
         if (!reported.includes(orderParam)) {
           reported.push(orderParam);
-          localStorage.setItem('reported_refund_orders', JSON.stringify(reported));
+          Store.setRaw('reported_refund_orders', JSON.stringify(reported));
         }
 
         const refundDetail = {
@@ -495,7 +496,7 @@
           status: 'RECONCILING',
           created_at: new Date().toISOString()
         };
-        localStorage.setItem('refund_detail_' + orderParam, JSON.stringify(refundDetail));
+        Store.setRaw('refund_detail_' + orderParam, JSON.stringify(refundDetail));
       } catch (e) {}
 
       // CHUYỂN HƯỚNG SANG GIAO DIỆN THÀNH VIÊN (account.html) MỞ CHI TIẾT ĐƠN HÀNG

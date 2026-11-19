@@ -20,7 +20,7 @@ async function startServer() {
   const port = await freePort();
   const proc = spawn(process.execPath, ['server.js'], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(port), MOCK_DB: '1' },
+    env: { ...process.env, PORT: String(port), MOCK_DB: '1', SEPAY_API_KEY: 'test-webhook-key', NODE_ENV: 'test' },
     stdio: ['ignore', 'pipe', 'pipe']
   });
   await new Promise((resolve, reject) => {

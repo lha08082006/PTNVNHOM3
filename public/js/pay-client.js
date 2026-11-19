@@ -116,9 +116,9 @@ const Pay = {
 
   // Bộ nhớ đệm LocalStorage lưu trữ trạng thái đơn hàng (đặc biệt khi mở qua Live Server)
   getLocalOrder(code) {
-    if (typeof localStorage === 'undefined' || !code) return null;
+    if (typeof Store === 'undefined' || !code) return null;
     try {
-      const raw = localStorage.getItem('BETA_ORDER_' + code);
+      const raw = Store.getRaw('BETA_ORDER_' + code);
       return raw ? JSON.parse(raw) : null;
     } catch (e) {
       return null;
@@ -126,12 +126,12 @@ const Pay = {
   },
 
   saveLocalOrder(ord) {
-    if (typeof localStorage === 'undefined' || !ord || !ord.code) return;
+    if (typeof Store === 'undefined' || !ord || !ord.code) return;
     try {
       const prev = Pay.getLocalOrder(ord.code) || {};
       ord = Object.assign({}, prev, ord);
       if (!ord.created_at) ord.created_at = new Date().toISOString();
-      localStorage.setItem('BETA_ORDER_' + ord.code, JSON.stringify(ord));
+      Store.setRaw('BETA_ORDER_' + ord.code, JSON.stringify(ord));
     } catch (e) {}
   },
 
@@ -227,16 +227,11 @@ const Pay = {
   // Toàn bộ đơn đã lưu trên trình duyệt: { code: order }
   getLocalOrders() {
     const out = {};
-    if (typeof localStorage === 'undefined') return out;
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.indexOf('BETA_ORDER_') === 0) {
-          const o = JSON.parse(localStorage.getItem(k));
-          if (o && o.code) out[o.code] = o;
-        }
-      }
-    } catch (e) {}
+    if (typeof Store === 'undefined') return out;
+    Store.keys('BETA_ORDER_').forEach(k => {
+      const o = Store.get(k, null);
+      if (o && o.code) out[o.code] = o;
+    });
     return out;
   },
 
@@ -332,30 +327,26 @@ const Pay = {
   // status: RECONCILING (đang đối soát) -> FALLBACK_STAFF (nhân viên xử lý) -> DONE (đã hoàn)
   getRefundRequests() {
     const out = [];
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.indexOf('refund_detail_') === 0) {
-          const r = JSON.parse(localStorage.getItem(k));
-          if (r && r.order) out.push(Object.assign({ status: 'RECONCILING' }, r));
-        }
-      }
-    } catch (e) {}
+    if (typeof Store === 'undefined') return out;
+    Store.keys('refund_detail_').forEach(k => {
+      const r = Store.get(k, null);
+      if (r && r.order) out.push(Object.assign({ status: 'RECONCILING' }, r));
+    });
     return out.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
   },
 
   updateRefund(order, fields) {
     const key = 'refund_detail_' + order;
     let r = {};
-    try { r = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) {}
+    try { r = JSON.parse(Store.getRaw(key) || '{}'); } catch (e) {}
     Object.assign(r, fields, { updated_at: new Date().toISOString() });
-    try { localStorage.setItem(key, JSON.stringify(r)); } catch (e) {}
+    try { Store.setRaw(key, JSON.stringify(r)); } catch (e) {}
     // Hoàn tất -> đơn chuyển sang ĐÃ HOÀN TIỀN
     if (fields.status === 'DONE') {
       Pay.saveLocalOrder(Object.assign({}, Pay.getLocalOrder(order) || { code: order }, { status: 'REFUNDED' }));
       try {
-        const list = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]').filter(c => c !== order);
-        localStorage.setItem('reported_refund_orders', JSON.stringify(list));
+        const list = JSON.parse(Store.getRaw('reported_refund_orders') || '[]').filter(c => c !== order);
+        Store.setRaw('reported_refund_orders', JSON.stringify(list));
       } catch (e) {}
     }
     return r;
@@ -762,11 +753,11 @@ const Pay = {
 
   // Mã do trang quản trị tạo thêm (lưu trình duyệt)
   customVouchers() {
-    try { return JSON.parse(localStorage.getItem('BETA_CUSTOM_VOUCHERS') || '[]'); } catch (e) { return []; }
+    try { return JSON.parse(Store.getRaw('BETA_CUSTOM_VOUCHERS') || '[]'); } catch (e) { return []; }
   },
 
   saveCustomVouchers(list) {
-    try { localStorage.setItem('BETA_CUSTOM_VOUCHERS', JSON.stringify(list)); } catch (e) {}
+    try { Store.setRaw('BETA_CUSTOM_VOUCHERS', JSON.stringify(list)); } catch (e) {}
   },
 
   allVouchers() {
@@ -784,7 +775,7 @@ const Pay = {
   },
 
   usedVouchers() {
-    try { return JSON.parse(localStorage.getItem(Pay._usedKey()) || '[]'); } catch (e) { return []; }
+    try { return JSON.parse(Store.getRaw(Pay._usedKey()) || '[]'); } catch (e) { return []; }
   },
 
   markVoucherUsed(code) {
@@ -792,7 +783,7 @@ const Pay = {
     if (!v || !v.oncePerUser) return;
     const list = Pay.usedVouchers();
     if (list.indexOf(v.code) < 0) list.push(v.code);
-    try { localStorage.setItem(Pay._usedKey(), JSON.stringify(list)); } catch (e) {}
+    try { Store.setRaw(Pay._usedKey(), JSON.stringify(list)); } catch (e) {}
   },
 
   /**
@@ -822,11 +813,11 @@ const Pay = {
   // PHIẾU HỖ TRỢ / KHIẾU NẠI (support.html tạo, admin.html xử lý)
   // =========================================================================
   getTickets() {
-    try { return JSON.parse(localStorage.getItem('BETA_SUPPORT_TICKETS') || '[]'); } catch (e) { return []; }
+    try { return JSON.parse(Store.getRaw('BETA_SUPPORT_TICKETS') || '[]'); } catch (e) { return []; }
   },
 
   saveTickets(list) {
-    try { localStorage.setItem('BETA_SUPPORT_TICKETS', JSON.stringify(list)); } catch (e) {}
+    try { Store.setRaw('BETA_SUPPORT_TICKETS', JSON.stringify(list)); } catch (e) {}
   },
 
   createTicket(data) {
@@ -944,7 +935,7 @@ const Pay = {
   getOrderView(code) {
     const p = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
     let last = null;
-    try { last = localStorage.getItem('last_active_order'); } catch (e) {}
+    try { last = Store.getRaw('last_active_order'); } catch (e) {}
     code = code || p.get('order') || last || 'BC2610279854';
 
     const fromOrder = (ord) => {

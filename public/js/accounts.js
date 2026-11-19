@@ -21,14 +21,14 @@
 
   function load() {
     let list = [];
-    try { list = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
+    try { list = JSON.parse(Store.getRaw(KEY) || '[]'); } catch (e) {}
     if (!list.some(a => a.email === ADMIN.email)) list.unshift(Object.assign({}, ADMIN));
     if (!list.some(a => a.email === DEMO.email)) list.unshift(Object.assign({}, DEMO));
     return list;
   }
 
   function save(list) {
-    try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {}
+    try { Store.setRaw(KEY, JSON.stringify(list)); } catch (e) {}
   }
 
   async function sha256(text) {

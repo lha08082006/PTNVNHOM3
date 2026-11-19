@@ -477,3 +477,52 @@ describe('Chất lượng', () => {
     assert.deepEqual(broken, []);
   });
 });
+
+describe('Bảo mật API', () => {
+  const post = (path, body, headers = {}) => fetch(B + path, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body)
+  });
+
+  test('server tự tính tiền, không tin số tiền gửi lên', async () => {
+    // Gửi tổng 1.000đ cho 2 ghế VIP + 1 combo (giá thật 189.000đ) -> chỉ được giảm tối đa 50%
+    let o = await (await post('api/create-order', { seats: ['F1', 'F2'], combos: { couple: 1 }, total: 1000, phone: '0900000001' })).json();
+    assert.equal(o.total, 189000 - Math.floor(189000 * 0.5));
+    // Không gửi tổng -> giá gốc
+    o = await (await post('api/create-order', { seats: ['A1', 'H1-H2'], combos: {}, phone: '0900000001' })).json();
+    assert.equal(o.total, 145000);
+    // Ghế sai mã / combo lạ bị từ chối
+    assert.equal((await post('api/create-order', { seats: ['Z99'], total: 45000 })).status, 400);
+    assert.equal((await post('api/create-order', { seats: ['A1'], combos: { free: 9 } })).status, 400);
+  });
+
+  test('webhook SePay bắt buộc API key và không tự ghép / tự tạo đơn', async () => {
+    const o = await (await post('api/create-order', { seats: ['B1'], phone: '0900000002' })).json();
+    const tx = { id: Date.now(), transferType: 'in', transferAmount: 45000, content: o.code + ' thanh toan', referenceCode: 'FT' + Date.now() };
+
+    assert.equal((await post('api/sepay-webhook', tx)).status, 401);
+    assert.equal((await post('api/sepay-webhook', tx, { Authorization: 'Apikey sai-key' })).status, 401);
+
+    const auth = { Authorization: 'Apikey test-webhook-key' };
+    const ok = await (await post('api/sepay-webhook', tx, auth)).json();
+    assert.equal(ok.result, 'OK');
+    assert.equal((await (await fetch(B + 'api/order-status?code=' + o.code)).json()).status, 'PAID');
+
+    const out = await (await post('api/sepay-webhook', { ...tx, id: 1, transferType: 'out', referenceCode: 'FT-OUT-' + Date.now() }, auth)).json();
+    assert.equal(out.result, 'IGNORED');
+
+    const ghost = await (await post('api/sepay-webhook', { ...tx, id: 2, content: 'BC1234567890', referenceCode: 'FT-G-' + Date.now() }, auth)).json();
+    assert.equal(ghost.result, 'UNMATCHED');
+    assert.equal((await fetch(B + 'api/order-status?code=BC1234567890')).status, 404);
+
+    const noCode = await (await post('api/sepay-webhook', { ...tx, id: 3, content: 'chuyen tien', referenceCode: 'FT-N-' + Date.now() }, auth)).json();
+    assert.equal(noCode.result, 'UNMATCHED');
+  });
+
+  test('danh sách đơn bắt buộc lọc theo số điện thoại', async () => {
+    const all = await (await fetch(B + 'api/orders')).json();
+    assert.deepEqual(all.orders, []);
+    const mine = await (await fetch(B + 'api/orders?phone=0900000002')).json();
+    assert.ok(mine.orders.length >= 1);
+    assert.ok(mine.orders.every(x => x.phone === '0900000002'));
+  });
+});

@@ -379,6 +379,7 @@
     }
 
   </style>
+  <script src="js/store.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/pay-client.js"></script>
   <script src="js/accounts.js"></script>
@@ -1320,7 +1321,7 @@
     function getRefundOrdersList() {
       let list = ['BC2610227189']; // Đơn hàng 5 mặc định
       try {
-        const stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+        const stored = JSON.parse(Store.getRaw('reported_refund_orders') || '[]');
         if (Array.isArray(stored)) {
           // Loại trừ BC2610208819 vì đơn này đã hoàn tiền thành công 100%
           stored.forEach(c => { if (!list.includes(c) && c !== 'BC2610208819') list.push(c); });
@@ -1337,10 +1338,10 @@
     function markOrderAsRefunding(orderCode) {
       if (!orderCode) return;
       try {
-        let stored = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+        let stored = JSON.parse(Store.getRaw('reported_refund_orders') || '[]');
         if (!stored.includes(orderCode)) {
           stored.push(orderCode);
-          localStorage.setItem('reported_refund_orders', JSON.stringify(stored));
+          Store.setRaw('reported_refund_orders', JSON.stringify(stored));
         }
       } catch (e) {}
       applyRefundStatusToCard(orderCode);
@@ -1624,7 +1625,7 @@
 
           // Kiểm tra xem Lớp 2 có đang chạy hay đã hoàn thành
           const modalL2Banner = document.getElementById('modal-layer2-banner');
-          const outcome = localStorage.getItem('layer2_outcome_' + data.code);
+          const outcome = Store.getRaw('layer2_outcome_' + data.code);
           if (modalL2Banner) {
             if (outcome === 'PAID' || outcome === 'EXPIRED') {
               modalL2Banner.style.display = 'none';
@@ -1890,7 +1891,7 @@
 
   function getRefundDetail(ordCode) {
     try {
-      const s = localStorage.getItem('refund_detail_' + ordCode);
+      const s = Store.getRaw('refund_detail_' + ordCode);
       if (s) return JSON.parse(s);
     } catch (e) {}
     return null;
@@ -1902,7 +1903,7 @@
     if (layer2Timers[ordCode]) {
       clearInterval(layer2Timers[ordCode]);
     }
-    localStorage.setItem('layer2_outcome_' + ordCode, 'PAID');
+    Store.setRaw('layer2_outcome_' + ordCode, 'PAID');
 
     alert('🎉 [RÀ SOÁT LỚP 2 THÀNH CÔNG]\n\nĐã nhận được tiền từ ngân hàng cho đơn hàng ' + ordCode + '!\nGhế vẫn còn hiệu lực trong thời gian giữ vé.\n\n→ Vé xem phim E-Ticket đã được xuất thành công!\n→ Yêu cầu hoàn tiền đã tự động được hủy.');
 
@@ -1969,7 +1970,7 @@
     if (layer2Timers[ordCode]) {
       clearInterval(layer2Timers[ordCode]);
     }
-    localStorage.setItem('layer2_outcome_' + ordCode, 'EXPIRED');
+    Store.setRaw('layer2_outcome_' + ordCode, 'EXPIRED');
 
     alert('⏱️ [HẾT THỜI GIAN GIỮ GHẾ - LỚP 2 KẾT THÚC]\n\nĐã hết thời gian giữ ghế mà chưa nhận được tiền từ ngân hàng.\n\n→ Hệ thống đã tự động NHẢ GHẾ để mở bán lại cho khán giả khác.\n→ KÍCH HOẠT CƠ CHẾ HOÀN TIỀN TỰ ĐỘNG:\n  1. Cấp 1 (Tự động trong 24h): Hệ thống tự động phát lệnh hoàn tiền về tài khoản ngân hàng của bạn mà không cần nhân viên can thiệp.\n  2. Cấp 2 (Dự phòng): Nếu sau 24h hệ thống không thể chuyển trả, hồ sơ sẽ tự động chuyển giao sang Nhân viên Kế toán xử lý thủ công (3 - 7 ngày).');
 
@@ -2053,7 +2054,7 @@
     if (!ordCode) return;
     if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
 
-    let sec = parseInt(localStorage.getItem('autorefund_sec_' + ordCode) || '86340', 10);
+    let sec = parseInt(Store.getRaw('autorefund_sec_' + ordCode) || '86340', 10);
     const timerEl = document.getElementById('auto-refund-timer-val');
     const cardTimerEl = document.getElementById('autorefund-timer-' + ordCode);
 
@@ -2061,7 +2062,7 @@
     if (cardTimerEl) cardTimerEl.textContent = formatTimeHMS(sec);
 
     autoRefundTimers[ordCode] = setInterval(() => {
-      const state = localStorage.getItem('autorefund_state_' + ordCode);
+      const state = Store.getRaw('autorefund_state_' + ordCode);
       if (state) {
         clearInterval(autoRefundTimers[ordCode]);
         return;
@@ -2072,7 +2073,7 @@
         triggerAutoRefundFallback(ordCode, true);
         return;
       }
-      localStorage.setItem('autorefund_sec_' + ordCode, sec);
+      Store.setRaw('autorefund_sec_' + ordCode, sec);
       const curTimerEl = document.getElementById('auto-refund-timer-val');
       const curCardTimerEl = document.getElementById('autorefund-timer-' + ordCode);
       if (curTimerEl) curTimerEl.textContent = formatTimeHMS(sec);
@@ -2082,7 +2083,7 @@
 
   function updateAutoRefundUI(ordCode) {
     if (!ordCode) return;
-    const state = localStorage.getItem('autorefund_state_' + ordCode);
+    const state = Store.getRaw('autorefund_state_' + ordCode);
     const det = getRefundDetail(ordCode);
     const bank = det ? det.bank : 'MB Bank';
     const acc = det ? det.acc : '0987654321';
@@ -2385,7 +2386,7 @@
   function triggerAutoRefundSuccess(ordCode) {
     if (!ordCode) return;
     if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
-    localStorage.setItem('autorefund_state_' + ordCode, 'SUCCESS');
+    Store.setRaw('autorefund_state_' + ordCode, 'SUCCESS');
 
     const det = getRefundDetail(ordCode);
     const bank = det ? det.bank : 'MB Bank';
@@ -2402,7 +2403,7 @@
   function triggerAutoRefundFallback(ordCode, isAutoTimeout) {
     if (!ordCode) return;
     if (autoRefundTimers[ordCode]) clearInterval(autoRefundTimers[ordCode]);
-    localStorage.setItem('autorefund_state_' + ordCode, 'FALLBACK_STAFF');
+    Store.setRaw('autorefund_state_' + ordCode, 'FALLBACK_STAFF');
 
     const det = getRefundDetail(ordCode);
     const bank = det ? det.bank : 'MB Bank';
@@ -2421,8 +2422,8 @@
   // Reset về trạng thái tự động ban đầu
   function resetAutoRefundStatus(ordCode) {
     if (!ordCode) return;
-    localStorage.removeItem('autorefund_state_' + ordCode);
-    localStorage.setItem('autorefund_sec_' + ordCode, '86340');
+    Store.remove('autorefund_state_' + ordCode);
+    Store.setRaw('autorefund_sec_' + ordCode, '86340');
     alert('🔄 Đã đặt lại trạng thái: Hệ thống đang tự động hoàn tiền trong 24h (Kịch bản ban đầu).');
     updateAutoRefundUI(ordCode);
     startAutoRefundCountdown(ordCode);
@@ -2442,14 +2443,14 @@
 
     layer2Timers[ordCode] = setInterval(() => {
       // Nếu đã có kết quả 2A hoặc 2B thì hủy đếm
-      const outcome = localStorage.getItem('layer2_outcome_' + ordCode);
+      const outcome = Store.getRaw('layer2_outcome_' + ordCode);
       if (outcome) {
         clearInterval(layer2Timers[ordCode]);
         return;
       }
 
       secLeft--;
-      localStorage.setItem('hold_sec_' + ordCode, secLeft);
+      Store.setRaw('hold_sec_' + ordCode, secLeft);
 
       const curTimerEl = document.getElementById(`layer2-timer-${ordCode}`);
       const curModalTimerEl = document.getElementById('modal-layer2-timer');
@@ -2486,7 +2487,7 @@
     const totalFormatted = (window.Pay ? Pay.vnd(total) : total.toLocaleString('vi-VN') + ' đ');
 
     // Kiểm tra kết quả trước đó của Lớp 2 nếu có
-    const outcome = localStorage.getItem('layer2_outcome_' + ordCode);
+    const outcome = Store.getRaw('layer2_outcome_' + ordCode);
 
     // Cập nhật vào danh sách hoàn tiền
     markOrderAsRefunding(ordCode);
@@ -2675,7 +2676,7 @@
 
       // Kích hoạt đồng hồ đếm ngược Lớp 2 nếu đang chạy
       if (!outcome) {
-        const holdSec = parseInt(det.hold_time || localStorage.getItem('hold_sec_' + ordCode) || '420', 10);
+        const holdSec = parseInt(det.hold_time || Store.getRaw('hold_sec_' + ordCode) || '420', 10);
         startLayer2Countdown(ordCode, holdSec);
       }
     } else if (card) {
@@ -2774,28 +2775,28 @@
 
     // Dọn dẹp BC2610208819 khỏi danh sách đang xử lý hoàn tiền nếu có
     try {
-      let storedList = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+      let storedList = JSON.parse(Store.getRaw('reported_refund_orders') || '[]');
       if (storedList.includes('BC2610208819')) {
         storedList = storedList.filter(c => c !== 'BC2610208819');
-        localStorage.setItem('reported_refund_orders', JSON.stringify(storedList));
+        Store.setRaw('reported_refund_orders', JSON.stringify(storedList));
       }
     } catch(e) {}
 
     // Dọn dẹp BC2610208819 khỏi danh sách đang xử lý hoàn tiền nếu có
     try {
-      let storedList = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+      let storedList = JSON.parse(Store.getRaw('reported_refund_orders') || '[]');
       if (storedList.includes('BC2610208819')) {
         storedList = storedList.filter(c => c !== 'BC2610208819');
-        localStorage.setItem('reported_refund_orders', JSON.stringify(storedList));
+        Store.setRaw('reported_refund_orders', JSON.stringify(storedList));
       }
     } catch(e) {}
 
     // Khởi tạo các đơn hoàn tiền từ localStorage
     try {
-      const savedRefunds = JSON.parse(localStorage.getItem('reported_refund_orders') || '[]');
+      const savedRefunds = JSON.parse(Store.getRaw('reported_refund_orders') || '[]');
       savedRefunds.forEach(code => {
         try {
-          const detailStr = localStorage.getItem('refund_detail_' + code);
+          const detailStr = Store.getRaw('refund_detail_' + code);
           if (detailStr) {
             registerRefundOrderToUI(JSON.parse(detailStr));
           }
@@ -2807,7 +2808,7 @@
     if (targetOrder) {
       let det = null;
       try {
-        const detailStr = localStorage.getItem('refund_detail_' + targetOrder);
+        const detailStr = Store.getRaw('refund_detail_' + targetOrder);
         if (detailStr) det = JSON.parse(detailStr);
       } catch (e) {}
 
