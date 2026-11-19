@@ -272,6 +272,22 @@
         width: 52px;
       }
     }
+
+    /* Điện thoại: sơ đồ vừa khung (thấy cả chữ hàng ghế), thanh tóm tắt gọn để không che ghế */
+    @media (max-width: 420px) {
+      .seat-plan-scroll { padding: 16px 4px !important; }
+      .r { gap: 4px !important; }
+      .r i { width: 22px; height: 22px; font-size: 8.5px; border-radius: 5px 5px 2px 2px; }
+      .r.d i { width: 48px; }
+      .r u { width: 14px !important; min-width: 14px !important; font-size: 11px !important; }
+      .seat-summary-bar { padding: 10px 12px !important; gap: 8px !important; bottom: 8px !important; }
+      .seat-summary-bar > div { width: 100%; }
+      .seat-summary-bar p { font-size: 13px !important; margin: 0 !important; }
+      .seat-summary-bar #checkout-movie-title { font-size: 13.5px !important; }
+      .seat-summary-bar #checkout-total-price { font-size: 15px !important; }
+      .seat-summary-bar #checkout-meta-detail, .seat-summary-bar .seat-hold-hint { display: none; }
+      .seat-summary-bar #btn-next-checkout { width: 100%; min-height: 42px !important; justify-content: center; }
+    }
   </style>
 </head>
 <body>
@@ -280,7 +296,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -376,8 +392,8 @@
         <u>B</u>
         <i data-id="B1" data-type="standard" data-price="45000">1</i>
         <i data-id="B2" data-type="standard" data-price="45000">2</i>
-        <i data-id="B3" data-type="standard" data-price="45000">✕</i>
-        <i data-id="B4" data-type="standard" data-price="45000">✕</i>
+        <i data-id="B3" data-type="standard" data-price="45000">3</i>
+        <i data-id="B4" data-type="standard" data-price="45000">4</i>
         <i data-id="B5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="B6" data-type="standard" data-price="45000">6</i>
@@ -398,7 +414,7 @@
         <i data-id="C5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="C6" data-type="standard" data-price="45000">6</i>
-        <i data-id="C7" data-type="standard" data-price="45000">✕</i>
+        <i data-id="C7" data-type="standard" data-price="45000">7</i>
         <i data-id="C8" data-type="standard" data-price="45000">8</i>
         <i data-id="C9" data-type="standard" data-price="45000">9</i>
         <i data-id="C10" data-type="standard" data-price="45000">10</i>
@@ -425,14 +441,14 @@
       <!-- Hàng E (Standard - E1 đang giữ, E7 khóa) -->
       <div class="r" data-row="E">
         <u>E</u>
-        <i data-id="E1" data-type="standard" data-price="45000">⏳</i>
+        <i data-id="E1" data-type="standard" data-price="45000">1</i>
         <i data-id="E2" data-type="standard" data-price="45000">2</i>
         <i data-id="E3" data-type="standard" data-price="45000">3</i>
         <i data-id="E4" data-type="standard" data-price="45000">4</i>
         <i data-id="E5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
         <i data-id="E6" data-type="standard" data-price="45000">6</i>
-        <i data-id="E7" data-type="standard" data-price="45000">⛔</i>
+        <i data-id="E7" data-type="standard" data-price="45000">7</i>
         <i data-id="E8" data-type="standard" data-price="45000">8</i>
         <i data-id="E9" data-type="standard" data-price="45000">9</i>
         <i data-id="E10" data-type="standard" data-price="45000">10</i>
@@ -450,8 +466,8 @@
         <b style="width: 24px;"></b>
         <i data-id="F6" data-type="vip" data-price="50000">6</i>
         <i data-id="F7" data-type="vip" data-price="50000">7</i>
-        <i data-id="F8" data-type="vip" data-price="50000">✕</i>
-        <i data-id="F9" data-type="vip" data-price="50000">✕</i>
+        <i data-id="F8" data-type="vip" data-price="50000">8</i>
+        <i data-id="F9" data-type="vip" data-price="50000">9</i>
         <i data-id="F10" data-type="vip" data-price="50000">10</i>
         <u>F</u>
       </div>
@@ -479,7 +495,7 @@
         <i data-id="H1-H2" data-type="sweetbox" data-price="100000">H1-H2</i>
         <i data-id="H3-H4" data-type="sweetbox" data-price="100000">H3-H4</i>
         <b style="width: 24px;"></b>
-        <i data-id="H5-H6" data-type="sweetbox" data-price="100000">✕</i>
+        <i data-id="H5-H6" data-type="sweetbox" data-price="100000">H5-H6</i>
         <i data-id="H7-H8" data-type="sweetbox" data-price="100000">H7-H8</i>
         <u>H</u>
       </div>
@@ -513,13 +529,13 @@
     </div>
 
     <!-- Khối Tóm Tắt & Tiếp Tục Thanh Toán (Sticky Bottom Bar) -->
-    <div class="c" style="position: sticky; bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; z-index: 1000; box-shadow: 0 10px 30px rgba(0, 81, 152, 0.12); border: 1.5px solid #cbd5e1; background: #ffffff;">
+    <div class="c seat-summary-bar" style="position: sticky; bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; z-index: 1000; box-shadow: 0 10px 30px rgba(0, 81, 152, 0.12); border: 1.5px solid #cbd5e1; background: #ffffff;">
       <div>
         <p style="font-size: 15px; margin-bottom: 2px;">
           <b id="checkout-movie-title" style="color: var(--text-light); font-size: 16px;">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</b> · Ghế: <span id="checkout-selected-seats" aria-live="polite" style="color: var(--a); font-weight: 800;">D5, D6</span> · Tạm tính: <strong id="checkout-total-price" style="color: var(--status-warning); font-size: 18px;">90,000đ</strong>
         </p>
         <p class="m" id="checkout-meta-detail" style="font-size: 12.5px;">
-          Phòng 01 (Dolby Atmos) · 2 Vé thường
+          Vui lòng chọn ghế trên sơ đồ khán phòng
         </p>
       </div>
 
@@ -527,8 +543,8 @@
         <a id="btn-next-checkout" href="checkout.html" class="b" style="min-height: 46px; padding: 0 28px; border-radius: 8px; font-size: 15px; text-decoration: none; gap: 6px;">
           Tiếp tục thanh toán →
         </a>
-        <p class="m" style="font-size: 12px; margin-top: 4px; color: var(--text-muted);">
-          Bấm để giữ ghế trong 10 phút
+        <p class="m seat-hold-hint" style="font-size: 12px; margin-top: 4px; color: var(--text-muted);">
+          Ghế được giữ 10 phút khi bạn bấm thanh toán
         </p>
       </div>
     </div>
@@ -692,7 +708,7 @@
         totalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(total) + 'đ';
         
         const count = selectedSeats.length;
-        metaDisplay.textContent = 'Phòng 01 (Dolby Atmos) · ' + count + ' Ghế (' + new Intl.NumberFormat('vi-VN').format(total) + 'đ)';
+        metaDisplay.textContent = ((SHOWTIME && SHOWTIME.room) || 'Phòng chiếu') + ' · ' + count + ' Ghế (' + new Intl.NumberFormat('vi-VN').format(total) + 'đ)';
         btnNext.classList.remove('disabled');
 
         // Chuyển tiếp mượt mà sang bước 3: Chọn bắp nước (combo.html)
@@ -709,9 +725,9 @@
       const taken = await Pay.getTakenSeats(key);
       taken.forEach(t => {
         const el = document.querySelector('.r i[data-id="' + t.seat + '"]');
-        if (!el || el.classList.contains('x')) return;
+        if (!el || el.classList.contains('x') || el.classList.contains('h')) return;
         el.classList.remove('s');
-        el.classList.add('x');
+        el.classList.add(t.status === 'SOLD' ? 'x' : 'h');
         el.title = t.status === 'SOLD' ? 'Đã bán' : 'Đang có người giữ';
         const k = selectedSeats.findIndex(s => s.id === t.seat);
         if (k > -1) selectedSeats.splice(k, 1);

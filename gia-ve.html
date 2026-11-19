@@ -134,7 +134,7 @@
       };
       try {
         const [cn, st] = await Promise.all([Pay.catalog('cinemas'), Pay.catalog('showtimes', { days: 7 })]);
-        const shows = (st.showtimes || []).filter((s) => !s.late);
+        const shows = st.showtimes || [];
         const rows = (cn.cinemas || []).map((c) => {
           const list = shows.filter((s) => s.cinema_id === c.id);
           const p = (k) => list.map((s) => (s.prices || {})[k]);

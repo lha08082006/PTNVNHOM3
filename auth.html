@@ -153,7 +153,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="javascript:void(0)" onclick="switchToView('login')">Đăng nhập</a>
@@ -225,16 +225,13 @@
       <div style="display: flex; gap: 8px; align-items: flex-end;">
         <label class="form-field" style="flex: 1;">
           Mật khẩu
-          <input type="password" id="input-login-password" autocomplete="current-password" placeholder="••••••••">
+          <input type="password" id="input-login-password" autocomplete="current-password" placeholder="Nhập mật khẩu">
         </label>
         <button type="button" class="btn-o" style="padding: 0 16px;" onclick="togglePasswordVisibility('input-login-password', this)">Hiện</button>
       </div>
 
       <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 14px;">
-        <label style="display: flex; gap: 8px; align-items: center; cursor: pointer;">
-          <input type="checkbox" checked disabled>
-          Ghi nhớ đăng nhập 30 ngày
-        </label>
+        <span class="text-muted" style="font-size: 13px;">🔒 Thiết bị này được ghi nhớ đăng nhập 30 ngày</span>
         <a href="#forgot" onclick="event.preventDefault(); switchToView('forgot')" style="color: var(--accent-gold);">Quên mật khẩu?</a>
       </div>
 
@@ -262,7 +259,7 @@
 
       <label class="form-field">
         Số điện thoại
-        <input type="tel" id="reg-phone" autocomplete="tel" placeholder="09xxxxxxxx">
+        <input type="tel" id="reg-phone" autocomplete="tel" inputmode="numeric" maxlength="11" placeholder="09xxxxxxxx">
       </label>
 
       <label class="form-field">
@@ -272,18 +269,21 @@
 
       <label class="form-field">
         Ngày sinh
-        <input type="date" id="reg-birthday">
+        <input type="date" id="reg-birthday" min="1920-01-01">
         <span style="font-weight: 400; font-size: 12px; color: var(--text-muted);">Dùng để đối chiếu độ tuổi xem phim</span>
       </label>
 
-      <label class="form-field">
-        Mật khẩu (ít nhất 8 ký tự)
-        <input type="password" id="reg-password" autocomplete="new-password" placeholder="••••••••">
-      </label>
+      <div style="display: flex; gap: 8px; align-items: flex-end;">
+        <label class="form-field" style="flex: 1;">
+          Mật khẩu (ít nhất 8 ký tự)
+          <input type="password" id="reg-password" autocomplete="new-password" placeholder="Tạo mật khẩu" minlength="8">
+        </label>
+        <button type="button" class="btn-o" style="padding: 0 16px;" onclick="togglePasswordVisibility('reg-password', this); togglePasswordVisibility('reg-password2', null)">Hiện</button>
+      </div>
 
       <label class="form-field">
         Xác nhận mật khẩu
-        <input type="password" id="reg-password2" autocomplete="new-password" placeholder="••••••••">
+        <input type="password" id="reg-password2" autocomplete="new-password" placeholder="Nhập lại mật khẩu">
       </label>
 
       <label style="display: flex; gap: 8px; font-size: 13px; align-items: flex-start; cursor: pointer; color: var(--text-muted);">
@@ -313,11 +313,11 @@
       <div id="fg-step2" style="display: none; flex-direction: column; gap: 14px;">
         <label class="form-field">
           Mã 6 số trong email
-          <input type="text" id="fg-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••">
+          <input type="text" id="fg-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="Nhập 6 chữ số">
         </label>
         <label class="form-field">
           Mật khẩu mới (ít nhất 8 ký tự)
-          <input type="password" id="fg-pass" autocomplete="new-password">
+          <input type="password" id="fg-pass" autocomplete="new-password" placeholder="Tạo mật khẩu mới" minlength="8">
         </label>
         <button class="btn-b" type="button" id="btn-reset" onclick="resetPassword()">Đặt lại mật khẩu & đăng nhập</button>
       </div>
@@ -461,17 +461,17 @@
       const input = document.getElementById(inputId);
       if (input.type === 'password') {
         input.type = 'text';
-        btn.innerText = 'Ẩn';
+        if (btn) btn.innerText = 'Ẩn';
       } else {
         input.type = 'password';
-        btn.innerText = 'Hiện';
+        if (btn) btn.innerText = 'Hiện';
       }
     }
 
     function nextUrl() {
       const n = new URLSearchParams(location.search).get('next') || 'account.html';
       // Chỉ cho quay về trang nội bộ của site (chặn chuyển hướng sang trang lạ)
-      return /^[a-z0-9-]+.html([?#].*)?$/i.test(n) ? n : 'account.html';
+      return /^[a-z0-9-]+\.html([?#].*)?$/i.test(n) ? n : 'account.html';
     }
 
     function showError(id, msg) {
@@ -494,11 +494,18 @@
           await BetaAuth.login(val('input-login-id'), document.getElementById('input-login-password').value);
         } else {
           const pw = document.getElementById('reg-password').value;
+          const phone = val('reg-phone').replace(/[\s.-]/g, '');
+          const bday = val('reg-birthday');
+          if (val('reg-name').length < 2) return showError(errId, 'Vui lòng nhập họ tên.');
+          if (!/^0\d{9,10}$/.test(phone)) return showError(errId, 'Số điện thoại phải gồm 10–11 chữ số và bắt đầu bằng 0.');
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('reg-email'))) return showError(errId, 'Email chưa đúng định dạng (vd: ten@gmail.com).');
+          if (bday && bday > new Date().toISOString().slice(0, 10)) return showError(errId, 'Ngày sinh không hợp lệ.');
+          if (pw.length < 8) return showError(errId, 'Mật khẩu phải có ít nhất 8 ký tự.');
           if (pw !== document.getElementById('reg-password2').value) return showError(errId, 'Mật khẩu xác nhận không khớp.');
           if (!document.getElementById('reg-terms').checked) return showError(errId, 'Vui lòng đồng ý điều khoản sử dụng và chính sách bảo mật.');
           btn.disabled = true; btn.textContent = 'Đang tạo tài khoản...';
           await BetaAuth.register({
-            full_name: val('reg-name'), phone: val('reg-phone'), email: val('reg-email'),
+            full_name: val('reg-name'), phone, email: val('reg-email'),
             birthday: val('reg-birthday'), password: pw
           });
         }
@@ -511,9 +518,19 @@
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter') return;
-      if (document.getElementById('view-forgot').style.display !== 'none') return;
+      if (e.key !== 'Enter' || e.isComposing) return;
+      if (e.target && (e.target.tagName === 'A' || e.target.tagName === 'BUTTON')) return; // để nút/link tự xử lý
+      if (document.getElementById('view-forgot').style.display !== 'none') {
+        e.preventDefault();
+        const step2 = document.getElementById('fg-step2').style.display !== 'none';
+        const b = document.getElementById(step2 ? 'btn-reset' : 'btn-send-code');
+        if (!b.disabled) (step2 ? resetPassword : sendResetCode)();
+        return;
+      }
       const login = document.getElementById('view-login').style.display !== 'none';
+      const b = document.getElementById(login ? 'btn-login' : 'btn-register');
+      if (b.disabled) return;
+      e.preventDefault();
       handleAuthAction(login ? 'login' : 'register');
     });
     window.addEventListener('hashchange', () => switchToView(location.hash.slice(1) || 'login'));
@@ -529,12 +546,20 @@
         const r = await BetaAuth.call('forgot', { method: 'POST', body: { email: document.getElementById('fg-email').value.trim() } });
         forgotMsg(r.message + (r.dev_code ? ' (Chạy thử: mã là ' + r.dev_code + ')' : ''), true);
         document.getElementById('fg-step2').style.display = 'flex';
-        btn.textContent = 'Gửi lại mã';
-      } catch (e) { forgotMsg(e.message, false); }
-      finally { btn.disabled = false; }
+        document.getElementById('fg-code').focus();
+        let left = 60;
+        btn.textContent = 'Gửi lại mã (60s)';
+        const t = setInterval(() => {
+          left -= 1;
+          btn.textContent = left > 0 ? 'Gửi lại mã (' + left + 's)' : 'Gửi lại mã';
+          if (left <= 0) { clearInterval(t); btn.disabled = false; }
+        }, 1000);
+      } catch (e) { forgotMsg(e.message, false); btn.disabled = false; }
     }
     async function resetPassword() {
       const btn = document.getElementById('btn-reset');
+      if (!/^\d{6}$/.test(document.getElementById('fg-code').value.trim())) return forgotMsg('Mã gồm đúng 6 chữ số trong email.', false);
+      if (document.getElementById('fg-pass').value.length < 8) return forgotMsg('Mật khẩu mới phải có ít nhất 8 ký tự.', false);
       btn.disabled = true;
       try {
         BetaAuth._save(await BetaAuth.call('reset', { method: 'POST', body: {
@@ -546,6 +571,8 @@
 
     // Tự động kiểm tra URL Hash khi tải trang (#register hoặc #login)
     window.addEventListener('DOMContentLoaded', () => {
+      const bd = document.getElementById('reg-birthday');
+      if (bd) bd.max = new Date().toISOString().slice(0, 10);
       if (window.BetaAuth && BetaAuth.isLoggedIn()) {
         BetaAuth.me().then(u => { if (u) location.replace(nextUrl()); });
       }

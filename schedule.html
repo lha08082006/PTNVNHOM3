@@ -338,11 +338,24 @@
 
     @media (max-width: 900px) {
       .sch-movie-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: 200px minmax(0, 1fr);
+        gap: 20px;
       }
-      .sch-poster-box {
-        max-width: 240px;
+    }
+    /* Điện thoại: poster nhỏ bên trái, thông tin + suất chiếu bên phải */
+    @media (max-width: 640px) {
+      .sch-movie-row {
+        grid-template-columns: 96px minmax(0, 1fr);
+        gap: 14px;
+        margin-bottom: 24px;
+        padding-bottom: 22px;
       }
+      .sch-poster-box { border-radius: 8px; }
+      .age-badge-corner { top: 6px; left: 6px; font-size: 11px; padding: 2px 6px; }
+      .sch-movie-title { font-size: 19px; margin-bottom: 6px; }
+      .sch-movie-meta-tags { flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; margin-bottom: 12px; }
+      .sch-format-title { font-size: 12.5px; margin-bottom: 8px; }
+      .sch-slots-grid { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
     }
   </style>
 </head>
@@ -353,7 +366,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>

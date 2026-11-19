@@ -90,12 +90,13 @@
     return null;
   }
 
+  // Combo bắp nước: tên, mô tả, ảnh dùng chung cho trang Combo, Thanh toán, Giá vé và máy chủ
   const COMBOS = {
-    solo:    { name: 'Combo Solo', price: 69000 },
-    couple:  { name: 'Combo Couple', price: 89000 },
-    party:   { name: 'Combo Party Gold', price: 129000 },
-    family:  { name: 'Combo Siêu Nhóm (Family)', price: 139000 },
-    sausage: { name: 'Xúc Xích Nướng Phô Mai', price: 25000 }
+    solo:    { name: 'Combo Solo', price: 69000, desc: '01 bắp ngọt lớn + 01 nước ngọt lớn (Coca / Sprite / Fanta).', img: 'images/combo.webp', badge: 'Tiết kiệm' },
+    couple:  { name: 'Combo Couple', price: 89000, desc: '01 bắp lớn vị phô mai hoặc caramel + 02 nước ngọt lớn. Hợp cho 2 người.', img: 'images/combosieucu-1702x621-115549-081026-63.webp', badge: 'Bán chạy nhất' },
+    party:   { name: 'Combo Party Gold', price: 129000, desc: '02 bắp lớn + 03 nước ngọt lớn + 01 snack. Hợp cho nhóm 3 người.', img: 'images/combo.webp' },
+    family:  { name: 'Combo Siêu Nhóm (Family)', price: 139000, desc: '02 bắp lớn + 04 nước ngọt lớn. Hợp cho nhóm 4 người hoặc gia đình.', img: 'images/combosieucu-1702x621-115549-081026-63.webp' },
+    sausage: { name: 'Xúc Xích Nướng Phô Mai', price: 25000, desc: '01 que xúc xích nướng phô mai, sốt mù tạt mật ong.', img: 'images/combo.webp' }
   };
   const MAX_COMBO_QTY = 10;
   const MAX_SEATS = 8;

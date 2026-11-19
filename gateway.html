@@ -163,20 +163,22 @@
 
       <!-- QR Code Box -->
       <div class="qr-box-main">
-        <div class="qr-frame">
-          <img src="images/vietqr-card.png" alt="Mã QR VietQR">
+        <!-- Chỉ hiện mã QR khi đã có số tiền thật của đơn từ máy chủ (không bao giờ hiện mã mẫu) -->
+        <div class="qr-frame" style="position: relative;">
+          <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Mã QR VietQR của đơn hàng" style="visibility: hidden;">
+          <div id="qr-loading" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 13px; font-weight: 600;">Đang tạo mã QR…</div>
         </div>
 
         <div style="margin-bottom: 14px;">
           <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase;">Số Tiền Cần Thanh Toán</div>
           <div id="payment-total-amount" style="font-family: var(--font-display); font-size: 32px; font-weight: 900; color: var(--beta-orange);">
-            179.000 đ
+            —
           </div>
         </div>
 
         <div class="pulse-radar">
           <div class="radar-dot"></div>
-          <span>Đang đợi nhận tiền từ ngân hàng...</span>
+          <span>Đang tải thông tin đơn hàng…</span>
         </div>
       </div>
 
@@ -357,7 +359,12 @@
     function updateQrCode(amount) {
       const qrImg = document.querySelector('.qr-frame img');
       const src = `https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=${amount}&des=${encodeURIComponent(orderCode)}`;
-      if (qrImg && qrImg.getAttribute('src') !== src) qrImg.src = src;
+      if (!qrImg || !(amount > 0)) return;
+      if (qrImg.getAttribute('src') !== src) {
+        qrImg.onload = () => { qrImg.style.visibility = 'visible'; const l = document.getElementById('qr-loading'); if (l) l.remove(); };
+        qrImg.onerror = () => { const l = document.getElementById('qr-loading'); if (l) l.textContent = 'Không tải được mã QR – vui lòng chuyển khoản theo số tài khoản và nội dung bên dưới.'; };
+        qrImg.src = src;
+      }
     }
 
     function go(url, delay = 900) {

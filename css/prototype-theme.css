@@ -176,6 +176,11 @@ textarea {
   box-shadow: 0 2px 10px rgba(255, 84, 0, 0.4);
 }
 
+/* Thuộc tính hidden luôn thắng các class đặt display (vd .badge { display: inline-flex }) */
+[hidden] {
+  display: none !important;
+}
+
 /* Top Notification Banner (Standard Official) */
 .top-header-official {
   background: #f8fafc !important;
@@ -208,6 +213,78 @@ textarea {
 
 .top-auth-links a:hover {
   color: #005198 !important;
+}
+
+.top-auth-links a,
+.top-auth-links span {
+  white-space: nowrap;
+}
+
+/* Điện thoại: thanh trên cùng gọn 1–2 dòng, không gãy chữ giữa từ */
+@media (max-width: 640px) {
+  .top-header-official {
+    font-size: 12px;
+    padding: 5px 0;
+  }
+  .top-header-inner {
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    justify-content: center;
+    text-align: center;
+  }
+  .top-header-inner > div:first-child span {
+    white-space: nowrap;
+  }
+  .top-header-inner .hotline-hours {
+    display: none;
+  }
+  .top-auth-links {
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .top-auth-links strong {
+    display: inline-block;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+  }
+  /* Đã có nút BetaBot nổi -> bỏ link "Hỗ trợ CSKH" (và dấu | trước nó) cho thanh trên cùng gọn 2 dòng */
+  .top-auth-links a[href="betabot.html"],
+  .top-auth-links span:has(+ a[href="betabot.html"]) {
+    display: none;
+  }
+
+  /* Nút BetaBot nổi: chỉ còn avatar tròn */
+  .betabot-fab {
+    padding: 8px !important;
+    right: 16px !important;
+    bottom: 80px !important;
+  }
+  .betabot-fab .betabot-fab-label,
+  .betabot-fab > span:last-child {
+    display: none !important;
+  }
+  .betabot-fab img {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  /* Tiêu đề khu vực: mô tả xuống dưới thay vì chen bên cạnh */
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  /* Tab Phim đang chiếu / Sắp chiếu / Suất đặc biệt */
+  .movie-tab-btn {
+    font-size: 13px !important;
+    padding: 10px 6px 12px !important;
+    line-height: 1.3;
+  }
 }
 
 /* ==========================================================================
@@ -1088,9 +1165,35 @@ textarea {
     gap: 12px;
   }
 
+  /* Một số trang đặt cứng .header-row { height: 75px } trong <style> riêng -> nội dung xuống dòng đè lên banner */
+  .header-main-official .header-row {
+    height: auto;
+    min-height: 64px;
+  }
+
+  /* Đầu trang trên màn hình nhỏ: lề 16px; logo + ô chọn rạp chung một hàng, menu tràn hết bề ngang */
+  .header-main-official .header-row.container {
+    padding-left: 16px;
+    padding-right: 16px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .header-row > div {
+    flex: 1 1 180px;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .header-row > div .cinema-select-official {
+    width: 100%;
+    max-width: 260px;
+    min-width: 0;
+  }
+
   /* nav bọc menu phải co theo màn hình, nếu không menu giãn và làm cả trang tràn ngang */
   .header-row > nav {
-    width: 100%;
+    width: calc(100% + 32px);
+    margin: 0 -16px;
     min-width: 0;
   }
 

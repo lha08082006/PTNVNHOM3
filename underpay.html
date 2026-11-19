@@ -240,7 +240,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -330,7 +330,7 @@
           <div style="border-top: 1px solid #f1f5f9; padding-top: 12px; display: flex; flex-direction: column; gap: 10px;">
             <div class="line-row">
               <span class="label-muted">Giá trị đơn hàng:</span>
-              <span id="underpay-total-amount" class="value-bold">179.000 đ</span>
+              <span id="underpay-total-amount" class="value-bold">—</span>
             </div>
             <div class="line-row">
               <span class="label-muted">Đã nhận được:</span>
@@ -395,7 +395,7 @@
           <div style="border-top: 1px solid #f1f5f9; padding-top: 10px; display: flex; flex-direction: column; gap: 6px;">
             <div class="line-row">
               <span class="label-muted">Vé xem phim:</span>
-              <span class="value-bold" id="invoice-seat-total">90.000 đ</span>
+              <span class="value-bold" id="invoice-seat-total">—</span>
             </div>
             <div class="line-row">
               <span class="label-muted">Combo bắp nước:</span>
@@ -405,7 +405,7 @@
 
           <div class="line-row" style="border-top: 1px solid #e2e8f0; padding-top: 12px; font-weight: 800; font-size: 17px;">
             <span>Tổng cộng:</span>
-            <span id="invoice-final-total" style="color: #ff5400;">179.000 đ</span>
+            <span id="invoice-final-total" style="color: #ff5400;">—</span>
           </div>
 
           <div style="border-top: 1px solid #f1f5f9; padding-top: 10px; font-size: 13px; color: #64748b;">
@@ -427,7 +427,7 @@
 
           <!-- QR Code Frame Động -->
           <div class="qr-frame">
-            <img id="underpay-qr-img" src="images/vietqr-card.png" alt="Mã VietQR chuyển bù">
+            <img id="underpay-qr-img" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Mã VietQR chuyển bù" style="visibility: hidden;">
           </div>
 
           <!-- Danh sách thông tin chuyển bù kèm nút Sao chép -->
@@ -634,6 +634,7 @@
       const qrImg = document.getElementById('underpay-qr-img');
       if (qrImg) {
         qrImg.onerror = function() { this.onerror = null; this.src = 'https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=' + currentRemaining + '&des=' + encodeURIComponent(ord.code); };
+        qrImg.onload = function() { this.style.visibility = 'visible'; };
         qrImg.src = 'https://qr.sepay.vn/img?acc=96886693088500&bank=MSB&amount=' + currentRemaining + '&des=' + encodeURIComponent(ord.code);
       }
     }

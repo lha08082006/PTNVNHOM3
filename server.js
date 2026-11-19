@@ -151,6 +151,8 @@ const server = http.createServer(async (req, res) => {
 
     res.statusCode = 200;
     res.setHeader('Content-Type', contentType);
+    // Chạy thử trên máy: luôn lấy bản mới của HTML/JS/CSS để sửa code là thấy ngay (ảnh vẫn cho lưu đệm)
+    res.setHeader('Cache-Control', ['.html', '.js', '.css', '.json'].includes(ext) ? 'no-cache' : 'public, max-age=3600');
 
     const stream = fs.createReadStream(filePath);
     stream.pipe(res);

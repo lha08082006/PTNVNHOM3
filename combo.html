@@ -181,6 +181,21 @@
       padding: 16px 0;
       z-index: 1000;
     }
+
+    /* Điện thoại: thanh đáy 2 hàng (tổng tiền / 2 nút), không bị bóp chữ */
+    @media (max-width: 640px) {
+      .sticky-booking-bar { padding: 10px 0; }
+      .sticky-booking-bar .container { flex-wrap: wrap; gap: 8px 12px; padding: 0 16px; }
+      .sticky-booking-bar .container > div:first-child { display: none; }
+      .sticky-booking-bar .container > div:nth-child(2) {
+        margin-right: 0 !important; text-align: left !important; width: 100%;
+        display: flex; justify-content: space-between; align-items: baseline;
+      }
+      #total-amount-display { font-size: 20px !important; }
+      .sticky-booking-bar .container > div:last-child { width: 100%; gap: 8px !important; }
+      #btn-back-seats { flex: 0 0 auto; padding: 0 14px; font-size: 13px; }
+      #btn-next-checkout { flex: 1; justify-content: center; font-size: 14px; padding: 0 12px; min-height: 44px; }
+    }
   </style>
 </head>
 <body>
@@ -190,7 +205,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -272,85 +287,8 @@
     </div>
 
     <!-- Combo Grid -->
-    <div class="combo-grid">
-      <!-- Combo 1: Solo -->
-      <div class="combo-card">
-        <div class="combo-img-wrap">
-          <img src="images/combo.webp" alt="Combo Solo">
-          <span class="combo-badge">Tiết Kiệm</span>
-        </div>
-        <div class="combo-body">
-          <h3 class="combo-title">Combo Solo Tiêu Chuẩn</h3>
-          <p class="combo-desc">Gồm 01 Bắp ngọt lớn 64oz + 01 Nước ngọt lớn 32oz (Coca / Sprite / Fanta tùy chọn).</p>
-          <div class="combo-footer">
-            <div class="combo-price">69.000 đ</div>
-            <div class="quantity-control">
-              <button class="qty-btn" onclick="updateQty('solo', -1)">−</button>
-              <span class="qty-value" id="qty-solo">0</span>
-              <button class="qty-btn" onclick="updateQty('solo', 1)">+</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Combo 2: Couple Hot -->
-      <div class="combo-card" style="border: 2px solid var(--beta-orange);">
-        <div class="combo-img-wrap">
-          <img src="images/combosieucu-1702x621-115549-081026-63.webp" alt="Combo Couple">
-          <span class="combo-badge" style="background: var(--beta-orange);">Bán Chạy Nhất</span>
-        </div>
-        <div class="combo-body">
-          <h3 class="combo-title">Beta Couple Vui Vẻ</h3>
-          <p class="combo-desc">Gồm 01 Bắp rang bơ phô mai/caramel lớn + 02 Nước ngọt lớn mát lạnh. Thích hợp cho 2 người.</p>
-          <div class="combo-footer">
-            <div class="combo-price">89.000 đ</div>
-            <div class="quantity-control">
-              <button class="qty-btn" onclick="updateQty('couple', -1)">−</button>
-              <span class="qty-value" id="qty-couple">0</span>
-              <button class="qty-btn" onclick="updateQty('couple', 1)">+</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Combo 3: Family Party -->
-      <div class="combo-card">
-        <div class="combo-img-wrap">
-          <img loading="lazy" src="images/combo.webp" alt="Combo Family">
-        </div>
-        <div class="combo-body">
-          <h3 class="combo-title">Combo Siêu Nhóm Bạn (Family)</h3>
-          <p class="combo-desc">Gồm 02 Bắp lớn 64oz + 03 Nước ngọt lớn + 01 Snack khoai tây Lays thơm ngon.</p>
-          <div class="combo-footer">
-            <div class="combo-price">139.000 đ</div>
-            <div class="quantity-control">
-              <button class="qty-btn" onclick="updateQty('family', -1)">−</button>
-              <span class="qty-value" id="qty-family">0</span>
-              <button class="qty-btn" onclick="updateQty('family', 1)">+</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Combo 4: Snack xúc xích -->
-      <div class="combo-card">
-        <div class="combo-img-wrap">
-          <img loading="lazy" src="images/combosieucu-1702x621-115549-081026-63.webp" alt="Xúc Xích Nướng">
-        </div>
-        <div class="combo-body">
-          <h3 class="combo-title">Xúc Xích Nướng Phô Mai</h3>
-          <p class="combo-desc">01 Que xúc xích nướng sốt tương cà / mù tạt mật ong thơm lừng giòn sần sật.</p>
-          <div class="combo-footer">
-            <div class="combo-price">25.000 đ</div>
-            <div class="quantity-control">
-              <button class="qty-btn" onclick="updateQty('sausage', -1)">−</button>
-              <span class="qty-value" id="qty-sausage">0</span>
-              <button class="qty-btn" onclick="updateQty('sausage', 1)">+</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Danh sách combo dựng từ catalog.js (cùng nguồn với trang Thanh toán và máy chủ) -->
+    <div class="combo-grid" id="combo-grid"></div>
   </main>
 
   <!-- Sticky Bottom Summary Bar -->
@@ -411,6 +349,31 @@
 
     const items = {};
     for (const k in BetaCatalog.COMBOS) items[k] = { ...BetaCatalog.COMBOS[k], qty: 0 };
+
+    // Dựng thẻ combo từ catalog.js
+    (function renderComboGrid() {
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const vnd = (n) => new Intl.NumberFormat('vi-VN').format(n) + ' đ';
+      document.getElementById('combo-grid').innerHTML = Object.entries(BetaCatalog.COMBOS).map(([k, c]) => `
+        <div class="combo-card"${c.badge === 'Bán chạy nhất' ? ' style="border: 2px solid var(--beta-orange);"' : ''}>
+          <div class="combo-img-wrap">
+            <img src="${esc(c.img || 'images/combo.webp')}" alt="${esc(c.name)}" loading="lazy">
+            ${c.badge ? `<span class="combo-badge"${c.badge === 'Bán chạy nhất' ? ' style="background: var(--beta-orange);"' : ''}>${esc(c.badge)}</span>` : ''}
+          </div>
+          <div class="combo-body">
+            <h3 class="combo-title">${esc(c.name)}</h3>
+            <p class="combo-desc">${esc(c.desc || '')}</p>
+            <div class="combo-footer">
+              <div class="combo-price">${vnd(c.price)}</div>
+              <div class="quantity-control">
+                <button type="button" class="qty-btn" aria-label="Bớt ${esc(c.name)}" onclick="updateQty('${k}', -1)">−</button>
+                <span class="qty-value" id="qty-${k}" aria-live="polite">0</span>
+                <button type="button" class="qty-btn" aria-label="Thêm ${esc(c.name)}" onclick="updateQty('${k}', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>`).join('');
+    })();
 
     // Khôi phục combo nếu có tham số URL
     try {

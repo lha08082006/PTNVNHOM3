@@ -125,6 +125,12 @@
         max-width: 240px;
         margin: 0 auto 20px;
       }
+    }
+    @media (max-width: 640px) {
+      .detail-poster-box { max-width: 170px; margin-bottom: 14px; border-radius: 12px; }
+      .movie-main-title { font-size: 22px !important; }
+      .movie-stat-pills { gap: 6px !important; }
+      .stat-pill { font-size: 12px !important; padding: 5px 10px !important; }
       .movie-main-title {
         font-size: 28px;
       }
@@ -311,7 +317,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -780,7 +786,7 @@
 
       const renderSlots = () => {
         const cinema = $('md-cinema').value, date = $('md-date').value;
-        const list = week.filter((s) => s.cinema_id === cinema && s.date === date && !s.late);
+        const list = week.filter((s) => s.cinema_id === cinema && s.date === date);
         const cName = ($('md-cinema').selectedOptions[0] || {}).textContent || '';
         $('md-slots-title').textContent = '📍 ' + cName.toUpperCase();
         const min = list.reduce((a, s) => Math.min(a, (s.prices && s.prices.standard) || Infinity), Infinity);
@@ -793,14 +799,14 @@
           byFormat[f].map((s) => {
             const full = s.seats_free === 0;
             return '<a class="md-slot' + (full ? ' full' : '') + '" href="seats.html?showtime=' + encodeURIComponent(s.id) + '"' + (full ? ' aria-disabled="true" tabindex="-1"' : '') + '>' +
-              '<b>' + esc(s.time) + '</b><small>' + esc(s.room || '') + ' • ' + (full ? 'Hết ghế' : 'Còn ' + s.seats_free + ' ghế') + '</small></a>';
+              '<b>' + esc(s.time) + (s.late ? ' 🌙' : '') + '</b><small>' + esc(s.room || '') + ' • ' + (full ? 'Hết ghế' : 'Còn ' + s.seats_free + ' ghế') + '</small></a>';
           }).join('')).join('');
       };
 
       const fillDates = () => {
         const cinema = $('md-cinema').value;
         const dates = [];
-        week.forEach((s) => { if (s.cinema_id === cinema && !s.late && !dates.some((d) => d.date === s.date)) dates.push({ date: s.date, label: s.date_label }); });
+        week.forEach((s) => { if (s.cinema_id === cinema && !dates.some((d) => d.date === s.date)) dates.push({ date: s.date, label: s.date_label }); });
         dates.sort((a, b) => a.date.localeCompare(b.date));
         $('md-date').innerHTML = dates.length ? dates.map((d) => '<option value="' + esc(d.date) + '">' + esc(d.label) + '</option>').join('') : '<option value="">Chưa có lịch chiếu</option>';
         renderSlots();
@@ -819,7 +825,7 @@
         renderMovie(m);
         const wk = await Pay.catalog('showtimes', { movie: key, days: 7 });
         week = wk.showtimes || [];
-        const has = new Set(week.filter((s) => !s.late).map((s) => s.cinema_id));
+        const has = new Set(week.map((s) => s.cinema_id));
         const cinemas = (cn.cinemas || []).filter((c) => has.has(c.id));
         if (!cinemas.length) {
           $('md-cinema').innerHTML = '<option>Chưa có rạp chiếu</option>';

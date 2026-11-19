@@ -215,7 +215,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> (08:00 - 22:00)</span>
+        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         
@@ -295,77 +295,8 @@
             <span class="m" style="font-size: 13px;">Nhận tại quầy Concession</span>
           </div>
 
-          <!-- Combo 1: Combo Solo -->
-          <div class="combo-item-row">
-            <div class="combo-thumb">
-              <img src="images/combo.webp" alt="Combo Solo" onerror="this.src='images/phimhayt10-1702x621-1-135337-300926-58.webp'">
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; font-size: 15px;">Combo Solo</div>
-              <div class="m" style="font-size: 12.5px; line-height: 1.4;">
-                1 bắp ngọt 60oz + 1 nước ngọt 32oz · <strong style="color: var(--status-warning);">69.000 đ</strong>
-              </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="o qty-btn-sm" onclick="changeQty('solo', -1)">−</button>
-              <b id="qty-solo" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
-              <button class="o qty-btn-sm" onclick="changeQty('solo', 1)">+</button>
-            </div>
-          </div>
-
-          <!-- Combo 2: Combo Couple -->
-          <div class="combo-item-row">
-            <div class="combo-thumb">
-              <img src="images/combosieucu-1702x621-115549-081026-63.webp" alt="Combo Couple" onerror="this.src='images/phimhayt10-1702x621-1-135337-300926-58.webp'">
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; font-size: 15px;">Combo Couple</div>
-              <div class="m" style="font-size: 12.5px; line-height: 1.4;">
-                1 bắp lớn 60oz + 2 nước ngọt 32oz · <strong style="color: var(--status-warning);">89.000 đ</strong>
-              </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="o qty-btn-sm" onclick="changeQty('couple', -1)">−</button>
-              <b id="qty-couple" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
-              <button class="o qty-btn-sm" onclick="changeQty('couple', 1)">+</button>
-            </div>
-          </div>
-
-          <!-- Combo 3: Combo Party Gold -->
-          <div class="combo-item-row">
-            <div class="combo-thumb">
-              <img loading="lazy" src="images/combo.webp" alt="Combo Gold" onerror="this.src='images/phimhayt10-1702x621-1-135337-300926-58.webp'">
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; font-size: 15px;">Combo Party Gold</div>
-              <div class="m" style="font-size: 12.5px; line-height: 1.4;">
-                2 bắp lớn + 3 nước 32oz + snack · <strong style="color: var(--status-warning);">129.000 đ</strong>
-              </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="o qty-btn-sm" onclick="changeQty('party', -1)">−</button>
-              <b id="qty-party" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
-              <button class="o qty-btn-sm" onclick="changeQty('party', 1)">+</button>
-            </div>
-          </div>
-
-          <!-- Combo 4: Xúc Xích Nướng Phô Mai -->
-          <div class="combo-item-row">
-            <div class="combo-thumb">
-              <img loading="lazy" src="images/combosieucu-1702x621-115549-081026-63.webp" alt="Xúc Xích Nướng" onerror="this.src='images/phimhayt10-1702x621-1-135337-300926-58.webp'">
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; font-size: 15px;">Xúc Xích Nướng Phô Mai</div>
-              <div class="m" style="font-size: 12.5px; line-height: 1.4;">
-                01 Que xúc xích nướng sốt mù tạt mật ong · <strong style="color: var(--status-warning);">25.000 đ</strong>
-              </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="o qty-btn-sm" onclick="changeQty('sausage', -1)">−</button>
-              <b id="qty-sausage" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
-              <button class="o qty-btn-sm" onclick="changeQty('sausage', 1)">+</button>
-            </div>
-          </div>
+          <!-- Danh sách combo dựng từ catalog.js -->
+          <div id="checkout-combo-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
         </section>
 
         <!-- KHỐI 2: KHUYẾN MÃI (VOUCHER) -->
@@ -495,8 +426,8 @@
 
         <!-- Đồng ý điều khoản -->
         <label style="display: flex; gap: 10px; font-size: 13px; align-items: flex-start; cursor: pointer; margin-top: 4px; line-height: 1.4;">
-          <input type="checkbox" id="terms-checkbox" checked style="margin-top: 2px;">
-          <span>Tôi đồng ý điều khoản mua vé và xác nhận đủ độ tuổi xem phim</span>
+          <input type="checkbox" id="terms-checkbox" style="margin-top: 2px;">
+          <span>Tôi đồng ý <a href="policy.html#dieu-khoan" target="_blank" rel="noopener">điều khoản mua vé</a> và xác nhận người xem đủ độ tuổi theo <a href="policy.html#do-tuoi" target="_blank" rel="noopener">nhãn phim</a><span id="terms-age-label"></span></span>
         </label>
 
         <!-- Nút Thanh Toán Ngay -->
@@ -553,6 +484,25 @@
     // Giá combo / ghế / voucher lấy từ catalog.js – cùng nguồn với máy chủ khi tạo đơn
     const COMBOS = {};
     for (const k in BetaCatalog.COMBOS) COMBOS[k] = { ...BetaCatalog.COMBOS[k], qty: 0 };
+
+    // Dựng danh sách combo từ catalog.js (cùng tên, mô tả với trang Combo)
+    (function renderCheckoutCombos() {
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const vnd = (n) => new Intl.NumberFormat('vi-VN').format(n) + ' đ';
+      document.getElementById('checkout-combo-list').innerHTML = Object.entries(BetaCatalog.COMBOS).map(([k, c]) => `
+          <div class="combo-item-row">
+            <div class="combo-thumb"><img src="${esc(c.img || 'images/combo.webp')}" alt="${esc(c.name)}" loading="lazy"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-weight: 700; font-size: 15px;">${esc(c.name)}</div>
+              <div class="m" style="font-size: 12.5px; line-height: 1.4;">${esc(c.desc || '')} · <strong style="color: var(--status-warning);">${vnd(c.price)}</strong></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" class="o qty-btn-sm" aria-label="Bớt ${esc(c.name)}" onclick="changeQty('${k}', -1)">−</button>
+              <b id="qty-${k}" aria-live="polite" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
+              <button type="button" class="o qty-btn-sm" aria-label="Thêm ${esc(c.name)}" onclick="changeQty('${k}', 1)">+</button>
+            </div>
+          </div>`).join('');
+    })();
     let voucherCode = null;
     let SHOWTIME = null; // suất chiếu thật (database)
 
@@ -600,6 +550,8 @@
       const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(currentMovie) : (MOVIE_DETAILS[currentMovie] || MOVIE_DETAILS['linh-gioi-dai-chien']);
       document.getElementById('summary-movie-title').textContent = movieObj.shortTitle || movieObj.title;
       document.getElementById('summary-movie-age').textContent = movieObj.age;
+      const ageLbl = document.getElementById('terms-age-label');
+      if (ageLbl && movieObj.age && movieObj.age !== 'P') ageLbl.textContent = ' (' + movieObj.age + ')';
       document.getElementById('summary-movie-poster').src = movieObj.poster;
 
       document.getElementById('summary-cinema-hall').textContent = currentCinema + ' · ' + (SHOWTIME.room || 'Phòng 01');
@@ -621,7 +573,7 @@
     // Tăng giảm số lượng bắp nước
     function changeQty(key, delta) {
       if (!COMBOS[key]) return;
-      COMBOS[key].qty = Math.max(0, COMBOS[key].qty + delta);
+      COMBOS[key].qty = Math.min(BetaCatalog.MAX_COMBO_QTY, Math.max(0, COMBOS[key].qty + delta));
       document.getElementById('qty-' + key).textContent = COMBOS[key].qty;
       calcTotal();
     }
