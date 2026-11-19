@@ -6,7 +6,7 @@ delete process.env.SEPAY_WEBHOOK_KEY;
 delete process.env.AUTH_SECRET;
 
 const assert = require('assert');
-const api = (name) => require('../api/' + name);
+const api = (name) => require('../lib/routes/' + name);
 
 // Gọi handler kiểu Vercel trong cùng tiến trình
 async function call(name, { method = 'GET', query = {}, body = {}, token, headers = {} } = {}) {

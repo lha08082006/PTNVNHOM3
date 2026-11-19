@@ -9,6 +9,8 @@
   3. `migrations/2026-11-20_ke-toan-tra-ve.sql` — tài khoản nhân viên (`staff`), nhật ký thao tác (`audit_logs`), trạng thái `ACC_RETURNED` (Kế toán trả hồ sơ về nhân viên)
   4. `migrations/2026-11-21_danh-muc-qr-otp.sql` — phim, rạp, suất chiếu, voucher (kèm dữ liệu khởi tạo), soát vé QR, quên mật khẩu. Sau đó vào **admin.html → Danh mục** tạo suất chiếu.
 
+> **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
+
 ## 2. Biến môi trường (Vercel → Settings → Environment Variables)
 
 | Biến | Bắt buộc | Ghi chú |

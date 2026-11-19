@@ -27,25 +27,9 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf'
 };
 
-// Đăng ký các API handler
-const apiRoutes = {
-  '/api/auth': require('./api/auth'),
-  '/api/catalog': require('./api/catalog'),
-  '/api/orders': require('./api/orders'),
-  '/api/create-order': require('./api/create-order'),
-  '/api/order-status': require('./api/order-status'),
-  '/api/sepay-webhook': require('./api/sepay-webhook'),
-  '/api/reconcile': require('./api/reconcile'),
-  '/api/refund': require('./api/refund'),
-  '/api/report-issue': require('./api/report-issue'),
-  '/api/support': require('./api/support'),
-  '/api/seats': require('./api/seats'),
-  '/api/cron': require('./api/cron'),
-  '/api/admin': require('./api/admin'),
-  '/api/simulate-payment': require('./api/simulate-payment'),
-  '/api/sitemap': require('./api/sitemap'),
-  '/api/order-action': require('./api/order-action')
-};
+// Mọi API đi qua cùng một function như trên Vercel: api/[route].js → lib/routes/<tên>.js
+const { routeOf } = require('./lib/routes');
+const apiDispatch = require('./api/[route]');
 
 const MAX_BODY_BYTES = 8 * 1024 * 1024; // đủ cho ảnh biên lai 5 MB (base64)
 
@@ -76,15 +60,16 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 1. Xử lý API Routes
-  // Giống rewrite trên Vercel: /sitemap.xml, /robots.txt do api/sitemap.js sinh ra
+  // Giống rewrite trên Vercel: /sitemap.xml, /robots.txt do lib/routes/sitemap.js sinh ra
   if (pathname === '/sitemap.xml') pathname = '/api/sitemap';
   if (pathname === '/favicon.ico') pathname = '/images/icon-ticket.png';
   if (pathname === '/robots.txt') { pathname = '/api/sitemap'; parsedUrl.query = { ...(parsedUrl.query || {}), robots: '1' }; }
 
   if (pathname.startsWith('/api/')) {
-    const handler = apiRoutes[pathname];
+    const name = pathname.slice('/api/'.length);
+    const handler = routeOf(name) && apiDispatch;
     if (handler) {
-      req.query = parsedUrl.query;
+      req.query = { ...parsedUrl.query, route: name };
 
       // Đọc JSON Body nếu có
       let rawBody = '';
