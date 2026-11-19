@@ -419,6 +419,7 @@
                            '&date=' + encodeURIComponent(currentDate) + 
                            '&time=' + encodeURIComponent(currentTime) + 
                            '&seats=' + encodeURIComponent(selectedSeatsStr) + 
+                           '&combos=' + encodeURIComponent(JSON.stringify(combosPayload)) +
                            '&total=' + ticketTotal;
       document.getElementById('btn-back-seats').href = backSeatsUrl;
     }

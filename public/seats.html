@@ -502,6 +502,8 @@
 
     // Danh sách ghế đang được chọn
     let selectedSeats = [];
+    // Combo đã chọn trước đó (khi quay lại từ combo.html) được giữ khi đi tiếp
+    const keptCombos = new URLSearchParams(location.search).get('combos') || '';
     const MAX_SEATS = 8;
     const SEAT_TYPE_LABEL = { standard: 'Thường', vip: 'VIP', sweetbox: 'Đôi Sweetbox' };
 
@@ -632,7 +634,8 @@
         btnNext.classList.remove('disabled');
 
         // Chuyển tiếp mượt mà sang bước 3: Chọn bắp nước (combo.html)
-        const comboUrl = 'combo.html?movie=' + encodeURIComponent(currentMovieKey) + '&cinema=' + encodeURIComponent(currentCinema) + '&date=' + encodeURIComponent(currentDate) + '&time=' + encodeURIComponent(currentTime) + '&seats=' + encodeURIComponent(seatIds) + '&seatTypes=' + encodeURIComponent(seatTypeSummary()) + '&total=' + total;
+        const comboUrl = 'combo.html?movie=' + encodeURIComponent(currentMovieKey) + '&cinema=' + encodeURIComponent(currentCinema) + '&date=' + encodeURIComponent(currentDate) + '&time=' + encodeURIComponent(currentTime) + '&seats=' + encodeURIComponent(seatIds) + '&seatTypes=' + encodeURIComponent(seatTypeSummary()) + '&total=' + total +
+          (keptCombos ? '&combos=' + encodeURIComponent(keptCombos) : '');
         btnNext.href = comboUrl;
       }
     }

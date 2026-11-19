@@ -63,3 +63,14 @@ Sửa menu, footer hay danh sách rạp chỉ cần sửa trong `public/js/layou
 | `Pay.getOrderView(mã)` | Thông tin đơn đã chuẩn hóa cho các trang chi tiết đơn |
 | `Pay.buildInvoice(đơn)` | Dữ liệu hóa đơn điện tử từ một đơn hàng |
 | `Pay.comboText(combos)` | `{"couple":1}` → `Combo Couple × 1` |
+
+## Kiểm thử tự động
+
+```bash
+npm test
+```
+
+Chạy server ở chế độ bộ nhớ tạm (`MOCK_DB=1`) rồi dùng Playwright đi qua các luồng chính: mọi trang mở không lỗi,
+không tràn ngang trên điện thoại, đặt vé từ đầu đến cuối, đăng nhập / đăng ký, các trang chi tiết đơn và API.
+Lần đầu chạy trên máy mới cần cài trình duyệt: `npx playwright install chromium`.
+GitHub Actions tự chạy bộ kiểm thử mỗi lần push lên `main` (`.github/workflows/test.yml`).
