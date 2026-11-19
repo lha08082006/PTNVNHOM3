@@ -109,7 +109,7 @@
               ${p.summary ? `<p style="font-weight:700;font-size:15.5px;line-height:1.6;">${esc(p.summary)}</p>` : ''}
               <div class="body">${paras.map(x => `<p>${esc(x).replace(/\n/g, '<br>')}</p>`).join('')}</div>
               <div class="tt-cta">
-                <a class="btn btn-primary" href="${p.movie_id ? 'movie-detail.html?movie=' + encodeURIComponent(p.movie_id) : p.cinema_id ? 'schedule.html?cinema=' + encodeURIComponent(p.cinema_id) : 'schedule.html'}"><i class="ph-ticket" aria-hidden="true"></i> Đặt vé ngay</a>
+                <a class="btn btn-primary" href="${p.movie_id ? 'phim/' + encodeURIComponent(p.movie_id) : p.cinema_id ? 'schedule.html?cinema=' + encodeURIComponent(p.cinema_id) : 'schedule.html'}"><i class="ph-ticket" aria-hidden="true"></i> Đặt vé ngay</a>
                 <a class="btn btn-outline" href="tin-tuc.html">← Tất cả tin & ưu đãi</a>
               </div>
             </div>`;

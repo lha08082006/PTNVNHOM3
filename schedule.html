@@ -546,7 +546,7 @@
     let currentCinema = params.get('cinema') || (() => { try { return localStorage.getItem('BETA_CINEMA') || ''; } catch (e) { return ''; } })();
     let currentDate = '';
     let today = '';
-    const DAYS = 14;          // xem trước 14 ngày
+    const DAYS = 30;          // xem trước 30 ngày (Đợt 3)
     let CINEMAS = [];
     let fmtFilter = '';        // lọc định dạng (2D, 3D, phụ đề, lồng tiếng…)
     const store = { get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
@@ -639,7 +639,7 @@
           const byFormat = {};
           sts.forEach(st => { (byFormat[st.format] = byFormat[st.format] || []).push(st); });
           return `<div class="sch-movie-row">
-            <a class="sch-poster-box" href="movie-detail.html?movie=${encodeURIComponent(k)}">
+            <a class="sch-poster-box" href="phim/${encodeURIComponent(k)}">
               ${m.age ? `<span class="age-badge-corner">${esc(m.age)}</span>` : ''}
               <img loading="lazy" decoding="async" src="${esc(m.poster)}" alt="${esc(m.title)}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
             </a>

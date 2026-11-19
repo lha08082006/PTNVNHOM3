@@ -162,6 +162,7 @@
       <div class="toolbar">
         Từ <input type="date" id="db-from" aria-label="Từ ngày"> đến <input type="date" id="db-to" aria-label="Đến ngày">
         <button class="btn primary" onclick="loadDashboard()">Xem</button>
+        <button class="btn" onclick="downloadDashboard()"><i class="ph-tray-arrow-down" aria-hidden="true"></i> Xuất Excel (CSV)</button>
         <span class="hint">Doanh thu tính theo đơn đã xuất vé, thời điểm xác nhận thanh toán (giờ Việt Nam)</span>
       </div>
       <div class="kpis" id="db-kpis"></div>
@@ -177,6 +178,19 @@
         <h2>Tỷ lệ lấp đầy – suất chiếu 3 ngày tới <small>20 suất bán chạy nhất</small></h2>
         <div id="db-upcoming"></div>
       </div>
+      <!-- Đợt 3: báo cáo chi tiết cho Quản lý -->
+      <div class="grid2">
+        <div class="card"><h2>Doanh thu theo khung giờ suất chiếu</h2><div id="db-slots"></div></div>
+        <div class="card"><h2>Cơ cấu doanh thu <small>giá niêm yết</small></h2><div id="db-mix"></div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h2>Lấp đầy theo phim <small>các suất đã chiếu trong kỳ</small></h2><div id="db-occ"></div></div>
+        <div class="card"><h2>Hiệu quả voucher</h2><div id="db-vouchers"></div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h2>Hoàn tiền theo lý do</h2><div id="db-refunds"></div></div>
+        <div class="card"><h2>Beta Club <small>điểm trong kỳ</small></h2><div id="db-loyalty"></div></div>
+      </div>
     </section>
 
     <!-- ===================== CSKH ===================== -->
@@ -184,6 +198,10 @@
       <div class="card">
         <h2>Hàng đợi ưu tiên <small>MANUAL_REVIEW · báo lỗi của khách · tiền không khớp đơn (SOP 6.5.1)</small></h2>
         <div id="tickets"></div>
+      </div>
+      <div class="card">
+        <h2>Thuê rạp · vé nhóm · Private Show <small>khách gửi ở thue-rap.html → CSKH báo giá → chốt (khách nhận email mỗi bước)</small></h2>
+        <div id="events"><div class="empty">Đang tải…</div></div>
       </div>
       <div class="card">
         <h2>Đánh giá phim <small>chỉ khách đã soát vé mới đánh giá được · ẩn đánh giá vi phạm (spoil, xúc phạm, quảng cáo)</small></h2>
@@ -264,7 +282,8 @@
           <label>Số ngày liên tiếp<input id="sc-days" type="number" min="1" max="31" value="1"></label>
           <label>Giờ chiếu (HH:MM, cách nhau dấu phẩy)<input id="sc-times" placeholder="09:30, 12:15, 19:30" required></label>
           <label>Định dạng<input id="sc-format" placeholder="2D PHỤ ĐỀ"></label>
-          <label>Phòng<input id="sc-room" placeholder="Phòng 01"></label>
+          <label>Phòng chiếu<select id="sc-room-id" onchange="document.getElementById('sc-room').disabled = !!this.value"></select></label>
+          <label>Tên phòng (khi không chọn phòng)<input id="sc-room" placeholder="Phòng 01"></label>
           <label>Giá ghế thường<input id="sc-p1" type="number" min="0" step="1000" placeholder="45000"></label>
           <label>Giá ghế VIP<input id="sc-p2" type="number" min="0" step="1000" placeholder="50000"></label>
           <label>Giá Sweetbox<input id="sc-p3" type="number" min="0" step="1000" placeholder="100000"></label>
@@ -358,6 +377,23 @@
           <button class="btn primary">Lưu rạp</button>
         </form>
         <div id="cn-table"></div>
+      </div>
+
+      <!-- Đợt 3: phòng chiếu có sơ đồ ghế riêng -->
+      <div class="card">
+        <h2>Phòng chiếu & sơ đồ ghế <small>mỗi dòng một hàng: "Hàng Loại Số-ghế [gap vị-trí-lối-đi] [off ghế-bỏ-trống]". Loại: standard, vip, sweetbox (ghế đôi, số = số cặp)</small></h2>
+        <form class="form-grid" onsubmit="event.preventDefault(); saveRoom()" style="margin-bottom: 12px;">
+          <input type="hidden" id="rm-id">
+          <label>Rạp<select id="rm-cinema" required></select></label>
+          <label>Tên phòng<input id="rm-name" required placeholder="Phòng 03 – IMAX"></label>
+          <label>Loại phòng<input id="rm-kind" placeholder="2D / IMAX / 4DX…"></label>
+          <label>Đang dùng<select id="rm-active"><option value="true">Có</option><option value="false">Ngừng</option></select></label>
+          <label style="grid-column: 1 / -1;">Sơ đồ ghế<textarea id="rm-layout" rows="9" class="mono" oninput="previewRoom()" spellcheck="false"></textarea></label>
+          <div style="grid-column: 1 / -1;"><div class="hint" id="rm-msg"></div><div id="rm-preview" style="overflow-x: auto; padding: 8px 0;"></div></div>
+          <button class="btn primary">Lưu phòng</button>
+          <button class="btn" type="button" onclick="resetRoom()">Phòng mới</button>
+        </form>
+        <div id="rm-table"></div>
       </div>
     </section>
 
@@ -486,6 +522,7 @@
     <div class="db" id="d-body"></div>
   </aside>
 
+  <script src="catalog.js"></script>
   <script>
     // Live Server (port 55xx) hoặc file:// -> server Node port 5000; còn lại API cùng nguồn
     const API = (/^55\d\d$/.test(location.port) || location.protocol === 'file:') ? 'http://localhost:5000/api/' : '/api/';
@@ -642,6 +679,20 @@
       return top.map(r => `<div class="hbar" title="${esc(r[label])}: ${vnd(r[valueKey])} · ${r.tickets} vé">
         <span class="name">${esc(r[label])}</span><span class="track"><i style="width: ${(r[valueKey] / max * 100).toFixed(1)}%"></i></span><span class="v">${shortVnd(r[valueKey])}</span></div>`).join('');
     }
+    // Tải báo cáo CSV (mở bằng Excel). Dùng fetch kèm token rồi lưu file, vì link thường không gửi được Authorization.
+    async function downloadDashboard() {
+      try {
+        const f = val('db-from'), tt = val('db-to');
+        const r = await fetch(API + 'admin?action=dashboard&format=csv' + (f ? '&from=' + f : '') + (tt ? '&to=' + tt : ''), { headers: TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {} });
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'HTTP ' + r.status);
+        const blob = await r.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (/filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '') || [])[1] || 'bao-cao-quan-ly.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      } catch (e) { alert('Không xuất được báo cáo: ' + e.message); }
+    }
     async function loadDashboard() {
       const f = document.getElementById('db-from'), tt = document.getElementById('db-to');
       const d = await api('admin?action=dashboard' + (f.value ? '&from=' + f.value : '') + (tt.value ? '&to=' + tt.value : ''));
@@ -649,7 +700,7 @@
       const k = d.kpi;
       document.getElementById('db-kpis').innerHTML = [
         [vnd(k.revenue), 'Doanh thu vé & combo'], [vnd(k.net), 'Doanh thu thuần (trừ hoàn tiền)'], [k.tickets, 'Vé đã bán'], [k.orders, 'Đơn đã xuất vé'],
-        [vnd(k.avg_order), 'Giá trị đơn trung bình'], [vnd(k.refunded), 'Đã hoàn tiền'], [k.occupancy_3d + '%', 'Lấp đầy ghế 3 ngày tới'],
+        [vnd(k.avg_order), 'Giá trị đơn trung bình'], [vnd(k.refunded), 'Đã hoàn tiền'], [k.occupancy_period + '%', 'Lấp đầy suất đã chiếu (kỳ)'], [k.occupancy_3d + '%', 'Lấp đầy ghế 3 ngày tới'],
         [k.pending_manual_refunds, 'Hồ sơ hoàn thủ công đang mở'], [k.open_tickets, 'Phiếu hỗ trợ đang mở']
       ].map(([v, l]) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join('');
       const max = Math.max(...d.days.map(x => x.revenue), 1);
@@ -666,6 +717,17 @@
         </details>`;
       document.getElementById('db-movies').innerHTML = hbars(d.by_movie, 'revenue', 'title');
       document.getElementById('db-cinemas').innerHTML = hbars(d.by_cinema, 'revenue', 'name');
+      document.getElementById('db-slots').innerHTML = hbars(d.by_slot, 'revenue', 'label');
+      const tbl = (head, rows, empty) => rows.length ? `<table><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>` : `<div class="empty">${empty}</div>`;
+      const m = d.mix;
+      document.getElementById('db-mix').innerHTML = tbl(['Hạng mục', 'Số tiền'], [
+        ['Vé', vnd(m.ticket)], ['Bắp nước kèm vé', vnd(m.fnb_with_ticket)], ['Bắp nước mua riêng', vnd(m.fnb_only)],
+        ['Giảm do voucher', '−' + vnd(m.discount)], ['Trả bằng điểm Beta Club', '−' + vnd(m.points)], ['<b>Tỷ lệ hoàn tiền</b>', k.refund_rate + '%']], '');
+      document.getElementById('db-occ').innerHTML = tbl(['Phim', 'Suất', 'Ghế bán', 'Lấp đầy'], d.occupancy_by_movie.map(x => [esc(x.title), x.shows, x.sold + '/' + x.total, x.rate + '%']), 'Chưa có suất nào đã chiếu trong kỳ.');
+      document.getElementById('db-vouchers').innerHTML = tbl(['Mã', 'Lượt', 'Tổng giảm', 'Doanh thu kèm mã'], d.vouchers.map(x => [`<span class="mono">${esc(x.code)}</span>`, x.uses, vnd(x.discount), vnd(x.revenue)]), 'Chưa có đơn dùng voucher.');
+      document.getElementById('db-refunds').innerHTML = tbl(['Lý do', 'Hồ sơ', 'Số tiền'], d.refunds_by_reason.map(x => [esc(x.label), x.count, vnd(x.amount)]), 'Không có khoản hoàn tiền nào trong kỳ.');
+      const lo = d.loyalty;
+      document.getElementById('db-loyalty').innerHTML = tbl(['Hạng mục', 'Điểm', 'Quy ra tiền'], [['Tích từ đơn', lo.earned], ['Quà sinh nhật', lo.birthday], ['Đã dùng', lo.redeemed], ['Hết hạn', lo.expired]].map(([a, b]) => [a, b.toLocaleString('vi-VN'), vnd(b * 1000)]), '');
       document.getElementById('db-upcoming').innerHTML = d.upcoming.length ? `<table><thead><tr><th>Suất</th><th>Phim</th><th>Rạp</th><th style="width: 34%;">Lấp đầy</th></tr></thead><tbody>${
         d.upcoming.map(x => `<tr><td><b>${x.time}</b> <span class="hint">${esc(x.date_label)}</span></td><td>${esc(x.movie)}</td><td>${esc(x.cinema)}</td>
           <td><div class="hbar" style="grid-template-columns: 1fr auto; padding: 0;"><span class="track"><i style="width: ${Math.max(x.rate, 0.5)}%"></i></span><span class="v">${x.sold}/${x.total} · ${x.rate}%</span></div></td></tr>`).join('')
@@ -827,6 +889,20 @@
       const opt = (rows, label, sel) => rows.map(r => `<option value="${esc(r.id)}" ${r.id === sel ? 'selected' : ''}>${esc(label(r))}</option>`).join('');
       document.getElementById('sc-movie').innerHTML = opt(CAT.movies.filter(m => m.status !== 'HIDDEN'), m => m.title);
       document.getElementById('sc-cinema').innerHTML = opt(CAT.cinemas.filter(c => c.active), c => c.name);
+      const fillRooms = () => {
+        const cid = val('sc-cinema');
+        document.getElementById('sc-room-id').innerHTML = '<option value="">— Sơ đồ chuẩn (74 ghế) —</option>' + opt(CAT.rooms.filter(r => r.cinema_id === cid && r.active !== false), r => r.name + ' · ' + r.seats + ' ghế');
+        document.getElementById('sc-room').disabled = false;
+      };
+      document.getElementById('sc-cinema').onchange = fillRooms;
+      fillRooms();
+      document.getElementById('rm-cinema').innerHTML = opt(CAT.cinemas, c => c.name, val('rm-cinema'));
+      if (!val('rm-layout')) { document.getElementById('rm-layout').value = CAT.default_layout_text; previewRoom(); }
+      const cname = (id) => (CAT.cinemas.find(c => c.id === id) || {}).name || id;
+      document.getElementById('rm-table').innerHTML = CAT.rooms.length ? `<table><thead><tr><th>Phòng</th><th>Rạp</th><th>Số ghế</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+        CAT.rooms.map(r => `<tr class="${r.active === false ? 'inactive' : ''}"><td><b>${esc(r.name)}</b>${r.kind ? `<div class="hint">${esc(r.kind)}</div>` : ''}</td><td>${esc(cname(r.cinema_id))}</td><td>${r.seats}</td>
+          <td>${r.active === false ? pill('Ngừng', 'muted') : pill('Đang dùng', 'ok')}</td><td><button class="btn" onclick="editRoom('${esc(r.id)}')">Sửa</button></td></tr>`).join('')}</tbody></table>`
+        : '<div class="empty">Chưa có phòng riêng – mọi suất dùng sơ đồ chuẩn 74 ghế.</div>';
       const slc = document.getElementById('sl-cinema');
       slc.innerHTML = opt(CAT.cinemas, c => c.name, slc.value);
       if (!document.getElementById('sc-date').value) document.getElementById('sc-date').value = CAT.today;
@@ -861,7 +937,7 @@
     }
     const createShowtimes = () => act(async () => {
       const r = await post('showtime_create', { movie_id: val('sc-movie'), cinema_id: val('sc-cinema'), date: val('sc-date'), days: val('sc-days'), times: val('sc-times'),
-        format: val('sc-format'), room: val('sc-room'), price_standard: val('sc-p1'), price_vip: val('sc-p2'), price_sweetbox: val('sc-p3') });
+        format: val('sc-format'), room: val('sc-room'), room_id: val('sc-room-id'), price_standard: val('sc-p1'), price_vip: val('sc-p2'), price_sweetbox: val('sc-p3') });
       alert(`Đã tạo ${r.created} suất chiếu.` + (r.skipped.length ? '\nBỏ qua: ' + r.skipped.join(', ') : ''));
       document.getElementById('sl-cinema').value = val('sc-cinema');
       document.getElementById('sl-date').value = val('sc-date');
@@ -919,6 +995,45 @@
       drawVcDays();
       await loadCatalog();
     });
+    // Phòng chiếu: xem trước sơ đồ ngay khi gõ (cùng hàm kiểm tra với máy chủ)
+    function previewRoom() {
+      const msg = document.getElementById('rm-msg'), box = document.getElementById('rm-preview');
+      try {
+        const L = BetaCatalog.layoutFromText(val('rm-layout'));
+        const seats = BetaCatalog.seatsOf(L);
+        const cnt = (t) => seats.filter(s => s.type === t).length;
+        msg.textContent = `${seats.length} chỗ bán: ${cnt('standard')} thường, ${cnt('vip')} VIP, ${cnt('sweetbox')} ghế đôi`;
+        msg.style.color = '';
+        const col = { standard: '#64748b', vip: '#f59e0b', sweetbox: '#ec4899' };
+        box.innerHTML = '<div style="text-align:center;font-size:11px;letter-spacing:3px;color:#005198;font-weight:800;margin-bottom:6px">MÀN HÌNH</div>' + L.rows.map(x => {
+          let h = '<div style="display:flex;gap:3px;justify-content:center;margin:3px 0;align-items:center"><span style="width:16px;font-size:11px;color:#64748b">' + x.r + '</span>';
+          for (let k = 1; k <= x.n; k++) {
+            const w = x.type === 'sweetbox' ? 34 : 15;
+            h += `<span title="${x.r}${k}" style="width:${w}px;height:13px;border-radius:3px;background:${x.off.includes(k) ? 'transparent' : col[x.type]};${x.off.includes(k) ? 'outline:1px dashed #cbd5e1' : ''}"></span>`;
+            if (x.gaps.includes(k)) h += '<span style="width:12px"></span>';
+          }
+          return h + '</div>';
+        }).join('');
+      } catch (e) { msg.textContent = e.message; msg.style.color = '#b91c1c'; box.innerHTML = ''; }
+    }
+    function editRoom(id) {
+      const r = CAT.rooms.find(x => x.id === id);
+      document.getElementById('rm-id').value = r.id; document.getElementById('rm-cinema').value = r.cinema_id;
+      document.getElementById('rm-name').value = r.name; document.getElementById('rm-kind').value = r.kind || '';
+      document.getElementById('rm-active').value = String(r.active !== false); document.getElementById('rm-layout').value = r.layout_text;
+      previewRoom();
+      document.getElementById('rm-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function resetRoom() {
+      ['rm-id', 'rm-name', 'rm-kind'].forEach(id => { document.getElementById(id).value = ''; });
+      document.getElementById('rm-layout').value = CAT.default_layout_text; previewRoom();
+    }
+    const saveRoom = () => act(async () => {
+      await post('room_save', { id: val('rm-id'), cinema_id: val('rm-cinema'), name: val('rm-name'), kind: val('rm-kind'), active: val('rm-active') === 'true', layout_text: val('rm-layout') });
+      resetRoom();
+      await loadCatalog();
+    });
+
     function editCinema(id) {
       const c = CAT.cinemas.find(x => x.id === id);
       document.getElementById('cn-id').value = c.id; document.getElementById('cn-name').value = c.name;
@@ -950,7 +1065,7 @@
     }
     const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
       remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', ticket_reply: 'Trả lời khách', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
-      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
+      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', room_save: 'Lưu phòng chiếu', review_hide: 'Ẩn/hiện đánh giá', event_update: 'Cập nhật yêu cầu thuê rạp', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
       change_password: 'Đổi mật khẩu', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
     function renderAudit() {
       const q = document.getElementById('au-search').value.trim().toLowerCase();
@@ -981,6 +1096,40 @@
     function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
 
     // ---------------- CSKH ----------------
+    // Thuê rạp / vé nhóm (Đợt 3)
+    let EVENTS = { requests: [], statuses: {}, kinds: {} };
+    async function loadEvents() {
+      const box = document.getElementById('events');
+      try {
+        EVENTS = await api('admin?action=event_list');
+        const tone = { NEW: 'danger', QUOTED: 'warn', CONFIRMED: 'ok', DONE: 'muted', CANCELLED: 'muted' };
+        box.innerHTML = EVENTS.requests.length ? `<table><thead><tr><th>Mã</th><th>Loại</th><th>Khách</th><th>Rạp / ngày</th><th>Số khách</th><th>Báo giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+          EVENTS.requests.map(x => `<tr><td class="mono">${esc(x.code)}<div class="hint">${t(x.created_at)}</div></td><td>${esc(EVENTS.kinds[x.kind] || x.kind)}</td>
+            <td><b>${esc(x.contact_name)}</b>${x.company ? '<div class="hint">' + esc(x.company) + '</div>' : ''}<div class="hint mono">${esc(x.phone)}${x.email ? ' · ' + esc(x.email) : ''}</div></td>
+            <td>${esc(x.cinema_name || 'Chưa chọn rạp')}<div class="hint">${x.date ? x.date.split('-').reverse().join('/') : 'Chưa chọn ngày'}${x.time ? ' ' + esc(x.time) : ''}${x.movie_title ? ' · ' + esc(x.movie_title) : ''}</div>${x.note ? '<div class="hint">' + esc(x.note) + '</div>' : ''}</td>
+            <td>${x.guests}</td><td>${x.quote_amount ? vnd(x.quote_amount) : '—'}</td><td>${pill(EVENTS.statuses[x.status] || x.status, tone[x.status])}</td>
+            <td style="white-space: nowrap;">${['DONE', 'CANCELLED'].includes(x.status) ? '' : `
+              ${x.status !== 'CONFIRMED' ? `<button class="btn" onclick="eventQuote('${esc(x.code)}')">Báo giá</button>` : ''}
+              ${x.status === 'QUOTED' ? `<button class="btn ok" onclick="eventSet('${esc(x.code)}', 'CONFIRMED')">Chốt</button>` : ''}
+              ${x.status === 'CONFIRMED' ? `<button class="btn ok" onclick="eventSet('${esc(x.code)}', 'DONE')">Đã tổ chức</button>` : ''}
+              <button class="btn danger" onclick="eventSet('${esc(x.code)}', 'CANCELLED')">Hủy</button>`}</td></tr>`).join('')}</tbody></table>`
+          : '<div class="empty">Chưa có yêu cầu thuê rạp / vé nhóm.</div>';
+      } catch (e) { box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+    const eventQuote = (code) => act(async () => {
+      const amount = prompt('Số tiền báo giá (đ):');
+      if (!amount) return;
+      const note = prompt('Ghi chú báo giá gửi khách (gói dịch vụ, phòng, giờ…):') || '';
+      await post('event_update', { code, status: 'QUOTED', quote_amount: amount.replace(/\D/g, ''), quote_note: note });
+      await loadEvents();
+    });
+    const eventSet = (code, status) => act(async () => {
+      if (status === 'CANCELLED' && !confirm('Hủy yêu cầu ' + code + '? Khách sẽ nhận email thông báo.')) return;
+      const note = status === 'CANCELLED' ? (prompt('Lý do hủy (nội bộ):') || '') : '';
+      await post('event_update', { code, status, staff_note: note });
+      await loadEvents();
+    });
+
     // Đánh giá phim (Đợt 2)
     async function loadReviews() {
       const box = document.getElementById('reviews');
@@ -996,6 +1145,7 @@
 
     function renderCskh() {
       loadReviews();
+      loadEvents();
       const tk = overview.tickets;
       badge('c-cskh', tk.filter(x => x.status === 'OPEN').length);
       document.getElementById('tickets').innerHTML = tk.length ? `<table><thead><tr><th>Phiếu</th><th>Loại</th><th>Đơn</th><th>Nội dung</th><th>Trạng thái</th><th>Cập nhật</th><th></th></tr></thead><tbody>${

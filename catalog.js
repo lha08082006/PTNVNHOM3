@@ -81,13 +81,75 @@
   // Sơ đồ phòng chiếu: A–E ghế thường, F–G ghế VIP, H ghế đôi (Sweetbox, mã dạng "H1-H2")
   const SEAT_PRICES = { standard: 45000, vip: 50000, sweetbox: 100000 };
   const SEAT_LABEL = { standard: 'Ghế thường', vip: 'Ghế VIP', sweetbox: 'Ghế đôi Sweetbox' };
-  function seatType(id) {
-    const s = String(id || '').trim().toUpperCase();
-    let m = /^([A-G])(\d{1,2})$/.exec(s);
-    if (m && +m[2] >= 1 && +m[2] <= 10) return m[1] <= 'E' ? 'standard' : 'vip';
-    m = /^H(\d)-H(\d{1,2})$/.exec(s);
-    if (m && +m[1] % 2 === 1 && +m[2] === +m[1] + 1 && +m[2] <= 8) return 'sweetbox';
-    return null;
+
+  // ---- Sơ đồ ghế theo phòng chiếu (Đợt 3) ----
+  // layout = { rows: [{ r: 'A', type: 'standard'|'vip'|'sweetbox', n: số ghế (ghế đôi: số cặp), gaps: [vị trí lối đi sau ghế số], off: [ghế bỏ trống] }] }
+  // Mã ghế: thường/VIP "A5"; ghế đôi cặp thứ k của hàng H: "H{2k-1}-H{2k}".
+  // Dạng chữ để Quản lý sửa nhanh: mỗi dòng "A standard 10 gap 5 off 1,10".
+  const ROW_TYPES = ['standard', 'vip', 'sweetbox'];
+  const DEFAULT_LAYOUT = {
+    rows: 'ABCDE'.split('').map(r => ({ r, type: 'standard', n: 10, gaps: [5], off: [] }))
+      .concat('FG'.split('').map(r => ({ r, type: 'vip', n: 10, gaps: [5], off: [] })))
+      .concat([{ r: 'H', type: 'sweetbox', n: 4, gaps: [2], off: [] }])
+  };
+  const ints = (a) => (Array.isArray(a) ? a : String(a || '').split(/[\s,;]+/)).map(Number).filter(x => Number.isInteger(x) && x > 0);
+  // Chuẩn hóa + kiểm tra sơ đồ (dùng khi Quản lý lưu phòng và khi đọc từ database)
+  function normLayout(l) {
+    const rows = (l && Array.isArray(l.rows) ? l.rows : []).map(x => ({
+      r: String(x.r || '').trim().toUpperCase(), type: String(x.type || 'standard').toLowerCase(),
+      n: Math.round(Number(x.n) || 0), gaps: [...new Set(ints(x.gaps))].sort((a, b) => a - b), off: [...new Set(ints(x.off))].sort((a, b) => a - b)
+    }));
+    if (!rows.length) throw err('Sơ đồ phải có ít nhất một hàng ghế');
+    if (rows.length > 26) throw err('Tối đa 26 hàng ghế');
+    const seen = new Set();
+    for (const x of rows) {
+      if (!/^[A-Z]$/.test(x.r)) throw err('Tên hàng phải là một chữ cái A–Z');
+      if (seen.has(x.r)) throw err('Hàng ' + x.r + ' bị trùng');
+      seen.add(x.r);
+      if (!ROW_TYPES.includes(x.type)) throw err('Hàng ' + x.r + ': loại ghế phải là standard, vip hoặc sweetbox');
+      const max = x.type === 'sweetbox' ? 15 : 30;
+      if (!(x.n >= 1 && x.n <= max)) throw err('Hàng ' + x.r + ': số ghế phải từ 1 đến ' + max);
+      x.gaps = x.gaps.filter(g => g < x.n);
+      x.off = x.off.filter(o => o <= x.n);
+    }
+    if (!seatsOf({ rows }).length) throw err('Sơ đồ không còn ghế nào để bán');
+    return { rows };
+  }
+  const pairId = (r, k) => r + (2 * k - 1) + '-' + r + (2 * k);
+  // Danh sách ghế bán được của sơ đồ, theo thứ tự hàng / số ghế
+  function seatsOf(layout) {
+    const out = [];
+    for (const x of (layout || DEFAULT_LAYOUT).rows) {
+      for (let k = 1; k <= x.n; k++) {
+        if ((x.off || []).includes(k)) continue;
+        out.push({ id: x.type === 'sweetbox' ? pairId(x.r, k) : x.r + k, type: x.type, row: x.r, k });
+      }
+    }
+    return out;
+  }
+  const _maps = new WeakMap();
+  function seatType(id, layout) {
+    const L = layout || DEFAULT_LAYOUT;
+    let m = _maps.get(L);
+    if (!m) { m = new Map(seatsOf(L).map(s => [s.id, s.type])); _maps.set(L, m); }
+    return m.get(String(id || '').trim().toUpperCase()) || null;
+  }
+  function layoutToText(layout) {
+    return (layout || DEFAULT_LAYOUT).rows.map(x => [x.r, x.type, x.n].concat(x.gaps && x.gaps.length ? ['gap', x.gaps.join(',')] : [], x.off && x.off.length ? ['off', x.off.join(',')] : []).join(' ')).join('\n');
+  }
+  function layoutFromText(text) {
+    const rows = String(text || '').split(/\r?\n/).map(s => s.trim()).filter(s => s && !s.startsWith('#')).map((line) => {
+      const t = line.split(/\s+/);
+      const row = { r: t[0], type: t[1], n: t[2], gaps: [], off: [] };
+      for (let i = 3; i < t.length; i += 2) {
+        const key = String(t[i]).toLowerCase();
+        if (key === 'gap') row.gaps = t[i + 1];
+        else if (key === 'off') row.off = t[i + 1];
+        else throw err('Dòng "' + line + '": chỉ dùng "gap" hoặc "off"');
+      }
+      return row;
+    });
+    return normLayout({ rows });
   }
 
   // Combo bắp nước: tên, mô tả, ảnh dùng chung cho trang Combo, Thanh toán, Giá vé và máy chủ
@@ -162,9 +224,7 @@
   const err = (msg) => Object.assign(new Error(msg), { http: 400 });
 
   // Toàn bộ ghế của phòng chiếu (dùng để đếm ghế trống)
-  const SEAT_IDS = [];
-  for (const r of 'ABCDEFG') for (let n = 1; n <= 10; n++) SEAT_IDS.push(r + n);
-  for (let n = 1; n <= 7; n += 2) SEAT_IDS.push(`H${n}-H${n + 1}`);
+  const SEAT_IDS = seatsOf(DEFAULT_LAYOUT).map(s => s.id);
 
   // Tính tiền một đơn. Ném lỗi (http 400) nếu ghế/combo/voucher không hợp lệ.
   //   prices   : giá ghế của suất chiếu (mặc định SEAT_PRICES)
@@ -174,7 +234,7 @@
   //   show_dow     : thứ trong tuần của suất chiếu (để kiểm tra voucher chỉ áp dụng vài thứ)
   //   points       : số điểm Beta Club khách muốn dùng (máy chủ đã kiểm tra số dư)
   //   fnb          : đơn chỉ mua bắp nước (không có ghế)
-  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS, ticket_types = {}, types = TICKET_TYPES, show_dow = null, points = 0, fnb = false } = {}) {
+  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS, ticket_types = {}, types = TICKET_TYPES, show_dow = null, points = 0, fnb = false, layout = null } = {}) {
     prices = { ...SEAT_PRICES, ...(prices || {}) };
     const list = fnb ? [] : (Array.isArray(seats) ? seats : String(seats).split(','))
       .map(s => String(s).trim().toUpperCase()).filter(Boolean);
@@ -182,7 +242,7 @@
     if (list.length > MAX_SEATS) throw err(`Mỗi đơn tối đa ${MAX_SEATS} ghế`);
     if (new Set(list).size !== list.length) throw err('Danh sách ghế bị trùng');
     const seatLines = list.map(id => {
-      const type = seatType(id);
+      const type = seatType(id, layout);
       if (!type) throw err('Ghế không tồn tại: ' + id);
       return { id, type, price: prices[type] };
     });
@@ -239,5 +299,5 @@
     return MOVIES[k] || null;
   }
 
-  return { LOYALTY, tierOf, maxPointsFor, voucherDiscount, MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, TICKET_TYPES, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
+  return { DEFAULT_LAYOUT, normLayout, seatsOf, layoutToText, layoutFromText, LOYALTY, tierOf, maxPointsFor, voucherDiscount, MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, TICKET_TYPES, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
 });

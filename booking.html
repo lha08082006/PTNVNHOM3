@@ -493,7 +493,7 @@
       const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
       const box = document.getElementById('date-selector');
       box.innerHTML = '';
-      for (let i = 0; i < 14; i++) {
+      for (let i = 0; i < 30; i++) {
         const date = addDays(today, i);
         const [, mm, dd] = date.split('-');
         const btn = document.createElement('button');
@@ -565,7 +565,7 @@
 
     (async function init() {
       try {
-        const [mv, cn, week] = await Promise.all([Pay.catalog('movies'), Pay.catalog('cinemas'), Pay.catalog('showtimes', { movie: movieKey, days: 14 })]);
+        const [mv, cn, week] = await Promise.all([Pay.catalog('movies'), Pay.catalog('cinemas'), Pay.catalog('showtimes', { movie: movieKey, days: 30 })]);
         const m = mv.movies.find(x => x.key === movieKey);
         if (!m) { location.replace('home.html'); return; }
         renderMovie(m);

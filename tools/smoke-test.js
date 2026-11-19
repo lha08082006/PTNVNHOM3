@@ -852,6 +852,119 @@ async function test(name, fn) {
     assert.ok(cron.data.reminders && !cron.data.reminders.error, JSON.stringify(cron.data.reminders));
   });
 
+  // ======================= Đợt 3: phòng chiếu, thuê rạp, báo cáo, nhắc mở bán, SEO =======================
+  const CatalogDB3 = require('../lib/catalog-db');
+  const tomorrow = CatalogDB3.addDays(CatalogDB3.vnToday(), 1);
+
+  await test('Đợt 3: phòng chiếu có sơ đồ ghế riêng – đặt đúng ghế của phòng, chặn ghế không tồn tại, chặn chồng giờ', async () => {
+    const C = require('../catalog');
+    assert.throws(() => C.layoutFromText('A standard 0'), /số ghế/);
+    assert.throws(() => C.layoutFromText('A standard 10\nA vip 5'), /trùng/);
+    assert.throws(() => C.layoutFromText('A ghe 10'), /loại ghế/);
+    assert.strictEqual(C.SEAT_IDS.length, 74); // sơ đồ chuẩn không đổi
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const layout_text = 'A standard 12 gap 6 off 1,12\nB vip 10\nK sweetbox 3';
+    assert.strictEqual((await cs.post({ action: 'room_save', cinema_id: 'beta-thanh-xuan', name: 'IMAX', layout_text })).status, 403);
+    const room = await ql.post({ action: 'room_save', cinema_id: 'beta-thanh-xuan', name: 'Phòng 05 – IMAX', kind: 'IMAX', layout_text });
+    assert.strictEqual(room.status, 200, JSON.stringify(room.data));
+    const rid = room.data.room.id;
+    const mk = await ql.post({ action: 'showtime_create', movie_id: 'suzume', cinema_id: 'beta-thanh-xuan', date: tomorrow, times: '10:00', room_id: rid });
+    assert.strictEqual(mk.data.created, 1, JSON.stringify(mk.data));
+    // Suất khác chồng giờ trong cùng phòng -> bỏ qua; phòng của rạp khác -> từ chối
+    const clash = await ql.post({ action: 'showtime_create', movie_id: 'me-min', cinema_id: 'beta-thanh-xuan', date: tomorrow, times: '10:30', room_id: rid });
+    assert.strictEqual(clash.data.created, 0);
+    assert.ok(/Phòng 05/.test(clash.data.skipped[0]), JSON.stringify(clash.data));
+    assert.strictEqual((await ql.post({ action: 'showtime_create', movie_id: 'me-min', cinema_id: 'beta-my-dinh', date: tomorrow, times: '10:30', room_id: rid })).status, 400);
+    const list = (await call('catalog', { query: { action: 'showtimes', movie: 'suzume', date: tomorrow } })).data.showtimes;
+    const st = list.find(s => s.room_id === rid);
+    assert.strictEqual(st.room, 'Phòng 05 – IMAX');
+    assert.strictEqual(st.seats_total, 10 + 10 + 3);
+    const one = (await call('catalog', { query: { action: 'showtime', id: st.id } })).data.showtime;
+    assert.deepStrictEqual(one.layout.rows.map(r => r.r), ['A', 'B', 'K']);
+    // Ghế A1 bị bỏ trống (off), C1 không có trong phòng -> từ chối; K3-K4 (ghế đôi hàng K) hợp lệ
+    assert.strictEqual((await call('create-order', { method: 'POST', token: tokE, body: { showtime_id: st.id, seats: ['A1'] } })).status, 400);
+    assert.strictEqual((await call('create-order', { method: 'POST', token: tokE, body: { showtime_id: st.id, seats: ['C1'] } })).status, 400);
+    const ok = await call('create-order', { method: 'POST', token: tokE, body: { showtime_id: st.id, seats: ['A2', 'B10', 'K3-K4'] } });
+    assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
+    assert.strictEqual(ok.data.total, st.prices.standard + st.prices.vip + st.prices.sweetbox);
+    // Sửa sơ đồ làm mất ghế khách đang giữ -> chặn
+    const shrink = await ql.post({ action: 'room_save', id: rid, cinema_id: 'beta-thanh-xuan', name: 'Phòng 05 – IMAX', layout_text: 'A standard 12\nB vip 9\nK sweetbox 3' });
+    assert.strictEqual(shrink.status, 409);
+    assert.ok(/B10/.test(shrink.data.error));
+    const rename = await ql.post({ action: 'room_save', id: rid, cinema_id: 'beta-thanh-xuan', name: 'Phòng 05 – IMAX Laser', layout_text: layout_text + '\nL standard 8' });
+    assert.strictEqual(rename.status, 200, JSON.stringify(rename.data));
+    assert.strictEqual((await call('catalog', { query: { action: 'showtime', id: st.id } })).data.showtime.seats_total, 31);
+  });
+
+  await test('Đợt 3: thuê rạp / vé nhóm – khách gửi, tra cứu bằng mã + SĐT, CSKH báo giá → chốt → đã tổ chức', async () => {
+    const base = { kind: 'PRIVATE_SHOW', cinema_id: 'beta-thanh-xuan', date: tomorrow, time: '19:00', guests: 40, movie_id: 'suzume', contact_name: 'Công ty ABC', phone: '0912345678', email: 'abc@congty.vn', company: 'ABC' };
+    assert.strictEqual((await call('events', { method: 'POST', body: { ...base, kind: 'GROUP', guests: 5 } })).status, 400);
+    assert.strictEqual((await call('events', { method: 'POST', body: { ...base, phone: '123' } })).status, 400);
+    assert.strictEqual((await call('events', { method: 'POST', body: { ...base, date: '2020-01-01' } })).status, 400);
+    const r = await call('events', { method: 'POST', body: base });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    const code = r.data.request.code;
+    assert.match(code, /^EV-\d{6}$/);
+    assert.strictEqual((await call('events', { query: { code, phone: '0999999999' } })).status, 404);
+    assert.strictEqual((await call('events', { query: { code, phone: '0912345678' } })).data.request.status, 'NEW');
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    assert.strictEqual((await quay.post({ action: 'event_update', code, status: 'QUOTED', quote_amount: 1 })).status, 403);
+    assert.strictEqual((await cs.post({ action: 'event_update', code, status: 'QUOTED' })).status, 400); // thiếu số tiền
+    assert.strictEqual((await cs.post({ action: 'event_update', code, status: 'DONE' })).status, 409); // chưa chốt
+    assert.strictEqual((await cs.post({ action: 'event_update', code, status: 'QUOTED', quote_amount: 6500000, quote_note: 'Phòng 05, 2 giờ, kèm 40 combo' })).status, 200);
+    let v = (await call('events', { query: { code, phone: '0912345678' } })).data.request;
+    assert.strictEqual(v.quote_amount, 6500000);
+    assert.ok(!('staff_note' in v) && !('phone' in v), 'khách không thấy ghi chú nội bộ');
+    assert.strictEqual((await cs.post({ action: 'event_update', code, status: 'CONFIRMED' })).status, 200);
+    assert.strictEqual((await cs.post({ action: 'event_update', code, status: 'DONE' })).status, 200);
+    const all = (await cs.get('event_list')).data.requests.find(x => x.code === code);
+    assert.deepStrictEqual(all.history.map(h => h.status), ['NEW', 'QUOTED', 'CONFIRMED', 'DONE']);
+  });
+
+  await test('Đợt 3: báo cáo Quản lý – khung giờ, cơ cấu doanh thu, voucher, Beta Club, xuất CSV', async () => {
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const d = (await ql.get('dashboard')).data;
+    assert.strictEqual(d.by_slot.length, 4);
+    assert.ok(d.mix.ticket > 0 && d.mix.fnb_only > 0, JSON.stringify(d.mix));
+    assert.ok(d.loyalty.earned > 0);
+    assert.ok(Array.isArray(d.vouchers) && Array.isArray(d.refunds_by_reason) && Array.isArray(d.occupancy_by_movie));
+    assert.ok(d.by_movie.some(x => x.title === 'Bắp nước mua riêng'));
+    const Dashboard = require('../lib/dashboard');
+    const csv = Dashboard.toCsv(d);
+    assert.strictEqual(csv.charCodeAt(0), 0xfeff); // Excel đọc đúng tiếng Việt
+    assert.ok(csv.includes('THEO KHUNG GIỜ SUẤT CHIẾU') && csv.includes('BETA CLUB'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    assert.strictEqual((await cs.get('dashboard')).status, 403);
+  });
+
+  await test('Đợt 3: "Nhắc tôi khi mở bán" – báo 1 lần khi phim có suất chiếu', async () => {
+    const Store = require('../lib/store');
+    const Reminders = require('../lib/reminders');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    await ql.post({ action: 'movie_save', id: 'phim-sap-chieu', title: 'Phim Sắp Chiếu', age: 'P', status: 'SOON', duration_min: 95 });
+    assert.strictEqual((await call('member', { method: 'POST', token: tokE, query: { action: 'watch' }, body: { movie: 'khong-co' } })).status, 404);
+    const w = await call('member', { method: 'POST', token: tokE, query: { action: 'watch' }, body: { movie: 'phim-sap-chieu' } });
+    assert.strictEqual(w.data.watching, true);
+    assert.strictEqual((await Reminders.run()).on_sale, 0); // chưa có suất
+    await ql.post({ action: 'showtime_create', movie_id: 'phim-sap-chieu', cinema_id: 'beta-my-dinh', date: tomorrow, times: '20:00' });
+    assert.strictEqual((await Reminders.run()).on_sale, 1);
+    assert.strictEqual((await Reminders.run()).on_sale, 0);
+    assert.strictEqual((await call('member', { token: tokE, query: { action: 'watch', movie: 'phim-sap-chieu' } })).data.watching, false);
+    const me = (await call('auth', { token: tokE, query: { action: 'me' } })).data.user;
+    assert.strictEqual((await Store.find('notifications', { order_code: 'CUS:' + me.id, event: 'MOVIE_ON_SALE' })).length, 1);
+  });
+
+  await test('Đợt 3: SEO – sitemap dùng đường dẫn /phim/, lịch chiếu mở bán tới 30 ngày', async () => {
+    const r = { headers: {}, statusCode: 0, body: '', setHeader(k, v) { this.headers[k] = v; }, end(b) { this.body = b; } };
+    await require('../lib/routes/sitemap')({ query: {}, headers: { host: 'beta.test' } }, r);
+    assert.ok(/<loc>http:\/\/beta\.test\/phim\/suzume<\/loc>/.test(r.body) || /\/phim\/suzume</.test(r.body), r.body.slice(0, 300));
+    assert.ok(!/movie-detail\?movie=/.test(r.body));
+    const far = await call('catalog', { query: { action: 'showtimes', days: 30 } });
+    assert.strictEqual(far.status, 200);
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

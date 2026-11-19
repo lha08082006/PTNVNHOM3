@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Beta Cinemas - Hệ thống rạp chiếu phim hàng đầu Việt Nam</title>
+  <!-- Dữ liệu có cấu trúc cho công cụ tìm kiếm (Đợt 3) -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@graph":[
+    {"@type":"Organization","name":"Beta Cinemas","legalName":"Công ty Cổ phần Beta Media","logo":"/images/logo-official.png","telephone":"+84-1900-636-807","address":{"@type":"PostalAddress","streetAddress":"Tầng 3, số 59 phố Xuân Diệu, Quảng An, Tây Hồ","addressLocality":"Hà Nội","addressCountry":"VN"}},
+    {"@type":"WebSite","name":"Beta Cinemas","inLanguage":"vi"}
+  ]}
+  </script>
   <meta name="description" content="Đặt vé xem phim online tại Beta Cinemas: lịch chiếu mới nhất, giá vé ưu đãi, thanh toán VietQR nhận vé điện tử trong vài giây.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Beta Cinemas">
@@ -816,6 +823,8 @@
             <li><a href="policy.html#hoan-tien">Chính sách đổi trả & hoàn tiền</a></li>
             <li><a href="policy.html#do-tuoi">Quy định độ tuổi xem phim</a></li>
             <li><a href="policy.html#thanh-toan">Hướng dẫn thanh toán trực tuyến</a></li>
+            <li><a href="thue-rap.html">Thuê rạp, vé nhóm &amp; Private Show</a></li>
+            <li><a href="bap-nuoc.html">Mua bắp nước online</a></li>
           </ul>
         </div>
 
@@ -1285,7 +1294,7 @@
           const key = buy ? new URL(buy.href).searchParams.get('movie') : null;
           if (key && byKey[key]) card.dataset.genre = byKey[key].genre || '';
           const t = card.querySelector('.movie-title-official a');
-          if (key && t) t.href = 'movie-detail.html?movie=' + encodeURIComponent(key);
+          if (key && t) t.href = 'phim/' + encodeURIComponent(key);
         });
         // Khối TIN MỚI & ƯU ĐÃI: 3 bài đang hiển thị (ghim lên đầu) – Quản lý đăng trong admin
         try {

@@ -14,6 +14,10 @@
       "destination": "/home.html"
     },
     {
+      "source": "/phim/:slug",
+      "destination": "/movie-detail"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
     },

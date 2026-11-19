@@ -428,7 +428,7 @@
       // Tiền vé tính theo giá ghế của suất chiếu, không tin số tiền trên URL
       try {
         const pr = await Pay.pricing();
-        const q = BetaCatalog.quote({ seats: selectedSeatsStr, prices: st.prices, ticket_types: typeCounts, types: (pr && pr.ticket_types) || undefined });
+        const q = BetaCatalog.quote({ seats: selectedSeatsStr, prices: st.prices, ticket_types: typeCounts, types: (pr && pr.ticket_types) || undefined, layout: st.layout || null });
         typeSummary = Object.entries(q.ticket_types).map(([c, n]) => n + ' ' + (((pr && pr.ticket_types) || BetaCatalog.TICKET_TYPES)[c] || {}).label).join(', ');
         ticketTotal = q.seat_total;
         seatCount = q.seats.length;

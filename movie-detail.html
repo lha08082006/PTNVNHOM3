@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <!-- Trang được mở ở /phim/<mã-phim> (Đợt 3): mọi đường dẫn tương đối tính từ gốc web -->
+  <base href="/">
   <title>Chi tiết phim - Beta Cinemas</title>
   <meta name="description" content="Thông tin phim, lịch chiếu theo rạp và đặt vé online tại Beta Cinemas.">
   <meta property="og:type" content="website">
@@ -493,6 +495,8 @@
             <li><a href="policy.html#hoan-tien">Chính sách đổi trả & hoàn tiền</a></li>
             <li><a href="policy.html#do-tuoi">Quy định độ tuổi xem phim</a></li>
             <li><a href="policy.html#thanh-toan">Hướng dẫn thanh toán trực tuyến</a></li>
+            <li><a href="thue-rap.html">Thuê rạp, vé nhóm &amp; Private Show</a></li>
+            <li><a href="bap-nuoc.html">Mua bắp nước online</a></li>
           </ul>
         </div>
 
@@ -772,8 +776,65 @@
       const $ = (id) => document.getElementById(id);
       const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
       const params = new URLSearchParams(location.search);
-      let key = params.get('movie') || '';
+      // Đường dẫn đẹp /phim/<mã-phim> (Đợt 3) hoặc kiểu cũ movie-detail.html?movie=<mã>
+      let key = params.get('movie') || (location.pathname.match(/^\/phim\/([a-z0-9-]+)\/?$/) || [])[1] || '';
       let week = [];
+
+      // SEO (Đợt 3): đường dẫn chuẩn, mô tả, ảnh chia sẻ, dữ liệu có cấu trúc schema.org (Movie + lịch chiếu)
+      const setMeta = (sel, attr, val) => {
+        let el = document.head.querySelector(sel);
+        if (!el) { el = document.createElement(sel.startsWith('link') ? 'link' : 'meta'); const mm = /\[(\w+)="([^"]+)"\]/.exec(sel); el.setAttribute(mm[1], mm[2]); document.head.appendChild(el); }
+        el.setAttribute(attr, val);
+      };
+      function seo(m) {
+        const url = location.origin + '/phim/' + encodeURIComponent(m.key);
+        if (location.protocol.startsWith('http') && !/^\/phim\//.test(location.pathname)) {
+          try { history.replaceState(null, '', '/phim/' + encodeURIComponent(m.key) + location.hash); } catch (e) { /* bỏ qua */ }
+        }
+        const desc = (m.synopsis || m.meta || ('Lịch chiếu và đặt vé phim ' + m.title + ' tại Beta Cinemas.')).replace(/\s+/g, ' ').slice(0, 160);
+        const img = m.poster ? new URL(m.poster, location.origin + '/').href : location.origin + '/images/logo-official.png';
+        setMeta('link[rel="canonical"]', 'href', url);
+        setMeta('meta[name="description"]', 'content', desc);
+        setMeta('meta[property="og:title"]', 'content', m.title + ' - Beta Cinemas');
+        setMeta('meta[property="og:description"]', 'content', desc);
+        setMeta('meta[property="og:image"]', 'content', img);
+        setMeta('meta[property="og:url"]', 'content', url);
+        const ld = {
+          '@context': 'https://schema.org', '@type': 'Movie', name: m.title, url, image: img, description: desc,
+          ...(m.duration_min ? { duration: 'PT' + m.duration_min + 'M' } : {}),
+          ...(m.genre ? { genre: String(m.genre).split(/,\s*/) } : {}),
+          ...(m.director ? { director: { '@type': 'Person', name: m.director } } : {}),
+          ...(m.cast ? { actor: String(m.cast).split(/,\s*/).slice(0, 6).map((n) => ({ '@type': 'Person', name: n })) } : {}),
+          ...(m.release_date ? { datePublished: m.release_date } : {}),
+          ...(m.age ? { contentRating: m.age } : {})
+        };
+        let s = document.getElementById('ld-movie');
+        if (!s) { s = document.createElement('script'); s.type = 'application/ld+json'; s.id = 'ld-movie'; document.head.appendChild(s); }
+        s.textContent = JSON.stringify(ld);
+      }
+      // Lịch chiếu dạng ScreeningEvent (Google có thể hiện giờ chiếu trong kết quả tìm kiếm)
+      function seoShowtimes(m, list) {
+        const ev = list.slice(0, 20).map((st) => ({
+          '@context': 'https://schema.org', '@type': 'ScreeningEvent', name: m.title, startDate: st.starts_at,
+          location: { '@type': 'MovieTheater', name: st.cinema }, workPresented: { '@type': 'Movie', name: m.title },
+          videoFormat: st.format || '2D', inLanguage: 'vi',
+          offers: { '@type': 'Offer', price: (st.prices && st.prices.standard) || 0, priceCurrency: 'VND', availability: st.seats_free > 0 ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut', url: location.origin + '/seats.html?showtime=' + st.id }
+        }));
+        let s = document.getElementById('ld-shows');
+        if (!s) { s = document.createElement('script'); s.type = 'application/ld+json'; s.id = 'ld-shows'; document.head.appendChild(s); }
+        s.textContent = JSON.stringify(ev);
+      }
+      // Có <base href="/">: liên kết "#mục" phải cuộn trong trang, không nhảy về trang chủ
+      document.addEventListener('click', (e) => {
+        const a = e.target.closest && e.target.closest('a[href^="#"]');
+        if (!a || a.getAttribute('href').length < 2) return;
+        const t = document.querySelector(a.getAttribute('href'));
+        if (!t) return;
+        e.preventDefault();
+        t.scrollIntoView({ behavior: 'smooth' });
+        if (t.tabIndex < 0) t.setAttribute('tabindex', '-1');
+        t.focus({ preventScroll: true });
+      });
 
       const renderMovie = (m) => {
         document.title = (m.shortTitle || m.title) + ' - Lịch chiếu & đặt vé | Beta Cinemas';
@@ -785,6 +846,7 @@
         if (m.badge) { $('md-format').hidden = false; $('md-format').textContent = m.badge; }
         if (m.status === 'SOON') $('md-soon').hidden = false;
         document.dispatchEvent(new CustomEvent('md:movie', { detail: m }));
+        seo(m);
         // Thông tin phim đầy đủ: thời lượng, khởi chiếu, ngôn ngữ, thể loại, đạo diễn, diễn viên, phân loại tuổi
         const fmtDate = (d) => d ? d.split('-').reverse().join('/') : '';
         const pills = [m.duration_min ? ['timer', m.duration_min + ' phút'] : null, m.release_date ? ['calendar', 'Khởi chiếu ' + fmtDate(m.release_date)] : null, m.language ? ['globe', m.language] : null].filter(Boolean);
@@ -851,14 +913,16 @@
         }
         key = m.key;
         renderMovie(m);
-        const wk = await Pay.catalog('showtimes', { movie: key, days: 14 });
+        const wk = await Pay.catalog('showtimes', { movie: key, days: 30 });
         week = wk.showtimes || [];
+        seoShowtimes(m, week);
         const has = new Set(week.map((s) => s.cinema_id));
         const cinemas = (cn.cinemas || []).filter((c) => has.has(c.id));
         if (!cinemas.length) {
           $('md-cinema').innerHTML = '<option>Chưa có rạp chiếu</option>';
           $('md-date').innerHTML = '<option>—</option>';
-          $('md-slots').innerHTML = '<p class="m">' + (m.status === 'SOON' ? 'Phim sắp khởi chiếu, lịch chiếu sẽ được cập nhật sớm.' : 'Phim chưa có suất chiếu trong 14 ngày tới.') + '</p>';
+          $('md-slots').innerHTML = '<p class="m">' + (m.status === 'SOON' ? 'Phim sắp khởi chiếu, lịch chiếu sẽ được cập nhật sớm.' : 'Phim chưa có suất chiếu trong 30 ngày tới.') + '</p><div id="md-watch" style="width: 100%;"></div>';
+          document.dispatchEvent(new CustomEvent('md:noshow', { detail: m }));
           return;
         }
         $('md-cinema').innerHTML = cinemas.map((c) => '<option value="' + esc(c.id) + '">' + esc(c.name + (c.city ? ' (' + c.city + ')' : '')) + '</option>').join('');
@@ -872,6 +936,23 @@
     })();
   </script>
   <script>
+    // "Nhắc tôi khi mở bán": phim chưa có suất -> khách đăng ký nhận email khi có lịch chiếu (Đợt 3)
+    document.addEventListener('md:noshow', async (ev) => {
+      const m = ev.detail;
+      const box = document.getElementById('md-watch');
+      let token = null;
+      try { token = localStorage.getItem('BETA_AUTH_TOKEN'); } catch (e) {}
+      const paint = (on) => {
+        box.innerHTML = '<button type="button" class="btn ' + (on ? 'btn-outline' : 'btn-primary') + '" id="md-watch-btn" aria-pressed="' + on + '">' + (on ? '✓ Sẽ báo bạn qua email khi mở bán · Tắt nhắc' : 'Nhắc tôi khi mở bán vé') + '</button>';
+        document.getElementById('md-watch-btn').onclick = async () => {
+          if (!token) { location.href = BetaAuth.loginUrl(); return; }
+          try { paint((await Pay.post('member?action=watch', { movie: m.key, on: !on })).watching); } catch (e) { alert(e.message); }
+        };
+      };
+      if (!token) return paint(false);
+      try { paint((await Pay.call('member?action=watch&movie=' + encodeURIComponent(m.key))).watching); } catch (e) { paint(false); }
+    });
+
     // Đánh giá phim: danh sách công khai + form cho khách đã soát vé (mỗi đơn vé một đánh giá)
     document.addEventListener('md:movie', async (ev) => {
       const m = ev.detail;

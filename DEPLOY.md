@@ -11,6 +11,7 @@
   5. `migrations/2026-11-22_dot-1-gia-ve-tin-tuc.sql` — loại vé (HSSV/U22, trẻ em, người cao tuổi), giá theo ngày/khung giờ, ngày lễ, tin tức & ưu đãi, thông tin phim chi tiết, tọa độ rạp. **Giá và bài viết trong file là mẫu** – sửa lại ở admin → Danh mục → Bảng giá / Tin tức & ưu đãi trước khi mở bán.
   6. `migrations/2026-11-23_voucher-dieu-kien-phan-hoi-phieu.sql` — voucher có điều kiện (giảm %, đơn tối thiểu, kèm bắp nước, theo thứ), khách xem & trả lời phản hồi CSKH
   7. `migrations/2026-11-24_dot-2-beta-club.sql` — Beta Club (điểm thưởng, hạng, quà sinh nhật), đánh giá phim, mua bắp nước riêng
+  8. `migrations/2026-11-25_dot-3-phong-chieu-thue-rap.sql` — phòng chiếu có sơ đồ ghế riêng, thuê rạp / vé nhóm / Private Show, "Nhắc tôi khi mở bán"
 
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 

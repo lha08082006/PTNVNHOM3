@@ -541,7 +541,7 @@
       const p = new URLSearchParams(window.location.search);
       if (p.get('seats')) selectedSeatsStr = p.get('seats');
       try {
-        const q = BetaCatalog.quote({ seats: selectedSeatsStr, prices: SHOWTIME.prices, ticket_types: typeCounts, types: TYPES || undefined });
+        const q = BetaCatalog.quote({ seats: selectedSeatsStr, prices: SHOWTIME.prices, ticket_types: typeCounts, types: TYPES || undefined, layout: SHOWTIME.layout || null });
         baseSeatPrice = q.seat_total;
         const T = TYPES || BetaCatalog.TICKET_TYPES;
         const groups = {};

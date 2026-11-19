@@ -107,6 +107,9 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // Đường dẫn đẹp cho trang phim (Đợt 3): /phim/<mã-phim> -> movie-detail.html (giống rewrite trên Vercel)
+  if (/^\/phim\/[a-z0-9-]+\/?$/.test(pathname)) pathname = '/movie-detail.html';
+
   // 2. Xử lý Static Files (HTML, CSS, JS, Images)
   let filePath = path.join(PUBLIC_DIR, decodeURIComponent(pathname === '/' ? 'home.html' : pathname));
   // Không phục vụ tệp ẩn (.env, .git...) hay tệp nằm ngoài thư mục dự án
