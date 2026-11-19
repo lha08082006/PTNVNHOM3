@@ -158,7 +158,7 @@
     const menu = MENU.map(m =>
       `<li><a href="${m[1]}" class="menu-link-official${m[0] === active ? ' active' : ''}">${m[2]}</a></li>`).join('\n          ');
 
-    writeHere(`${topBar(opts)}
+    writeHere(`<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>${topBar(opts)}
   <header class="header-main-official">
     <div class="container header-row">
       <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
@@ -306,7 +306,7 @@
 
     document.body.insertAdjacentHTML('beforeend', `
   <div id="quick-dock-widget" class="quick-dock-widget">
-    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện" aria-label="Mở menu chuyển nhanh giữa các màn hình đơn hàng">
       <span class="fab-icon-open">⚡</span><span class="fab-icon-close" style="display: none;">✕</span>
       <span class="fab-badge">${DOCK_ITEMS.length}</span>
     </button>
@@ -326,8 +326,48 @@
     });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountQuickDock);
-  else mountQuickDock();
+  // ---------------------------------------------------------------------
+  // KHẢ NĂNG TRUY CẬP: đích cho link "bỏ qua", phần tử có onclick dùng được bằng bàn phím
+  // ---------------------------------------------------------------------
+  const NATIVE = /^(A|BUTTON|INPUT|SELECT|TEXTAREA|LABEL|SUMMARY|OPTION)$/;
+
+  function makeClickableAccessible(root) {
+    (root.querySelectorAll ? root : document).querySelectorAll('[onclick]').forEach(el => {
+      if (NATIVE.test(el.tagName) || el.hasAttribute('tabindex')) return;
+      // Bỏ qua lớp nền của hộp thoại (bấm ra ngoài để đóng)
+      if (/backdrop/.test(el.className) || el.id === 'invoice-modal') return;
+      el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    });
+  }
+
+  function initA11y() {
+    const main = document.querySelector('main') || document.querySelector('section');
+    if (main && !document.getElementById('main-content')) main.id = main.id || 'main-content';
+    const skip = document.querySelector('.skip-link');
+    if (skip && main) skip.setAttribute('href', '#' + main.id);
+    makeClickableAccessible(document);
+    new MutationObserver(list => list.forEach(m => m.addedNodes.forEach(n => {
+      if (n.nodeType === 1) { makeClickableAccessible(n); if (n.hasAttribute('onclick')) makeClickableAccessible(n.parentNode); }
+    }))).observe(document.body, { childList: true, subtree: true });
+  }
+
+  document.addEventListener('keydown', e => {
+    const el = e.target;
+    if ((e.key === 'Enter' || e.key === ' ') && el && el.getAttribute && el.getAttribute('role') === 'button' &&
+        !NATIVE.test(el.tagName) && el.hasAttribute('onclick')) {
+      e.preventDefault();
+      el.click();
+    }
+  });
+
+  function onReady() {
+    mountQuickDock();
+    initA11y();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady);
+  else onReady();
 
   window.toggleQuickDock = toggleQuickDock;
   // Trang chỉ dành cho quản trị viên

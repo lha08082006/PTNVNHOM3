@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Theo Dõi Hoàn Tiền - Beta Cinemas (Thiết Kế Nền Trắng 2026)</title>
+  <title>Theo dõi hoàn tiền – Beta Cinemas</title>
+  <meta name="description" content="Theo dõi tiến độ xử lý hồ sơ hoàn tiền của bạn.">
+  <meta name="theme-color" content="#005198">
+  <link rel="icon" type="image/png" href="images/ui/favicon.png">
+  <link rel="apple-touch-icon" href="images/ui/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beta Cinemas">
+  <meta property="og:title" content="Theo dõi hoàn tiền – Beta Cinemas">
+  <meta property="og:description" content="Theo dõi tiến độ xử lý hồ sơ hoàn tiền của bạn.">
+  <meta property="og:image" content="images/banners/phim-hay-t10.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -28,22 +37,6 @@
       flex-wrap: wrap;
       gap: 14px;
       margin-bottom: 24px;
-    }
-
-    .btn-back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #005198;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .btn-back-link:hover {
-      color: #ff5400;
-      transform: translateX(-3px);
     }
 
     /* 2 Column Grid Layout */
@@ -85,26 +78,6 @@
       border-bottom: 1px solid #f1f5f9;
     }
 
-    /* Line Item Row */
-    .line-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-size: 13.5px;
-      color: #0f172a;
-    }
-
-    .line-row .label-muted {
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .line-row .value-bold {
-      font-weight: 700;
-      text-align: right;
-    }
-
     /* Timeline Stepper */
     .timeline-list {
       list-style: none;
@@ -116,48 +89,10 @@
       position: relative;
     }
 
-    .timeline-list::before {
-      content: '';
-      position: absolute;
-      left: 7px;
-      top: 8px;
-      bottom: 8px;
-      width: 2px;
-      background: #e2e8f0;
-      z-index: 1;
-    }
-
-    .timeline-item {
-      display: flex;
-      gap: 14px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .timeline-dot {
-      flex: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      margin-top: 2px;
-      border: 2px solid white;
-      box-shadow: 0 0 0 2px #e2e8f0;
-    }
-
-    .timeline-dot.done {
-      background: #10b981;
-      box-shadow: 0 0 0 2px #a7f3d0;
-    }
-
     .timeline-dot.active {
       background: #FF5A3C;
       box-shadow: 0 0 0 3px rgba(255, 90, 60, 0.3);
       animation: pulse 1.5s infinite;
-    }
-
-    .timeline-dot.pending {
-      background: #cbd5e1;
-      box-shadow: 0 0 0 2px #f1f5f9;
     }
 
     @keyframes pulse {

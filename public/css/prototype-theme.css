@@ -1457,3 +1457,153 @@ textarea {
     max-width: 200px !important;
   }
 }
+
+/* ==========================================================================
+   KHẢ NĂNG TRUY CẬP
+   ========================================================================== */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100000;
+  background: #005198;
+  color: #ffffff !important;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+:focus-visible {
+  outline: 3px solid #ff5400;
+  outline-offset: 2px;
+}
+
+[role="button"] {
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   RULE DÙNG CHUNG (gom từ CSS riêng của các trang)
+   ========================================================================== */
+.timeline-list::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 14px;
+  position: relative;
+  z-index: 2;
+}
+
+.timeline-dot {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-top: 2px;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #e2e8f0;
+}
+
+.timeline-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+.timeline-dot.done {
+  background: #10b981;
+  box-shadow: 0 0 0 2px #a7f3d0;
+}
+
+.timeline-dot.pending {
+  background: #cbd5e1;
+  box-shadow: 0 0 0 2px #f1f5f9;
+}
+
+.st-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.st-badge {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.st-badge.done {
+  background: #10b981;
+  color: white;
+}
+
+.btn-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #005198;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-back-link:hover {
+  color: #ff5400;
+  transform: translateX(-3px);
+}
+
+.line-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.line-row .label-muted {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.line-row .value-bold {
+  font-weight: 700;
+  text-align: right;
+}
+

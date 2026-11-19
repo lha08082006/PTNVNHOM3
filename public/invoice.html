@@ -4,7 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chi Tiết Hóa Đơn Điện Tử - Beta Cinemas</title>
+  <title>Hóa đơn điện tử – Beta Cinemas</title>
+  <meta name="description" content="Hóa đơn điện tử của đơn vé xem phim tại Beta Cinemas.">
+  <meta name="theme-color" content="#005198">
+  <link rel="icon" type="image/png" href="images/ui/favicon.png">
+  <link rel="apple-touch-icon" href="images/ui/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beta Cinemas">
+  <meta property="og:title" content="Hóa đơn điện tử – Beta Cinemas">
+  <meta property="og:description" content="Hóa đơn điện tử của đơn vé xem phim tại Beta Cinemas.">
+  <meta property="og:image" content="images/banners/phim-hay-t10.webp">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,54 +118,12 @@
       }
     }
 
-    /* Timeline Stepper for Refund */
-    .timeline-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: relative;
-    }
-    .timeline-list::before {
-      content: '';
-      position: absolute;
-      left: 7px;
-      top: 8px;
-      bottom: 8px;
-      width: 2px;
-      background: #e2e8f0;
-      z-index: 1;
-    }
-    .timeline-item {
-      display: flex;
-      gap: 14px;
-      position: relative;
-      z-index: 2;
-    }
-    .timeline-dot {
-      flex: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      margin-top: 2px;
-      border: 2px solid white;
-      box-shadow: 0 0 0 2px #e2e8f0;
-    }
-    .timeline-dot.done {
-      background: #10b981;
-      box-shadow: 0 0 0 2px #a7f3d0;
-    }
     .timeline-dot.active {
       background: #2563eb;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
       animation: pulseRefund 1.5s infinite;
     }
-    .timeline-dot.pending {
-      background: #cbd5e1;
-      box-shadow: 0 0 0 2px #f1f5f9;
-    }
+
     @keyframes pulseRefund {
       0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
       70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(37, 99, 235, 0); }
@@ -246,7 +213,7 @@
         <!-- Phim & Suất chiếu -->
         <div class="invoice-card-box">
           <div style="display: flex; gap: 20px; align-items: center;">
-            <img id="page-inv-movie-poster" src="" alt="Poster" style="width: 80px; height: 115px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <img loading="lazy" id="page-inv-movie-poster" src="" alt="Poster" style="width: 80px; height: 115px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="flex: 1; min-width: 0;">
               <h2 id="page-inv-movie-title" style="font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900; color: #0f172a; margin: 0 0 8px 0;">
                 TÊN PHIM

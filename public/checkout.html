@@ -3,7 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thanh Toán Đặt Vé - Alpha / Beta Cinemas</title>
+  <title>Thanh toán – Beta Cinemas</title>
+  <meta name="description" content="Xác nhận đơn vé, áp dụng voucher và thanh toán qua VietQR.">
+  <meta name="theme-color" content="#005198">
+  <link rel="icon" type="image/png" href="images/ui/favicon.png">
+  <link rel="apple-touch-icon" href="images/ui/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beta Cinemas">
+  <meta property="og:title" content="Thanh toán – Beta Cinemas">
+  <meta property="og:description" content="Xác nhận đơn vé, áp dụng voucher và thanh toán qua VietQR.">
+  <meta property="og:image" content="images/banners/phim-hay-t10.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -244,7 +253,7 @@
           <!-- Combo 1: Combo Solo -->
           <div class="combo-item-row">
             <div class="combo-thumb">
-              <img src="images/promos/combo.png" alt="Combo Solo" onerror="this.src='images/banners/phim-hay-t10.png'">
+              <img loading="lazy" src="images/promos/combo.webp" alt="Combo Solo" onerror="this.src='images/banners/phim-hay-t10.webp'">
             </div>
             <div style="flex: 1;">
               <div style="font-weight: 700; font-size: 15px;">Combo Solo</div>
@@ -253,16 +262,16 @@
               </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="o qty-btn-sm" onclick="changeQty('solo', -1)">−</button>
+              <button type="button" aria-label="Giảm số lượng Combo Solo" class="o qty-btn-sm" onclick="changeQty('solo', -1)">−</button>
               <b id="qty-solo" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
-              <button class="o qty-btn-sm" onclick="changeQty('solo', 1)">+</button>
+              <button type="button" aria-label="Tăng số lượng Combo Solo" class="o qty-btn-sm" onclick="changeQty('solo', 1)">+</button>
             </div>
           </div>
 
           <!-- Combo 2: Combo Couple -->
           <div class="combo-item-row">
             <div class="combo-thumb">
-              <img src="images/banners/combo-sieu-cu.png" alt="Combo Couple" onerror="this.src='images/banners/phim-hay-t10.png'">
+              <img loading="lazy" src="images/banners/combo-sieu-cu.webp" alt="Combo Couple" onerror="this.src='images/banners/phim-hay-t10.webp'">
             </div>
             <div style="flex: 1;">
               <div style="font-weight: 700; font-size: 15px;">Combo Couple</div>
@@ -271,16 +280,16 @@
               </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="o qty-btn-sm" onclick="changeQty('couple', -1)">−</button>
+              <button type="button" aria-label="Giảm số lượng Combo Couple" class="o qty-btn-sm" onclick="changeQty('couple', -1)">−</button>
               <b id="qty-couple" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
-              <button class="o qty-btn-sm" onclick="changeQty('couple', 1)">+</button>
+              <button type="button" aria-label="Tăng số lượng Combo Couple" class="o qty-btn-sm" onclick="changeQty('couple', 1)">+</button>
             </div>
           </div>
 
           <!-- Combo 3: Combo Party Gold -->
           <div class="combo-item-row">
             <div class="combo-thumb">
-              <img src="images/promos/combo.png" alt="Combo Gold" onerror="this.src='images/banners/phim-hay-t10.png'">
+              <img loading="lazy" src="images/promos/combo.webp" alt="Combo Gold" onerror="this.src='images/banners/phim-hay-t10.webp'">
             </div>
             <div style="flex: 1;">
               <div style="font-weight: 700; font-size: 15px;">Combo Party Gold</div>
@@ -289,16 +298,16 @@
               </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="o qty-btn-sm" onclick="changeQty('party', -1)">−</button>
+              <button type="button" aria-label="Giảm số lượng Combo Party Gold" class="o qty-btn-sm" onclick="changeQty('party', -1)">−</button>
               <b id="qty-party" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
-              <button class="o qty-btn-sm" onclick="changeQty('party', 1)">+</button>
+              <button type="button" aria-label="Tăng số lượng Combo Party Gold" class="o qty-btn-sm" onclick="changeQty('party', 1)">+</button>
             </div>
           </div>
 
           <!-- Combo 4: Xúc Xích Nướng Phô Mai -->
           <div class="combo-item-row">
             <div class="combo-thumb">
-              <img src="images/banners/combo-sieu-cu.png" alt="Xúc Xích Nướng" onerror="this.src='images/banners/phim-hay-t10.png'">
+              <img loading="lazy" src="images/banners/combo-sieu-cu.webp" alt="Xúc Xích Nướng" onerror="this.src='images/banners/phim-hay-t10.webp'">
             </div>
             <div style="flex: 1;">
               <div style="font-weight: 700; font-size: 15px;">Xúc Xích Nướng Phô Mai</div>
@@ -307,9 +316,9 @@
               </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="o qty-btn-sm" onclick="changeQty('sausage', -1)">−</button>
+              <button type="button" aria-label="Giảm số lượng Xúc Xích Nướng" class="o qty-btn-sm" onclick="changeQty('sausage', -1)">−</button>
               <b id="qty-sausage" style="min-width: 22px; text-align: center; font-size: 15px;">0</b>
-              <button class="o qty-btn-sm" onclick="changeQty('sausage', 1)">+</button>
+              <button type="button" aria-label="Tăng số lượng Xúc Xích Nướng" class="o qty-btn-sm" onclick="changeQty('sausage', 1)">+</button>
             </div>
           </div>
         </section>
@@ -396,7 +405,7 @@
         <!-- Movie Header Info -->
         <div style="display: flex; gap: 12px; align-items: flex-start;">
           <div role="img" aria-label="Poster phim" style="flex: none; width: 64px; height: 96px; border-radius: 8px; overflow: hidden; background: linear-gradient(160deg, #FF5A3C, #7A2E8E); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-            <img id="summary-movie-poster" src="images/posters/linh-gioi-dai-chien.jpg" alt="Poster" style="width: 100%; height: 100%; object-fit: cover;">
+            <img loading="lazy" id="summary-movie-poster" src="images/posters/linh-gioi-dai-chien.webp" alt="Poster" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div>
             <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">

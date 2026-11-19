@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chi Tiết Đơn Hàng: Đã Hoàn Tiền - Beta Cinemas (Thiết Kế Nền Trắng 2026)</title>
+  <title>Đơn đã hoàn tiền – Beta Cinemas</title>
+  <meta name="description" content="Chi tiết đơn vé đã được hoàn tiền thành công.">
+  <meta name="theme-color" content="#005198">
+  <link rel="icon" type="image/png" href="images/ui/favicon.png">
+  <link rel="apple-touch-icon" href="images/ui/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beta Cinemas">
+  <meta property="og:title" content="Đơn đã hoàn tiền – Beta Cinemas">
+  <meta property="og:description" content="Chi tiết đơn vé đã được hoàn tiền thành công.">
+  <meta property="og:image" content="images/banners/phim-hay-t10.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -115,17 +124,6 @@
       font-size: 13.5px;
     }
 
-    /* Stepper Timeline */
-    .timeline-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: relative;
-    }
-
     .timeline-list::before {
       content: '';
       position: absolute;
@@ -201,11 +199,11 @@
           <section class="c-card">
             <!-- Header Phim + Poster -->
             <div style="display: flex; gap: 16px; align-items: flex-start;">
-              <img id="movie-poster" 
-                   src="images/posters/quy-an-tang-4.jpg" 
+              <img loading="lazy" id="movie-poster" 
+                   src="images/posters/quy-an-tang-4.webp" 
                    alt="Poster phim" 
                    style="flex: none; width: 76px; height: 112px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12);"
-                   onerror="this.src='images/posters/linh-gioi-dai-chien.jpg';">
+                   onerror="this.src='images/posters/linh-gioi-dai-chien.webp';">
               <div style="flex: 1;">
                 <h2 style="font-size: 21px; font-weight: 800; color: #0f172a; margin: 0 0 6px; line-height: 1.3;" id="movie-title">
                   Quỷ Ăn Tạng 4 

@@ -4,7 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>Linh Giới Đại Chiến: Thần Sư Chung Quỳ - Beta Cinemas (Thiết Kế Mới 2026)</title>
+  <title>Chi tiết phim – Beta Cinemas</title>
+  <meta name="description" content="Thông tin phim, trailer và suất chiếu tại các rạp Beta Cinemas.">
+  <meta name="theme-color" content="#005198">
+  <link rel="icon" type="image/png" href="images/ui/favicon.png">
+  <link rel="apple-touch-icon" href="images/ui/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beta Cinemas">
+  <meta property="og:title" content="Chi tiết phim – Beta Cinemas">
+  <meta property="og:description" content="Thông tin phim, trailer và suất chiếu tại các rạp Beta Cinemas.">
+  <meta property="og:image" content="images/banners/phim-hay-t10.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -14,7 +23,7 @@
     .movie-hero-backdrop {
       position: relative;
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.95) 100%),
-                  url('images/banners/banner-1.png') center/cover no-repeat;
+                  url('images/banners/banner-1.webp') center/cover no-repeat;
       padding: 60px 0 80px;
       color: white;
     }
@@ -308,7 +317,7 @@
       <div class="movie-hero-grid">
         <!-- Poster -->
         <div class="detail-poster-box">
-          <img id="md-poster" src="images/posters/linh-gioi-dai-chien.jpg" alt="">
+          <img id="md-poster" src="images/posters/linh-gioi-dai-chien.webp" alt="">
         </div>
 
         <!-- Info: render từ Pay.getMovieDetail(?movie=) -->
@@ -363,7 +372,7 @@
       const $ = id => document.getElementById(id);
       const setText = (id, v) => { $(id).textContent = v; };
 
-      document.title = m.title + ' - Beta Cinemas';
+      document.title = m.title + ' – Beta Cinemas';
       $('md-poster').src = m.poster;
       $('md-poster').alt = m.shortTitle + ' Poster';
       $('md-age').className = 'badge badge-age-' + m.age.replace(/^T/, '').toLowerCase();
@@ -471,7 +480,7 @@
 
           <!-- Khi mở trực tiếp qua file://: Giao diện Thumbnail Player 1-Click thông minh không bao giờ bị Lỗi 153 -->
           <div id="trailer-file-fallback" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; cursor: pointer; overflow: hidden; z-index: 10;" onclick="openExternalYouTube()">
-            <img id="trailer-fallback-thumb" src="" alt="Thumbnail" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.72; filter: brightness(0.85); transition: transform 0.4s ease;">
+            <img loading="lazy" id="trailer-fallback-thumb" src="" alt="Thumbnail" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.72; filter: brightness(0.85); transition: transform 0.4s ease;">
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.92) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px;">
               <div style="width: 76px; height: 52px; background: #ff0000; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.55); margin-bottom: 14px; transition: transform 0.25s ease;">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="white">

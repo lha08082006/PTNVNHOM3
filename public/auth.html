@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">Đăng nhập - Beta Cinemas</title>
+  <title id="page-title">Đăng nhập – Beta Cinemas</title>
+  <meta name="description" content="Đăng nhập hoặc đăng ký tài khoản thành viên Beta Cinemas.">
+  <meta name="theme-color" content="#005198">
+  <link rel="icon" type="image/png" href="images/ui/favicon.png">
+  <link rel="apple-touch-icon" href="images/ui/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beta Cinemas">
+  <meta property="og:title" content="Đăng nhập – Beta Cinemas">
+  <meta property="og:description" content="Đăng nhập hoặc đăng ký tài khoản thành viên Beta Cinemas.">
+  <meta property="og:image" content="images/banners/phim-hay-t10.webp">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -320,7 +329,7 @@
       Object.keys(views).forEach(v => {
         document.getElementById('view-' + v).style.display = v === view ? 'flex' : 'none';
       });
-      document.getElementById('page-title').innerText = views[view] + ' - Beta Cinemas';
+      document.getElementById('page-title').innerText = views[view] + ' – Beta Cinemas';
       history.replaceState(null, '', location.pathname + location.search + '#' + view);
       if (view === 'forgot') {
         document.getElementById('forgot-step-1').style.display = 'flex';

@@ -448,3 +448,32 @@ describe('Trang quản trị', () => {
     await page.context().close();
   });
 });
+
+describe('Chất lượng', () => {
+  test('chọn ghế được bằng bàn phím', async () => {
+    const page = await newPage(browser);
+    await page.goto(B + 'seats.html?' + showQuery('10:15'));
+    const id = await freeSeat(page, 'standard');
+    const seat = page.locator(`.r i[data-id="${id}"]`);
+    assert.equal(await seat.getAttribute('role'), 'button');
+    assert.match(await seat.getAttribute('aria-label'), new RegExp('Ghế ' + id));
+    await seat.focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await seat.getAttribute('aria-pressed'), 'true');
+    assert.equal(await text(page, '#checkout-selected-seats'), id);
+    await page.context().close();
+  });
+
+  test('mọi ảnh tải được và trang có mô tả SEO', async () => {
+    const page = await newPage(browser);
+    const broken = [];
+    page.on('response', r => { if (r.url().includes('/images/') && r.status() >= 400) broken.push(r.url()); });
+    for (const f of PAGES) {
+      await page.goto(B + f);
+      const desc = await page.getAttribute('meta[name="description"]', 'content').catch(() => null);
+      if (!desc) broken.push(f + ': thiếu meta description');
+    }
+    await page.context().close();
+    assert.deepEqual(broken, []);
+  });
+});

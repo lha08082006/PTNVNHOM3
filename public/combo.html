@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chọn Bắp Nước & Combo - Beta Cinemas (Thiết Kế Mới 2026)</title>
+  <title>Chọn bắp nước – Beta Cinemas</title>
+  <meta name="description" content="Thêm combo bắp nước ưu đãi cho đơn vé xem phim.">
+  <meta name="theme-color" content="#005198">
+  <link rel="icon" type="image/png" href="images/ui/favicon.png">
+  <link rel="apple-touch-icon" href="images/ui/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beta Cinemas">
+  <meta property="og:title" content="Chọn bắp nước – Beta Cinemas">
+  <meta property="og:description" content="Thêm combo bắp nước ưu đãi cho đơn vé xem phim.">
+  <meta property="og:image" content="images/banners/phim-hay-t10.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -220,7 +229,7 @@
       <!-- Combo 1: Solo -->
       <div class="combo-card">
         <div class="combo-img-wrap">
-          <img src="images/promos/combo.png" alt="Combo Solo">
+          <img loading="lazy" src="images/promos/combo.webp" alt="Combo Solo">
           <span class="combo-badge">Tiết Kiệm</span>
         </div>
         <div class="combo-body">
@@ -229,9 +238,9 @@
           <div class="combo-footer">
             <div class="combo-price">69.000 đ</div>
             <div class="quantity-control">
-              <button class="qty-btn" onclick="updateQty('solo', -1)">−</button>
+              <button type="button" aria-label="Giảm số lượng Combo Solo" class="qty-btn" onclick="updateQty('solo', -1)">−</button>
               <span class="qty-value" id="qty-solo">0</span>
-              <button class="qty-btn" onclick="updateQty('solo', 1)">+</button>
+              <button type="button" aria-label="Tăng số lượng Combo Solo" class="qty-btn" onclick="updateQty('solo', 1)">+</button>
             </div>
           </div>
         </div>
@@ -240,7 +249,7 @@
       <!-- Combo 2: Couple Hot -->
       <div class="combo-card" style="border: 2px solid var(--beta-orange);">
         <div class="combo-img-wrap">
-          <img src="images/banners/combo-sieu-cu.png" alt="Combo Couple">
+          <img loading="lazy" src="images/banners/combo-sieu-cu.webp" alt="Combo Couple">
           <span class="combo-badge" style="background: var(--beta-orange);">Bán Chạy Nhất</span>
         </div>
         <div class="combo-body">
@@ -249,9 +258,9 @@
           <div class="combo-footer">
             <div class="combo-price">89.000 đ</div>
             <div class="quantity-control">
-              <button class="qty-btn" onclick="updateQty('couple', -1)">−</button>
+              <button type="button" aria-label="Giảm số lượng Combo Couple" class="qty-btn" onclick="updateQty('couple', -1)">−</button>
               <span class="qty-value" id="qty-couple">0</span>
-              <button class="qty-btn" onclick="updateQty('couple', 1)">+</button>
+              <button type="button" aria-label="Tăng số lượng Combo Couple" class="qty-btn" onclick="updateQty('couple', 1)">+</button>
             </div>
           </div>
         </div>
@@ -260,7 +269,7 @@
       <!-- Combo 3: Family Party -->
       <div class="combo-card">
         <div class="combo-img-wrap">
-          <img src="images/promos/combo.png" alt="Combo Family">
+          <img loading="lazy" src="images/promos/combo.webp" alt="Combo Family">
         </div>
         <div class="combo-body">
           <h3 class="combo-title">Combo Siêu Nhóm Bạn (Family)</h3>
@@ -268,9 +277,9 @@
           <div class="combo-footer">
             <div class="combo-price">139.000 đ</div>
             <div class="quantity-control">
-              <button class="qty-btn" onclick="updateQty('family', -1)">−</button>
+              <button type="button" aria-label="Giảm số lượng Combo Siêu Nhóm" class="qty-btn" onclick="updateQty('family', -1)">−</button>
               <span class="qty-value" id="qty-family">0</span>
-              <button class="qty-btn" onclick="updateQty('family', 1)">+</button>
+              <button type="button" aria-label="Tăng số lượng Combo Siêu Nhóm" class="qty-btn" onclick="updateQty('family', 1)">+</button>
             </div>
           </div>
         </div>
@@ -279,7 +288,7 @@
       <!-- Combo 4: Snack xúc xích -->
       <div class="combo-card">
         <div class="combo-img-wrap">
-          <img src="images/banners/combo-sieu-cu.png" alt="Xúc Xích Nướng">
+          <img loading="lazy" src="images/banners/combo-sieu-cu.webp" alt="Xúc Xích Nướng">
         </div>
         <div class="combo-body">
           <h3 class="combo-title">Xúc Xích Nướng Phô Mai</h3>
@@ -287,9 +296,9 @@
           <div class="combo-footer">
             <div class="combo-price">25.000 đ</div>
             <div class="quantity-control">
-              <button class="qty-btn" onclick="updateQty('sausage', -1)">−</button>
+              <button type="button" aria-label="Giảm số lượng Xúc Xích Nướng" class="qty-btn" onclick="updateQty('sausage', -1)">−</button>
               <span class="qty-value" id="qty-sausage">0</span>
-              <button class="qty-btn" onclick="updateQty('sausage', 1)">+</button>
+              <button type="button" aria-label="Tăng số lượng Xúc Xích Nướng" class="qty-btn" onclick="updateQty('sausage', 1)">+</button>
             </div>
           </div>
         </div>

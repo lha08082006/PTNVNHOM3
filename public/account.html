@@ -4,7 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tài Khoản Thành Viên - Beta Cinemas (Thiết Kế Mới 2026)</title>
+  <title>Tài khoản thành viên – Beta Cinemas</title>
+  <meta name="description" content="Lịch sử đặt vé, thông tin cá nhân, đổi mật khẩu và kho voucher thành viên Beta.">
+  <meta name="theme-color" content="#005198">
+  <link rel="icon" type="image/png" href="images/ui/favicon.png">
+  <link rel="apple-touch-icon" href="images/ui/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beta Cinemas">
+  <meta property="og:title" content="Tài khoản thành viên – Beta Cinemas">
+  <meta property="og:description" content="Lịch sử đặt vé, thông tin cá nhân, đổi mật khẩu và kho voucher thành viên Beta.">
+  <meta property="og:image" content="images/banners/phim-hay-t10.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -356,54 +365,13 @@
     .invoice-meta-row strong {
       color: #0f172a;
     }
-    /* Timeline Stepper for Refund */
-    .timeline-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: relative;
-    }
-    .timeline-list::before {
-      content: '';
-      position: absolute;
-      left: 7px;
-      top: 8px;
-      bottom: 8px;
-      width: 2px;
-      background: #e2e8f0;
-      z-index: 1;
-    }
-    .timeline-item {
-      display: flex;
-      gap: 14px;
-      position: relative;
-      z-index: 2;
-    }
-    .timeline-dot {
-      flex: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      margin-top: 2px;
-      border: 2px solid white;
-      box-shadow: 0 0 0 2px #e2e8f0;
-    }
-    .timeline-dot.done {
-      background: #10b981;
-      box-shadow: 0 0 0 2px #a7f3d0;
-    }
+
     .timeline-dot.active {
       background: #2563eb;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
       animation: pulseRefund 1.5s infinite;
     }
-    .timeline-dot.pending {
-      background: #cbd5e1;
-      box-shadow: 0 0 0 2px #f1f5f9;
-    }
+
     @keyframes pulseRefund {
       0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
       70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(37, 99, 235, 0); }
@@ -539,8 +507,8 @@
           <!-- Đơn hàng (ĐÃ THANH TOÁN - CẤP BÙ VÉ): QUỶ ĂN TẠNG 4 - Đặt lúc: 05/11/2026 21:56:43 -->
           <div class="order-history-item" data-status="upcoming" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
             data-code="BC2885539882" data-created="2026-11-05T21:56:43" onclick="openInvoiceModal('BC2885539882')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #10b981; background: #fafdfc;">
-            <img class="order-item-poster" src="images/posters/quy-an-tang-4.jpg"
-              alt="Quỷ Ăn Tạng 4" onerror="this.src='images/posters/linh-gioi-dai-chien.jpg'">
+            <img loading="lazy" class="order-item-poster" src="images/posters/quy-an-tang-4.webp"
+              alt="Quỷ Ăn Tạng 4" onerror="this.src='images/posters/linh-gioi-dai-chien.webp'">
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                 <div>
@@ -576,7 +544,7 @@
           <!-- Đơn hàng 1 (Mới nhất - Sắp chiếu): LINH GIỚI ĐẠI CHIẾN - Đặt lúc: 27/10/2026 18:14:02 -->
           <div class="order-history-item" data-status="upcoming" data-title="Linh Giới Đại Chiến: Thần Sư Chung Quỳ"
             data-code="BC2610279854" data-created="2026-10-27T18:14:02" onclick="openInvoiceModal('BC2610279854')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid var(--color-success);">
-            <img class="order-item-poster" src="images/posters/linh-gioi-dai-chien.jpg" alt="Linh Giới Đại Chiến">
+            <img loading="lazy" class="order-item-poster" src="images/posters/linh-gioi-dai-chien.webp" alt="Linh Giới Đại Chiến">
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                 <div>
@@ -613,8 +581,8 @@
           <!-- Đơn hàng 2 (ĐÃ HỦY): ÚT LAN 2 - Đặt lúc: 24/10/2026 18:28:44 -->
           <div class="order-history-item" data-status="cancelled" data-title="Út Lan 2"
             data-code="BC2610264412" data-created="2026-10-24T18:28:44" onclick="openInvoiceModal('BC2610264412')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #f59e0b; background: #fffdf5;">
-            <img class="order-item-poster" src="images/posters/ut-lan-2.jpg"
-              alt="Út Lan 2" onerror="this.src='images/posters/linh-gioi-dai-chien.jpg'">
+            <img loading="lazy" class="order-item-poster" src="images/posters/ut-lan-2.webp"
+              alt="Út Lan 2" onerror="this.src='images/posters/linh-gioi-dai-chien.webp'">
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                 <div>
@@ -665,8 +633,8 @@
           <!-- Đơn hàng 3 (ĐÃ HỦY - ĐANG XỬ LÝ HOÀN TIỀN): ÁN MẠNG KARAOKE - Đặt lúc: 22/10/2026 19:40:55 -->
           <div class="order-history-item" data-status="cancelled" data-refund="unrefunded" data-title="Án Mạng Karaoke"
             data-code="BC2610227189" data-created="2026-10-22T19:40:55" onclick="openInvoiceModal('BC2610227189')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #3b82f6; background: #f8fafc;">
-            <img class="order-item-poster" src="images/posters/an-mang-karaoke.jpg"
-              alt="Án Mạng Karaoke" onerror="this.src='images/posters/linh-gioi-dai-chien.jpg'">
+            <img loading="lazy" class="order-item-poster" src="images/posters/an-mang-karaoke.webp"
+              alt="Án Mạng Karaoke" onerror="this.src='images/posters/linh-gioi-dai-chien.webp'">
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                 <div>
@@ -715,8 +683,8 @@
           <div class="order-history-item" data-status="refunded" data-refund="refunded"
             data-title="Trại Buôn Người: Vùng Cấm Biên Giới" data-code="BC2610208819" data-created="2026-10-20T17:30:10" onclick="window.location.href='ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889'" title="Bấm vào đơn để xem chi tiết đơn đã hoàn tiền"
             style="border-left: 4px solid rgb(106, 166, 255); background: #fafcff; cursor: pointer;">
-            <img class="order-item-poster" src="images/posters/trai-buon-nguoi.jpg"
-              alt="Trại Buôn Người" onerror="this.src='images/posters/linh-gioi-dai-chien.jpg'">
+            <img loading="lazy" class="order-item-poster" src="images/posters/trai-buon-nguoi.webp"
+              alt="Trại Buôn Người" onerror="this.src='images/posters/linh-gioi-dai-chien.webp'">
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                 <div>
@@ -764,8 +732,8 @@
           <!-- Đơn hàng 5 (Đã xem hoàn tất): QUỶ ĂN TẠNG 4 - Đặt lúc: 15/10/2026 19:42:15 -->
           <div class="order-history-item" data-status="completed" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
             data-code="BC2610153321" data-created="2026-10-15T19:42:15" onclick="openInvoiceModal('BC2610153321')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #94a3b8; opacity: 0.9;">
-            <img class="order-item-poster"
-              src="images/posters/quy-an-tang-4.jpg" alt="Quỷ Ăn Tạng">
+            <img loading="lazy" class="order-item-poster"
+              src="images/posters/quy-an-tang-4.webp" alt="Quỷ Ăn Tạng">
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                 <div>
@@ -962,7 +930,7 @@
         <!-- Thông tin phim & Suất chiếu -->
         <div class="invoice-paper-box">
           <div style="display: flex; gap: 16px; align-items: center;">
-            <img id="inv-movie-poster" src="" alt="Poster" style="width: 65px; height: 95px; border-radius: 8px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+            <img loading="lazy" id="inv-movie-poster" src="" alt="Poster" style="width: 65px; height: 95px; border-radius: 8px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
             <div style="flex: 1; min-width: 0;">
               <h4 id="inv-movie-title" style="font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0;">
                 TÊN PHIM
@@ -1501,7 +1469,7 @@
         const card = document.querySelector(`.order-history-item[data-code="${orderCode}"]`);
         if (card) {
           const title = card.getAttribute('data-title') || card.querySelector('h4')?.textContent?.trim() || 'Vé Xem Phim Beta';
-          const poster = card.querySelector('img.order-item-poster')?.src || 'images/posters/linh-gioi-dai-chien.jpg';
+          const poster = card.querySelector('img.order-item-poster')?.src || 'images/posters/linh-gioi-dai-chien.webp';
           const badgeEl = card.querySelector('.badge');
           const badgeHtml = badgeEl ? badgeEl.outerHTML : '<span class="badge" style="background: #d1fae5; color: #065f46; font-weight: 800; font-size: 11px;">✓ ĐÃ THANH TOÁN</span>';
           
@@ -1760,7 +1728,7 @@
       // Duyệt qua từng đơn mới và chèn lên đầu danh sách
       newOrders.reverse().forEach(ord => {
         const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(ord.movie_key) : { title: (ord.movie_key || 'Phim Mới').toUpperCase() };
-        const poster = (movieObj && movieObj.poster) || 'images/posters/linh-gioi-dai-chien.jpg';
+        const poster = (movieObj && movieObj.poster) || 'images/posters/linh-gioi-dai-chien.webp';
 
         // Xử lý huy hiệu trạng thái & phân loại mục tab
         const isRefunded = ord.status === 'REFUNDED';
@@ -1856,7 +1824,7 @@
         }
 
         card.innerHTML = `
-          <img class="order-item-poster" src="${poster}" alt="${movieObj.title}" onerror="this.src='images/posters/linh-gioi-dai-chien.jpg'">
+          <img loading="lazy" class="order-item-poster" src="${poster}" alt="${movieObj.title}" onerror="this.src='images/posters/linh-gioi-dai-chien.webp'">
           <div style="flex: 1;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
               <div>
@@ -2504,7 +2472,7 @@
     if (movieKey === 'quy-an-tang-4') movieTitle = 'Quỷ Ăn Tạng 4';
     else if (movieKey === 'trai-buon-nguoi') movieTitle = 'Trại Buôn Người: Vùng Cấm Biên Giới';
 
-    const poster = (movieObj && movieObj.poster) || 'images/posters/quy-an-tang-4.jpg';
+    const poster = (movieObj && movieObj.poster) || 'images/posters/quy-an-tang-4.webp';
     const cinema = det.cinema || 'Beta Thanh Xuân (Hà Nội)';
     const seats = det.seats || 'D5, D6';
     const time = det.time || '18:30';
@@ -2672,7 +2640,7 @@
       }
 
       card.innerHTML = `
-        <img class="order-item-poster" src="${poster}" alt="${movieTitle}" onerror="this.src='images/posters/linh-gioi-dai-chien.jpg'">
+        <img loading="lazy" class="order-item-poster" src="${poster}" alt="${movieTitle}" onerror="this.src='images/posters/linh-gioi-dai-chien.webp'">
         <div style="flex: 1;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
             <div>
