@@ -115,7 +115,7 @@
 
     .menu-link-official:hover,
     .menu-link-official.active {
-      color: #ff5400;
+      color: #c94200;
     }
 
     /* Stepper Styling */
@@ -165,7 +165,7 @@
       width: 64px;
       height: 64px;
       border: 5px solid #e2e8f0;
-      border-top-color: #ff5400;
+      border-top-color: #c94200;
       border-radius: 50%;
       animation: sp 1s linear infinite;
       margin: 0 auto;
@@ -225,7 +225,7 @@
     }
 
     .pulse-dot {
-      color: #10b981;
+      color: #047857;
       display: inline-block;
       animation: live-pulse 1.8s infinite ease-in-out;
     }
@@ -314,7 +314,7 @@
         </h1>
 
         <p style="color: #64748b; font-size: 14px; margin: 0;">
-          Mã đơn <strong id="verify-order-code" style="color: #ff5400; font-family: monospace; font-size: 16px;">…</strong>
+          Mã đơn <strong id="verify-order-code" style="color: #c94200; font-family: monospace; font-size: 16px;">…</strong>
         </p>
 
         <p style="color: #475569; font-size: 14px; margin: 0; line-height: 1.5;">
@@ -329,7 +329,7 @@
           </div>
           <div class="ln-row">
             <span class="ln-label">Nội dung chuyển khoản</span>
-            <strong id="verify-content" style="color: #ff5400; font-family: monospace; font-size: 15px;">…</strong>
+            <strong id="verify-content" style="color: #c94200; font-family: monospace; font-size: 15px;">…</strong>
           </div>
           <div class="ln-row">
             <span class="ln-label">Thời gian giữ ghế còn lại</span>
@@ -375,7 +375,7 @@
         Kích hoạt thử các kịch bản để xem trang xác minh tự động chuyển hướng:
       </p>
       <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-        <button type="button" onclick="triggerSim('OK')" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 800;"><i class="ph-lightning" aria-hidden="true"></i> Webhook về: chuyển đủ</button>
+        <button type="button" onclick="triggerSim('OK')" class="btn btn-primary btn-sm" style="background: #047857; border: none; font-weight: 800;"><i class="ph-lightning" aria-hidden="true"></i> Webhook về: chuyển đủ</button>
         <button type="button" onclick="triggerSim('NETWORK_LAG')" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-broadcast" aria-hidden="true"></i> Webhook thất lạc</button>
         <button type="button" onclick="triggerSim('SLOW_BANK')" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-hourglass-medium" aria-hidden="true"></i> Ngân hàng chậm 12 phút</button>
         <button type="button" onclick="triggerSim('SHIFT', { minutes: 1 })" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-fast-forward" aria-hidden="true"></i> Tua nhanh 1 phút</button>

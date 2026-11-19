@@ -15,14 +15,14 @@
   
   <style>
     :root {
-      --a: #FF5A3C;
+      --a: #c53030;
       --bg-dark: #f8fafc;
       --card-dark: #ffffff;
       --border-dark: #e2e8f0;
       --text-light: #0f172a;
       --text-muted: #64748b;
-      --status-warning: #d97706;
-      --status-live: #10b981;
+      --status-warning: #b45309;
+      --status-live: #047857;
     }
 
     body {
@@ -177,7 +177,7 @@
     .r.d i {
       width: 68px;
       background: #fce7f3;
-      color: #db2777;
+      color: #9d174d;
       box-shadow: 0 0 0 1.5px #f472b6;
       font-weight: 700;
     }
@@ -198,7 +198,7 @@
     }
     i.h {
       background: repeating-linear-gradient(45deg, #fef3c7 0 3px, #e2e8f0 3px 6px) !important;
-      color: #d97706 !important;
+      color: #b45309 !important;
       cursor: not-allowed !important;
     }
     i.k {
@@ -659,7 +659,7 @@
         seatsDisplay.textContent = 'Chưa chọn ghế';
         totalDisplay.textContent = '0đ';
         metaDisplay.textContent = 'Vui lòng chọn ghế trên sơ đồ khán phòng';
-        btnNext.classList.add('disabled');
+        btnNext.classList.add('disabled'); btnNext.setAttribute('aria-disabled', 'true');
         btnNext.removeAttribute('href');
       } else {
         const seatIds = selectedSeats.map(s => s.id).join(', ');
@@ -671,7 +671,7 @@
         
         const count = selectedSeats.length;
         metaDisplay.textContent = ((SHOWTIME && SHOWTIME.room) || 'Phòng chiếu') + ' · ' + count + ' Ghế (' + new Intl.NumberFormat('vi-VN').format(total) + 'đ)';
-        btnNext.classList.remove('disabled');
+        btnNext.classList.remove('disabled'); btnNext.removeAttribute('aria-disabled');
 
         // Chuyển tiếp mượt mà sang bước 3: Chọn bắp nước (combo.html)
         const comboUrl = 'combo.html?showtime=' + encodeURIComponent(SHOWTIME ? SHOWTIME.id : '') + '&seats=' + encodeURIComponent(seatIds) +

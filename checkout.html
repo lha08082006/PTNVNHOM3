@@ -15,14 +15,14 @@
 
   <style>
     :root {
-      --a: #FF5A3C;
+      --a: #c53030;
       --bg-dark: #f8fafc;
       --card-dark: #ffffff;
       --border-dark: #e2e8f0;
       --text-light: #0f172a;
       --text-muted: #64748b;
-      --status-warning: #d97706;
-      --status-live: #10b981;
+      --status-warning: #b45309;
+      --status-live: #047857;
     }
 
     body {
@@ -154,6 +154,8 @@
       background: #fff5f3;
       box-shadow: 0 0 0 1.5px var(--a);
     }
+    /* Chữ phụ trong ô phương thức đang chọn: đủ tương phản trên nền hồng nhạt (WCAG AA) */
+    .pm:has(input:checked) .m { color: #475569; }
     .pm input {
       margin-top: 3px;
     }
@@ -393,7 +395,7 @@
 
         <!-- Movie Header Info -->
         <div style="display: flex; gap: 12px; align-items: flex-start;">
-          <div role="img" aria-label="Poster phim" style="flex: none; width: 64px; height: 96px; border-radius: 8px; overflow: hidden; background: linear-gradient(160deg, #FF5A3C, #7A2E8E); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+          <div role="img" aria-label="Poster phim" style="flex: none; width: 64px; height: 96px; border-radius: 8px; overflow: hidden; background: linear-gradient(160deg, #c53030, #7A2E8E); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
             <img loading="lazy" id="summary-movie-poster" src="images/400x633-145627-230926-40.jpg" alt="Poster" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div>

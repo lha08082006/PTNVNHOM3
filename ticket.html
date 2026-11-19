@@ -203,7 +203,7 @@
       
       <!-- Alert Message -->
       <div style="text-align: center; margin-bottom: 28px;">
-        <div style="width: 58px; height: 58px; background: #d1fae5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 14px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">
+        <div style="width: 58px; height: 58px; background: #d1fae5; color: #047857; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 14px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">
           <i class="ph-check" aria-hidden="true"></i>
         </div>
         <h1 style="font-family: var(--font-display); font-size: 28px; font-weight: 900; color: var(--beta-navy); margin-bottom: 6px;">
@@ -223,11 +223,11 @@
             <div>
               <div style="font-weight: 800; font-size: 15px; color: #065f46;">BẠN ĐÃ CHUYỂN THỪA TIỀN VÉ</div>
               <div style="font-size: 13px; color: #047857; margin-top: 2px;">
-                Đơn hàng đã được xuất vé thành công. Số tiền thừa <strong id="excess-amount-val" style="color: #ff5400;">0 đ</strong> sẽ được hoàn trả lại cho bạn.
+                Đơn hàng đã được xuất vé thành công. Số tiền thừa <strong id="excess-amount-val" style="color: #c94200;">0 đ</strong> sẽ được hoàn trả lại cho bạn.
               </div>
             </div>
           </div>
-          <a id="btn-claim-excess" href="refund.html" class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 800; border-radius: 8px;">
+          <a id="btn-claim-excess" href="refund.html" class="btn btn-primary btn-sm" style="background: #047857; border-color: #047857; font-weight: 800; border-radius: 8px;">
             Nhận Tiền Thừa Ngay →
           </a>
         </div>
@@ -243,8 +243,8 @@
               <span style="font-family: var(--font-display); font-weight: 900; font-size: 17px; color: var(--beta-navy); letter-spacing: 0.5px;">BETA CINEMAS</span>
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-              <span id="ticket-badge-format" class="badge" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 6px;">2D PHỤ ĐỀ</span>
-              <span class="badge badge-vip" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 6px;" id="ticket-seat-class">VÉ ĐIỆN TỬ</span>
+              <span id="ticket-badge-format" class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 6px;">2D PHỤ ĐỀ</span>
+              <span class="badge badge-vip" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 6px;" id="ticket-seat-class">VÉ ĐIỆN TỬ</span>
             </div>
           </div>
 
@@ -271,7 +271,7 @@
 
             <div>
               <div class="ticket-field-label">Định Dạng Phim</div>
-              <div class="ticket-field-value" id="ticket-movie-format" style="color: #0284c7;">
+              <div class="ticket-field-value" id="ticket-movie-format" style="color: #0369a1;">
                 2D Phụ đề Tiếng Anh
               </div>
             </div>
@@ -288,7 +288,7 @@
               <div class="ticket-field-value" id="ticket-total-price" style="font-size: 20px; color: var(--beta-orange);">
                 180.000 đ
               </div>
-              <div id="ticket-pay-status-note" style="font-size: 12px; color: #059669; font-weight: 700; margin-top: 3px;">
+              <div id="ticket-pay-status-note" style="font-size: 12px; color: #047857; font-weight: 700; margin-top: 3px;">
                 <i class="ph-check" aria-hidden="true"></i> Đã thanh toán (VietQR)
               </div>
             </div>
@@ -309,7 +309,7 @@
               <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase;">Combo Bắp Nước Nhận Tại Quầy:</div>
               <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;" id="ticket-combo-detail">Đang tải thông tin combo...</div>
             </div>
-            <span style="font-size: 12px; background: #e0f2fe; color: #0284c7; padding: 5px 12px; border-radius: 6px; font-weight: 800; flex-shrink: 0;">Chưa nhận</span>
+            <span style="font-size: 12px; background: #e0f2fe; color: #0369a1; padding: 5px 12px; border-radius: 6px; font-weight: 800; flex-shrink: 0;">Chưa nhận</span>
           </div>
         </div>
 
@@ -325,7 +325,7 @@
 
           <!-- BARCODE CODE-128 SVG -->
           <div style="background: white; padding: 16px 24px 12px; border-radius: 12px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.04); width: 100%; max-width: 480px; margin-bottom: 12px;">
-            <div id="ticket-qr" style="display: flex; justify-content: center; padding: 6px 0;" aria-label="Mã QR vé"></div>
+            <div id="ticket-qr" role="img" aria-label="Mã QR vé vào cửa" style="display: flex; justify-content: center; padding: 6px 0;"></div>
             <div id="ticket-checkin-state" style="display: none; margin-top: 8px; font-weight: 800; color: #b45309;"></div>
             <div style="font-family: 'Courier New', Courier, monospace; font-size: 17px; font-weight: 800; color: #0f172a; letter-spacing: 5px; margin-top: 8px;" id="ticket-barcode-num">
               BC 2610 2798 54
@@ -656,7 +656,7 @@
         let y = 182;
         g.fillStyle = '#0f172a'; g.font = font(900, 28);
         y = wrap(txt('ticket-movie-title'), P, y, W - 2 * P, 36);
-        g.fillStyle = '#0284c7'; g.font = font(700, 16); g.fillText(txt('ticket-badge-format'), P, y + 4); y += 40;
+        g.fillStyle = '#0369a1'; g.font = font(700, 16); g.fillText(txt('ticket-badge-format'), P, y + 4); y += 40;
         // các ô thông tin
         const field = (label, value, x, yy, w, color) => {
           g.fillStyle = '#64748b'; g.font = font(700, 13); g.fillText(label.toUpperCase(), x, yy);
@@ -667,10 +667,10 @@
         const y1 = field('Rạp chiếu', txt('ticket-cinema-name'), P, y, half, '#005198');
         const y2 = field('Phòng chiếu', txt('ticket-hall-name'), P + half + 24, y, half);
         y = Math.max(y1, y2) + 18;
-        const y3 = field('Suất chiếu', txt('ticket-showtime'), P, y, half, '#ea580c');
+        const y3 = field('Suất chiếu', txt('ticket-showtime'), P, y, half, '#c2410c');
         const y4 = field('Ghế', txt('ticket-seats-list'), P + half + 24, y, half, '#005198');
         y = Math.max(y3, y4) + 18;
-        y = field('Tổng tiền', txt('ticket-total-price'), P, y, W - 2 * P, '#ea580c') + 10;
+        y = field('Tổng tiền', txt('ticket-total-price'), P, y, W - 2 * P, '#c2410c') + 10;
         // đường xé vé
         g.strokeStyle = '#cbd5e1'; g.setLineDash([8, 8]); g.lineWidth = 2;
         g.beginPath(); g.moveTo(P, y + 10); g.lineTo(W - P, y + 10); g.stroke(); g.setLineDash([]);
@@ -860,6 +860,8 @@
         const box = document.getElementById('ticket-qr');
         box.innerHTML = '';
         new QRCode(box, { text: ord.ticket_qr, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+        // Thư viện QR tự chèn <img> không có alt: khung ngoài đã mô tả (role="img") nên ảnh bên trong để trống alt
+        box.querySelectorAll('img, canvas').forEach((el) => { if (el.tagName === 'IMG') el.alt = ''; el.setAttribute('aria-hidden', 'true'); });
       }
       // Chỉ chủ vé (đăng nhập đúng tài khoản đặt vé) mới thấy mã QR vào rạp
       if (ord.limited) {

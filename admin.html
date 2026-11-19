@@ -8,7 +8,7 @@
   <title>Nội bộ – Đối soát & Hoàn tiền | Beta Cinemas</title>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --blue: #005198; --orange: #ea580c; --line: #e2e8f0; --muted: #64748b; }
+    :root { --blue: #005198; --orange: #c2410c; --line: #e2e8f0; --muted: #64748b; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Be Vietnam Pro', sans-serif; background: #f1f5f9; color: #0f172a; font-size: 14px; }
     header { background: #0f172a; color: #fff; padding: 12px 22px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
@@ -124,6 +124,7 @@
     <div class="who" id="who" hidden>
       <span><i class="ph-user" aria-hidden="true"></i> <b id="who-name"></b></span><span class="role" id="who-role"></span>
       <button type="button" onclick="changeMyPassword()">Đổi mật khẩu</button>
+      <button type="button" onclick="open2fa()" id="who-2fa">Bảo mật 2 lớp</button>
       <button type="button" onclick="logout()">Đăng xuất</button>
     </div>
     <nav class="tabs" id="tabs" style="display: none;">
@@ -138,11 +139,20 @@
   </header>
 
   <main>
+    <!-- Đợt 6: đăng nhập 2 lớp của nhân viên -->
+    <div class="card" id="twofa" hidden>
+      <h2>Bảo mật 2 lớp <small>sau mật khẩu, đăng nhập cần thêm mã 6 số trong ứng dụng Google Authenticator / Microsoft Authenticator trên điện thoại</small></h2>
+      <div id="twofa-body"></div>
+      <p class="hint" id="twofa-msg" role="status"></p>
+      <button class="btn" type="button" onclick="document.getElementById('twofa').hidden = true">Đóng</button>
+    </div>
+
     <div class="card" id="login">
       <h2>Đăng nhập nội bộ</h2>
       <form id="login-form" onsubmit="event.preventDefault(); login()">
         <input aria-label="Email nhân viên" id="lg-email" type="email" placeholder="Email nhân viên" style="width: 100%; margin-bottom: 8px;" autocomplete="username" required>
         <input aria-label="Mật khẩu" id="lg-pass" type="password" placeholder="Mật khẩu" style="width: 100%; margin-bottom: 10px;" autocomplete="current-password" required>
+        <input aria-label="Mã 6 số trong ứng dụng xác thực" id="lg-otp" hidden inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Mã 6 số (Google Authenticator…)" style="width: 100%; margin-bottom: 10px; letter-spacing: 4px;">
         <button class="btn primary" style="width: 100%;">Đăng nhập</button>
       </form>
       <form id="boot-form" hidden onsubmit="event.preventDefault(); bootstrap()">
@@ -301,7 +311,25 @@
           Xem lịch: <select id="sl-cinema" aria-label="Rạp" onchange="loadShowtimeList()"></select>
           <input id="sl-date" type="date" aria-label="Ngày chiếu" onchange="loadShowtimeList()">
         </div>
+        <div class="row-actions" style="margin: 8px 0;">
+          <button class="btn" type="button" id="sl-grid-btn" onclick="toggleGrid()"><i class="ph-calendar" aria-hidden="true"></i> Xem dạng bảng theo phòng</button>
+        </div>
+        <div id="sl-grid" hidden style="overflow-x: auto;"></div>
         <div id="sl-table"></div>
+        <!-- Đợt 6: sao chép lịch, gợi ý điều chỉnh suất -->
+        <details style="margin-top: 14px;">
+          <summary style="cursor: pointer; font-weight: 700;">Sao chép lịch chiếu (vd tuần này → tuần sau)</summary>
+          <form class="form-grid" style="margin-top: 10px;" onsubmit="event.preventDefault(); copyWeek()">
+            <label>Từ ngày (nguồn)<input id="cp-from" type="date" required></label>
+            <label>Số ngày<select id="cp-days"><option value="1">1 ngày</option><option value="7" selected>7 ngày</option><option value="14">14 ngày</option></select></label>
+            <label>Sang ngày (đích)<input id="cp-to" type="date" required></label>
+            <button class="btn primary">Sao chép</button>
+          </form>
+          <div class="hint">Giữ nguyên giờ, phòng, phim, giá riêng. Bỏ qua suất đã có, đã qua giờ, phòng bận, phim đã ẩn.</div>
+          <div id="cp-result" class="hint" style="margin-top: 6px;"></div>
+        </details>
+        <h3 style="font-size: 15px; margin: 16px 0 8px;">Gợi ý điều chỉnh suất <small class="hint">lấp đầy 14 ngày qua tại rạp đang xem</small></h3>
+        <div id="sl-insights"><div class="empty">Đang tải…</div></div>
       </div>
 
       <div class="grid2">
@@ -370,6 +398,21 @@
           <div class="row-actions"><button class="btn primary">Lưu bài</button><button type="button" class="btn" onclick="resetPostForm()">Bài mới</button></div>
         </form>
         <div id="ps-table"></div>
+      </div>
+
+      <!-- Đợt 6: email ưu đãi theo nhóm khách (chỉ khách đã đồng ý nhận) -->
+      <div class="card">
+        <h2>Email ưu đãi <small id="cm-sub">chỉ gửi cho khách đã đồng ý nhận · mỗi thư có link hủy đăng ký · gõ {ten} để chèn tên khách</small></h2>
+        <form class="form-grid" onsubmit="event.preventDefault(); sendCampaign()">
+          <label>Nhóm khách<select id="cm-seg" onchange="cmParam(); previewCampaign()"></select></label>
+          <label id="cm-param-wrap" hidden><span id="cm-param-label">Tham số</span><select id="cm-param" onchange="previewCampaign()"></select></label>
+          <label style="grid-column: 1 / -1;">Tiêu đề<input id="cm-subject" maxlength="120" required placeholder="Thứ Ba vui vẻ: giảm 15% mọi suất"></label>
+          <label style="grid-column: 1 / -1;">Nội dung<textarea id="cm-message" rows="5" maxlength="3000" required placeholder="Chào {ten}, …"></textarea></label>
+          <div style="grid-column: 1 / -1;" class="hint" id="cm-count"></div>
+          <button class="btn primary" id="cm-send">Gửi</button>
+        </form>
+        <div id="cm-progress" class="hint" style="margin: 8px 0;"></div>
+        <div id="cm-table"></div>
       </div>
 
       <div class="card">
@@ -541,6 +584,7 @@
     <div class="db" id="d-body"></div>
   </aside>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="catalog.js"></script>
   <script>
     // Live Server (port 55xx) hoặc file:// -> server Node port 5000; còn lại API cùng nguồn
@@ -598,16 +642,61 @@
     async function login() {
       const err = document.getElementById('login-err');
       err.textContent = '';
+      const otpEl = document.getElementById('lg-otp');
       try {
-        const r = await post('login', { email: document.getElementById('lg-email').value, password: document.getElementById('lg-pass').value });
+        const r = await post('login', { email: document.getElementById('lg-email').value, password: document.getElementById('lg-pass').value, otp: otpEl.value.trim() || undefined });
+        otpEl.value = ''; otpEl.hidden = true;
         TOKEN = r.token;
         try { sessionStorage.setItem('beta_staff_token', TOKEN); } catch (e) {}
         document.getElementById('lg-pass').value = '';
         await enter();
       } catch (e) {
         err.textContent = e.message;
+        if (e.data && e.data.need_otp) { otpEl.hidden = false; otpEl.value = ''; otpEl.focus(); }
       }
     }
+
+    // ---- Bảo mật 2 lớp (Đợt 6) ----
+    async function open2fa(forced) {
+      const box = document.getElementById('twofa'), body = document.getElementById('twofa-body'), msg = document.getElementById('twofa-msg');
+      box.hidden = false; msg.textContent = forced ? 'Quản lý yêu cầu mọi nhân viên bật đăng nhập 2 lớp trước khi làm việc.' : '';
+      box.scrollIntoView({ behavior: 'smooth' });
+      if (ME.totp_enabled) {
+        body.innerHTML = `<p>Đang <b style="color:#15803d">BẬT</b>. Muốn tắt, nhập mã 6 số hiện tại:</p>
+          <input id="tf-code" inputmode="numeric" maxlength="6" placeholder="Mã 6 số" style="letter-spacing:4px"> <button class="btn danger" onclick="disable2fa()">Tắt bảo mật 2 lớp</button>`;
+        return;
+      }
+      body.innerHTML = `<ol style="line-height:1.8;margin:0 0 10px;padding-left:20px">
+          <li>Cài <b>Google Authenticator</b> hoặc <b>Microsoft Authenticator</b> trên điện thoại.</li>
+          <li>Bấm <button class="btn" onclick="setup2fa()">Thiết lập</button> rồi quét mã QR hiện ra (hoặc nhập khóa bằng tay).</li>
+          <li>Nhập mã 6 số ứng dụng đang hiện để bật.</li></ol>
+        <div id="tf-qr" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"></div>
+        <div style="margin-top:10px"><input id="tf-code" inputmode="numeric" maxlength="6" placeholder="Mã 6 số" style="letter-spacing:4px"> <button class="btn primary" onclick="enable2fa()">Bật</button></div>`;
+    }
+    async function setup2fa() {
+      try {
+        const r = await post('totp_setup', {});
+        const box = document.getElementById('tf-qr');
+        box.innerHTML = '<div id="tf-qr-img" style="background:#fff;padding:8px;border:1px solid #e2e8f0;border-radius:8px"></div><div class="hint">Không quét được? Nhập khóa:<br><b class="mono" style="font-size:14px;word-break:break-all">' + esc(r.secret.replace(/(.{4})/g, '$1 ').trim()) + '</b></div>';
+        if (window.QRCode) new QRCode(document.getElementById('tf-qr-img'), { text: r.otpauth, width: 168, height: 168 });
+      } catch (e) { document.getElementById('twofa-msg').textContent = e.message; }
+    }
+    async function enable2fa() {
+      try {
+        ME = { ...ME, ...(await post('totp_enable', { code: val('tf-code') })).staff };
+        document.getElementById('twofa-msg').textContent = '✓ Đã bật. Lần đăng nhập sau cần mã 6 số.';
+        await open2fa();
+        if (!document.getElementById('tabs').style.display || document.getElementById('tabs').style.display === 'none') await enter();
+      } catch (e) { document.getElementById('twofa-msg').textContent = e.message; }
+    }
+    async function disable2fa() {
+      try {
+        ME = { ...ME, ...(await post('totp_disable', { code: val('tf-code') })).staff };
+        document.getElementById('twofa-msg').textContent = 'Đã tắt bảo mật 2 lớp.';
+        await open2fa();
+      } catch (e) { document.getElementById('twofa-msg').textContent = e.message; }
+    }
+    const reset2fa = (id) => act(async () => { if (!confirm('Tắt bảo mật 2 lớp của nhân viên này (khi họ mất điện thoại)? Họ cần thiết lập lại.')) return; await post('staff_reset_2fa', { id }); await loadStaff(); });
 
     async function bootstrap() {
       const err = document.getElementById('login-err');
@@ -652,6 +741,8 @@
       document.getElementById('who-role').textContent = ME.role_label;
       document.getElementById('who').hidden = false;
       document.getElementById('login').hidden = true;
+      // Bắt buộc 2 lớp (STAFF_REQUIRE_2FA=1) mà chưa bật -> chỉ hiện phần thiết lập
+      if (ME.require_2fa && !ME.totp_enabled) { document.getElementById('tabs').style.display = 'none'; return open2fa(true); }
       document.getElementById('tabs').style.display = 'flex';
       document.querySelectorAll('#tabs button').forEach(btn => { btn.hidden = !TAB_RULE[btn.dataset.tab](); });
       await load();
@@ -942,9 +1033,114 @@
           <td><button class="btn" onclick="editCinema('${esc(c.id)}')">Sửa</button></td></tr>`).join('')}</tbody></table>`;
       await loadShowtimeList();
       await loadPosts();
+      loadCampaigns();
     }
+    // Lịch dạng bảng (Đợt 6): mỗi hàng một phòng, trục ngang 08:00 → 02:00 hôm sau
+    let SL = [];
+    function toggleGrid() {
+      const g = document.getElementById('sl-grid');
+      g.hidden = !g.hidden;
+      document.getElementById('sl-grid-btn').classList.toggle('primary', !g.hidden);
+      if (!g.hidden) renderGrid();
+    }
+    function renderGrid() {
+      const g = document.getElementById('sl-grid');
+      if (g.hidden) return;
+      if (!SL.length) { g.innerHTML = '<div class="empty">Không có suất trong ngày.</div>'; return; }
+      const START = 8 * 60, SPAN = 18 * 60; // 08:00 -> 02:00
+      const mins = (s) => { const [h, m] = s.time.split(':').map(Number); const v = h * 60 + m; return v < START ? v + 1440 : v; };
+      const rooms = [...new Set(SL.map(s => s.room))].sort((a, b) => a.localeCompare(b, 'vi', { numeric: true }));
+      const hue = (k) => [...String(k)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+      // Suất chồng giờ trong cùng phòng (giờ chiếu + 15 phút dọn phòng) -> viền đỏ để Quản lý sửa
+      const clash = new Set();
+      rooms.forEach(r => {
+        const list = SL.filter(s => s.room === r && s.active).sort((x, y) => mins(x) - mins(y));
+        for (let i = 1; i < list.length; i++) {
+          const prev = list[i - 1];
+          if (mins(list[i]) < mins(prev) + ((prev.movie && prev.movie.duration_min) || 120) + 15) { clash.add(prev.id); clash.add(list[i].id); }
+        }
+      });
+      const ticks = Array.from({ length: 19 }, (_, i) => { const h = (8 + i) % 24; return `<span style="position:absolute;left:${i / 18 * 100}%;font-size:11px;color:#64748b;transform:translateX(-50%)">${String(h).padStart(2, '0')}h</span>`; }).join('');
+      g.innerHTML = `<div style="min-width:900px;margin:6px 0 12px">
+        <div style="display:grid;grid-template-columns:130px 1fr;gap:6px;align-items:center">
+          ${clash.size ? `<div style="grid-column:1 / -1;color:#b91c1c;font-size:13px;font-weight:700">⚠ ${clash.size} suất chồng giờ trong cùng phòng (viền đỏ) – ngừng bán hoặc đổi phòng.</div>` : ''}
+          <div></div><div style="position:relative;height:16px">${ticks}</div>
+          ${rooms.map(r => `<div style="font-size:12.5px;font-weight:700">${esc(r)}</div>
+            <div style="position:relative;height:54px;background:repeating-linear-gradient(90deg,#f8fafc 0,#f8fafc calc(100%/18 - 1px),#e2e8f0 calc(100%/18 - 1px),#e2e8f0 calc(100%/18));border-radius:6px">
+              ${SL.filter(s => s.room === r).map(s => {
+                const dur = (s.movie && s.movie.duration_min) || 120, left = (mins(s) - START) / SPAN * 100, w = Math.max(3, dur / SPAN * 100);
+                const sold = s.seats_total - s.seats_free, past = new Date(s.starts_at) <= new Date();
+                return `<div title="${esc((s.movie || {}).title || s.movie_key)} · ${s.time}–${s.end_time || ''} · ${sold}/${s.seats_total} ghế${s.active ? '' : ' · NGỪNG BÁN'}${clash.has(s.id) ? ' · TRÙNG GIỜ' : ''}" style="position:absolute;top:3px;bottom:3px;left:${left}%;width:${w}%;background:hsl(${hue(s.movie_key)} 70% ${s.active ? 88 : 96}%);border:${clash.has(s.id) ? '2.5px solid #b91c1c' : '1.5px solid hsl(' + hue(s.movie_key) + ' 55% 45%)'};border-radius:6px;padding:2px 5px;overflow:hidden;font-size:11px;line-height:1.3;${past ? 'opacity:.55;' : ''}${s.active ? '' : 'text-decoration:line-through;'}">
+                  <b>${s.time}</b> ${esc(((s.movie || {}).shortTitle || (s.movie || {}).title || s.movie_key).slice(0, 26))}<br>${sold}/${s.seats_total}</div>`;
+              }).join('')}
+            </div>`).join('')}
+        </div></div>`;
+    }
+    const copyWeek = () => act(async () => {
+      const r = await post('showtime_copy', { cinema_id: val('sl-cinema'), from: val('cp-from'), to: val('cp-to'), days: val('cp-days') });
+      document.getElementById('cp-result').textContent = `Đã tạo ${r.created}/${r.source} suất.` + (r.skipped.length ? ' Bỏ qua: ' + r.skipped.slice(0, 12).join('; ') + (r.skipped.length > 12 ? '…' : '') : '');
+      await loadShowtimeList();
+    });
+    async function loadInsights() {
+      const box = document.getElementById('sl-insights');
+      try {
+        const r = await api('admin?action=schedule_insights&cinema=' + encodeURIComponent(val('sl-cinema')));
+        box.innerHTML = r.rows.length ? `<table><thead><tr><th>Phim</th><th>Suất 14 ngày qua</th><th>Lấp đầy</th><th>Suất 7 ngày tới</th><th>Gợi ý</th></tr></thead><tbody>${
+          r.rows.map(x => `<tr><td>${esc(x.title)}</td><td>${x.past_shows}</td><td>${x.rate == null ? '—' : x.rate + '%'}</td><td>${x.next_7d}</td><td>${x.advice ? pill(x.advice, /tăng/.test(x.advice) ? 'ok' : /giảm/.test(x.advice) ? 'warn' : 'danger') : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Chưa có dữ liệu.</div>';
+      } catch (e) { box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+
+    // ---- Email ưu đãi (Đợt 6) ----
+    let CM = null;
+    async function loadCampaigns() {
+      try {
+        CM = await api('admin?action=campaign_list');
+        const seg = document.getElementById('cm-seg');
+        if (!seg.options.length) { seg.innerHTML = Object.entries(CM.segments).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join(''); cmParam(); previewCampaign(); }
+        if (!CM.mail_ready) document.getElementById('cm-sub').innerHTML = '<span style="color:#b91c1c">Chưa cấu hình RESEND_API_KEY / MAIL_FROM – thư sẽ không được gửi thật.</span>';
+        document.getElementById('cm-table').innerHTML = CM.campaigns.length ? `<table><thead><tr><th>Ngày</th><th>Tiêu đề</th><th>Nhóm</th><th>Đã gửi</th><th>Lỗi / bỏ qua</th><th>Trạng thái</th></tr></thead><tbody>${
+          CM.campaigns.map(c => `<tr><td class="hint">${t(c.created_at)}</td><td>${esc(c.subject)}<div class="hint">${esc(c.created_by || '')}</div></td><td>${esc(c.segment_label)}${c.param ? ' · ' + esc(c.param) : ''}</td>
+            <td>${c.sent}/${c.total}</td><td>${c.failed} / ${c.skipped}</td><td>${c.status === 'DONE' ? pill('Xong', 'ok') : `${pill('Đang gửi', 'warn')} <button class="btn" onclick="runCampaign('${c.id}')">Tiếp tục</button>`}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Chưa gửi chiến dịch nào.</div>';
+      } catch (e) { document.getElementById('cm-table').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+    function cmParam() {
+      const s = val('cm-seg'), wrap = document.getElementById('cm-param-wrap'), p = document.getElementById('cm-param');
+      wrap.hidden = !['TIER', 'FAV_MOVIE', 'INACTIVE'].includes(s);
+      document.getElementById('cm-param-label').textContent = s === 'TIER' ? 'Hạng' : s === 'FAV_MOVIE' ? 'Phim' : 'Không đặt vé trong';
+      p.innerHTML = s === 'TIER' ? '<option value="VIP">VIP</option><option value="VVIP">VVIP</option><option value="MEMBER">Thành viên</option>'
+        : s === 'FAV_MOVIE' ? (CAT ? CAT.movies : []).map(m => `<option value="${esc(m.id)}">${esc(m.title)}</option>`).join('')
+        : '<option value="30">30 ngày</option><option value="60" selected>60 ngày</option><option value="90">90 ngày</option>';
+    }
+    async function previewCampaign() {
+      try { const r = await post('campaign_preview', { segment: val('cm-seg'), param: val('cm-param') }); document.getElementById('cm-count').textContent = 'Sẽ gửi tới ' + r.count + ' khách đã đồng ý nhận email.'; }
+      catch (e) { document.getElementById('cm-count').textContent = e.message; }
+    }
+    const sendCampaign = () => act(async () => {
+      if (!confirm('Gửi email "' + val('cm-subject') + '" tới nhóm khách đã chọn? Không thu hồi được.')) return;
+      const r = await post('campaign_create', { subject: val('cm-subject'), message: val('cm-message'), segment: val('cm-seg'), param: val('cm-param') });
+      await runCampaign(r.id);
+      document.getElementById('cm-subject').value = ''; document.getElementById('cm-message').value = '';
+    });
+    // Gửi từng đợt nhỏ cho tới khi xong (giữ trang mở); đóng trang giữa chừng thì bấm "Tiếp tục"
+    async function runCampaign(id) {
+      const box = document.getElementById('cm-progress'), btn = document.getElementById('cm-send');
+      btn.disabled = true;
+      try {
+        for (let i = 0; i < 2000; i++) {
+          const c = (await post('campaign_step', { id })).campaign;
+          box.textContent = `Đang gửi "${c.subject}": ${c.cursor}/${c.total} (gửi được ${c.sent}, lỗi ${c.failed}, bỏ qua ${c.skipped}). Giữ trang này mở.`;
+          if (c.status === 'DONE') { box.textContent = `✓ Xong "${c.subject}": gửi được ${c.sent}/${c.total}, lỗi ${c.failed}, bỏ qua ${c.skipped}.`; break; }
+        }
+      } catch (e) { box.textContent = 'Dừng: ' + e.message + ' – bấm "Tiếp tục" để gửi phần còn lại.'; }
+      finally { btn.disabled = false; await loadCampaigns(); }
+    }
+
     async function loadShowtimeList() {
       const r = await api('admin?action=showtime_list&cinema=' + encodeURIComponent(val('sl-cinema')) + '&date=' + encodeURIComponent(val('sl-date')));
+      SL = r.showtimes;
+      renderGrid();
+      loadInsights();
+      if (!val('cp-from')) { document.getElementById('cp-from').value = val('sl-date'); document.getElementById('cp-to').value = CAT.today ? new Date(new Date(val('sl-date') + 'T00:00:00Z').getTime() + 7 * 864e5).toISOString().slice(0, 10) : ''; }
       const now = Date.now();
       document.getElementById('sl-table').innerHTML = r.showtimes.length ? `<table><thead><tr><th>Giờ</th><th>Phim</th><th>Định dạng / phòng</th><th>Giá (thường / VIP / đôi)</th><th>Ghế đã bán/giữ</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
         r.showtimes.map(x => { const past = new Date(x.starts_at).getTime() <= now; const sold = x.seats_total - x.seats_free; return `<tr class="${x.active ? '' : 'inactive'}">
@@ -1078,14 +1274,15 @@
           <td>${x.active ? pill('Đang hoạt động', 'ok') : pill('Đã khóa', 'muted')}</td><td>${t(x.last_login_at) || '—'}</td>
           <td class="row-actions">${x.id === ME.id ? '<span class="hint">(bạn)</span>' : `
             <button class="btn" onclick="resetStaffPass('${x.id}')">Đặt lại mật khẩu</button>
+            ${x.totp_enabled ? `<button class="btn" onclick="reset2fa('${x.id}')" title="Nhân viên mất điện thoại">Tắt 2 lớp</button>` : ''}
             <button class="btn ${x.active ? 'danger' : 'ok'}" onclick="updateStaff('${x.id}', { active: ${!x.active} })">${x.active ? 'Khóa' : 'Mở khóa'}</button>`}</td></tr>`).join('')
       }</tbody></table>`;
       renderAudit();
     }
     const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
       remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', ticket_reply: 'Trả lời khách', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
-      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', room_save: 'Lưu phòng chiếu', review_hide: 'Ẩn/hiện đánh giá', event_update: 'Cập nhật yêu cầu thuê rạp', invoice_issue: 'Xác nhận đã xuất hóa đơn', invoice_cancel: 'Hủy yêu cầu hóa đơn', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
-      change_password: 'Đổi mật khẩu', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
+      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', room_save: 'Lưu phòng chiếu', showtime_copy: 'Sao chép lịch chiếu', campaign_create: 'Gửi email ưu đãi', review_hide: 'Ẩn/hiện đánh giá', event_update: 'Cập nhật yêu cầu thuê rạp', invoice_issue: 'Xác nhận đã xuất hóa đơn', invoice_cancel: 'Hủy yêu cầu hóa đơn', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
+      change_password: 'Đổi mật khẩu', totp_setup: 'Tạo mã bảo mật 2 lớp', totp_enable: 'Bật bảo mật 2 lớp', totp_disable: 'Tắt bảo mật 2 lớp', staff_reset_2fa: 'Đặt lại bảo mật 2 lớp của nhân viên', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
     function renderAudit() {
       const q = document.getElementById('au-search').value.trim().toLowerCase();
       const rows = AUDIT.filter(l => !q || [l.staff_name, l.action, AUDIT_LABEL[l.action], l.target, JSON.stringify(l.detail || {})].join(' ').toLowerCase().includes(q));

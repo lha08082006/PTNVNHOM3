@@ -27,7 +27,7 @@ const VI = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềế
   // Tài khoản + đơn đã thanh toán để các trang đơn / vé / phim có dữ liệu
   const ctx = await p.evaluate(async () => {
     const j = (u, o) => fetch(u, o).then(r => r.json());
-    const reg = await j('/api/auth?action=register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ full_name: 'Khach Dich', email: 'dich' + Date.now() + '@x.vn', phone: '09' + String(Date.now()).slice(-8), password: 'matkhau123' }) });
+    const reg = await j('/api/auth?action=register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ full_name: 'Khach Dich', email: 'dich' + Date.now() + '@x.vn', phone: '09' + String(Date.now()).slice(-8), password: 'matkhau123', accept_terms: true }) });
     localStorage.setItem('BETA_AUTH_TOKEN', reg.token); localStorage.setItem('BETA_AUTH_USER', JSON.stringify(reg.user));
     const H = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + reg.token };
     const sts = (await j('/api/catalog?action=showtimes&days=7')).showtimes; const st = sts[sts.length - 1];

@@ -197,7 +197,7 @@
   <main id="main-content" class="container">
     
     <!-- Kết quả tra cứu nhanh (Mô phỏng) -->
-    <div id="lookup-result-box" style="display: none; margin: 30px auto; max-width: 800px; background: white; border-radius: 16px; border: 1.5px solid #10b981; padding: 20px 26px; box-shadow: var(--shadow-md);"></div>
+    <div id="lookup-result-box" style="display: none; margin: 30px auto; max-width: 800px; background: white; border-radius: 16px; border: 1.5px solid #047857; padding: 20px 26px; box-shadow: var(--shadow-md);"></div>
     <div class="support-grid">
       
       <!-- CỘT TRÁI: FORM GỬI YÊU CẦU / KHIẾU NẠI -->
@@ -447,7 +447,7 @@
       try {
         const o = await Pay.call('order-status?code=' + encodeURIComponent(code));
         const m = Pay.getMovie(o.movie_key);
-        box.style.borderColor = o.has_ticket ? '#10b981' : '#f59e0b';
+        box.style.borderColor = o.has_ticket ? '#047857' : '#f59e0b';
         box.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; flex-wrap: wrap;">
             <strong style="font-size: 16px; color: var(--beta-navy);">Đơn hàng: ${esc(o.code)}</strong>

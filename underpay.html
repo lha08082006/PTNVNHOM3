@@ -103,7 +103,7 @@
       text-decoration: none;
     }
     .menu-link-official:hover, .menu-link-official.active {
-      color: #ff5400;
+      color: #c94200;
     }
 
     /* Stepper Các bước */
@@ -212,7 +212,7 @@
       background: white;
       padding: 10px;
       border-radius: 14px;
-      border: 2px dashed #ff5400;
+      border: 2px dashed #c94200;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -340,7 +340,7 @@
             </div>
             <div class="line-row" style="background: #fff4ed; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #ffedd5;">
               <span style="color: #9a3412; font-weight: 700; font-size: 15px;">Số tiền còn thiếu:</span>
-              <strong id="underpay-remaining-amount" style="color: #ff5400; font-weight: 900; font-size: 22px;">79.000 đ</strong>
+              <strong id="underpay-remaining-amount" style="color: #c94200; font-weight: 900; font-size: 22px;">79.000 đ</strong>
             </div>
           </div>
 
@@ -376,7 +376,7 @@
             </div>
             <div class="line-row">
               <span class="label-muted">Suất chiếu:</span>
-              <span id="invoice-showtime" class="value-bold" style="color: #ff5400;">18:30 · Hôm nay</span>
+              <span id="invoice-showtime" class="value-bold" style="color: #c94200;">18:30 · Hôm nay</span>
             </div>
             <div class="line-row">
               <span class="label-muted">Ghế ngồi:</span>
@@ -407,7 +407,7 @@
 
           <div class="line-row" style="border-top: 1px solid #e2e8f0; padding-top: 12px; font-weight: 800; font-size: 17px;">
             <span>Tổng cộng:</span>
-            <span id="invoice-final-total" style="color: #ff5400;">—</span>
+            <span id="invoice-final-total" style="color: #c94200;">—</span>
           </div>
 
           <div style="border-top: 1px solid #f1f5f9; padding-top: 10px; font-size: 13px; color: #64748b;">
@@ -462,9 +462,9 @@
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; background: #fff4ed; padding-left: 10px; padding-right: 10px; border-radius: 8px;">
               <div>
                 <div style="font-size: 12px; color: #9a3412; font-weight: 700;">Số tiền chuyển bù</div>
-                <strong id="copy-remain-amount" style="font-family: monospace; font-size: 17px; color: #ff5400;">79.000 đ</strong>
+                <strong id="copy-remain-amount" style="font-family: monospace; font-size: 17px; color: #c94200;">79.000 đ</strong>
               </div>
-              <button class="copy-pill-btn" style="background:#d14400; color:white; border-color:#ff5400;" onclick="copyRemainAmount()">Sao chép</button>
+              <button class="copy-pill-btn" style="background:#d14400; color:white; border-color:#c94200;" onclick="copyRemainAmount()">Sao chép</button>
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; background: #f0fdf4; padding-left: 10px; padding-right: 10px; border-radius: 8px;">
@@ -481,7 +481,7 @@
             <i class="ph-warning" aria-hidden="true"></i> <strong>Quan trọng:</strong> Quý khách vui lòng giữ nguyên nội dung chuyển khoản (cùng mã đơn) để hệ thống tự động cộng dồn và xuất vé ngay!
           </p>
 
-          <button type="button" class="btn btn-primary" onclick="checkUnderpayStatus()" style="width: 100%; min-height: 48px; font-weight: 800; font-size: 15px; border-radius: 10px; background: #ff5400; border: none; cursor: pointer; margin-top: 6px;">
+          <button type="button" class="btn btn-primary" onclick="checkUnderpayStatus()" style="width: 100%; min-height: 48px; font-weight: 800; font-size: 15px; border-radius: 10px; background: #c94200; border: none; cursor: pointer; margin-top: 6px;">
             <i class="ph-arrows-clockwise" aria-hidden="true"></i> Tôi Đã Chuyển Bù, Kiểm Tra Lại
           </button>
 
@@ -491,7 +491,7 @@
               <i class="ph-gear" aria-hidden="true"></i> BẢNG ĐIỀU KHIỂN MÔ PHỎNG TEST NHANH
             </div>
             <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-              <button type="button" onclick="demoPayRemaining()" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 800;">
+              <button type="button" onclick="demoPayRemaining()" class="btn btn-primary btn-sm" style="background: #047857; border: none; font-weight: 800;">
                 <i class="ph-lightning" aria-hidden="true"></i> [Demo] Giả Lập Chuyển Bù Nốt → Xuất Vé
               </button>
               <button type="button" onclick="demoExpireOrder()" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #fca5a5; background: white; font-weight: 700;">

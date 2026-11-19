@@ -180,6 +180,14 @@
   [
    "^Bạn thao tác quá nhanh, vui lòng thử lại sau (\\d+) giây$",
    "Too many requests, please try again in $1 seconds"
+  ],
+  [
+   "^Còn đơn đang chờ thanh toán hoặc đang hoàn tiền \\((.+)\\)\\. Vui lòng đợi xử lý xong rồi xóa tài khoản\\.$",
+   "You still have orders awaiting payment or being refunded ($1). Please wait until they are settled before deleting your account."
+  ],
+  [
+   "^ngày (\\d{1,2}/\\d{1,2}/\\d{4}) \\(phiên bản (.+)\\)$",
+   "on $1 (version $2)"
   ]
  ],
  "strings": {
@@ -858,6 +866,21 @@
   "Thêm Vào Lịch": "Add to calendar",
   "Mời Bạn Đi Cùng": "Invite friends",
   "Đã sao chép lời mời – dán vào Zalo / Messenger để gửi bạn bè.": "Invitation copied – paste it into Zalo / Messenger to send to friends.",
-  "Hệ thống đang bận, vui lòng thử lại sau ít phút": "The system is busy, please try again in a few minutes"
+  "Hệ thống đang bận, vui lòng thử lại sau ít phút": "The system is busy, please try again in a few minutes",
+  "Nhận email ưu đãi, phim mới từ Beta Cinemas (không bắt buộc, hủy bất cứ lúc nào)": "Get offers and new-movie emails from Beta Cinemas (optional, unsubscribe any time)",
+  "Nhận email ưu đãi, phim mới từ Beta Cinemas": "Get offers and new-movie emails from Beta Cinemas",
+  "(email về vé, hoàn tiền luôn được gửi)": "(ticket and refund emails are always sent)",
+  "Dữ liệu cá nhân của bạn": "Your personal data",
+  "Tải dữ liệu của tôi": "Download my data",
+  "Xóa tài khoản": "Delete account",
+  "✓ Đã tải file dữ liệu của bạn.": "✓ Your data file has been downloaded.",
+  "Tài khoản đã được xóa. Cảm ơn bạn đã đồng hành cùng Beta Cinemas.": "Your account has been deleted. Thank you for being with Beta Cinemas.",
+  "Xóa tài khoản không khôi phục được. Điểm Beta Club sẽ mất. Gõ XOA để tiếp tục:": "Deleting your account cannot be undone and your Beta Club points will be lost. Type XOA to continue:",
+  "Nhập mật khẩu để xác nhận:": "Enter your password to confirm:",
+  "Mật khẩu không đúng": "Wrong password",
+  "Gõ XOA để xác nhận xóa tài khoản": "Type XOA to confirm account deletion",
+  "Vui lòng đồng ý điều khoản sử dụng và chính sách bảo mật": "Please accept the terms of use and privacy policy",
+  "Vui lòng đồng ý điều khoản sử dụng và chính sách bảo mật.": "Please accept the terms of use and privacy policy.",
+  "Bạn đã đồng ý": "You accepted the"
  }
 }

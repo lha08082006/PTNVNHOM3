@@ -39,7 +39,7 @@
     }
 
     .card-rank-badge {
-      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
       color: #78350f;
       font-size: 12px;
       font-weight: 900;
@@ -401,7 +401,7 @@
       box-shadow: 0 0 0 2px #e2e8f0;
     }
     .timeline-dot.done {
-      background: #10b981;
+      background: #047857;
       box-shadow: 0 0 0 2px #a7f3d0;
     }
     .timeline-dot.active {
@@ -676,11 +676,31 @@
                 <input type="date" class="form-input" id="pf-birthday" data-user="birthday">
               </div>
             </div>
+            <label style="display: flex; gap: 8px; align-items: flex-start; font-size: 14px; margin-bottom: 16px; cursor: pointer;">
+              <input type="checkbox" id="pf-marketing" style="margin-top: 3px;">
+              <span>Nhận email ưu đãi, phim mới từ Beta Cinemas <span style="color: #64748b;">(email về vé, hoàn tiền luôn được gửi)</span></span>
+            </label>
             <p id="profile-msg" role="status" style="display: none; font-size: 14px; margin-bottom: 12px;"></p>
             <button type="submit" class="btn btn-primary" id="btn-save-profile">
               Lưu Thay Đổi
             </button>
           </form>
+        </div>
+      </div>
+
+      <!-- Đợt 6: quyền với dữ liệu cá nhân (NĐ 13/2023) – hiện cùng tab Thông tin cá nhân -->
+      <div id="panel-privacy" style="display: none;">
+        <div class="card" style="padding: 26px; margin-top: 18px;">
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--beta-navy); margin: 0 0 8px;">Dữ liệu cá nhân của bạn</h3>
+          <p style="font-size: 13.5px; color: #475569; line-height: 1.6; margin: 0 0 12px;">
+            Bạn đã đồng ý <a href="policy.html#bao-mat">chính sách bảo mật</a> <span id="pv-terms"></span>. Bạn có quyền tải toàn bộ dữ liệu Beta Cinemas đang lưu về mình, hoặc xóa tài khoản.
+            Khi xóa, thông tin cá nhân, điểm Beta Club, đánh giá, phim yêu thích bị xóa; đơn hàng và hóa đơn được giữ lại ở dạng ẩn danh (không còn tên, email, SĐT) vì quy định lưu chứng từ kế toán.
+          </p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-outline" onclick="exportMyData()"><i class="ph-tray-arrow-down" aria-hidden="true"></i> Tải dữ liệu của tôi</button>
+            <button type="button" class="btn btn-outline" style="color: #b91c1c; border-color: #fecaca;" onclick="deleteMyAccount()"><i class="ph-x-circle" aria-hidden="true"></i> Xóa tài khoản</button>
+          </div>
+          <p id="pv-msg" role="status" style="font-size: 13.5px; margin: 10px 0 0;"></p>
         </div>
       </div>
 
@@ -839,8 +859,8 @@
     const STATUS_STYLE = {
       PENDING:          { group: 'cancelled',  bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '<i class=ph-hourglass-medium aria-hidden=true></i>' },
       EXPIRED:          { group: 'unrefunded', bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '<i class=ph-magnifying-glass aria-hidden=true></i>' },
-      CONFIRMED:        { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '<i class=ph-check aria-hidden=true></i>' },
-      CONFIRMED_LATE:   { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '<i class=ph-check aria-hidden=true></i>' },
+      CONFIRMED:        { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#047857', icon: '<i class=ph-check aria-hidden=true></i>' },
+      CONFIRMED_LATE:   { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#047857', icon: '<i class=ph-check aria-hidden=true></i>' },
       REFUND_REQUESTED: { group: 'unrefunded', bg: '#dbeafe', fg: '#1e40af', bd: '#bfdbfe', bar: '#3b82f6', icon: '<i class=ph-money-wavy aria-hidden=true></i>' },
       MANUAL_REVIEW:    { group: 'unrefunded', bg: '#fee2e2', fg: '#991b1b', bd: '#fca5a5', bar: '#ef4444', icon: '<i class=ph-note-pencil aria-hidden=true></i>' },
       REFUNDED:         { group: 'refunded',   bg: '#e0e7ff', fg: '#3730a3', bd: '#c7d2fe', bar: '#6366f1', icon: '<i class=ph-check aria-hidden=true></i>' },
@@ -874,7 +894,7 @@
         html += `<a href="ticket.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #005198; border-color: #005198; font-weight: 700;"><i class=ph-ticket aria-hidden=true></i> Xem vé</a>`;
         html += `<a href="invoice.html?order=${c}" class="btn btn-outline btn-sm" ${stop} style="font-weight: 700;"><i class=ph-receipt aria-hidden=true></i> Hóa đơn</a>`;
       } else if (o.status === 'PENDING') {
-        html += `<a href="${Pay.routeFor(o)}" class="btn btn-primary btn-sm" ${stop} style="background: #ea580c; border-color: #ea580c; font-weight: 700;"><i class=ph-device-mobile aria-hidden=true></i> Tiếp tục thanh toán</a>`;
+        html += `<a href="${Pay.routeFor(o)}" class="btn btn-primary btn-sm" ${stop} style="background: #c2410c; border-color: #c2410c; font-weight: 700;"><i class=ph-device-mobile aria-hidden=true></i> Tiếp tục thanh toán</a>`;
       } else if (o.refund && o.refund.needs_form) {
         html += `<a href="refund.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #dc2626; border-color: #dc2626; font-weight: 700;"><i class=ph-note-pencil aria-hidden=true></i> Điền biểu mẫu nhận hoàn tiền</a>`;
       }
@@ -983,6 +1003,7 @@
         document.getElementById('panel-' + t).style.display = t === tab ? 'block' : 'none';
       });
       document.getElementById('btn-tab-' + tab).classList.add('active');
+      document.getElementById('panel-privacy').style.display = tab === 'profile' ? 'block' : 'none';
     }
 
     function showMsg(id, text, ok) {
@@ -992,6 +1013,33 @@
       el.style.display = 'block';
     }
 
+    // Quyền với dữ liệu cá nhân (Đợt 6)
+    async function exportMyData() {
+      const msg = document.getElementById('pv-msg');
+      try {
+        const r = await fetch(Pay.getApiBase() + 'auth?action=export', { headers: { Authorization: 'Bearer ' + (localStorage.getItem('BETA_AUTH_TOKEN') || '') } });
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'HTTP ' + r.status);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(await r.blob());
+        a.download = 'du-lieu-cua-toi_beta-cinemas.json';
+        document.body.appendChild(a); a.click(); a.remove();
+        msg.style.color = '#15803d'; msg.textContent = '✓ Đã tải file dữ liệu của bạn.';
+      } catch (e) { msg.style.color = '#b91c1c'; msg.textContent = e.message; }
+    }
+    async function deleteMyAccount() {
+      const msg = document.getElementById('pv-msg');
+      const confirmText = prompt('Xóa tài khoản không khôi phục được. Điểm Beta Club sẽ mất. Gõ XOA để tiếp tục:');
+      if (confirmText == null) return;
+      const password = prompt('Nhập mật khẩu để xác nhận:');
+      if (!password) return;
+      try {
+        await Pay.post('auth?action=delete', { password, confirm: confirmText });
+        try { localStorage.removeItem('BETA_AUTH_TOKEN'); localStorage.removeItem('BETA_AUTH_USER'); } catch (e) {}
+        alert('Tài khoản đã được xóa. Cảm ơn bạn đã đồng hành cùng Beta Cinemas.');
+        location.href = 'home.html';
+      } catch (e) { msg.style.color = '#b91c1c'; msg.textContent = e.message; }
+    }
+
     async function saveProfile() {
       const btn = document.getElementById('btn-save-profile');
       btn.disabled = true;
@@ -999,7 +1047,8 @@
         await BetaAuth.updateProfile({
           full_name: document.getElementById('pf-name').value,
           phone: document.getElementById('pf-phone').value,
-          birthday: document.getElementById('pf-birthday').value
+          birthday: document.getElementById('pf-birthday').value,
+          marketing_opt_in: document.getElementById('pf-marketing').checked
         });
         showMsg('profile-msg', '✓ Đã lưu thông tin cá nhân.', true);
       } catch (e) {
@@ -1086,6 +1135,8 @@
 
     (async function init() {
       const u = await BetaAuth.requireLogin();
+      document.getElementById('pf-marketing').checked = !!u.marketing_opt_in;
+      if (u.terms_accepted_at) document.getElementById('pv-terms').textContent = 'ngày ' + new Date(u.terms_accepted_at).toLocaleDateString('vi-VN') + ' (phiên bản ' + (u.terms_version || '') + ')';
       document.getElementById('member-card-id').textContent = String(u.id || '').replace(/-/g, '').slice(0, 12).toUpperCase().replace(/(.{4})(?=.)/g, '$1-');
       document.getElementById('member-since').textContent = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '—';
       switchAccountTab(new URLSearchParams(location.search).get('tab') || 'orders');

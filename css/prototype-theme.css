@@ -1,18 +1,18 @@
 /* ==========================================================================
    BETA CINEMAS - MODERN BRAND DESIGN SYSTEM 2026
-   Theme: Modern Beta Brand (Navy #005198 + Fresh Orange #FF5400 + Clean Slate)
+   Theme: Modern Beta Brand (Navy #005198 + Fresh Orange #c94200 + Clean Slate)
    ========================================================================== */
 
 :root {
   /* Brand Primary Colors */
   --beta-navy: #005198;
   --beta-navy-dark: #003768;
-  --beta-navy-light: #0284c7;
+  --beta-navy-light: #0369a1;
   --beta-blue-soft: #f0f7ff;
   --beta-blue-50: #eff6ff;
 
   /* Brand Accents */
-  --beta-orange: #ff5400;
+  --beta-orange: #c94200;
   --beta-orange-hover: #b83c00;
   --beta-orange-soft: #fff4ed;
   --beta-yellow: #f59e0b;
@@ -33,7 +33,7 @@
   --white: #ffffff;
 
   /* Functional Status */
-  --color-success: #10b981;
+  --color-success: #047857;
   --color-success-soft: #d1fae5;
   --color-danger: #ef4444;
   --color-danger-soft: #fee2e2;
@@ -43,7 +43,7 @@
   --seat-standard: #e2e8f0;
   --seat-vip: #005198;
   --seat-sweetbox: #ec4899;
-  --seat-selected: #ff5400;
+  --seat-selected: #c94200;
   --seat-occupied: #94a3b8;
 
   /* Typography */
@@ -390,7 +390,7 @@ textarea {
 
 .alpha-cinema-select:hover,
 .alpha-cinema-select:focus {
-  border-color: #FF5A3C;
+  border-color: #c53030;
   box-shadow: 0 0 0 1px rgba(255, 90, 60, 0.4);
 }
 
@@ -460,7 +460,7 @@ textarea {
 }
 
 .alpha-search-input:focus {
-  border-color: #FF5A3C;
+  border-color: #c53030;
   box-shadow: 0 0 0 2px rgba(255, 90, 60, 0.2);
 }
 
@@ -493,7 +493,7 @@ textarea {
   padding: 0 20px;
   border-radius: 8px;
   border: none;
-  background: #FF5A3C;
+  background: #c53030;
   color: #12141C;
   font-family: 'Be Vietnam Pro', sans-serif;
   font-weight: 800;
@@ -603,11 +603,11 @@ textarea {
 }
 
 .menu-link-official:hover {
-  color: #ff5400 !important;
+  color: #c94200 !important;
 }
 
 .menu-link-official.active {
-  color: #ff5400 !important;
+  color: #c94200 !important;
 }
 
 .menu-link-official.active::after {
@@ -617,7 +617,7 @@ textarea {
   left: 0;
   width: 100%;
   height: 3px;
-  background: #ff5400;
+  background: #c94200;
 }
 
 /* Top Notification Banner */
@@ -1304,7 +1304,7 @@ textarea {
   height: 52px;
   border-radius: 50%;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  border: 2px solid #ff5400;
+  border: 2px solid #c94200;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 14px rgba(255, 84, 0, 0.4);
   color: #ffffff;
   display: flex;
@@ -1324,7 +1324,7 @@ textarea {
 }
 
 .quick-dock-fab.active {
-  background: #ff5400;
+  background: #c94200;
   border-color: #ffffff;
 }
 

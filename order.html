@@ -163,7 +163,7 @@
       return `
         <div style="margin-top: 6px;">
           <div class="row"><span>Mã hồ sơ</span><strong style="font-family: monospace;">${esc(r.code)}</strong></div>
-          <div class="row"><span>Số tiền hoàn</span><strong style="color: #ea580c;">${Pay.vnd(r.amount)}</strong></div>
+          <div class="row"><span>Số tiền hoàn</span><strong style="color: #c2410c;">${Pay.vnd(r.amount)}</strong></div>
           <div class="row"><span>Lý do</span><span>${esc(r.reason_label)}</span></div>
           <div class="row"><span>Tình trạng</span><span>${esc(REFUND_STATUS[r.status] || r.status)}${r.is_manual ? ' · hoàn thủ công' : ' · tự động'}</span></div>
           ${r.source_account ? `<div class="row"><span>Hoàn về</span><span>${esc(r.source_account.bank_name || '')} ${esc(r.source_account.acc_masked)}</span></div>` : ''}
@@ -187,7 +187,7 @@
           <img loading="lazy" decoding="async" src="${esc(m.poster)}" alt="">
           <div class="meta">
             <div style="font-size: 12px; color: #64748b; font-weight: 700;">ĐƠN HÀNG <span style="font-family: monospace; color: #0f172a;">#${esc(o.code)}</span></div>
-            <h1>${esc(m.shortTitle || m.title)} <span style="font-size: 13px; color: #ea580c;">${esc(m.age || '')}</span></h1>
+            <h1>${esc(m.shortTitle || m.title)} <span style="font-size: 13px; color: #c2410c;">${esc(m.age || '')}</span></h1>
             <div style="font-size: 13.5px; color: #475569;">${esc(Pay.slotText(o))}</div>
           </div>
           <div style="text-align: right;">

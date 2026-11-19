@@ -10,6 +10,7 @@ const api = (name) => require('../lib/routes/' + name);
 
 // Gọi handler kiểu Vercel trong cùng tiến trình
 async function call(name, { method = 'GET', query = {}, body = {}, token, headers = {} } = {}) {
+  if (name === 'auth' && query.action === 'register' && body && !('accept_terms' in body)) body = { ...body, accept_terms: true };
   const req = { method, query, body, headers: { ...headers, ...(token ? { authorization: 'Bearer ' + token } : {}) } };
   let status = null;
   let data;
@@ -1177,6 +1178,144 @@ async function test(name, fn) {
     assert.ok(h.length >= 1, 'đơn đã soát vé ở kiểm thử đánh giá phải hiện là đã xem');
     assert.ok(h.every(x => x.order_code && x.title));
     assert.ok(h.some(x => x.my_rating === 5));
+  });
+
+  // ======================= Đợt 6: dữ liệu cá nhân, 2 lớp, lịch chiếu, email ưu đãi, tranh ghế =======================
+  await test('Đợt 6: đăng ký phải đồng ý điều khoản; tải dữ liệu; xóa tài khoản ẩn danh đơn hàng; hủy nhận email', async () => {
+    const Store = require('../lib/store');
+    const Auth = require('../lib/auth');
+    const no = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khong Dong Y', email: 'kdy@x.vn', phone: '0904000001', password: 'matkhau123', accept_terms: false } });
+    assert.strictEqual(no.status, 400);
+    const r = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Nguyen Xoa Thu', email: 'xoa@x.vn', phone: '0904000002', password: 'matkhau123', marketing_opt_in: true } });
+    assert.strictEqual(r.data.user.marketing_opt_in, true);
+    assert.ok(r.data.user.terms_accepted_at && r.data.user.terms_version);
+    const tok = r.data.token;
+    const seats = await freeSeats(ST2, 2);
+    const paid = (await call('create-order', { method: 'POST', token: tok, body: { showtime_id: ST2.id, seats: [seats[0]] } })).data;
+    await payOK(paid.code);
+    const pending = (await call('create-order', { method: 'POST', token: tok, body: { showtime_id: ST2.id, seats: [seats[1]] } })).data;
+    const ex = await call('auth', { token: tok, query: { action: 'export' } });
+    const data = JSON.parse(ex.body);
+    assert.strictEqual(data.profile.email, 'xoa@x.vn');
+    assert.ok(!('password_hash' in data.profile));
+    assert.strictEqual(data.orders.length, 2);
+    // Còn đơn chờ thanh toán -> chưa cho xóa; sai mật khẩu / thiếu XOA -> chặn
+    assert.strictEqual((await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'matkhau123', confirm: 'XOA' } })).status, 409);
+    await call('order-action', { method: 'POST', token: tok, query: { action: 'cancel', code: pending.code } });
+    assert.strictEqual((await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'sai', confirm: 'XOA' } })).status, 400);
+    assert.strictEqual((await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'matkhau123', confirm: 'xoa nhe' } })).status, 400);
+    const del = await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'matkhau123', confirm: 'XOA' } });
+    assert.strictEqual(del.status, 200, JSON.stringify(del.data));
+    assert.strictEqual((await call('auth', { token: tok, query: { action: 'me' } })).status, 401); // phiên cũ hết hiệu lực
+    assert.strictEqual((await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'xoa@x.vn', password: 'matkhau123' } })).status, 401);
+    const o = await Store.one('orders', { code: paid.code });
+    assert.strictEqual(o.status, 'CONFIRMED'); // đơn vẫn còn (chứng từ kế toán) nhưng không còn thông tin cá nhân
+    assert.ok(!o.email && !o.phone && !o.customer_name);
+    // Đăng ký lại bằng email cũ được (email đã được giải phóng)
+    assert.strictEqual((await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Nguyen Xoa Thu', email: 'xoa@x.vn', phone: '0904000002', password: 'matkhau123' } })).status, 200);
+    // Link hủy nhận email: đúng chữ ký mới được
+    const c2 = await Store.one('customers', { email: 'xoa@x.vn' });
+    await Store.update('customers', { id: c2.id }, { marketing_opt_in: true });
+    assert.strictEqual((await call('auth', { query: { action: 'unsubscribe', u: c2.id, t: 'sai' } })).status, 400);
+    assert.strictEqual((await call('auth', { query: { action: 'unsubscribe', u: c2.id, t: Auth.unsubToken(c2.id) } })).status, 200);
+    assert.strictEqual((await Store.one('customers', { id: c2.id })).marketing_opt_in, false);
+  });
+
+  await test('Đợt 6: nhân viên đăng nhập 2 lớp – bật bằng mã đúng, đăng nhập cần mã, chống dùng lại mã, Quản lý đặt lại', async () => {
+    const TOTP = require('../lib/totp');
+    await require('../lib/throttle').reset('s:ketoan@beta.local');
+    const kt = asStaff(await staffLogin('ketoan@beta.local'));
+    const s = await kt.post({ action: 'totp_setup' });
+    assert.strictEqual(s.status, 200);
+    assert.ok(/^otpauth:\/\/totp\//.test(s.data.otpauth));
+    assert.strictEqual((await kt.post({ action: 'totp_enable', code: '000000' === TOTP.codeAt(s.data.secret, TOTP.counterNow()) ? '111111' : '000000' })).status, 400);
+    const now = Date.now();
+    // Bật bằng mã của bước thời gian TRƯỚC (vẫn hợp lệ do cho lệch ±30 giây) để mã hiện tại dùng cho đăng nhập
+    const prev = TOTP.codeAt(s.data.secret, TOTP.counterNow(now) - 1);
+    assert.strictEqual((await kt.post({ action: 'totp_enable', code: prev })).data.staff.totp_enabled, true);
+    const Store = require('../lib/store');
+    assert.ok(!/^[A-Z2-7]+$/.test((await Store.one('staff', { email: 'ketoan@beta.local' })).totp_secret), 'khóa bí mật phải được mã hóa');
+    const noOtp = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'ketoan@beta.local', password: 'beta-admin' } });
+    assert.strictEqual(noOtp.status, 401);
+    assert.strictEqual(noOtp.data.need_otp, true);
+    const code = TOTP.codeAt(s.data.secret, TOTP.counterNow());
+    const ok = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'ketoan@beta.local', password: 'beta-admin', otp: code } });
+    assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
+    const replay = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'ketoan@beta.local', password: 'beta-admin', otp: code } });
+    assert.strictEqual(replay.status, 401); // mã đã dùng
+    const audits = await Store.find('audit_logs', { action: 'totp_enable' });
+    assert.ok(audits.every(a => !String(a.target || '').match(/^\d{6}$/)), 'không ghi mã OTP vào nhật ký');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const staffId = (await Store.one('staff', { email: 'ketoan@beta.local' })).id;
+    assert.strictEqual((await kt.post({ action: 'staff_reset_2fa', id: staffId })).status, 403);
+    assert.strictEqual((await ql.post({ action: 'staff_reset_2fa', id: staffId })).data.staff.totp_enabled, false);
+    await require('../lib/throttle').reset('s:ketoan@beta.local');
+    assert.strictEqual((await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'ketoan@beta.local', password: 'beta-admin' } })).status, 200);
+    // Bắt buộc 2 lớp: chưa bật thì chỉ được thiết lập
+    process.env.STAFF_REQUIRE_2FA = '1';
+    try {
+      const kt2 = asStaff(await staffLogin('ketoan@beta.local'));
+      const blocked = await kt2.get('invoice_list');
+      assert.strictEqual(blocked.status, 403);
+      assert.strictEqual(blocked.data.need_2fa_setup, true);
+      assert.strictEqual((await kt2.get('me')).data.staff.require_2fa, true);
+      assert.strictEqual((await kt2.post({ action: 'totp_setup' })).status, 200);
+    } finally { delete process.env.STAFF_REQUIRE_2FA; }
+  });
+
+  await test('Đợt 6: sao chép lịch chiếu sang tuần sau, gợi ý suất theo lấp đầy', async () => {
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const from = CatalogDB3.addDays(CatalogDB3.vnToday(), 1);
+    const to = CatalogDB3.addDays(from, 14);
+    const before = (await call('catalog', { query: { action: 'showtimes', cinema: 'beta-thanh-xuan', date: to } })).data.showtimes.length;
+    const r = await ql.post({ action: 'showtime_copy', cinema_id: 'beta-thanh-xuan', from, to, days: 1 });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.ok(r.data.created > 0);
+    const after = (await call('catalog', { query: { action: 'showtimes', cinema: 'beta-thanh-xuan', date: to } })).data.showtimes;
+    assert.strictEqual(after.length, before + r.data.created);
+    assert.ok(after.some(s => s.room === 'Phòng 05 – IMAX Laser'), 'giữ đúng phòng có sơ đồ riêng');
+    const again = await ql.post({ action: 'showtime_copy', cinema_id: 'beta-thanh-xuan', from, to, days: 1 });
+    assert.strictEqual(again.data.created, 0); // chạy lại không nhân đôi
+    assert.strictEqual((await ql.post({ action: 'showtime_copy', cinema_id: 'beta-thanh-xuan', from, to: from })).status, 400);
+    const ins = await ql.get('schedule_insights');
+    assert.strictEqual(ins.status, 200);
+    assert.ok(Array.isArray(ins.data.rows) && ins.data.rows.length > 0 && 'advice' in ins.data.rows[0]);
+  });
+
+  await test('Đợt 6: email ưu đãi chỉ tới khách đồng ý nhận, gửi theo đợt, bỏ qua người vừa hủy', async () => {
+    const Store = require('../lib/store');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const mk = async (n, opt) => (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach Mkt ' + n, email: 'mkt' + n + '@x.vn', phone: '090500000' + n, password: 'matkhau123', marketing_opt_in: opt } })).data.user;
+    const users = [];
+    for (let i = 1; i <= 9; i++) users.push(await mk(i, i <= 6)); // 6 người đồng ý, 3 người không
+    const pv = await ql.post({ action: 'campaign_preview', segment: 'ALL' });
+    const optIn = (await Store.find('customers', { marketing_opt_in: true })).filter(c => !c.deleted_at).length;
+    assert.strictEqual(pv.data.count, optIn);
+    assert.strictEqual((await ql.post({ action: 'campaign_create', subject: 'Ngắn', message: 'x', segment: 'ALL' })).status, 400);
+    const cr = await ql.post({ action: 'campaign_create', subject: 'Thứ Ba vui vẻ giảm 15%', message: 'Chào {ten}, suất chiếu thứ Ba giảm 15% với mã T3VUIVE.', segment: 'ALL' });
+    assert.strictEqual(cr.status, 200, JSON.stringify(cr.data));
+    assert.strictEqual(cr.data.total, optIn);
+    assert.strictEqual((await ql.post({ action: 'campaign_create', subject: 'Thứ Ba vui vẻ giảm 15%', message: 'Chào {ten}, suất chiếu thứ Ba giảm 15% với mã T3VUIVE.', segment: 'ALL' })).status, 409);
+    // Một người hủy đăng ký giữa chừng
+    await Store.update('customers', { id: users[0].id }, { marketing_opt_in: false });
+    let c;
+    for (let i = 0; i < 50; i++) { c = (await ql.post({ action: 'campaign_step', id: cr.data.id })).data.campaign; if (c.status === 'DONE') break; }
+    assert.strictEqual(c.status, 'DONE');
+    assert.strictEqual(c.cursor, optIn);
+    assert.strictEqual(c.sent + c.failed + c.skipped, optIn); // chưa cấu hình email -> bỏ qua, không lỗi
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    assert.strictEqual((await cs.post({ action: 'campaign_create', subject: 'abcdef', message: 'x'.repeat(30), segment: 'ALL' })).status, 403);
+  });
+
+  await test('Đợt 6: 20 khách cùng giành 1 ghế cùng lúc -> đúng 1 người giữ được', async () => {
+    const seat = (await freeSeats(ST2, 1))[0];
+    const toks = [];
+    for (let i = 0; i < 20; i++) toks.push((await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Tranh Ghe ' + i, email: 'tranh' + i + '@x.vn', phone: '09060000' + String(i).padStart(2, '0'), password: 'matkhau123' } })).data.token);
+    const rs = await Promise.all(toks.map(t => call('create-order', { method: 'POST', token: t, body: { showtime_id: ST2.id, seats: [seat] } })));
+    assert.strictEqual(rs.filter(r => r.status === 200).length, 1, rs.map(r => r.status).join(','));
+    assert.ok(rs.filter(r => r.status !== 200).every(r => r.status === 409));
+    const holds = await require('../lib/store').find('seat_holds', { showtime_key: ST2.id, seat_id: seat });
+    assert.strictEqual(holds.length, 1);
   });
 
   for (const [ok, name] of results) console.log(ok, name);

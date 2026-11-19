@@ -14,6 +14,7 @@
   8. `migrations/2026-11-25_dot-3-phong-chieu-thue-rap.sql` — phòng chiếu có sơ đồ ghế riêng, thuê rạp / vé nhóm / Private Show, "Nhắc tôi khi mở bán"
   9. `migrations/2026-11-26_dot-4-cong-thanh-toan-hoa-don.sql` — phiên thanh toán VNPay / MoMo / ZaloPay, yêu cầu xuất hóa đơn điện tử
   10. `migrations/2026-11-27_dot-5-van-hanh-yeu-thich.sql` — ghi lỗi máy chủ, cảnh báo, trạng thái vận hành, phim yêu thích
+  11. `migrations/2026-11-28_dot-6-du-lieu-ca-nhan-2fa-email.sql` — đồng ý điều khoản, nhận email ưu đãi, xóa tài khoản; đăng nhập 2 lớp cho nhân viên; email ưu đãi theo nhóm khách
 
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 
@@ -31,6 +32,7 @@
 | `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET` | tùy chọn | Bật nút VNPay. Mặc định gọi **sandbox**; production đặt thêm `VNPAY_PAY_URL`, `VNPAY_API_URL`. Khai báo IPN URL `<SITE_URL>/api/pay?action=ipn&provider=vnpay` trên cổng VNPay |
 | `MOMO_PARTNER_CODE`, `MOMO_ACCESS_KEY`, `MOMO_SECRET_KEY` | tùy chọn | Bật nút MoMo (sandbox mặc định; production đặt `MOMO_ENDPOINT=https://payment.momo.vn`) |
 | `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2` | tùy chọn | Bật nút ZaloPay (sandbox mặc định; production đặt `ZALOPAY_ENDPOINT=https://openapi.zalopay.vn`) |
+| `STAFF_REQUIRE_2FA` | nên đặt | `1` = mọi nhân viên phải bật đăng nhập 2 lớp (Google Authenticator) trước khi làm việc. Mất điện thoại: Quản lý bấm "Tắt 2 lớp" ở tab Nhân sự |
 | `ALERT_EMAILS` | tùy chọn | Email nhận cảnh báo hệ thống (cách nhau dấu phẩy). Trống → gửi cho mọi tài khoản Quản lý. Cần `RESEND_API_KEY` để gửi thật |
 | `INVOICE_REQUEST_HOURS` | tùy chọn | Số giờ sau khi thanh toán khách còn được gửi yêu cầu hóa đơn (mặc định 24 – Kế toán xác nhận theo quy định) |
 | `SITE_URL` | tùy chọn | Dùng cho link "Xem đơn hàng" trong email |

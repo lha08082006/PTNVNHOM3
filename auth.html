@@ -20,7 +20,7 @@
       --border-light: #e2e8f0;
       --text-main: #0f172a;
       --text-muted: #64748b;
-      --accent-orange: #ff5400;
+      --accent-orange: #c94200;
       --accent-gold: #005198;
       --beta-blue: #005198;
     }
@@ -293,6 +293,11 @@
         <span>Tôi đồng ý <a href="policy.html#dieu-khoan" target="_blank" rel="noopener">điều khoản sử dụng</a> và <a href="policy.html#bao-mat" target="_blank" rel="noopener">chính sách bảo mật</a></span>
       </label>
 
+      <label style="display: flex; gap: 8px; font-size: 13px; align-items: flex-start; cursor: pointer; color: var(--text-muted);">
+        <input type="checkbox" id="reg-marketing" style="margin-top: 2px;">
+        <span>Nhận email ưu đãi, phim mới từ Beta Cinemas (không bắt buộc, hủy bất cứ lúc nào)</span>
+      </label>
+
       <p id="register-error" role="alert" style="display: none; color: #dc2626; font-size: 14px; margin: 0;"></p>
       <button class="btn-b" id="btn-register" onclick="handleAuthAction('register')">Tạo tài khoản</button>
 
@@ -510,7 +515,8 @@
           btn.disabled = true; btn.textContent = 'Đang tạo tài khoản...';
           await BetaAuth.register({
             full_name: val('reg-name'), phone, email: val('reg-email'),
-            birthday: val('reg-birthday'), password: pw
+            birthday: val('reg-birthday'), password: pw,
+            accept_terms: true, marketing_opt_in: document.getElementById('reg-marketing').checked
           });
         }
         location.href = nextUrl();

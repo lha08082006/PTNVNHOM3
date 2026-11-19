@@ -73,7 +73,7 @@
       right: 4px;
       width: 16px;
       height: 16px;
-      background: #10b981;
+      background: #047857;
       border: 2.5px solid white;
       border-radius: 50%;
     }
@@ -356,11 +356,11 @@
     }
 
     .chat-step-bar.active {
-      background: #FF5A3C;
+      background: #c53030;
     }
 
     .chat-step-bar.done {
-      background: #10b981;
+      background: #047857;
     }
 
     /* Input Bar */
@@ -490,7 +490,7 @@
     <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
       <div>
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-          <span style="background: rgba(255, 90, 60, 0.25); border: 1px solid #FF5A3C; color: #ffaa80; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 800;">
+          <span style="background: rgba(255, 90, 60, 0.25); border: 1px solid #c53030; color: #ffaa80; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 800;">
             <i class="ph-robot" aria-hidden="true"></i> AI SUPPORT 24/7
           </span>
           <span style="font-size: 13px; color: #bfdbfe;">• Đối soát & Xử lý sự cố giao dịch tức thì</span>
@@ -522,7 +522,7 @@
             </div>
             <h2 class="bot-name">BetaBot AI</h2>
             <div class="bot-status-tag">
-              <span style="color: #10b981;">●</span> Trực tuyến 24/7
+              <span style="color: #047857;">●</span> Trực tuyến 24/7
             </div>
             <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 16px;">
               Hệ thống AI chuyên trách tiếp nhận khiếu nại, đối soát giao dịch chuyển khoản VietQR / VNPay và theo dõi hoàn tiền tự động.
@@ -581,9 +581,9 @@
                 <div>
                   <div style="font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
                     <span>BetaBot</span>
-                    <span style="font-size: 12px; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: 800;">AI BOT</span>
+                    <span style="font-size: 12px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 800;">AI BOT</span>
                   </div>
-                  <div style="font-size: 12px; color: #10b981; font-weight: 600;">
+                  <div style="font-size: 12px; color: #047857; font-weight: 600;">
                     ● Hỗ trợ đối soát & hoàn tiền 24/7
                   </div>
                 </div>
@@ -933,11 +933,11 @@
             const m = Pay.getMovie(o.movie_key);
             appendBotMessage(`
             <p>Thông tin vé xem phim gần nhất của bạn:</p>
-            <div class="form-subcard" style="border-left: 4px solid #10b981;">
+            <div class="form-subcard" style="border-left: 4px solid #047857;">
               <div style="font-weight: 800; color: #005198;">ĐƠN HÀNG #${o.code}</div>
               <div style="font-size: 13px;">Phim: <strong>${m.title}</strong></div>
               <div style="font-size: 13px;">Ghế: <strong>${(o.seats || []).join(', ')}</strong> • Suất: <strong>${o.show_time} (${o.show_date})</strong></div>
-              <div style="font-size: 13px; color: #ff5400; font-weight: 800;">Tổng tiền: ${Pay.vnd(o.total)} (${o.status_label})</div>
+              <div style="font-size: 13px; color: #c94200; font-weight: 800;">Tổng tiền: ${Pay.vnd(o.total)} (${o.status_label})</div>
               <a href="ticket.html?order=${encodeURIComponent(o.code)}" class="btn btn-primary btn-sm" style="text-align:center; margin-top: 6px;">Xem Vé Điện Tử (Barcode) →</a>
             </div>`);
           } catch (e) {
@@ -975,7 +975,7 @@
             Mã đặt vé cần đối soát
             <input type="text" class="chat-input-text" id="recon-phone" value="${codeVal}" readonly style="background:#f8fafc; font-weight:700; color:#005198;">
           </label>
-          <button class="btn btn-primary btn-sm" onclick="submitReconcile()" style="background:#FF5A3C; border:none; padding: 10px; font-weight: 800; border-radius: 8px;">
+          <button class="btn btn-primary btn-sm" onclick="submitReconcile()" style="background:#c53030; border:none; padding: 10px; font-weight: 800; border-radius: 8px;">
             Kiểm Tra Đối Soát Cho Đơn #${codeVal} Ngay
           </button>
         </div>
@@ -1005,10 +1005,10 @@
           setTimeout(() => {
             appendBotMessage(`
               <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                <span style="color: #10b981; font-size: 20px;"><i class=ph-check aria-hidden=true></i></span>
+                <span style="color: #047857; font-size: 20px;"><i class=ph-check aria-hidden=true></i></span>
                 <strong style="font-size: 15px; color: #005198;">ĐỐI SOÁT THÀNH CÔNG - ĐÃ CẤP VÉ!</strong>
               </div>
-              <div class="form-subcard" style="border-left: 4px solid #10b981;">
+              <div class="form-subcard" style="border-left: 4px solid #047857;">
                 <p style="font-size: 13px; color: #334155; margin-bottom: 8px;">
                   ${res.message}
                 </p>
@@ -1020,7 +1020,7 @@
                   <span style="color:#64748b;">Mã GD ngân hàng:</span>
                   <strong style="font-family:monospace;">${txid}</strong>
                 </div>
-                <a href="${res.ticket_url || 'ticket.html?order=' + res.code}" class="btn btn-primary btn-sm" style="background:#10b981; border:none; width:100%; text-align:center; font-weight:800; display:block;">
+                <a href="${res.ticket_url || 'ticket.html?order=' + res.code}" class="btn btn-primary btn-sm" style="background:#047857; border:none; width:100%; text-align:center; font-weight:800; display:block;">
                   <i class=ph-ticket aria-hidden=true></i> Mở Vé Xem Phim Ngay →
                 </a>
               </div>
@@ -1033,7 +1033,7 @@
           setTimeout(() => {
             appendBotMessage(`
               <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                <span style="color: #d97706; font-size: 20px;"><i class=ph-warning aria-hidden=true></i></span>
+                <span style="color: #b45309; font-size: 20px;"><i class=ph-warning aria-hidden=true></i></span>
                 <strong style="font-size: 15px; color: #b45309;">GIAO DỊCH QUÁ HẠN GIỮ GHẾ</strong>
               </div>
               <div class="form-subcard" style="border-left: 4px solid #f59e0b;">
@@ -1101,7 +1101,7 @@
           </div>
           <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:4px;">
             <span style="color:#64748b;">Số tiền hoàn:</span>
-            <strong style="color:#ff5400; font-size:15px;">${currentActiveOrder ? (new Intl.NumberFormat('vi-VN').format(currentActiveOrder.total) + ' đ') : ''}</strong>
+            <strong style="color:#c94200; font-size:15px;">${currentActiveOrder ? (new Intl.NumberFormat('vi-VN').format(currentActiveOrder.total) + ' đ') : ''}</strong>
           </div>
           <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:4px;">
             <span style="color:#64748b;">Nhận lại về:</span>
@@ -1116,11 +1116,11 @@
             <div class="chat-stepper">
               <div class="chat-step-item">
                 <div class="chat-step-bar done"></div>
-                <div style="font-size: 12px; font-weight: 700; color: #10b981;">Đã tiếp nhận</div>
+                <div style="font-size: 12px; font-weight: 700; color: #047857;">Đã tiếp nhận</div>
               </div>
               <div class="chat-step-item">
                 <div class="chat-step-bar active"></div>
-                <div style="font-size: 12px; font-weight: 700; color: #FF5A3C;">Đang đối soát</div>
+                <div style="font-size: 12px; font-weight: 700; color: #c53030;">Đang đối soát</div>
               </div>
               <div class="chat-step-item">
                 <div class="chat-step-bar"></div>
@@ -1175,7 +1175,7 @@
           <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer;">
             <input type="checkbox" checked style="width:16px; height:16px;"> Tôi xác nhận các thông tin trên là chính xác
           </label>
-          <button class="btn btn-primary btn-sm" onclick="submitComplaint()" style="background:#FF5A3C; border:none; padding:10px; font-weight:800; border-radius:8px;">
+          <button class="btn btn-primary btn-sm" onclick="submitComplaint()" style="background:#c53030; border:none; padding:10px; font-weight:800; border-radius:8px;">
             Gửi Khiếu Nại Cho Đơn #${currentActiveOrder ? currentActiveOrder.code : ''} Ngay
           </button>
         </div>
@@ -1199,7 +1199,7 @@
         appendBotMessage(`
           <div style="text-align: center; padding: 10px 0;">
             <div style="font-size: 28px; margin-bottom: 6px;"><i class=ph-confetti aria-hidden=true></i></div>
-            <strong style="color: #059669; font-size: 15px;">ĐÃ TIẾP NHẬN KHIẾU NẠI THÀNH CÔNG!</strong>
+            <strong style="color: #047857; font-size: 15px;">ĐÃ TIẾP NHẬN KHIẾU NẠI THÀNH CÔNG!</strong>
             <p style="font-size: 13px; color: #475569; margin: 6px 0 10px;">
               Mã hồ sơ: <strong>#${esc(r.ticket_code)}</strong> · Trạng thái đơn: <strong>${esc(r.status_label)}</strong>.<br>
               Hệ thống đã tra cứu lại cổng thanh toán ngay; CSKH sẽ liên hệ số <strong>${esc(val('comp-phone') || r.phone)}</strong> nếu cần thêm thông tin.
@@ -1274,12 +1274,12 @@
               <i class=ph-map-pin aria-hidden=true></i> Rạp: <strong>${order.cinema}</strong><br>
               <i class=ph-clock aria-hidden=true></i> Suất chiếu: <strong>${order.showtime}</strong><br>
               <i class=ph-armchair aria-hidden=true></i> Ghế: <strong>${order.seats}</strong><br>
-              <i class=ph-coins aria-hidden=true></i> Số tiền đơn hàng: <strong style="color: #ff5400; font-size: 14px;">${new Intl.NumberFormat('vi-VN').format(order.total)} đ</strong><br>
+              <i class=ph-coins aria-hidden=true></i> Số tiền đơn hàng: <strong style="color: #c94200; font-size: 14px;">${new Intl.NumberFormat('vi-VN').format(order.total)} đ</strong><br>
               <i class=ph-hourglass-medium aria-hidden=true></i> Tình trạng: <span style="font-weight: 700; color: #2563eb;">${order.statusText}</span>
             </div>
 
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="btn btn-primary btn-sm" onclick="triggerQuickAction('reconcile')" style="background: #ff5400; border-color: #ff5400; font-weight: 700;">
+              <button class="btn btn-primary btn-sm" onclick="triggerQuickAction('reconcile')" style="background: #c94200; border-color: #c94200; font-weight: 700;">
                 <i class=ph-lightning aria-hidden=true></i> Đối Soát Chuyển Khoản Ngay
               </button>
               <button class="btn btn-outline btn-sm" onclick="triggerQuickAction('complaint')" style="border-color: #cbd5e1; color: #005198; font-weight: 700;">
