@@ -4,6 +4,8 @@
 //   GET ?action=showtimes&cinema=&date=&movie=&days= suất chiếu (ngày YYYY-MM-DD, giờ VN) kèm số ghế trống
 //   GET ?action=showtime&id=                        một suất chiếu (phim, rạp, giá ghế)
 //   GET ?action=voucher&code=                       kiểm tra mã giảm giá (theo thành viên đang đăng nhập)
+//   GET ?action=posts&type=&movie=&cinema=           tin tức & ưu đãi đang hiển thị
+//   GET ?action=post&id=                            một bài
 //   GET ?action=pricing                             bảng giá: loại vé, quy tắc giá theo ngày/khung giờ, ngày lễ sắp tới
 const CatalogDB = require('../lib/catalog-db');
 const Auth = require('../lib/auth');
@@ -14,6 +16,16 @@ module.exports = async function handler(req, res) {
   const q = req.query || {};
   const action = clean(q.action);
   try {
+    if (action === 'posts') {
+      const Posts = require('../lib/posts');
+      const type = ['PROMO', 'NEWS', 'EVENT'].includes(clean(q.type).toUpperCase()) ? clean(q.type).toUpperCase() : undefined;
+      return res.status(200).json({ ok: true, types: Posts.TYPES, posts: await Posts.list({ type, movie: clean(q.movie) || undefined, cinema: clean(q.cinema) || undefined, limit: Math.min(50, Number(q.limit) || 30) }) });
+    }
+    if (action === 'post') {
+      const p = await require('../lib/posts').get(clean(q.id));
+      if (!p) return res.status(404).json({ ok: false, error: 'Bài viết không tồn tại hoặc đã hết hạn' });
+      return res.status(200).json({ ok: true, post: p });
+    }
     if (action === 'pricing') {
       const pr = await CatalogDB.pricing();
       const today = CatalogDB.vnToday();

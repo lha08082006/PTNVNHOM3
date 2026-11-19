@@ -761,36 +761,9 @@
       </div>
 
       <div class="grid-3">
-        <div class="card" style="border-radius: 12px;">
-          <img loading="lazy" src="images/t3.webp" alt="Thứ 3 Beta's Day" style="width: 100%; height: 210px; object-fit: cover;">
-          <div style="padding: 18px;">
-            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #005198; margin-bottom: 6px;">
-              THỨ 3 BETA'S DAY - ĐỒNG GIÁ 45K
-            </h4>
-            <p style="font-size: 13px; color: #64748b; line-height: 1.5;">Áp dụng cho mọi suất chiếu thứ 3 hàng tuần đối với tất cả thành viên Beta Member.</p>
-          </div>
-        </div>
-
-        <div class="card" style="border-radius: 12px;">
-          <img loading="lazy" src="images/hssv.webp" alt="Ưu Đãi HSSV" style="width: 100%; height: 210px; object-fit: cover;">
-          <div style="padding: 18px;">
-            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #005198; margin-bottom: 6px;">
-              ƯU ĐÃI HỌC SINH & SINH VIÊN 45K
-            </h4>
-            <p style="font-size: 13px; color: #64748b; line-height: 1.5;">Đồng giá vé 45.000đ từ thứ 2 đến thứ 6 cho các bạn học sinh, sinh viên trên toàn quốc.</p>
-          </div>
-        </div>
-
-        <div class="card" style="border-radius: 12px;">
-          <img loading="lazy" src="images/combosieucu-1702x621-115549-081026-63.webp" alt="Combo Siêu Cú" style="width: 100%; height: 210px; object-fit: cover;">
-          <div style="padding: 18px;">
-            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #005198; margin-bottom: 6px;">
-              COMBO BẮP NƯỚC SIÊU CÚ ĐÊM
-            </h4>
-            <p style="font-size: 13px; color: #64748b; line-height: 1.5;">Giảm ngay 30% combo bắp nước cho các suất chiếu sau 21h30 mỗi tối tại rạp Beta.</p>
-          </div>
-        </div>
+        <p class="m" style="grid-column: 1 / -1; text-align: center; color: #64748b;">Đang tải ưu đãi…</p>
       </div>
+      <div style="text-align: center; margin-top: 22px;"><a class="btn btn-outline" href="tin-tuc.html">Xem tất cả tin & ưu đãi →</a></div>
     </div>
   </section>
 
@@ -1313,6 +1286,20 @@
           const t = card.querySelector('.movie-title-official a');
           if (key && t) t.href = 'movie-detail.html?movie=' + encodeURIComponent(key);
         });
+        // Khối TIN MỚI & ƯU ĐÃI: 3 bài đang hiển thị (ghim lên đầu) – Quản lý đăng trong admin
+        try {
+          const pr = await Pay.catalog('posts', { limit: 3 });
+          const box = document.querySelector('#promos .grid-3');
+          if (box) box.innerHTML = pr.posts.length ? pr.posts.map(p => `
+            <a class="card" href="tin-tuc.html?id=${encodeURIComponent(p.id)}" style="border-radius: 12px; text-decoration: none; color: inherit; display: block;">
+              <img loading="lazy" src="${esc(p.image || 'images/logo-official.png')}" alt="" style="width: 100%; height: 210px; object-fit: cover;" onerror="this.src='images/logo-official.png'">
+              <div style="padding: 18px;">
+                <h3 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #005198; margin: 0 0 6px; text-transform: uppercase;">${esc(p.title)}</h3>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">${esc(p.summary)}</p>
+              </div>
+            </a>`).join('') : '<p class="m" style="grid-column: 1 / -1; text-align: center;">Hiện chưa có ưu đãi nào.</p>';
+        } catch (e) { /* giữ thông báo đang tải */ }
+
         // Nút lọc thể loại: gom từ thể loại của các phim đang có
         const genres = [...new Set(movies.flatMap(m => String(m.genre || '').split(',').map(x => x.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b, 'vi'));
         const chips = document.getElementById('genre-chips');

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tin mới & Ưu đãi - Beta Cinemas</title>
+  <meta name="description" content="Tin mới, ưu đãi giá vé, vé HSSV/U22 và sự kiện tại các rạp Beta Cinemas.">
+  <meta property="og:title" content="Tin mới & Ưu đãi - Beta Cinemas">
+  <meta property="og:description" content="Ưu đãi giá vé, vé HSSV/U22 và sự kiện tại Beta Cinemas.">
+  <meta property="og:image" content="images/logo-official.png">
+  <link rel="icon" href="images/icon-ticket.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/prototype-theme.css">
+  <style>
+    body { background: #f8fafc; color: #0f172a; margin: 0; font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
+    .tt-top { background: #005198; color: #fff; padding: 14px 16px; }
+    .tt-top .in { max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .tt-top img { height: 40px; display: block; }
+    .tt-top a { color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; }
+    .tt-wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px 60px; }
+    .tt-wrap h1 { font-family: Montserrat, sans-serif; font-size: 28px; color: #005198; margin: 0 0 6px; }
+    .tt-lead { color: #475569; margin: 0 0 18px; font-size: 15px; line-height: 1.6; }
+    .tt-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .tt-tab { border: 1.5px solid #cbd5e1; background: #fff; color: #0f172a; border-radius: 999px; padding: 8px 16px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; min-height: 40px; }
+    .tt-tab[aria-pressed="true"] { background: #005198; border-color: #005198; color: #fff; }
+    .tt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+    .tt-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+    .tt-card:hover, .tt-card:focus-visible { border-color: #005198; box-shadow: 0 8px 24px rgba(0, 81, 152, .12); }
+    .tt-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #e2e8f0; display: block; }
+    .tt-card .b { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
+    .tt-card h2 { font-family: Montserrat, sans-serif; font-size: 16px; margin: 0; color: #005198; line-height: 1.35; }
+    .tt-card p { margin: 0; color: #475569; font-size: 13.5px; line-height: 1.55; }
+    .tt-badge { align-self: flex-start; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: #fff7ed; color: #9a3412; }
+    .tt-badge.NEWS { background: #eff6ff; color: #1e40af; }
+    .tt-badge.EVENT { background: #f5f3ff; color: #5b21b6; }
+    .tt-meta { font-size: 12.5px; color: #64748b; }
+    .tt-detail { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; }
+    .tt-detail img { width: 100%; max-height: 420px; object-fit: cover; display: block; background: #e2e8f0; }
+    .tt-detail .b { padding: 22px 24px 26px; }
+    .tt-detail h1 { margin: 8px 0 6px; }
+    .tt-detail .body p { font-size: 15.5px; line-height: 1.75; color: #1e293b; margin: 0 0 12px; }
+    .tt-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+    .m { color: #64748b; }
+    @media (max-width: 760px) { .tt-wrap h1 { font-size: 23px; } .tt-detail .b { padding: 18px 16px 20px; } }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link" style="position:absolute;left:-9999px;top:0" onfocus="this.style.left='8px'" onblur="this.style.left='-9999px'">Bỏ qua tới nội dung chính</a>
+  <header class="tt-top">
+    <div class="in">
+      <a href="home.html" aria-label="Về trang chủ Beta Cinemas"><img src="images/logo-white-official.png" alt="Beta Cinemas"></a>
+      <nav style="display:flex; gap:18px; flex-wrap:wrap" aria-label="Điều hướng">
+        <a href="schedule.html">Lịch chiếu</a>
+        <a href="gia-ve.html">Giá vé</a>
+        <a href="tin-tuc.html" aria-current="page">Tin mới & Ưu đãi</a>
+        <a href="account.html">Tài khoản</a>
+        <a href="support.html">Hỗ trợ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="tt-wrap" id="main">
+    <div id="tt-list-view">
+      <h1>Tin mới & Ưu đãi</h1>
+      <p class="tt-lead">Ưu đãi giá vé, vé HSSV / U22 và sự kiện tại các rạp Beta Cinemas. Giá ưu đãi được tự động áp dụng khi bạn chọn suất và ghế.</p>
+      <div class="tt-tabs" id="tt-tabs" role="group" aria-label="Lọc loại bài"></div>
+      <div class="tt-grid" id="tt-grid" aria-live="polite"><p class="m">Đang tải…</p></div>
+    </div>
+    <article id="tt-detail-view" hidden></article>
+  </main>
+
+  <footer style="text-align:center; color:#64748b; font-size:13px; padding: 10px 16px 30px">
+    © 2026 Beta Cinemas · <a href="policy.html" style="color:#005198;font-weight:700">Chính sách</a> · Hotline 1900 636 807
+  </footer>
+
+  <script src="catalog.js"></script>
+  <script src="pay-client.js"></script>
+  <script>
+    (async () => {
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('vi-VN') : '';
+      const until = (p) => p.ends_at ? 'Đến hết ' + fmtDate(p.ends_at) : '';
+      const img = (p) => p.image || 'images/logo-official.png';
+      const params = new URLSearchParams(location.search);
+
+      // Chi tiết một bài: ?id=<mã bài>
+      const id = params.get('id');
+      if (id) {
+        $('tt-list-view').hidden = true;
+        const box = $('tt-detail-view');
+        box.hidden = false;
+        try {
+          const { post: p } = await Pay.catalog('post', { id });
+          document.title = p.title + ' - Beta Cinemas';
+          const md = document.querySelector('meta[name="description"]');
+          if (md) md.content = p.summary || p.title;
+          // Nội dung là chữ thuần: mỗi đoạn (cách nhau dòng trống) thành một <p>, không chèn HTML
+          const paras = String(p.body || p.summary || '').split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
+          box.className = 'tt-detail';
+          box.innerHTML = `<img src="${esc(img(p))}" alt="" onerror="this.style.display='none'">
+            <div class="b">
+              <span class="tt-badge ${esc(p.type)}">${esc(p.type_label)}</span>
+              <h1>${esc(p.title)}</h1>
+              <p class="tt-meta">${esc(fmtDate(p.created_at))}${until(p) ? ' · ' + esc(until(p)) : ''}</p>
+              ${p.summary ? `<p style="font-weight:700;font-size:15.5px;line-height:1.6;">${esc(p.summary)}</p>` : ''}
+              <div class="body">${paras.map(x => `<p>${esc(x).replace(/\n/g, '<br>')}</p>`).join('')}</div>
+              <div class="tt-cta">
+                <a class="btn btn-primary" href="${p.movie_id ? 'movie-detail.html?movie=' + encodeURIComponent(p.movie_id) : p.cinema_id ? 'schedule.html?cinema=' + encodeURIComponent(p.cinema_id) : 'schedule.html'}">🎟️ Đặt vé ngay</a>
+                <a class="btn btn-outline" href="tin-tuc.html">← Tất cả tin & ưu đãi</a>
+              </div>
+            </div>`;
+        } catch (e) {
+          box.innerHTML = `<h1>Không tìm thấy bài viết</h1><p class="m">Bài viết không tồn tại hoặc ưu đãi đã kết thúc.</p><p><a class="btn btn-outline" href="tin-tuc.html">← Xem tin & ưu đãi khác</a></p>`;
+        }
+        return;
+      }
+
+      // Danh sách + lọc theo loại
+      let all = [], types = {}, current = (params.get('type') || '').toUpperCase();
+      const draw = () => {
+        $('tt-tabs').innerHTML = [['', 'Tất cả'], ...Object.entries(types)].map(([k, v]) =>
+          `<button type="button" class="tt-tab" aria-pressed="${current === k}" data-k="${k}">${esc(v)}</button>`).join('');
+        $('tt-tabs').querySelectorAll('button').forEach(b => b.onclick = () => { current = b.dataset.k; draw(); });
+        const list = all.filter(p => !current || p.type === current);
+        $('tt-grid').innerHTML = list.length ? list.map(p => `
+          <a class="tt-card" href="tin-tuc.html?id=${encodeURIComponent(p.id)}">
+            <img loading="lazy" src="${esc(img(p))}" alt="" onerror="this.src='images/logo-official.png'">
+            <div class="b">
+              <span class="tt-badge ${esc(p.type)}">${p.pinned ? '📌 ' : ''}${esc(p.type_label)}</span>
+              <h2>${esc(p.title)}</h2>
+              ${p.summary ? `<p>${esc(p.summary)}</p>` : ''}
+              ${until(p) ? `<span class="tt-meta">${esc(until(p))}</span>` : ''}
+            </div>
+          </a>`).join('') : '<p class="m">Chưa có bài viết nào trong mục này.</p>';
+      };
+      try {
+        const r = await Pay.catalog('posts');
+        all = r.posts; types = r.types;
+        draw();
+      } catch (e) {
+        $('tt-grid').innerHTML = '<p class="m">Không tải được tin tức. <button type="button" class="btn btn-outline btn-sm" onclick="location.reload()">Thử lại</button></p>';
+      }
+    })();
+  </script>
+  <script src="auth-client.js"></script>
+  <script src="site-chrome.js" defer></script>
+</body>
+</html>

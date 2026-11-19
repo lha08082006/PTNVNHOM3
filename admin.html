@@ -311,6 +311,26 @@
       </div>
 
       <div class="card">
+        <h2>Tin tức & ưu đãi <small>hiện ở trang chủ, trang Tin mới & ưu đãi và trang phim (nếu gắn phim)</small></h2>
+        <form class="form-grid" id="ps-form" onsubmit="event.preventDefault(); savePost()" style="margin-bottom: 12px;">
+          <input type="hidden" id="ps-id">
+          <label>Tiêu đề<input id="ps-title" required maxlength="160"></label>
+          <label>Loại<select id="ps-type"><option value="PROMO">Ưu đãi</option><option value="NEWS">Tin mới</option><option value="EVENT">Sự kiện</option></select></label>
+          <label>Ảnh (images/… hoặc https://)<input id="ps-image" placeholder="images/t3.webp"></label>
+          <label>Gắn với phim<select id="ps-movie"></select></label>
+          <label>Gắn với rạp<select id="ps-cinema"></select></label>
+          <label>Hiện từ<input id="ps-start" type="datetime-local"></label>
+          <label>Đến<input id="ps-end" type="datetime-local"></label>
+          <label>Trạng thái<select id="ps-published"><option value="true">Đang hiển thị</option><option value="false">Bản nháp (ẩn)</option></select></label>
+          <label>Ghim lên đầu<select id="ps-pinned"><option value="false">Không</option><option value="true">Có</option></select></label>
+          <label style="grid-column: 1 / -1;">Tóm tắt (hiện trên thẻ)<input id="ps-summary" maxlength="300"></label>
+          <label style="grid-column: 1 / -1;">Nội dung (chữ thuần, cách đoạn bằng một dòng trống)<textarea id="ps-body" rows="5"></textarea></label>
+          <div class="row-actions"><button class="btn primary">Lưu bài</button><button type="button" class="btn" onclick="resetPostForm()">Bài mới</button></div>
+        </form>
+        <div id="ps-table"></div>
+      </div>
+
+      <div class="card">
         <h2>Cụm rạp</h2>
         <form class="form-grid" onsubmit="event.preventDefault(); saveCinema()" style="margin-bottom: 12px;">
           <label>Mã (để trống = tự tạo)<input id="cn-id"></label>
@@ -744,6 +764,46 @@
     const saveHoliday = () => act(async () => { await post('holiday_save', { date: val('hd-date'), name: val('hd-name') }); document.getElementById('hd-name').value = ''; await loadPricing(); });
     const deleteHoliday = (date) => act(async () => { await post('holiday_delete', { date }); await loadPricing(); });
 
+    // ---------- Tin tức & ưu đãi ----------
+    let POSTS = [];
+    const localDT = (iso) => iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
+    async function loadPosts() {
+      const r = await api('admin?action=post_list');
+      POSTS = r.posts;
+      const now = new Date().toISOString();
+      const state = (p) => !p.published ? pill('Bản nháp', 'muted') : (p.ends_at && p.ends_at < now) ? pill('Hết hạn', 'muted') : (p.starts_at && p.starts_at > now) ? pill('Chờ hiển thị', 'info') : pill('Đang hiển thị', 'ok');
+      document.getElementById('ps-table').innerHTML = POSTS.length ? `<table><thead><tr><th>Bài</th><th>Loại</th><th>Thời hạn</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+        POSTS.map(p => `<tr><td><b>${p.pinned ? '📌 ' : ''}${esc(p.title)}</b><div class="hint">${esc(p.summary)}</div></td><td>${esc(p.type_label)}</td>
+          <td class="hint">${p.starts_at ? t(p.starts_at) : '—'}<br>${p.ends_at ? '→ ' + t(p.ends_at) : ''}</td><td>${state(p)}</td>
+          <td class="row-actions"><a class="btn" href="tin-tuc.html?id=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Xem</a><button class="btn" onclick="editPost('${esc(p.id)}')">Sửa</button><button class="btn danger" onclick="deletePost('${esc(p.id)}')">Xóa</button></td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Chưa có bài nào.</div>';
+      const opts = (rows, label) => '<option value="">— Không —</option>' + rows.map(r => `<option value="${esc(r.id)}">${esc(label(r))}</option>`).join('');
+      if (CAT) {
+        document.getElementById('ps-movie').innerHTML = opts(CAT.movies, m => m.title);
+        document.getElementById('ps-cinema').innerHTML = opts(CAT.cinemas, c => c.name);
+      }
+    }
+    function resetPostForm() {
+      ['ps-id', 'ps-title', 'ps-image', 'ps-start', 'ps-end', 'ps-summary', 'ps-body', 'ps-movie', 'ps-cinema'].forEach(id => { document.getElementById(id).value = ''; });
+      document.getElementById('ps-type').value = 'PROMO'; document.getElementById('ps-published').value = 'true'; document.getElementById('ps-pinned').value = 'false';
+    }
+    function editPost(id) {
+      const p = POSTS.find(x => x.id === id);
+      const set = (k, v) => { document.getElementById(k).value = v == null ? '' : v; };
+      set('ps-id', p.id); set('ps-title', p.title); set('ps-type', p.type); set('ps-image', p.image); set('ps-movie', p.movie_id || ''); set('ps-cinema', p.cinema_id || '');
+      set('ps-start', localDT(p.starts_at)); set('ps-end', localDT(p.ends_at)); set('ps-published', String(p.published)); set('ps-pinned', String(p.pinned));
+      set('ps-summary', p.summary); set('ps-body', p.body);
+      document.getElementById('ps-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const savePost = () => act(async () => {
+      await post('post_save', { id: val('ps-id') || undefined, title: val('ps-title'), type: val('ps-type'), image: val('ps-image'), movie_id: val('ps-movie'), cinema_id: val('ps-cinema'),
+        starts_at: val('ps-start') ? new Date(val('ps-start')).toISOString() : '', ends_at: val('ps-end') ? new Date(val('ps-end')).toISOString() : '',
+        published: val('ps-published') === 'true', pinned: val('ps-pinned') === 'true', summary: val('ps-summary'), body: document.getElementById('ps-body').value });
+      resetPostForm();
+      await loadPosts();
+    });
+    const deletePost = (id) => act(async () => { if (!confirm('Xóa bài này? Không khôi phục được.')) return; await post('post_delete', { id }); await loadPosts(); });
+
     async function loadCatalog() {
       loadPricing().catch(e => console.warn(e));
       CAT = await api('admin?action=catalog');
@@ -769,6 +829,7 @@
           <td>${c.active ? pill('Hoạt động', 'ok') : pill('Tạm đóng', 'muted')}</td>
           <td><button class="btn" onclick="editCinema('${esc(c.id)}')">Sửa</button></td></tr>`).join('')}</tbody></table>`;
       await loadShowtimeList();
+      await loadPosts();
     }
     async function loadShowtimeList() {
       const r = await api('admin?action=showtime_list&cinema=' + encodeURIComponent(val('sl-cinema')) + '&date=' + encodeURIComponent(val('sl-date')));
@@ -855,7 +916,7 @@
     }
     const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
       remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
-      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
+      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
       change_password: 'Đổi mật khẩu', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
     function renderAudit() {
       const q = document.getElementById('au-search').value.trim().toLowerCase();

@@ -8,6 +8,7 @@
   2. `migrations/2026-11-19_thanh-vien.sql` — bảng `customers`, `orders.user_id`, loại phiếu `GENERAL`
   3. `migrations/2026-11-20_ke-toan-tra-ve.sql` — tài khoản nhân viên (`staff`), nhật ký thao tác (`audit_logs`), trạng thái `ACC_RETURNED` (Kế toán trả hồ sơ về nhân viên)
   4. `migrations/2026-11-21_danh-muc-qr-otp.sql` — phim, rạp, suất chiếu, voucher (kèm dữ liệu khởi tạo), soát vé QR, quên mật khẩu. Sau đó vào **admin.html → Danh mục** tạo suất chiếu.
+  5. `migrations/2026-11-22_dot-1-gia-ve-tin-tuc.sql` — loại vé (HSSV/U22, trẻ em, người cao tuổi), giá theo ngày/khung giờ, ngày lễ, tin tức & ưu đãi, thông tin phim chi tiết, tọa độ rạp. **Giá và bài viết trong file là mẫu** – sửa lại ở admin → Danh mục → Bảng giá / Tin tức & ưu đãi trước khi mở bán.
 
 ## 2. Biến môi trường (Vercel → Settings → Environment Variables)
 

@@ -537,6 +537,99 @@ async function test(name, fn) {
     assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
   });
 
+  // ===================== Đợt 1 =====================
+  await test('Đợt 1: giá theo ngày / khung giờ, Quản lý đổi giá là áp dụng ngay', async () => {
+    const CatalogDB = require('../lib/catalog-db');
+    const all = (await call('catalog', { query: { action: 'showtimes', days: 14 } })).data.showtimes;
+    const pr = await CatalogDB.pricing();
+    // Mỗi suất: giá trả về đúng bằng giá tính lại từ quy tắc
+    for (const s of all.slice(0, 200).filter(x => !x.prices.rules.includes('Giá riêng của suất'))) {
+      const p = CatalogDB.priceOf({ starts_at: s.starts_at }, pr);
+      assert.strictEqual(s.prices.standard, p.standard, s.date_label + ' ' + s.time);
+    }
+    const weekend = all.find(s => /^(T6|T7|CN)/.test(s.date_label) && s.time >= '10:00' && s.time < '22:00');
+    const tuesday = all.find(s => /^T3/.test(s.date_label));
+    const early = all.find(s => s.time < '10:00' && !/^T3/.test(s.date_label));
+    if (weekend) assert.strictEqual(weekend.prices.standard, 55000);
+    if (tuesday) assert.strictEqual(tuesday.prices.standard, 40000);
+    if (early) assert.strictEqual(early.prices.standard, 40000);
+    assert.ok(all.every(s => !s.movie || !s.movie.duration_min || /^\d\d:\d\d$/.test(s.end_time)), 'thiếu giờ kết thúc');
+
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    assert.strictEqual((await cs.post({ action: 'price_rule_save', name: 'X', days: [1], price_standard: 1 })).status, 403);
+    // Ngày lễ: thêm ngày của một suất -> suất đó tính giá lễ
+    const target = all.find(s => s.time >= '10:00' && s.time < '22:00' && !/^T3/.test(s.date_label));
+    assert.strictEqual((await ql.post({ action: 'holiday_save', date: target.date, name: 'Ngày lễ thử' })).status, 200);
+    const after = (await call('catalog', { query: { action: 'showtime', id: target.id } })).data.showtime;
+    assert.strictEqual(after.prices.standard, 65000);
+    assert.strictEqual(after.prices.holiday, 'Ngày lễ thử');
+    await ql.post({ action: 'holiday_delete', date: target.date });
+    const bad = await ql.post({ action: 'price_rule_save', name: 'Sai giờ', days: [1], start_time: '23:00', end_time: '10:00', price_standard: 1000 });
+    assert.strictEqual(bad.status, 400);
+    const pub = (await call('catalog', { query: { action: 'pricing' } })).data;
+    assert.ok(pub.rules.length >= 6 && pub.ticket_types.STUDENT.off === 10000);
+  });
+
+  await test('Đợt 1: vé HSSV / trẻ em – máy chủ tính đúng, lưu loại vé & giá từng ghế, quầy được nhắc', async () => {
+    const login = async (l, p) => (await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: l, password: p } })).data.token;
+    const tok = await login('a@test.vn', 'matkhaumoi1');
+    const st = (await call('catalog', { query: { action: 'showtimes', days: 3 } })).data.showtimes.slice(-3)[0];
+    const P = st.prices;
+    // 2 ghế thường + 1 ghế đôi; 1 HSSV + 1 trẻ em
+    const body = { showtime_id: st.id, seats: ['D7', 'D8', 'H7-H8'], ticket_types: { STUDENT: 1, CHILD: 1 } };
+    const expect = (P.standard - 10000) + (P.standard - 15000) + P.sweetbox;
+    const wrong = await call('create-order', { method: 'POST', token: tok, body: { ...body, total: P.standard * 2 + P.sweetbox } });
+    assert.strictEqual(wrong.status, 409); // trình duyệt tự tính sai -> bị chặn
+    const tooMany = await call('create-order', { method: 'POST', token: tok, body: { ...body, ticket_types: { CHILD: 3 } } });
+    assert.strictEqual(tooMany.status, 400); // vượt số ghế thường/VIP
+    const r = await call('create-order', { method: 'POST', token: tok, body: { ...body, total: expect } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.strictEqual(r.data.total, expect);
+    assert.deepStrictEqual(Object.values(r.data.ticket_types).sort(), ['CHILD', 'COUPLE', 'STUDENT']);
+    assert.strictEqual(Object.values(r.data.seat_prices).reduce((a, b) => a + b, 0), expect);
+    // Soát vé: nhắc kiểm tra giấy tờ đúng 2 ghế
+    const Store = require('../lib/store');
+    const o = await Store.one('orders', { code: r.data.code });
+    await Store.update('orders', { id: o.id }, { status: 'CONFIRMED', show_at: new Date(Date.now() + 30 * 60000).toISOString() });
+    const quay = asStaff(await staffLogin('quay@beta.local').catch(() => null) || (await staffLogin('quanly@beta.local')));
+    const ck = await quay.post({ action: 'checkin', code: r.data.code });
+    assert.strictEqual(ck.status, 200, JSON.stringify(ck.data));
+    assert.deepStrictEqual(ck.data.summary.special.map(x => x.code).sort(), ['CHILD', 'STUDENT']);
+  });
+
+  await test('Đợt 1: thông tin phim chi tiết, tọa độ rạp', async () => {
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const r = await ql.post({ action: 'movie_save', id: 'suzume', title: 'KHÓA CHẶT CỬA NÀO SUZUME', age: 'P', status: 'NOW', director: 'Makoto Shinkai',
+      cast: 'Nanoka Hara, Hokuto Matsumura', release_date: '2026-11-01', genre: 'Hoạt hình, Phiêu lưu', synopsis: 'Đoạn 1.\n\nĐoạn 2.' });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    const m = (await call('catalog', { query: { action: 'movies' } })).data.movies.find(x => x.key === 'suzume');
+    assert.strictEqual(m.director, 'Makoto Shinkai');
+    assert.strictEqual(m.release_date, '2026-11-01');
+    assert.ok(m.age_note.includes('mọi độ tuổi'));
+    const c = (await call('catalog', { query: { action: 'cinemas' } })).data.cinemas;
+    assert.ok(c.filter(x => x.lat != null && x.lng != null).length >= 9);
+    assert.strictEqual((await ql.post({ action: 'cinema_save', id: 'beta-my-dinh', name: 'Beta Mỹ Đình', lat: 999 })).status, 400);
+  });
+
+  await test('Đợt 1: tin tức & ưu đãi – bản nháp không hiện, hết hạn không hiện, chặn ảnh lạ', async () => {
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const pub = (await call('catalog', { query: { action: 'posts' } })).data;
+    assert.ok(pub.posts.length >= 3 && pub.posts[0].pinned, 'bài ghim phải lên đầu');
+    const draft = await ql.post({ action: 'post_save', title: 'Bài nháp bí mật', type: 'NEWS', published: false, body: 'x' });
+    assert.strictEqual(draft.status, 200);
+    const expired = await ql.post({ action: 'post_save', title: 'Ưu đãi đã hết', type: 'PROMO', published: true, ends_at: new Date(Date.now() - 3600e3).toISOString() });
+    const forMovie = await ql.post({ action: 'post_save', title: 'Ưu đãi riêng phim Suzume', type: 'PROMO', published: true, movie_id: 'suzume' });
+    const list = (await call('catalog', { query: { action: 'posts', limit: 50 } })).data.posts.map(p => p.id);
+    assert.ok(!list.includes(draft.data.post.id) && !list.includes(expired.data.post.id));
+    assert.strictEqual((await call('catalog', { query: { action: 'post', id: draft.data.post.id } })).status, 404);
+    const sz = (await call('catalog', { query: { action: 'posts', movie: 'suzume', type: 'PROMO' } })).data.posts.map(p => p.id);
+    const other = (await call('catalog', { query: { action: 'posts', movie: 'me-min', type: 'PROMO' } })).data.posts.map(p => p.id);
+    assert.ok(sz.includes(forMovie.data.post.id) && !other.includes(forMovie.data.post.id));
+    assert.strictEqual((await ql.post({ action: 'post_save', title: 'Ảnh độc hại', type: 'NEWS', image: 'javascript:alert(1)' })).status, 400);
+    assert.strictEqual((await call('admin', { query: { action: 'post_list' } })).status, 401);
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

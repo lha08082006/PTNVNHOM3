@@ -361,7 +361,7 @@
           <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
           <li><a href="home.html" class="menu-link-official active">PHIM</a></li>
           <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
-          <li><a href="home.html#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
+          <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
         </ul>
@@ -780,6 +780,14 @@
           rows.map(([k, v]) => '<span style="display:block;"><b>' + k + ':</b> ' + esc(v) + '</span>').join('');
         const meta = document.querySelector('meta[name="description"]');
         if (meta) meta.content = 'Xem lịch chiếu và đặt vé ' + (m.shortTitle || m.title) + ' tại Beta Cinemas. ' + (m.meta || '');
+        Pay.catalog('posts', { movie: m.key, type: 'PROMO', limit: 3 }).then(r => {
+          if (!r.posts.length) return;
+          const box = document.createElement('div');
+          box.style.cssText = 'margin-top: 14px; display: flex; flex-direction: column; gap: 6px;';
+          box.innerHTML = '<b style="font-size: 13px; letter-spacing: .3px;">🎁 ƯU ĐÃI ĐANG ÁP DỤNG</b>' + r.posts.map(p =>
+            '<a href="tin-tuc.html?id=' + encodeURIComponent(p.id) + '" style="color: #fde68a; font-weight: 700; font-size: 14px;">' + esc(p.title) + ' →</a>').join('');
+          $('md-meta').after(box);
+        }).catch(() => {});
         const trailer = m.trailer || (typeof MOVIE_TRAILERS !== 'undefined' && MOVIE_TRAILERS[m.key]);
         if (trailer) {
           if (typeof MOVIE_TRAILERS !== 'undefined') MOVIE_TRAILERS[m.key] = trailer;

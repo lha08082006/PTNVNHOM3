@@ -39,7 +39,7 @@ const NEED = {
   send_to_accounting: 'refund.send', decide: 'refund.decide', remind: 'refund.remind', confirm_done: 'refund.confirm',
   accounting_paid: 'refund.pay', accounting_reject: 'refund.return', resolve_ticket: 'ticket.resolve',
   staff_list: 'staff.manage', staff_create: 'staff.manage', staff_update: 'staff.manage', audit: 'staff.manage',
-  catalog: 'catalog.manage', pricing: 'catalog.manage', ticket_type_save: 'catalog.manage', price_rule_save: 'catalog.manage',
+  catalog: 'catalog.manage', pricing: 'catalog.manage', post_list: 'catalog.manage', post_save: 'catalog.manage', post_delete: 'catalog.manage', ticket_type_save: 'catalog.manage', price_rule_save: 'catalog.manage',
   price_rule_delete: 'catalog.manage', holiday_save: 'catalog.manage', holiday_delete: 'catalog.manage', movie_save: 'catalog.manage', cinema_save: 'catalog.manage', showtime_list: 'catalog.manage',
   showtime_create: 'catalog.manage', showtime_update: 'catalog.manage', voucher_save: 'catalog.manage',
   checkin: 'ticket.checkin', dashboard: 'report.view',
@@ -214,6 +214,9 @@ module.exports = async function handler(req, res) {
       const q = req.query || {};
       return res.status(200).json({ ok: true, showtimes: await CatalogDB.showtimes({ cinema: clean(q.cinema) || undefined, date: clean(q.date) || undefined, includePast: true, includeInactive: true }) });
     }
+    if (req.method === 'GET' && action === 'post_list') return res.status(200).json({ ok: true, posts: await require('../lib/posts').adminList(), types: require('../lib/posts').TYPES });
+    if (req.method === 'POST' && action === 'post_save') return res.status(200).json({ ok: true, post: await require('../lib/posts').save(b0) });
+    if (req.method === 'POST' && action === 'post_delete') return res.status(200).json(await require('../lib/posts').remove(b0.id));
     if (req.method === 'GET' && action === 'pricing') return res.status(200).json({ ok: true, ...(await CatalogAdmin.pricingOverview()) });
     if (req.method === 'POST' && action === 'ticket_type_save') return res.status(200).json({ ok: true, ticket_type: await CatalogAdmin.saveTicketType(b0) });
     if (req.method === 'POST' && action === 'price_rule_save') return res.status(200).json({ ok: true, rule: await CatalogAdmin.savePriceRule(b0) });

@@ -305,3 +305,80 @@ alter table vouchers        enable row level security;
 alter table ticket_checkins enable row level security;
 alter table password_resets enable row level security;
 alter table auth_throttle   enable row level security;
+
+-- 12) Đợt 1: bảng giá, loại vé, ngày lễ, tin tức & ưu đãi (dữ liệu mẫu: migrations/2026-11-22_dot-1-gia-ve-tin-tuc.sql)
+-- Loại vé theo đối tượng (giảm vào giá ghế thường / VIP; không áp dụng ghế đôi)
+create table if not exists ticket_types (
+  id         text primary key,                    -- ADULT | STUDENT | CHILD | SENIOR | ...
+  label      text not null,
+  off        bigint not null default 0 check (off >= 0),
+  note       text,
+  active     boolean not null default true,
+  sort       int not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- Quy tắc giá theo thứ / ngày lễ / khung giờ (priority thấp áp trước, cao áp sau; giá null = giữ giá trước)
+create table if not exists price_rules (
+  id             uuid primary key default gen_random_uuid(),
+  name           text not null,
+  days           jsonb not null default '[]',      -- [0..6], 0 = Chủ nhật
+  holiday        boolean not null default false,   -- áp dụng cho ngày trong bảng holidays
+  start_time     text not null default '00:00',
+  end_time       text not null default '24:00',
+  price_standard bigint,
+  price_vip      bigint,
+  price_sweetbox bigint,
+  priority       int not null default 0,
+  active         boolean not null default true,
+  created_at     timestamptz not null default now()
+);
+
+-- Ngày lễ, Tết (YYYY-MM-DD theo giờ Việt Nam)
+create table if not exists holidays (
+  id         text primary key,
+  name       text not null,
+  created_at timestamptz not null default now()
+);
+
+-- Tin tức & ưu đãi (nội dung chữ thuần)
+create table if not exists posts (
+  id         text primary key,                    -- slug
+  title      text not null,
+  type       text not null check (type in ('PROMO','NEWS','EVENT')),
+  summary    text,
+  body       text,
+  image      text,
+  movie_id   text references movies(id),
+  cinema_id  text references cinemas(id),
+  starts_at  timestamptz,
+  ends_at    timestamptz,
+  published  boolean not null default false,
+  pinned     boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists posts_published_idx on posts(published, created_at desc);
+
+-- Đơn: loại vé và giá thực trả của từng ghế (hóa đơn dùng đúng số này)
+alter table orders
+  add column if not exists ticket_types jsonb not null default '{}',
+  add column if not exists seat_prices  jsonb not null default '{}';
+
+-- Phim: thông tin chi tiết
+alter table movies
+  add column if not exists genre        text,
+  add column if not exists language     text,
+  add column if not exists director     text,
+  add column if not exists cast_list    text,
+  add column if not exists release_date date,
+  add column if not exists synopsis     text;
+
+-- Rạp: tọa độ cho "Rạp gần tôi"
+alter table cinemas
+  add column if not exists lat double precision,
+  add column if not exists lng double precision;
+
+alter table ticket_types enable row level security;
+alter table price_rules  enable row level security;
+alter table holidays     enable row level security;
+alter table posts        enable row level security;
