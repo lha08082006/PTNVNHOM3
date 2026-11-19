@@ -19,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
 
   <style>
     .movie-title-official a {
@@ -222,7 +223,7 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 20px;
       font-weight: 900;
-      color: #94a3b8;
+      color: #64748b;
       background: none;
       border: none;
       padding: 12px 10px 16px;
@@ -330,7 +331,7 @@
     .trailer-badge {
       background: #d14400;
       color: white;
-      font-size: 10.5px;
+      font-size: 12px;
       font-weight: 800;
       padding: 3px 8px;
       border-radius: 4px;
@@ -340,7 +341,7 @@
     .trailer-hd-badge {
       background: rgba(16, 185, 129, 0.2);
       color: #34d399;
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 800;
       padding: 2px 6px;
       border-radius: 4px;
@@ -443,7 +444,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -478,7 +479,7 @@
           <option>Beta Bắc Giang</option>
           <option>Beta Nha Trang</option>
         </select>
-        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+        <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
       </div>
 
       <!-- Main Navigation Menu -->
@@ -498,19 +499,19 @@
   <!-- Banner Slider Carousel lớn (Tỉ lệ 1702x621 chuẩn Beta Cinemas) -->
   <section class="slider-official-wrap">
     <div class="slider-item active">
-      <img src="images/phimhayt10-1702x621-1-135337-300926-58.webp" alt="Tháng Phim Bom Tấn Beta">
+      <img fetchpriority="high" src="images/phimhayt10-1702x621-1-135337-300926-58.webp" alt="Tháng Phim Bom Tấn Beta">
     </div>
     <div class="slider-item">
-      <img src="images/uudaitv-1702x621-144325-140926-19.webp" alt="Ưu Đãi Thành Viên Beta">
+      <img loading="lazy" decoding="async" src="images/uudaitv-1702x621-144325-140926-19.webp" alt="Ưu Đãi Thành Viên Beta">
     </div>
     <div class="slider-item">
       <img loading="lazy" src="images/khai-truong-1702x621-111037-290926-41.webp" alt="Khai Trương Cụm Rạp Mới">
     </div>
 
     <!-- Nút điều hướng -->
-    <button type="button" class="slider-btn prev" onclick="changeSlide(-1)" aria-label="Banner trước"><span aria-hidden="true">❮</span></button>
-    <button type="button" class="slider-btn next" onclick="changeSlide(1)" aria-label="Banner tiếp theo"><span aria-hidden="true">❯</span></button>
-    <button type="button" class="slider-btn pause" id="slider-pause" onclick="toggleAutoSlide()" aria-label="Tạm dừng tự chuyển banner"><span aria-hidden="true">❚❚</span></button>
+    <button type="button" class="slider-btn prev" onclick="changeSlide(-1)" aria-label="Banner trước"><span aria-hidden="true"><i class="ph-caret-left" aria-hidden="true"></i></span></button>
+    <button type="button" class="slider-btn next" onclick="changeSlide(1)" aria-label="Banner tiếp theo"><span aria-hidden="true"><i class="ph-caret-right" aria-hidden="true"></i></span></button>
+    <button type="button" class="slider-btn pause" id="slider-pause" onclick="toggleAutoSlide()" aria-label="Tạm dừng tự chuyển banner"><span aria-hidden="true"><i class="ph-pause" aria-hidden="true"></i></span></button>
 
     <!-- Dots -->
     <div class="slider-dots">
@@ -542,8 +543,8 @@
           </div>
           <!-- Hover Overlay chuẩn web chính thức Beta Cinemas -->
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=linh-gioi-dai-chien" class="btn-overlay-buy">🎟️ MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('linh-gioi-dai-chien', 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ', this)" data-trailer="https://www.youtube.com/watch?v=mJ2pu6FazEA">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=linh-gioi-dai-chien" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('linh-gioi-dai-chien', 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ', this)" data-trailer="https://www.youtube.com/watch?v=mJ2pu6FazEA"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -563,8 +564,8 @@
             <img loading="lazy" src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=quy-an-tang-4" class="btn-overlay-buy">🎟️ MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('quy-an-tang-4', 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI', this)" data-trailer="https://www.youtube.com/watch?v=7eRbgbj_AfM">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=quy-an-tang-4" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('quy-an-tang-4', 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI', this)" data-trailer="https://www.youtube.com/watch?v=7eRbgbj_AfM"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -584,8 +585,8 @@
             <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=trai-buon-nguoi" class="btn-overlay-buy">🎟️ MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('trai-buon-nguoi', 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI', this)" data-trailer="https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=trai-buon-nguoi" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('trai-buon-nguoi', 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI', this)" data-trailer="https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -605,8 +606,8 @@
             <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=blue-lock" class="btn-overlay-buy">🎟️ MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('blue-lock', 'BLUE LOCK: THE MOVIE - EPISODE NAGI', this)" data-trailer="https://www.youtube.com/watch?v=8VMMDfAYi34">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=blue-lock" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('blue-lock', 'BLUE LOCK: THE MOVIE - EPISODE NAGI', this)" data-trailer="https://www.youtube.com/watch?v=8VMMDfAYi34"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -627,8 +628,8 @@
             <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=an-mang-karaoke" class="btn-overlay-buy">🎟️ MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('an-mang-karaoke', 'ÁN MẠNG KARAOKE', this)" data-trailer="https://www.youtube.com/watch?v=aV4qtcKmkQo">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=an-mang-karaoke" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('an-mang-karaoke', 'ÁN MẠNG KARAOKE', this)" data-trailer="https://www.youtube.com/watch?v=aV4qtcKmkQo"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -648,8 +649,8 @@
             <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=ut-lan-2" class="btn-overlay-buy">🎟️ MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('ut-lan-2', 'ÚT LAN 2', this)" data-trailer="https://www.youtube.com/watch?v=TpwGd81RSKk">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=ut-lan-2" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('ut-lan-2', 'ÚT LAN 2', this)" data-trailer="https://www.youtube.com/watch?v=TpwGd81RSKk"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -669,8 +670,8 @@
             <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=suzume" class="btn-overlay-buy">🎟️ MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('suzume', 'KHÓA CHẶT CỬA NÀO SUZUME', this)" data-trailer="https://www.youtube.com/watch?v=EWLo2IF_NPU">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=suzume" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('suzume', 'KHÓA CHẶT CỬA NÀO SUZUME', this)" data-trailer="https://www.youtube.com/watch?v=EWLo2IF_NPU"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -690,8 +691,8 @@
             <img loading="lazy" src="images/c-13.png" alt="C13" onerror="this.outerHTML='<span class=\'badge badge-age-13\'>C13</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=ca-voi-nuot-chung" class="btn-overlay-buy">🎟️ MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('ca-voi-nuot-chung', 'CÁ VOI NUỐT CHỬNG', this)" data-trailer="https://www.youtube.com/watch?v=ZyGPPlhPI8M">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=ca-voi-nuot-chung" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('ca-voi-nuot-chung', 'CÁ VOI NUỐT CHỬNG', this)" data-trailer="https://www.youtube.com/watch?v=ZyGPPlhPI8M"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -711,8 +712,8 @@
             <img loading="lazy" src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=me-min" class="btn-overlay-buy">🎟️ ĐẶT TRƯỚC</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('me-min', 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI', this)" data-trailer="https://www.youtube.com/watch?v=mTylSVV6zSo">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=me-min" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> ĐẶT TRƯỚC</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('me-min', 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI', this)" data-trailer="https://www.youtube.com/watch?v=mTylSVV6zSo"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -732,8 +733,8 @@
             <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
           </div>
           <div class="movie-poster-overlay">
-            <a href="booking.html?movie=shaun-the-sheep" class="btn-overlay-buy">🎟️ ĐẶT TRƯỚC</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('shaun-the-sheep', 'SHAUN THE SHEEP: CHUYẾN PHIÊU LƯU NGOÀI HÀNH TINH', this)" data-trailer="">▶ XEM TRAILER</button>
+            <a href="booking.html?movie=shaun-the-sheep" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> ĐẶT TRƯỚC</a>
+            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('shaun-the-sheep', 'SHAUN THE SHEEP: CHUYẾN PHIÊU LƯU NGOÀI HÀNH TINH', this)" data-trailer=""><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -855,9 +856,9 @@
 
           <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VNPAY-QR</span>
-            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MoMo</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VNPAY-QR</span>
+            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">MoMo</span>
           </div>
         </div>
 
@@ -927,7 +928,7 @@
                   Xem Trailer Trên YouTube
                 </span>
                 <button type="button" class="btn btn-outline" onclick="event.stopPropagation(); switchToLocalhost();" style="background: rgba(255,255,255,0.12); color: white; border: 1.5px solid rgba(255,255,255,0.35); padding: 10px 20px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
-                  🌐 Mở Qua Localhost (Phát trong Popup)
+                  <i class="ph-globe" aria-hidden="true"></i> Mở Qua Localhost (Phát trong Popup)
                 </button>
               </div>
             </div>
@@ -938,7 +939,7 @@
 <!-- Modal Footer (Ghi chú & Nút mở ngoài YouTube) -->
       <div class="trailer-modal-footer">
         <div class="trailer-footer-note">
-          <span>💡 Bạn có thể nhấn phím <strong>ESC</strong> hoặc bấm ra ngoài màn hình để tắt trailer</span>
+          <span><i class="ph-lightbulb" aria-hidden="true"></i> Bạn có thể nhấn phím <strong>ESC</strong> hoặc bấm ra ngoài màn hình để tắt trailer</span>
         </div>
         <a id="trailer-modal-ytb-link" href="#" target="_blank" rel="noopener noreferrer" class="trailer-btn-ytb-external">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -954,8 +955,8 @@
 
         <!-- Ghi chú tự động hiển thị nếu người dùng mở qua giao thức file:// -->
         <div id="trailer-file-protocol-warning" style="display: none; width: 100%; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-size: 12px; color: #fbbf24; line-height: 1.5;">
-          ⚠️ <strong>Ghi chú:</strong> Bạn đang mở tệp trực tiếp dạng <code>file://</code> (ổ đĩa). YouTube hiện có cơ chế bảo mật chặn nhúng nếu không qua web server (gây ra <em>"Lỗi 153"</em>).<br>
-          👉 Bạn có thể bấm nút đỏ <strong>"Xem trên YouTube"</strong> ở trên để xem ngay, hoặc nhấp đúp tệp <strong>Chay_Web_Localhost.bat</strong> trong thư mục để phát trực tiếp trong popup mượt mà 100%!
+          <i class="ph-warning" aria-hidden="true"></i> <strong>Ghi chú:</strong> Bạn đang mở tệp trực tiếp dạng <code>file://</code> (ổ đĩa). YouTube hiện có cơ chế bảo mật chặn nhúng nếu không qua web server (gây ra <em>"Lỗi 153"</em>).<br>
+          <i class="ph-hand-pointing" aria-hidden="true"></i> Bạn có thể bấm nút đỏ <strong>"Xem trên YouTube"</strong> ở trên để xem ngay, hoặc nhấp đúp tệp <strong>Chay_Web_Localhost.bat</strong> trong thư mục để phát trực tiếp trong popup mượt mà 100%!
         </div>
       </div>
     </div>
@@ -972,16 +973,16 @@
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -1036,7 +1037,7 @@
 
     function updatePauseBtn() {
       pauseBtn.setAttribute('aria-label', autoSlidePaused ? 'Tiếp tục tự chuyển banner' : 'Tạm dừng tự chuyển banner');
-      pauseBtn.firstElementChild.textContent = autoSlidePaused ? '▶' : '❚❚';
+      pauseBtn.firstElementChild.innerHTML = autoSlidePaused ? '<i class=ph-play aria-hidden=true></i>' : '<i class=ph-pause aria-hidden=true></i>';
     }
 
     function toggleAutoSlide() {
@@ -1290,7 +1291,7 @@
             <div class="movie-poster-wrap">
               <img loading="lazy" class="movie-poster-img" src="${esc(m.poster)}" alt="${esc(m.title)}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
               ${m.age ? `<div class="movie-age-tag"><span class="badge">${esc(m.age)}</span></div>` : ''}
-              <div class="movie-poster-overlay"><a href="${link}" class="btn-overlay-buy">🎟️ MUA VÉ</a></div>
+              <div class="movie-poster-overlay"><a href="${link}" class="btn-overlay-buy"><i class=ph-ticket aria-hidden=true></i> MUA VÉ</a></div>
             </div>
             <div class="movie-info-official">
               <h3 class="movie-title-official"><a href="${link}">${esc(m.title)}</a></h3>

@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
   <style>
     /* Refunded Ticket Page Layout */
     .refunded-page {
@@ -178,7 +179,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         
@@ -213,7 +214,7 @@
           <option>Beta Bắc Giang</option>
           <option>Beta Nha Trang</option>
         </select>
-        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+        <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
       </div>
 
       <!-- Main Navigation Menu -->
@@ -272,7 +273,7 @@
               <div style="flex: 1;">
                 <h2 style="font-size: 21px; font-weight: 800; color: #0f172a; margin: 0 0 6px; line-height: 1.3;" id="movie-title">
                   Quỷ Ăn Tạng 4 
-                  <span id="movie-age-badge" style="background: #d14400; color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">C18</span>
+                  <span id="movie-age-badge" style="background: #d14400; color: white; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">C18</span>
                 </h2>
                 <p class="m" id="movie-meta" style="margin: 0 0 4px;">Kinh Dị, Giật Gân · 110 phút · 2D phụ đề</p>
                 <p class="m" id="cinema-room" style="margin: 0 0 4px;">Beta Thanh Xuân (Hà Nội) · Phòng 01</p>
@@ -298,7 +299,7 @@
 
             <!-- Ghi chú đơn đã hoàn tiền không còn vé -->
             <p class="m" style="border: 1px dashed #64748b; border-radius: 8px; padding: 12px 14px; margin: 4px 0 0; background: #f8fafc; font-size: 13px; line-height: 1.5; color: #475569;">
-              ℹ️ Đơn đã được hoàn tiền, không còn vé.
+              <i class="ph-info" aria-hidden="true"></i> Đơn đã được hoàn tiền, không còn vé.
             </p>
           </section>
 
@@ -308,7 +309,7 @@
               ← Quay Lại Lịch Sử Đặt Vé
             </a>
             <a id="link-view-invoice" href="invoice.html" class="btn btn-outline btn-sm" style="font-weight: 700; border-color: #005198; color: #005198; padding: 8px 16px; border-radius: 8px;">
-              🧾 Xem Hóa Đơn Điện Tử
+              <i class="ph-receipt" aria-hidden="true"></i> Xem Hóa Đơn Điện Tử
             </a>
           </div>
 
@@ -348,12 +349,12 @@
 
             <!-- Trạng thái hoàn tiền thành công -->
             <div style="border: 1px solid #10b981; background: #ecfdf5; border-radius: 8px; padding: 10px 14px; font-weight: 700; color: #047857; display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-              <span style="font-size: 16px;">✓</span> Đã hoàn tiền thành công
+              <span style="font-size: 16px;"><i class="ph-check" aria-hidden="true"></i></span> Đã hoàn tiền thành công
             </div>
 
             <div style="margin-top: 6px;">
               <a href="betabot.html" class="btn btn-outline" style="display: inline-flex; align-items: center; justify-content: center; width: 100%; font-weight: 700; border-color: #cbd5e1; color: #334155; padding: 10px 16px; border-radius: 8px; font-size: 13.5px;">
-                💬 Liên hệ CSKH
+                <i class="ph-chat-circle-dots" aria-hidden="true"></i> Liên hệ CSKH
               </a>
             </div>
           </section>
@@ -436,7 +437,7 @@
             Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
           </p>
           <div>
-            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+            <img loading="lazy" decoding="async" src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
           </div>
         </div>
 
@@ -486,15 +487,15 @@
   <!-- NÚT NỔI FAB & THANH CÔNG CỤ NHANH DOCK -->
   <div class="quick-dock-wrapper" id="quick-dock-container">
     <button type="button" class="fab-dock-btn" id="btn-toggle-quick-dock" onclick="toggleQuickDock()" title="Mở menu chuyển nhanh">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
     </button>
     <nav class="quick-dock" id="quick-dock-nav" style="display: none;">
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <a href="ticket-refunded.html" class="dock-item active" data-page="ticket-refunded">🎉 Đơn Đã Hoàn</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <a href="ticket-refunded.html" class="dock-item active" data-page="ticket-refunded"><i class="ph-confetti" aria-hidden="true"></i> Đơn Đã Hoàn</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -590,7 +591,7 @@
 
     // Gán dữ liệu vào HTML
     document.getElementById('order-code-display').textContent = orderCode;
-    document.getElementById('movie-title').innerHTML = `${movieTitle} <span id="movie-age-badge" style="background: #d14400; color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">${movieAge}</span>`;
+    document.getElementById('movie-title').innerHTML = `${movieTitle} <span id="movie-age-badge" style="background: #d14400; color: white; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">${movieAge}</span>`;
     document.getElementById('movie-meta').textContent = movieGenre;
     document.getElementById('movie-poster').src = poster;
     document.getElementById('cinema-room').textContent = actualCinema;

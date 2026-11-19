@@ -16,6 +16,7 @@
     rel="stylesheet">
 
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
 
   <style>
     body {
@@ -248,7 +249,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -344,7 +345,7 @@
                 <!-- Tiến trình rà soát Tầng 1 (BR-07) -->
         <div style="margin: 16px 0; padding: 14px 16px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; text-align: left;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <strong style="font-size: 13.5px; color: #005198;">🔎 Rà soát tự động với cổng thanh toán (Tầng 1)</strong>
+            <strong style="font-size: 13.5px; color: #005198;"><i class="ph-magnifying-glass" aria-hidden="true"></i> Rà soát tự động với cổng thanh toán (Tầng 1)</strong>
             <span id="tier1-now" style="font-size: 12px; color: #64748b;"></span>
           </div>
           <ol id="tier1-steps" style="margin: 0; padding-left: 18px; font-size: 13px; color: #334155; line-height: 1.8;"></ol>
@@ -358,7 +359,7 @@
           </div>
         </div>
         <a href="betabot.html" id="btn-verify-bot" class="btn btn-outline" style="border-color: #cbd5e1; color: #005198; font-weight: 700; width: 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;">
-          <span>🤖</span> Chat với BetaBot Hỗ Trợ Đối Soát
+          <span><i class="ph-robot" aria-hidden="true"></i></span> Chat với BetaBot Hỗ Trợ Đối Soát
         </a>
 
       </div>
@@ -367,27 +368,27 @@
     <!-- BẢNG ĐIỀU KHIỂN MÔ PHỎNG WEBHOOK SANDBOX -->
     <div class="simulation-panel-verify">
       <div style="font-size: 13px; font-weight: 800; color: #005198; text-transform: uppercase; margin-bottom: 8px;">
-        ⚙️ BẢNG ĐIỀU KHIỂN MÔ PHỎNG WEBHOOK SEPAY
+        <i class="ph-gear" aria-hidden="true"></i> BẢNG ĐIỀU KHIỂN MÔ PHỎNG WEBHOOK SEPAY
       </div>
       <p style="font-size: 12px; color: #64748b; margin-top: 0; margin-bottom: 12px;">
         Kích hoạt thử các kịch bản để xem trang xác minh tự động chuyển hướng:
       </p>
       <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-        <button type="button" onclick="triggerSim('OK')" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 800;">⚡ Webhook về: chuyển đủ</button>
-        <button type="button" onclick="triggerSim('NETWORK_LAG')" class="btn btn-outline btn-sm" style="font-weight: 800;">📡 Webhook thất lạc</button>
-        <button type="button" onclick="triggerSim('SLOW_BANK')" class="btn btn-outline btn-sm" style="font-weight: 800;">🐢 Ngân hàng chậm 12 phút</button>
-        <button type="button" onclick="triggerSim('SHIFT', { minutes: 1 })" class="btn btn-outline btn-sm" style="font-weight: 800;">⏩ Tua nhanh 1 phút</button>
-        <button type="button" onclick="triggerSim('SHIFT', { minutes: 3 })" class="btn btn-outline btn-sm" style="font-weight: 800;">⏩ Tua nhanh 3 phút</button>
+        <button type="button" onclick="triggerSim('OK')" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 800;"><i class="ph-lightning" aria-hidden="true"></i> Webhook về: chuyển đủ</button>
+        <button type="button" onclick="triggerSim('NETWORK_LAG')" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-broadcast" aria-hidden="true"></i> Webhook thất lạc</button>
+        <button type="button" onclick="triggerSim('SLOW_BANK')" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-hourglass-medium" aria-hidden="true"></i> Ngân hàng chậm 12 phút</button>
+        <button type="button" onclick="triggerSim('SHIFT', { minutes: 1 })" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-fast-forward" aria-hidden="true"></i> Tua nhanh 1 phút</button>
+        <button type="button" onclick="triggerSim('SHIFT', { minutes: 3 })" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-fast-forward" aria-hidden="true"></i> Tua nhanh 3 phút</button>
       </div>
       <div id="sandbox-result" style="margin-top: 10px; font-size: 12px; color: #475569; text-align: center;">
 
       </div>
       <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px;">
         <a href="gateway.html" id="btn-verify-back-qr" class="btn btn-outline btn-sm" style="color: #005198;">
-          📱 Quay Lại Cổng QR
+          <i class="ph-device-mobile" aria-hidden="true"></i> Quay Lại Cổng QR
         </a>
         <a href="betabot.html" class="btn btn-outline btn-sm" style="color: #64748b;">
-          🤖 Chat BetaBot Đối Soát
+          <i class="ph-robot" aria-hidden="true"></i> Chat BetaBot Đối Soát
         </a>
       </div>
     </div>
@@ -396,17 +397,17 @@
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <a href="ticket-refunded.html" class="dock-item" data-page="ticket-refunded">🎉 Đã Hoàn</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <a href="ticket-refunded.html" class="dock-item" data-page="ticket-refunded"><i class="ph-confetti" aria-hidden="true"></i> Đã Hoàn</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -443,7 +444,7 @@
       document.getElementById('tier1-steps').innerHTML = STEPS.map(s => {
         const done = t >= s.end && !(s.at === 600 && o.status === 'PENDING');
         const active = !done && t >= s.at;
-        const icon = done ? '✅' : active ? '🔄' : '⏺️';
+        const icon = done ? '<i class=ph-check-circle aria-hidden=true></i>' : active ? '<i class=ph-arrows-clockwise aria-hidden=true></i>' : '<i class=ph-circle aria-hidden=true></i>';
         return `<li style="list-style: none; margin-left: -18px; color: ${active ? '#005198' : done ? '#16a34a' : '#94a3b8'}; font-weight: ${active ? 700 : 500};">${icon} ${s.label}</li>`;
       }).join('');
       document.getElementById('tier1-now').textContent = o.status_sublabel || '';

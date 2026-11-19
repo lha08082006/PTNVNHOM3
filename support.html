@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
   <style>
     /* Support Hero */
     .support-hero {
@@ -74,6 +75,12 @@
       align-items: center;
       background: white;
       user-select: none;
+      width: 100%;
+      border: 0;
+      font-family: inherit;
+      text-align: left;
+      gap: 12px;
+      min-height: 44px;
     }
     .faq-question:hover {
       background: #f8fafc;
@@ -106,7 +113,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -141,7 +148,7 @@
           <option>Beta Bắc Giang</option>
           <option>Beta Nha Trang</option>
         </select>
-        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+        <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
       </div>
 
       <!-- Main Navigation Menu -->
@@ -178,7 +185,7 @@
 
       <div style="margin-top: 18px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
         <a href="betabot.html" class="btn" style="background: #d63a1c; color: white; font-weight: 800; font-size: 13.5px; border-radius: 999px; padding: 8px 20px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(255, 90, 60, 0.4);">
-          <span>🤖</span>
+          <span><i class="ph-robot" aria-hidden="true"></i></span>
           <span>Chat Với BetaBot Đối Soát Giao Dịch & Hoàn Tiền Tức Thì →</span>
         </a>
       </div>
@@ -250,44 +257,44 @@
         </h3>
 
         <!-- FAQ 1 -->
-        <div class="faq-item open" onclick="toggleFaq(this)">
-          <div class="faq-question">
+        <div class="faq-item open">
+          <button type="button" class="faq-question" aria-expanded="true" onclick="toggleFaq(this.parentNode)">
             <span>1. Tôi quét VietQR bị trừ tiền nhưng không thấy vé?</span>
-            <span>▾</span>
-          </div>
+            <span aria-hidden="true">▾</span>
+          </button>
           <div class="faq-answer">
             Quý khách yên tâm, hệ thống SePay tự động lưu trữ webhook và khớp giao dịch. Trong một số ít trường hợp ngân hàng chuyển mạch chậm (NAPAS trễ 1-2 phút), hệ thống sẽ cập nhật trạng thái đơn sang ĐÃ THANH TOÁN ngay khi nhận được tín hiệu. Bạn có thể nhập mã đơn BC... vào ô tra cứu ở trên để xem trạng thái đơn ngay lập tức.
           </div>
         </div>
 
         <!-- FAQ 2 -->
-        <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-question">
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false" onclick="toggleFaq(this.parentNode)">
             <span>2. Chính sách hủy vé hoặc hoàn tiền tại Beta?</span>
-            <span>▾</span>
-          </div>
+            <span aria-hidden="true">▾</span>
+          </button>
           <div class="faq-answer">
             Theo quy định chung của các cụm rạp, vé xem phim đã thanh toán thành công không thể hủy hoặc đổi sang suất chiếu khác khi suất chiếu đã diễn ra. Trong trường hợp có sự cố kỹ thuật từ phía phòng chiếu rạp, Beta Cinemas sẽ hoàn tiền 100% hoặc cấp voucher vé mới cho quý khách.
           </div>
         </div>
 
         <!-- FAQ 3 -->
-        <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-question">
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false" onclick="toggleFaq(this.parentNode)">
             <span>3. Tôi có thể mang đồ ăn bên ngoài vào rạp không?</span>
-            <span>▾</span>
-          </div>
+            <span aria-hidden="true">▾</span>
+          </button>
           <div class="faq-answer">
             Để đảm bảo vệ sinh phòng chiếu và trải nghiệm tốt nhất cho tất cả khán giả, quý khách vui lòng không mang thức ăn có mùi hoặc đồ uống mua từ bên ngoài vào rạp.
           </div>
         </div>
 
         <!-- FAQ 4 -->
-        <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-question">
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false" onclick="toggleFaq(this.parentNode)">
             <span>4. Quy định độ tuổi T18, T16, T13, P là gì?</span>
-            <span>▾</span>
-          </div>
+            <span aria-hidden="true">▾</span>
+          </button>
           <div class="faq-answer">
             - T18: Phim cấm phổ biến cho người dưới 18 tuổi.<br>
             - T16: Dành cho người từ đủ 16 tuổi trở lên.<br>
@@ -302,9 +309,9 @@
             Kênh Liên Hệ Khẩn Cấp
           </h4>
           <div style="font-size: 13.5px; color: #334155; line-height: 1.8;">
-            📞 Tổng đài: <strong>1900 636 807</strong> (08:00 - 22:00)<br>
-            💬 Zalo OA: <strong>Beta Cinemas CSKH Official</strong><br>
-            📧 Email: <strong>cskh@betacinemas.vn</strong>
+            <i class="ph-phone" aria-hidden="true"></i> Tổng đài: <strong>1900 636 807</strong> (08:00 - 22:00)<br>
+            <i class="ph-chat-circle-dots" aria-hidden="true"></i> Zalo OA: <strong>Beta Cinemas CSKH Official</strong><br>
+            <i class="ph-envelope" aria-hidden="true"></i> Email: <strong>cskh@betacinemas.vn</strong>
           </div>
         </div>
       </div>
@@ -333,7 +340,7 @@
             Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
           </p>
           <div>
-            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+            <img loading="lazy" decoding="async" src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
           </div>
         </div>
 
@@ -375,9 +382,9 @@
 
           <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VNPAY-QR</span>
-            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MoMo</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VNPAY-QR</span>
+            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">MoMo</span>
           </div>
         </div>
 
@@ -395,16 +402,16 @@
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -414,7 +421,9 @@
 
   <script>
     function toggleFaq(el) {
-      el.classList.toggle('open');
+      const open = el.classList.toggle('open');
+      const q = el.querySelector('.faq-question');
+      if (q) q.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
 
     const esc = (x) => String(x == null ? '' : x).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);

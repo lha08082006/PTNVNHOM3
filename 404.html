@@ -21,6 +21,10 @@
     .primary { background: var(--navy); color: #fff; }
     .ghost { border: 1.5px solid var(--navy); color: var(--navy); }
     @media (prefers-color-scheme: dark) { .ghost { color: #7cb6f0; border-color: #7cb6f0; } }
+  
+    /* Accessibility: focus bàn phím rõ ràng + tôn trọng giảm chuyển động */
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 3px solid #005198 !important; outline-offset: 2px !important; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
   </style>
 </head>
 <body>
