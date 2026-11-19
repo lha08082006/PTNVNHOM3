@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
 
   <style>
     body {
@@ -240,7 +241,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -275,7 +276,7 @@
           <option>Beta Bắc Giang</option>
           <option>Beta Nha Trang</option>
         </select>
-        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+        <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
       </div>
 
       <!-- Main Navigation Menu -->
@@ -296,8 +297,8 @@
   <div style="background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 0;">
     <div class="container">
       <ol style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; list-style: none; padding: 0; margin: 0;">
-        <li class="st-step"><b class="st-badge done">✓</b> Chọn suất &amp; vé</li>
-        <li class="st-step"><b class="st-badge done">✓</b> Chọn ghế</li>
+        <li class="st-step"><b class="st-badge done"><i class="ph-check" aria-hidden="true"></i></b> Chọn suất &amp; vé</li>
+        <li class="st-step"><b class="st-badge done"><i class="ph-check" aria-hidden="true"></i></b> Chọn ghế</li>
         <li class="st-step active"><b class="st-badge warning">!</b> Thanh toán (Chuyển thiếu tiền)</li>
       </ol>
     </div>
@@ -344,19 +345,19 @@
 
           <!-- Đếm ngược thời gian giữ ghế -->
           <div role="timer" id="underpay-timer-box" style="font-weight: 800; font-size: 15px; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
-            <span>⏳ Thời gian giữ ghế còn lại:</span>
+            <span><i class="ph-hourglass-medium" aria-hidden="true"></i> Thời gian giữ ghế còn lại:</span>
             <span id="underpay-countdown" style="font-family: monospace; font-size: 18px; color: #dc2626;">06:12</span>
           </div>
 
           <p class="m" style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">
-            💡 <em>Lưu ý: Hết giờ mà bạn vẫn chưa chuyển bù, số tiền đã nhận sẽ được tự động hoàn lại 100% cho bạn.</em>
+            <i class="ph-lightbulb" aria-hidden="true"></i> <em>Lưu ý: Hết giờ mà bạn vẫn chưa chuyển bù, số tiền đã nhận sẽ được tự động hoàn lại 100% cho bạn.</em>
           </p>
         </section>
 
         <!-- CARD 2: THÔNG TIN HÓA ĐƠN VÉ -->
         <section class="c-card">
           <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800; color: #005198; margin: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
-            📋 Thông Tin Hóa Đơn Vé
+            <i class="ph-clipboard-text" aria-hidden="true"></i> Thông Tin Hóa Đơn Vé
           </h3>
 
           <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -476,24 +477,24 @@
           </div>
 
           <p style="border: 1px solid #fcd34d; background: #fefce8; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #b45309; text-align: left; margin: 12px 0 6px;">
-            ⚠️ <strong>Quan trọng:</strong> Quý khách vui lòng giữ nguyên nội dung chuyển khoản (cùng mã đơn) để hệ thống tự động cộng dồn và xuất vé ngay!
+            <i class="ph-warning" aria-hidden="true"></i> <strong>Quan trọng:</strong> Quý khách vui lòng giữ nguyên nội dung chuyển khoản (cùng mã đơn) để hệ thống tự động cộng dồn và xuất vé ngay!
           </p>
 
           <button type="button" class="btn btn-primary" onclick="checkUnderpayStatus()" style="width: 100%; min-height: 48px; font-weight: 800; font-size: 15px; border-radius: 10px; background: #ff5400; border: none; cursor: pointer; margin-top: 6px;">
-            🔄 Tôi Đã Chuyển Bù, Kiểm Tra Lại
+            <i class="ph-arrows-clockwise" aria-hidden="true"></i> Tôi Đã Chuyển Bù, Kiểm Tra Lại
           </button>
 
           <!-- BẢNG ĐIỀU KHIỂN MÔ PHỎNG TEST KHI BÁO CÁO NHÓM -->
           <div class="sandbox-box">
-            <div style="font-size: 11.5px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">
-              ⚙️ BẢNG ĐIỀU KHIỂN MÔ PHỎNG TEST NHANH
+            <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">
+              <i class="ph-gear" aria-hidden="true"></i> BẢNG ĐIỀU KHIỂN MÔ PHỎNG TEST NHANH
             </div>
             <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
               <button type="button" onclick="demoPayRemaining()" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 800;">
-                ⚡ [Demo] Giả Lập Chuyển Bù Nốt → Xuất Vé
+                <i class="ph-lightning" aria-hidden="true"></i> [Demo] Giả Lập Chuyển Bù Nốt → Xuất Vé
               </button>
               <button type="button" onclick="demoExpireOrder()" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #fca5a5; background: white; font-weight: 700;">
-                ⏳ [Demo] Giả Lập Hết Giờ → Hoàn Tiền
+                <i class="ph-hourglass-medium" aria-hidden="true"></i> [Demo] Giả Lập Hết Giờ → Hoàn Tiền
               </button>
             </div>
           </div>
@@ -540,8 +541,8 @@
         <div>
           <h4 class="footer-official-title">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MSB</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">MSB</span>
           </div>
         </div>
       </div>
@@ -554,16 +555,16 @@
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>

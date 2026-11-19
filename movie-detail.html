@@ -16,6 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
   <style>
     /* Movie Detail Hero */
     .movie-hero-backdrop {
@@ -198,7 +199,7 @@
     .trailer-badge {
       background: #d14400;
       color: white;
-      font-size: 10.5px;
+      font-size: 12px;
       font-weight: 800;
       padding: 3px 8px;
       border-radius: 4px;
@@ -208,7 +209,7 @@
     .trailer-hd-badge {
       background: rgba(16, 185, 129, 0.2);
       color: #34d399;
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 800;
       padding: 2px 6px;
       border-radius: 4px;
@@ -317,7 +318,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -352,7 +353,7 @@
           <option>Beta Bắc Giang</option>
           <option>Beta Nha Trang</option>
         </select>
-        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+        <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
       </div>
 
       <!-- Main Navigation Menu -->
@@ -388,10 +389,10 @@
           <p class="synopsis-text" id="md-meta"></p>
           <div style="display: flex; gap: 16px; flex-wrap: wrap;">
             <a href="#booking-area" class="btn btn-primary btn-lg" id="md-book-btn">
-              <span>🎟️</span> Đặt Suất Chiếu Nhanh
+              <span><i class="ph-ticket" aria-hidden="true"></i></span> Đặt Suất Chiếu Nhanh
             </a>
             <button type="button" class="btn btn-outline btn-lg" id="md-trailer-btn" style="color: white; border-color: rgba(255,255,255,0.4);" hidden>
-              <span>▶</span> Xem Trailer
+              <span><i class="ph-play" aria-hidden="true"></i></span> Xem Trailer
             </button>
           </div>
         </div>
@@ -422,7 +423,7 @@
 
       <div class="md-slots-box">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 10px; flex-wrap: wrap;">
-          <h3 id="md-slots-title" style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: var(--beta-navy); margin:0;">📍 Suất chiếu</h3>
+          <h3 id="md-slots-title" style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: var(--beta-navy); margin:0;"><i class="ph-map-pin" aria-hidden="true"></i> Suất chiếu</h3>
           <span id="md-price-from" style="font-size: 12.5px; color: var(--beta-orange); font-weight: 700;"></span>
         </div>
         <div id="md-slots" style="display: flex; flex-wrap: wrap; gap: 14px;" aria-live="polite">
@@ -453,7 +454,7 @@
             Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
           </p>
           <div>
-            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+            <img loading="lazy" decoding="async" src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
           </div>
         </div>
 
@@ -495,9 +496,9 @@
 
           <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VNPAY-QR</span>
-            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MoMo</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VNPAY-QR</span>
+            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">MoMo</span>
           </div>
         </div>
 
@@ -515,16 +516,16 @@
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -586,7 +587,7 @@
                   Xem Trailer Trên YouTube
                 </span>
                 <button type="button" class="btn btn-outline" onclick="event.stopPropagation(); switchToLocalhost();" style="background: rgba(255,255,255,0.12); color: white; border: 1.5px solid rgba(255,255,255,0.35); padding: 10px 20px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
-                  🌐 Mở Qua Localhost (Phát trong Popup)
+                  <i class="ph-globe" aria-hidden="true"></i> Mở Qua Localhost (Phát trong Popup)
                 </button>
               </div>
             </div>
@@ -597,7 +598,7 @@
 <!-- Modal Footer -->
       <div class="trailer-modal-footer">
         <div class="trailer-footer-note">
-          <span>💡 Bạn có thể nhấn phím <strong>ESC</strong> hoặc bấm ra ngoài màn hình để tắt trailer</span>
+          <span><i class="ph-lightbulb" aria-hidden="true"></i> Bạn có thể nhấn phím <strong>ESC</strong> hoặc bấm ra ngoài màn hình để tắt trailer</span>
         </div>
         <a id="trailer-modal-ytb-link" href="#" target="_blank" rel="noopener noreferrer" class="trailer-btn-ytb-external">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -613,8 +614,8 @@
 
         <!-- Ghi chú tự động hiển thị nếu người dùng mở qua giao thức file:// -->
         <div id="trailer-file-protocol-warning" style="display: none; width: 100%; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-size: 12px; color: #fbbf24; line-height: 1.5;">
-          ⚠️ <strong>Ghi chú:</strong> Bạn đang mở tệp trực tiếp dạng <code>file://</code> (ổ đĩa). YouTube hiện có cơ chế bảo mật chặn nhúng nếu không qua web server (gây ra <em>"Lỗi 153"</em>).<br>
-          👉 Bạn có thể bấm nút đỏ <strong>"Xem trên YouTube"</strong> ở trên để xem ngay, hoặc nhấp đúp tệp <strong>Chay_Web_Localhost.bat</strong> trong thư mục để phát trực tiếp trong popup mượt mà 100%!
+          <i class="ph-warning" aria-hidden="true"></i> <strong>Ghi chú:</strong> Bạn đang mở tệp trực tiếp dạng <code>file://</code> (ổ đĩa). YouTube hiện có cơ chế bảo mật chặn nhúng nếu không qua web server (gây ra <em>"Lỗi 153"</em>).<br>
+          <i class="ph-hand-pointing" aria-hidden="true"></i> Bạn có thể bấm nút đỏ <strong>"Xem trên YouTube"</strong> ở trên để xem ngay, hoặc nhấp đúp tệp <strong>Chay_Web_Localhost.bat</strong> trong thư mục để phát trực tiếp trong popup mượt mà 100%!
         </div>
       </div>
     </div>
@@ -742,7 +743,7 @@
     .md-slot { background: white; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px 20px; display: flex; flex-direction: column; align-items: flex-start; text-decoration: none; min-width: 120px; transition: border-color .15s, transform .15s; }
     .md-slot:hover, .md-slot:focus-visible { border-color: var(--beta-orange, #f97316); transform: translateY(-2px); outline: none; }
     .md-slot b { font-family: var(--font-display); font-size: 18px; font-weight: 900; color: var(--beta-navy, #005198); }
-    .md-slot small { font-size: 11.5px; color: #64748b; }
+    .md-slot small { font-size: 12px; color: #64748b; }
     .md-slot.full { opacity: .5; pointer-events: none; }
     .md-group-title { width: 100%; font-size: 12.5px; font-weight: 800; color: #475569; letter-spacing: .3px; margin: 6px 0 -4px; }
     @media (max-width: 640px) {
@@ -773,8 +774,8 @@
         if (m.status === 'SOON') $('md-soon').hidden = false;
         // Thông tin phim đầy đủ: thời lượng, khởi chiếu, ngôn ngữ, thể loại, đạo diễn, diễn viên, phân loại tuổi
         const fmtDate = (d) => d ? d.split('-').reverse().join('/') : '';
-        const pills = [m.duration_min ? '⏱ ' + m.duration_min + ' phút' : '', m.release_date ? '📅 Khởi chiếu ' + fmtDate(m.release_date) : '', m.language ? '🗣 ' + m.language : ''].filter(Boolean);
-        $('md-pills').innerHTML = pills.map((x) => '<div class="stat-pill">' + esc(x) + '</div>').join('');
+        const pills = [m.duration_min ? ['timer', m.duration_min + ' phút'] : null, m.release_date ? ['calendar', 'Khởi chiếu ' + fmtDate(m.release_date)] : null, m.language ? ['globe', m.language] : null].filter(Boolean);
+        $('md-pills').innerHTML = pills.map(([ic, x]) => '<div class="stat-pill"><i class="ph-' + ic + '" aria-hidden="true"></i> ' + esc(x) + '</div>').join('');
         const rows = [['Thể loại', m.genre], ['Đạo diễn', m.director], ['Diễn viên', m.cast], ['Phân loại', m.age ? m.age + (m.age_note ? ' – ' + m.age_note : '') : '']].filter(([, v]) => v);
         $('md-meta').innerHTML = (m.synopsis ? '<span style="display:block;margin-bottom:10px;">' + esc(m.synopsis) + '</span>' : '') +
           rows.map(([k, v]) => '<span style="display:block;"><b>' + k + ':</b> ' + esc(v) + '</span>').join('');
@@ -784,7 +785,7 @@
           if (!r.posts.length) return;
           const box = document.createElement('div');
           box.style.cssText = 'margin-top: 14px; display: flex; flex-direction: column; gap: 6px;';
-          box.innerHTML = '<b style="font-size: 13px; letter-spacing: .3px;">🎁 ƯU ĐÃI ĐANG ÁP DỤNG</b>' + r.posts.map(p =>
+          box.innerHTML = '<b style="font-size: 13px; letter-spacing: .3px;"><i class="ph-tag" aria-hidden="true"></i> ƯU ĐÃI ĐANG ÁP DỤNG</b>' + r.posts.map(p =>
             '<a href="tin-tuc.html?id=' + encodeURIComponent(p.id) + '" style="color: #fde68a; font-weight: 700; font-size: 14px;">' + esc(p.title) + ' →</a>').join('');
           $('md-meta').after(box);
         }).catch(() => {});
@@ -800,7 +801,7 @@
         const cinema = $('md-cinema').value, date = $('md-date').value;
         const list = week.filter((s) => s.cinema_id === cinema && s.date === date);
         const cName = ($('md-cinema').selectedOptions[0] || {}).textContent || '';
-        $('md-slots-title').textContent = '📍 ' + cName.toUpperCase();
+        $('md-slots-title').innerHTML = '<i class=ph-map-pin aria-hidden=true></i> ' + esc(cName.toUpperCase());
         const min = list.reduce((a, s) => Math.min(a, (s.prices && s.prices.standard) || Infinity), Infinity);
         $('md-price-from').textContent = isFinite(min) ? 'Vé chỉ từ ' + Pay.vnd(min) : '';
         if (!list.length) { $('md-slots').innerHTML = '<p class="m">Rạp chưa có suất chiếu phim này trong ngày đã chọn. Hãy chọn ngày hoặc rạp khác.</p>'; return; }
@@ -811,7 +812,7 @@
           byFormat[f].map((s) => {
             const full = s.seats_free === 0;
             return '<a class="md-slot' + (full ? ' full' : '') + '" href="seats.html?showtime=' + encodeURIComponent(s.id) + '"' + (full ? ' aria-disabled="true" tabindex="-1"' : '') + '>' +
-              '<b>' + esc(s.time) + (s.late ? ' 🌙' : '') + '</b>' + (s.end_time ? '<small>~ ' + esc(s.end_time) + ' kết thúc</small>' : '') +
+              '<b>' + esc(s.time) + (s.late ? ' <i class=ph-moon aria-hidden=true></i>' : '') + '</b>' + (s.end_time ? '<small>~ ' + esc(s.end_time) + ' kết thúc</small>' : '') +
               '<small>' + esc(s.room || '') + ' • ' + (full ? 'Hết ghế' : 'Còn ' + s.seats_free + ' ghế') + '</small></a>';
           }).join('')).join('') +
           '<p class="m" style="flex-basis: 100%; font-size: 12.5px; margin: 4px 0 0;">Giờ kết thúc là dự kiến; suất chiếu có thể bắt đầu muộn 10–15 phút do quảng cáo và giới thiệu phim.</p>';

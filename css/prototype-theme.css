@@ -144,7 +144,7 @@ textarea {
 
 .dock-label {
   color: #94a3b8;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -360,7 +360,7 @@ textarea {
 .alpha-brand-sub {
   font-family: 'Montserrat', 'Be Vietnam Pro', sans-serif;
   font-weight: 600;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .42em;
   color: #F2B84B;
   margin-top: 4px;
@@ -401,7 +401,7 @@ textarea {
   transform: translateY(-50%);
   pointer-events: none;
   color: #A3A7B8;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .alpha-nav-menu {
@@ -686,7 +686,7 @@ textarea {
 .logo-tag {
   background: #d14400;
   color: white;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   padding: 2px 7px;
   border-radius: var(--radius-full);
@@ -822,7 +822,7 @@ textarea {
   align-items: center;
   padding: 3px 8px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;

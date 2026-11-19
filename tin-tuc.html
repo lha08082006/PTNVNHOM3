@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
   <style>
     body { background: #f8fafc; color: #0f172a; margin: 0; font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
     .tt-top { background: #005198; color: #fff; padding: 14px 16px; }
@@ -108,7 +109,7 @@
               ${p.summary ? `<p style="font-weight:700;font-size:15.5px;line-height:1.6;">${esc(p.summary)}</p>` : ''}
               <div class="body">${paras.map(x => `<p>${esc(x).replace(/\n/g, '<br>')}</p>`).join('')}</div>
               <div class="tt-cta">
-                <a class="btn btn-primary" href="${p.movie_id ? 'movie-detail.html?movie=' + encodeURIComponent(p.movie_id) : p.cinema_id ? 'schedule.html?cinema=' + encodeURIComponent(p.cinema_id) : 'schedule.html'}">🎟️ Đặt vé ngay</a>
+                <a class="btn btn-primary" href="${p.movie_id ? 'movie-detail.html?movie=' + encodeURIComponent(p.movie_id) : p.cinema_id ? 'schedule.html?cinema=' + encodeURIComponent(p.cinema_id) : 'schedule.html'}"><i class="ph-ticket" aria-hidden="true"></i> Đặt vé ngay</a>
                 <a class="btn btn-outline" href="tin-tuc.html">← Tất cả tin & ưu đãi</a>
               </div>
             </div>`;
@@ -129,7 +130,7 @@
           <a class="tt-card" href="tin-tuc.html?id=${encodeURIComponent(p.id)}">
             <img loading="lazy" src="${esc(img(p))}" alt="" onerror="this.src='images/logo-official.png'">
             <div class="b">
-              <span class="tt-badge ${esc(p.type)}">${p.pinned ? '📌 ' : ''}${esc(p.type_label)}</span>
+              <span class="tt-badge ${esc(p.type)}">${p.pinned ? '<i class="ph-tag" aria-hidden="true"></i> Ghim · ' : ''}${esc(p.type_label)}</span>
               <h2>${esc(p.title)}</h2>
               ${p.summary ? `<p>${esc(p.summary)}</p>` : ''}
               ${until(p) ? `<span class="tt-meta">${esc(until(p))}</span>` : ''}

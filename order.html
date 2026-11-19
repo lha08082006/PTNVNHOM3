@@ -16,6 +16,7 @@
     rel="stylesheet">
 
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
 
   <style>
     body { background: #f1f5f9; font-family: 'Be Vietnam Pro', sans-serif; color: #0f172a; }
@@ -34,15 +35,15 @@
     .row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px dashed #e2e8f0; font-size: 14px; }
     .row:last-child { border-bottom: 0; } .row span:first-child { color: #64748b; }
     .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 4px; position: relative; }
-    .step { text-align: center; font-size: 12px; color: #94a3b8; }
+    .step { text-align: center; font-size: 12px; color: #64748b; }
     .step .dot { width: 30px; height: 30px; margin: 0 auto 6px; border-radius: 50%; display: grid; place-items: center; background: #e2e8f0; color: #64748b; font-weight: 800; }
     .step.done { color: #166534; } .step.done .dot { background: #15803d; color: #fff; }
     .step.active { color: #1e40af; font-weight: 700; } .step.active .dot { background: #fff; border: 3px solid #2563eb; color: #2563eb; }
-    .step small { display: block; color: #94a3b8; font-weight: 500; margin-top: 2px; }
+    .step small { display: block; color: #64748b; font-weight: 500; margin-top: 2px; }
     .tl { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid #e2e8f0; }
     .tl li { position: relative; padding: 0 0 12px 12px; font-size: 13px; }
     .tl li::before { content: ''; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #2563eb; }
-    .tl time { display: block; color: #94a3b8; font-size: 11.5px; }
+    .tl time { display: block; color: #64748b; font-size: 12px; }
     .note { padding: 10px 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 13px; margin-bottom: 8px; }
     .note b { display: block; margin-bottom: 2px; }
     .callout { padding: 12px 14px; border-radius: 10px; font-size: 13.5px; line-height: 1.55; margin-top: 12px; }
@@ -59,7 +60,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -144,7 +145,7 @@
       const activeIdx = r.steps.findIndex(s => !s.done);
       const steps = r.steps.map((s, i) => `
         <div class="step ${s.done ? 'done' : i === activeIdx ? 'active' : ''}">
-          <div class="dot">${s.done ? '✓' : i + 1}</div>${esc(s.label)}
+          <div class="dot">${s.done ? '<i class=ph-check aria-hidden=true></i>' : i + 1}</div>${esc(s.label)}
           <small>${s.at ? Pay.fmtTime(s.at) : ''}</small>
         </div>`).join('');
       const form = r.needs_form ? `
@@ -176,7 +177,7 @@
 
       root.innerHTML = `
         <div class="od-card od-head">
-          <img src="${esc(m.poster)}" alt="">
+          <img loading="lazy" decoding="async" src="${esc(m.poster)}" alt="">
           <div class="meta">
             <div style="font-size: 12px; color: #64748b; font-weight: 700;">ĐƠN HÀNG <span style="font-family: monospace; color: #0f172a;">#${esc(o.code)}</span></div>
             <h1>${esc(m.shortTitle || m.title)} <span style="font-size: 13px; color: #ea580c;">${esc(m.age || '')}</span></h1>
@@ -200,14 +201,14 @@
               ${o.scan_until && o.status === 'EXPIRED' ? `<div class="row"><span>Đối soát tự động đến</span><span>${Pay.fmtTime(o.scan_until)}</span></div>` : ''}
             </div>
             <div class="actions">
-              ${o.has_ticket ? `<a class="btn btn-primary btn-sm" href="ticket.html?order=${encodeURIComponent(o.code)}">🎟️ Xem vé điện tử</a>` : ''}
-              ${o.status === 'PENDING' ? `<a class="btn btn-primary btn-sm" href="${Pay.routeFor(o)}">📱 Quay lại màn hình thanh toán</a>` : ''}
-              ${o.status === 'PENDING' && !o.paid_amount && window.BetaAuth && BetaAuth.isLoggedIn() ? `<button type="button" class="btn btn-outline btn-sm" onclick="Pay.confirmCancel('${esc(o.code)}', this)" style="color: #b91c1c; border-color: #fecaca;">✕ Hủy đơn & nhả ghế</button>` : ''}
-              ${o.has_ticket && window.BetaAuth && BetaAuth.isLoggedIn() ? `<button type="button" class="btn btn-outline btn-sm" onclick="Pay.resendTicketUI('${esc(o.code)}', this)">📧 Gửi lại vé qua email</button>` : ''}
-              ${canReport ? `<button class="btn btn-outline btn-sm" onclick="report()" style="color: #dc2626; border-color: #fca5a5;">📢 Báo lỗi: đã chuyển tiền nhưng chưa có vé</button>` : ''}
-              <a class="btn btn-outline btn-sm" href="betabot.html?order=${encodeURIComponent(o.code)}">🤖 Chat BetaBot hỗ trợ đối soát</a>
+              ${o.has_ticket ? `<a class="btn btn-primary btn-sm" href="ticket.html?order=${encodeURIComponent(o.code)}"><i class=ph-ticket aria-hidden=true></i> Xem vé điện tử</a>` : ''}
+              ${o.status === 'PENDING' ? `<a class="btn btn-primary btn-sm" href="${Pay.routeFor(o)}"><i class=ph-device-mobile aria-hidden=true></i> Quay lại màn hình thanh toán</a>` : ''}
+              ${o.status === 'PENDING' && !o.paid_amount && window.BetaAuth && BetaAuth.isLoggedIn() ? `<button type="button" class="btn btn-outline btn-sm" onclick="Pay.confirmCancel('${esc(o.code)}', this)" style="color: #b91c1c; border-color: #fecaca;"><i class=ph-x aria-hidden=true></i> Hủy đơn & nhả ghế</button>` : ''}
+              ${o.has_ticket && window.BetaAuth && BetaAuth.isLoggedIn() ? `<button type="button" class="btn btn-outline btn-sm" onclick="Pay.resendTicketUI('${esc(o.code)}', this)"><i class=ph-envelope aria-hidden=true></i> Gửi lại vé qua email</button>` : ''}
+              ${canReport ? `<button class="btn btn-outline btn-sm" onclick="report()" style="color: #dc2626; border-color: #fca5a5;"><i class=ph-megaphone aria-hidden=true></i> Báo lỗi: đã chuyển tiền nhưng chưa có vé</button>` : ''}
+              <a class="btn btn-outline btn-sm" href="betabot.html?order=${encodeURIComponent(o.code)}"><i class=ph-robot aria-hidden=true></i> Chat BetaBot hỗ trợ đối soát</a>
             </div>
-            ${reported ? `<div style="font-size: 12.5px; color: #475569; margin-top: 8px;">✓ Đã gửi phiếu hỗ trợ #${esc(o.tickets.find(t => t.type === 'PAYMENT_REPORT').code)} – CSKH đã có đủ thông tin đơn.</div>` : ''}
+            ${reported ? `<div style="font-size: 12.5px; color: #475569; margin-top: 8px;"><i class=ph-check aria-hidden=true></i> Đã gửi phiếu hỗ trợ #${esc(o.tickets.find(t => t.type === 'PAYMENT_REPORT').code)} – CSKH đã có đủ thông tin đơn.</div>` : ''}
           </div>
 
           ${refunds.length ? `<div class="od-card" style="margin-top: 18px;"><h2>Tiến trình hoàn tiền</h2>${refunds.map(refundBlock).join('<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 16px 0;">')}</div>` : ''}
@@ -216,7 +217,7 @@
         <div>
           <div class="od-card">
             <h2>Thông báo đã gửi</h2>
-            ${(o.notifications || []).length ? o.notifications.map(n => `<div class="note"><b>${esc(n.title)}</b>${esc(n.message)}<div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">${Pay.fmtTime(n.at)} · ${(n.channels || []).filter(c => c !== 'SMS').map(c => ({ WEB: 'Website', EMAIL: 'Email' })[c] || c).join(', ')}</div></div>`).join('') : '<div style="color: #94a3b8; font-size: 13px;">Chưa có thông báo.</div>'}
+            ${(o.notifications || []).length ? o.notifications.map(n => `<div class="note"><b>${esc(n.title)}</b>${esc(n.message)}<div style="color: #64748b; font-size: 12px; margin-top: 4px;">${Pay.fmtTime(n.at)} · ${(n.channels || []).filter(c => c !== 'SMS').map(c => ({ WEB: 'Website', EMAIL: 'Email' })[c] || c).join(', ')}</div></div>`).join('') : '<div style="color: #94a3b8; font-size: 13px;">Chưa có thông báo.</div>'}
           </div>
           <div class="od-card" style="margin-top: 18px;">
             <h2>Lịch sử xử lý</h2>

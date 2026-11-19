@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
   <style>
     /* Page Layout */
     .betabot-page {
@@ -431,7 +432,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         
@@ -466,7 +467,7 @@
           <option>Beta Bắc Giang</option>
           <option>Beta Nha Trang</option>
         </select>
-        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+        <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
       </div>
 
       <!-- Main Navigation Menu -->
@@ -488,8 +489,8 @@
     <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
       <div>
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-          <span style="background: rgba(255, 90, 60, 0.25); border: 1px solid #FF5A3C; color: #ffaa80; padding: 2px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800;">
-            🤖 AI SUPPORT 24/7
+          <span style="background: rgba(255, 90, 60, 0.25); border: 1px solid #FF5A3C; color: #ffaa80; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 800;">
+            <i class="ph-robot" aria-hidden="true"></i> AI SUPPORT 24/7
           </span>
           <span style="font-size: 13px; color: #bfdbfe;">• Đối soát & Xử lý sự cố giao dịch tức thì</span>
         </div>
@@ -527,27 +528,27 @@
             </p>
 
             <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; text-align: left;">
-              <div style="font-size: 11.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px;">
+              <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 10px;">
                 Tác vụ nhanh thường gặp:
               </div>
 
               <button class="bot-quick-action-btn" onclick="triggerQuickAction('reconcile')">
-                <span>⚡ Đã thanh toán nhưng chưa có vé</span>
+                <span><i class="ph-lightning" aria-hidden="true"></i> Đã thanh toán nhưng chưa có vé</span>
                 <span style="color: #94a3b8;">→</span>
               </button>
 
               <button class="bot-quick-action-btn" onclick="triggerQuickAction('refund')">
-                <span>🔍 Kiểm tra tiến độ hoàn tiền</span>
+                <span><i class="ph-magnifying-glass" aria-hidden="true"></i> Kiểm tra tiến độ hoàn tiền</span>
                 <span style="color: #94a3b8;">→</span>
               </button>
 
               <button class="bot-quick-action-btn" onclick="triggerQuickAction('complaint')">
-                <span>📝 Khiếu nại giao dịch 24h</span>
+                <span><i class="ph-note-pencil" aria-hidden="true"></i> Khiếu nại giao dịch 24h</span>
                 <span style="color: #94a3b8;">→</span>
               </button>
 
               <button class="bot-quick-action-btn" onclick="triggerQuickAction('find_ticket')">
-                <span>🎟️ Tra cứu vé đã mua</span>
+                <span><i class="ph-ticket" aria-hidden="true"></i> Tra cứu vé đã mua</span>
                 <span style="color: #94a3b8;">→</span>
               </button>
             </div>
@@ -556,7 +557,7 @@
           <!-- Thông tin hỗ trợ khẩn cấp -->
           <div style="background: white; border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0;">
             <div style="font-size: 13px; font-weight: 800; color: var(--beta-navy); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-              <span>📞</span> Cần Gặp Nhân Viên Trực Tiếp?
+              <span><i class="ph-phone" aria-hidden="true"></i></span> Cần Gặp Nhân Viên Trực Tiếp?
             </div>
             <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin-bottom: 10px;">
               Tổng đài viên Beta Cinemas làm việc từ 08:00 - 22:00 tất cả các ngày trong tuần.
@@ -579,9 +580,9 @@
                 <div>
                   <div style="font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
                     <span>BetaBot</span>
-                    <span style="font-size: 10px; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: 800;">AI BOT</span>
+                    <span style="font-size: 12px; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: 800;">AI BOT</span>
                   </div>
-                  <div style="font-size: 11.5px; color: #10b981; font-weight: 600;">
+                  <div style="font-size: 12px; color: #10b981; font-weight: 600;">
                     ● Hỗ trợ đối soát & hoàn tiền 24/7
                   </div>
                 </div>
@@ -589,10 +590,10 @@
 
               <div style="display: flex; gap: 8px; align-items: center;">
                 <button onclick="toggleChatTheme()" class="btn btn-outline btn-sm" id="btn-theme-toggle" style="padding: 4px 10px; font-size: 12px; height: 32px;" title="Chuyển đổi giao diện Sáng / Tối">
-                  🌙 Giao diện Tối
+                  <i class="ph-moon" aria-hidden="true"></i> Giao diện Tối
                 </button>
                 <button onclick="resetConversation()" class="btn btn-outline btn-sm" style="padding: 4px 10px; font-size: 12px; height: 32px;" title="Bắt đầu lại cuộc trò chuyện">
-                  🔄 Làm mới
+                  <i class="ph-arrows-clockwise" aria-hidden="true"></i> Làm mới
                 </button>
               </div>
             </div>
@@ -602,7 +603,7 @@
               
               <!-- Tin nhắn 1: Bot Chào Mừng -->
               <div class="msg-row bot">
-                <img src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
+                <img loading="lazy" decoding="async" src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
                 <div class="bot-bubble">
                   <p style="margin-bottom: 8px;">
                     Xin chào! Mình là <strong>BetaBot</strong> — Trợ lý AI hỗ trợ đối soát & giải quyết sự cố thanh toán tự động của Beta Cinemas.
@@ -613,13 +614,13 @@
                   
                   <div class="chat-chips-group">
                     <button class="chat-chip-btn" onclick="triggerQuickAction('reconcile')">
-                      ⚡ Đã thanh toán nhưng không xuất được vé
+                      <i class="ph-lightning" aria-hidden="true"></i> Đã thanh toán nhưng không xuất được vé
                     </button>
                     <button class="chat-chip-btn" onclick="triggerQuickAction('refund')">
-                      🔍 Kiểm tra trạng thái hoàn tiền
+                      <i class="ph-magnifying-glass" aria-hidden="true"></i> Kiểm tra trạng thái hoàn tiền
                     </button>
                     <button class="chat-chip-btn" onclick="triggerQuickAction('complaint')">
-                      📝 Khiếu nại chuyển khoản khác
+                      <i class="ph-note-pencil" aria-hidden="true"></i> Khiếu nại chuyển khoản khác
                     </button>
                   </div>
                 </div>
@@ -636,7 +637,7 @@
                      onkeydown="handleInputKey(event)">
               <button class="chat-send-btn" onclick="sendMessage()">
                 <span>Gửi</span>
-                <span>➤</span>
+                <span><i class="ph-paper-plane-right" aria-hidden="true"></i></span>
               </button>
             </div>
 
@@ -668,7 +669,7 @@
             Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
           </p>
           <div>
-            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+            <img loading="lazy" decoding="async" src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
           </div>
         </div>
 
@@ -710,9 +711,9 @@
 
           <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VNPAY-QR</span>
-            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MoMo</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VNPAY-QR</span>
+            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">MoMo</span>
           </div>
         </div>
 
@@ -730,16 +731,16 @@
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -802,10 +803,10 @@
       const btn = document.getElementById('btn-theme-toggle');
       if (isDarkMode) {
         card.classList.add('dark-theme');
-        btn.textContent = '☀️ Giao diện Sáng';
+        btn.innerHTML = '<i class=ph-sun aria-hidden=true></i> Giao diện Sáng';
       } else {
         card.classList.remove('dark-theme');
-        btn.textContent = '🌙 Giao diện Tối';
+        btn.innerHTML = '<i class=ph-moon aria-hidden=true></i> Giao diện Tối';
       }
     }
 
@@ -847,7 +848,7 @@
       const row = document.createElement('div');
       row.className = 'msg-row bot';
       row.innerHTML = `
-        <img src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
+        <img loading="lazy" decoding="async" src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
         <div class="bot-bubble">${htmlContent}</div>
       `;
       chatBox.appendChild(row);
@@ -864,7 +865,7 @@
       typingRow.id = typingId;
       typingRow.className = 'msg-row bot';
       typingRow.innerHTML = `
-        <img src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
+        <img loading="lazy" decoding="async" src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
         <div class="bot-bubble" style="font-style: italic; color: #64748b;">
           BetaBot đang xử lý dữ liệu...
         </div>
@@ -894,9 +895,9 @@
             <p>BetaBot đã nhận thông tin: <em>"${escapeHtml(text)}"</em>.</p>
             <p style="margin-top: 6px;">Tôi có thể giúp bạn giải quyết các vấn đề sau ngay lập tức:</p>
             <div class="chat-chips-group">
-              <button class="chat-chip-btn" onclick="triggerQuickAction('reconcile')">⚡ Đối soát chuyển khoản VietQR</button>
-              <button class="chat-chip-btn" onclick="triggerQuickAction('refund')">🔍 Kiểm tra hoàn tiền</button>
-              <button class="chat-chip-btn" onclick="triggerQuickAction('complaint')">📝 Khiếu nại sự cố</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('reconcile')"><i class=ph-lightning aria-hidden=true></i> Đối soát chuyển khoản VietQR</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('refund')"><i class=ph-magnifying-glass aria-hidden=true></i> Kiểm tra hoàn tiền</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('complaint')"><i class=ph-note-pencil aria-hidden=true></i> Khiếu nại sự cố</button>
             </div>
           `);
         }
@@ -1001,7 +1002,7 @@
           setTimeout(() => {
             appendBotMessage(`
               <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                <span style="color: #10b981; font-size: 20px;">✓</span>
+                <span style="color: #10b981; font-size: 20px;"><i class=ph-check aria-hidden=true></i></span>
                 <strong style="font-size: 15px; color: #005198;">ĐỐI SOÁT THÀNH CÔNG - ĐÃ CẤP VÉ!</strong>
               </div>
               <div class="form-subcard" style="border-left: 4px solid #10b981;">
@@ -1017,7 +1018,7 @@
                   <strong style="font-family:monospace;">${txid}</strong>
                 </div>
                 <a href="${res.ticket_url || 'ticket.html?order=' + res.code}" class="btn btn-primary btn-sm" style="background:#10b981; border:none; width:100%; text-align:center; font-weight:800; display:block;">
-                  🎟️ Mở Vé Xem Phim Ngay →
+                  <i class=ph-ticket aria-hidden=true></i> Mở Vé Xem Phim Ngay →
                 </a>
               </div>
             `);
@@ -1029,7 +1030,7 @@
           setTimeout(() => {
             appendBotMessage(`
               <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                <span style="color: #d97706; font-size: 20px;">⚠️</span>
+                <span style="color: #d97706; font-size: 20px;"><i class=ph-warning aria-hidden=true></i></span>
                 <strong style="font-size: 15px; color: #b45309;">GIAO DỊCH QUÁ HẠN GIỮ GHẾ</strong>
               </div>
               <div class="form-subcard" style="border-left: 4px solid #f59e0b;">
@@ -1037,7 +1038,7 @@
                   ${res.message}
                 </p>
                 <a href="${res.refund_url || 'refund.html?order=' + res.code}" class="btn btn-primary btn-sm" style="background:#f59e0b; border:none; width:100%; text-align:center; font-weight:800; display:block;">
-                  💸 Nhận Lại Tiền Hoàn 100% Ngay →
+                  <i class=ph-money-wavy aria-hidden=true></i> Nhận Lại Tiền Hoàn 100% Ngay →
                 </a>
               </div>
             `);
@@ -1049,7 +1050,7 @@
         setTimeout(() => {
           appendBotMessage(`
             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-              <span style="color: #4f46e5; font-size: 20px;">📝</span>
+              <span style="color: #4f46e5; font-size: 20px;"><i class=ph-note-pencil aria-hidden=true></i></span>
               <strong style="font-size: 15px; color: #4338ca;">ĐÃ TẠO PHIẾU KHIẾU NẠI CSKH</strong>
             </div>
             <div class="form-subcard" style="border-left: 4px solid #6366f1;">
@@ -1072,7 +1073,7 @@
         setTimeout(() => {
           appendBotMessage(`
             <div style="color: #b91c1c; font-size: 13.5px;">
-              ⚠️ Không thể kết nối cổng đối soát: ${err.message}. Vui lòng thử lại hoặc gọi Hotline 1900 636 807!
+              <i class=ph-warning aria-hidden=true></i> Không thể kết nối cổng đối soát: ${err.message}. Vui lòng thử lại hoặc gọi Hotline 1900 636 807!
             </div>
           `);
         }, 500);
@@ -1112,19 +1113,19 @@
             <div class="chat-stepper">
               <div class="chat-step-item">
                 <div class="chat-step-bar done"></div>
-                <div style="font-size: 11px; font-weight: 700; color: #10b981;">Đã tiếp nhận</div>
+                <div style="font-size: 12px; font-weight: 700; color: #10b981;">Đã tiếp nhận</div>
               </div>
               <div class="chat-step-item">
                 <div class="chat-step-bar active"></div>
-                <div style="font-size: 11px; font-weight: 700; color: #FF5A3C;">Đang đối soát</div>
+                <div style="font-size: 12px; font-weight: 700; color: #FF5A3C;">Đang đối soát</div>
               </div>
               <div class="chat-step-item">
                 <div class="chat-step-bar"></div>
-                <div style="font-size: 11px; font-weight: 600; color: #94a3b8;">Đã hoàn tiền</div>
+                <div style="font-size: 12px; font-weight: 600; color: #64748b;">Đã hoàn tiền</div>
               </div>
             </div>
             <p style="font-size: 12px; color: #64748b; margin-top: 8px; text-align: center;">
-              ⏱️ Dự kiến hoàn tất và tiền về tài khoản trong <strong>5 - 15 phút</strong>.
+              <i class=ph-timer aria-hidden=true></i> Dự kiến hoàn tất và tiền về tài khoản trong <strong>5 - 15 phút</strong>.
             </p>
           </div>
         </div>
@@ -1135,7 +1136,7 @@
     function renderComplaintFlow() {
       appendBotMessage(`
         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-          <span style="color: #f59e0b; font-size: 16px;">⚠️</span>
+          <span style="color: #f59e0b; font-size: 16px;"><i class=ph-warning aria-hidden=true></i></span>
           <strong style="font-size: 14.5px;">KHIẾU NẠI SỰ CỐ THANH TOÁN 24H</strong>
         </div>
         <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
@@ -1194,7 +1195,7 @@
         const esc = (x) => String(x || '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
         appendBotMessage(`
           <div style="text-align: center; padding: 10px 0;">
-            <div style="font-size: 28px; margin-bottom: 6px;">🎉</div>
+            <div style="font-size: 28px; margin-bottom: 6px;"><i class=ph-confetti aria-hidden=true></i></div>
             <strong style="color: #059669; font-size: 15px;">ĐÃ TIẾP NHẬN KHIẾU NẠI THÀNH CÔNG!</strong>
             <p style="font-size: 13px; color: #475569; margin: 6px 0 10px;">
               Mã hồ sơ: <strong>#${esc(r.ticket_code)}</strong> · Trạng thái đơn: <strong>${esc(r.status_label)}</strong>.<br>
@@ -1213,7 +1214,7 @@
     function resetConversation() {
       chatBox.innerHTML = `
         <div class="msg-row bot">
-          <img src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
+          <img loading="lazy" decoding="async" src="images/betabot-avatar.webp" alt="Bot" class="msg-avatar" onerror="this.onerror=null; this.src='images/logo-official.png'">
           <div class="bot-bubble">
             <p style="margin-bottom: 8px;">
               Xin chào! Mình là <strong>BetaBot</strong> — Trợ lý AI hỗ trợ đối soát & giải quyết sự cố thanh toán tự động của Beta Cinemas.
@@ -1222,9 +1223,9 @@
               Bạn đang gặp tình huống nào cần xử lý ngay?
             </p>
             <div class="chat-chips-group">
-              <button class="chat-chip-btn" onclick="triggerQuickAction('reconcile')">⚡ Đã thanh toán nhưng không xuất được vé</button>
-              <button class="chat-chip-btn" onclick="triggerQuickAction('refund')">🔍 Kiểm tra trạng thái hoàn tiền</button>
-              <button class="chat-chip-btn" onclick="triggerQuickAction('complaint')">📝 Khiếu nại chuyển khoản khác</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('reconcile')"><i class=ph-lightning aria-hidden=true></i> Đã thanh toán nhưng không xuất được vé</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('refund')"><i class=ph-magnifying-glass aria-hidden=true></i> Kiểm tra trạng thái hoàn tiền</button>
+              <button class="chat-chip-btn" onclick="triggerQuickAction('complaint')"><i class=ph-note-pencil aria-hidden=true></i> Khiếu nại chuyển khoản khác</button>
             </div>
           </div>
         </div>
@@ -1255,31 +1256,31 @@
           <div class="form-subcard" style="border-left: 4px solid #3b82f6; background: #f8fafc; padding: 14px 16px; margin: 10px 0;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
               <div>
-                <span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">
-                  ⏳ ĐÃ TIẾP NHẬN BÁO CÁO - ĐANG XỬ LÝ HOÀN TIỀN
+                <span class="badge" style="background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">
+                  <i class=ph-hourglass-medium aria-hidden=true></i> ĐÃ TIẾP NHẬN BÁO CÁO - ĐANG XỬ LÝ HOÀN TIỀN
                 </span>
                 <h4 style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 6px;">${order.movieTitle}</h4>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 11px; color: #64748b;">Mã đơn hàng:</div>
+                <div style="font-size: 12px; color: #64748b;">Mã đơn hàng:</div>
                 <strong style="font-family: monospace; font-size: 15px; color: #005198;">${order.code}</strong>
               </div>
             </div>
 
             <div style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 12px; background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
-              📍 Rạp: <strong>${order.cinema}</strong><br>
-              🕒 Suất chiếu: <strong>${order.showtime}</strong><br>
-              💺 Ghế: <strong>${order.seats}</strong><br>
-              💰 Số tiền đơn hàng: <strong style="color: #ff5400; font-size: 14px;">${new Intl.NumberFormat('vi-VN').format(order.total)} đ</strong><br>
-              ⏳ Tình trạng: <span style="font-weight: 700; color: #2563eb;">${order.statusText}</span>
+              <i class=ph-map-pin aria-hidden=true></i> Rạp: <strong>${order.cinema}</strong><br>
+              <i class=ph-clock aria-hidden=true></i> Suất chiếu: <strong>${order.showtime}</strong><br>
+              <i class=ph-armchair aria-hidden=true></i> Ghế: <strong>${order.seats}</strong><br>
+              <i class=ph-coins aria-hidden=true></i> Số tiền đơn hàng: <strong style="color: #ff5400; font-size: 14px;">${new Intl.NumberFormat('vi-VN').format(order.total)} đ</strong><br>
+              <i class=ph-hourglass-medium aria-hidden=true></i> Tình trạng: <span style="font-weight: 700; color: #2563eb;">${order.statusText}</span>
             </div>
 
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button class="btn btn-primary btn-sm" onclick="triggerQuickAction('reconcile')" style="background: #ff5400; border-color: #ff5400; font-weight: 700;">
-                ⚡ Đối Soát Chuyển Khoản Ngay
+                <i class=ph-lightning aria-hidden=true></i> Đối Soát Chuyển Khoản Ngay
               </button>
               <button class="btn btn-outline btn-sm" onclick="triggerQuickAction('complaint')" style="border-color: #cbd5e1; color: #005198; font-weight: 700;">
-                📝 Gửi Phiếu Khiếu Nại CSKH
+                <i class=ph-note-pencil aria-hidden=true></i> Gửi Phiếu Khiếu Nại CSKH
               </button>
               <a href="account.html" class="btn btn-outline btn-sm" style="color: #64748b;">
                 ← Quay Lại Lịch Sử Đơn

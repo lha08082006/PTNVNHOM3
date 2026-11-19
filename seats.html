@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
   
   <style>
     :root {
@@ -296,7 +297,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -331,7 +332,7 @@
           <option value="Beta Bắc Giang">Beta Bắc Giang</option>
           <option value="Beta Nha Trang">Beta Nha Trang</option>
         </select>
-        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+        <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
       </div>
 
       <!-- Main Navigation Menu -->
@@ -359,7 +360,7 @@
         <span id="subbar-cinema">Beta Thanh Xuân</span> · <span id="subbar-date">Hôm nay</span> · <span id="subbar-time" style="color: var(--status-warning);">12:15</span>
       </p>
       <div style="font-size: 13px; color: var(--status-warning); display: flex; align-items: center; gap: 6px;">
-        <span>⏳</span> Giữ ghế: <strong id="countdown-timer" style="font-family: monospace; font-size: 15px; color: var(--text-light);">10:00</strong> <span style="color: var(--text-muted, #94a3b8);">(bắt đầu khi thanh toán)</span>
+        <span><i class="ph-hourglass-medium" aria-hidden="true"></i></span> Giữ ghế: <strong id="countdown-timer" style="font-family: monospace; font-size: 15px; color: var(--text-light);">10:00</strong> <span style="color: var(--text-muted, #94a3b8);">(bắt đầu khi thanh toán)</span>
       </div>
     </div>
 
@@ -564,16 +565,16 @@
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>

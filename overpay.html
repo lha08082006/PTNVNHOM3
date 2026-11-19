@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
 
   <style>
     body {
@@ -232,7 +233,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -267,7 +268,7 @@
           <option>Beta Bắc Giang</option>
           <option>Beta Nha Trang</option>
         </select>
-        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
+        <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
       </div>
 
       <!-- Main Navigation Menu -->
@@ -288,9 +289,9 @@
   <div style="background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 0;">
     <div class="container">
       <ol style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; list-style: none; padding: 0; margin: 0;">
-        <li class="st-step"><b class="st-badge done">✓</b> Chọn suất &amp; vé</li>
-        <li class="st-step"><b class="st-badge done">✓</b> Chọn ghế</li>
-        <li class="st-step active"><b class="st-badge done">✓</b> Thanh toán (Vé đã cấp · Có tiền hoàn thừa)</li>
+        <li class="st-step"><b class="st-badge done"><i class="ph-check" aria-hidden="true"></i></b> Chọn suất &amp; vé</li>
+        <li class="st-step"><b class="st-badge done"><i class="ph-check" aria-hidden="true"></i></b> Chọn ghế</li>
+        <li class="st-step active"><b class="st-badge done"><i class="ph-check" aria-hidden="true"></i></b> Thanh toán (Vé đã cấp · Có tiền hoàn thừa)</li>
       </ol>
     </div>
   </div>
@@ -335,13 +336,13 @@
           </div>
 
           <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; font-weight: 700; color: #166534; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
-            <span>🛡️</span>
+            <span><i class="ph-shield-check" aria-hidden="true"></i></span>
             <span>Phần tiền thừa sẽ được hoàn lại đầy đủ 100% về tài khoản ngân hàng của bạn.</span>
           </div>
 
           <div style="margin-top: 4px;">
             <a id="btn-view-ticket" href="ticket.html" class="btn btn-primary" style="background: #005198; border-color: #005198; font-weight: 800; border-radius: 10px; width: 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; min-height: 44px;">
-              <span>🎟️</span> Xem Vé Điện Tử (E-Ticket) Ngay →
+              <span><i class="ph-ticket" aria-hidden="true"></i></span> Xem Vé Điện Tử (E-Ticket) Ngay →
             </a>
           </div>
         </section>
@@ -349,7 +350,7 @@
         <!-- CARD 2: THÔNG TIN HÓA ĐƠN VÉ -->
         <section class="c-card">
           <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800; color: #005198; margin: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
-            📋 Thông Tin Hóa Đơn Vé
+            <i class="ph-clipboard-text" aria-hidden="true"></i> Thông Tin Hóa Đơn Vé
           </h3>
 
           <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -412,7 +413,7 @@
       <div>
         <section class="c-card" id="overpay-form-card">
           <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: #005198; margin: 0;">
-            🏦 Thông Tin Nhận Hoàn Tiền
+            <i class="ph-bank" aria-hidden="true"></i> Thông Tin Nhận Hoàn Tiền
           </h3>
           <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">
             Vui lòng điền thông tin tài khoản ngân hàng để Beta Cinemas hoàn lại số tiền thừa:
@@ -421,7 +422,7 @@
           <!-- Success Alert sau khi gửi -->
           <div id="refund-success-alert" class="success-refund-box">
             <div style="width: 48px; height: 48px; background: #d1fae5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 10px;">
-              ✓
+              <i class="ph-check" aria-hidden="true"></i>
             </div>
             <h4 style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: #065f46; margin: 0 0 6px;">
               ĐÃ TIẾP NHẬN YÊU CẦU HOÀN TIỀN THỪA!
@@ -526,8 +527,8 @@
         <div>
           <h4 class="footer-official-title">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR / SePay</span>
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MB Bank</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
+            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">MB Bank</span>
           </div>
         </div>
       </div>
@@ -540,16 +541,16 @@
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -586,10 +587,10 @@
       if (!ex) { box.textContent = 'Chưa ghi nhận khoản chuyển thừa cho đơn này.'; return; }
       const done = ex.status === 'DONE';
       box.innerHTML = done
-        ? `✅ <strong>Đã gửi lệnh hoàn ${Pay.vnd(ex.amount)} tiền thừa</strong> về ${ex.source_account ? (ex.source_account.bank_name + ' ' + ex.source_account.acc_masked) : 'tài khoản đã chuyển'} (mã ${ex.refund_ref || ex.code}). Tiền về tùy ngân hàng, thường 3–7 ngày làm việc.`
+        ? `<i class=ph-check-circle aria-hidden=true></i> <strong>Đã gửi lệnh hoàn ${Pay.vnd(ex.amount)} tiền thừa</strong> về ${ex.source_account ? (ex.source_account.bank_name + ' ' + ex.source_account.acc_masked) : 'tài khoản đã chuyển'} (mã ${ex.refund_ref || ex.code}). Tiền về tùy ngân hàng, thường 3–7 ngày làm việc.`
         : ex.needs_form
-          ? `⚠️ Hệ thống chưa tự hoàn được ${Pay.vnd(ex.amount)} tiền thừa. <a href="refund.html?order=${encodeURIComponent(ord.code)}" style="font-weight: 800;">Điền biểu mẫu nhận hoàn tiền →</a>`
-          : `🔄 Hệ thống đang <strong>tự động hoàn ${Pay.vnd(ex.amount)}</strong> về tài khoản bạn đã chuyển (gửi lại mỗi 30 phút, tối đa 24 giờ). Bạn không cần điền thông tin.`;
+          ? `<i class=ph-warning aria-hidden=true></i> Hệ thống chưa tự hoàn được ${Pay.vnd(ex.amount)} tiền thừa. <a href="refund.html?order=${encodeURIComponent(ord.code)}" style="font-weight: 800;">Điền biểu mẫu nhận hoàn tiền →</a>`
+          : `<i class=ph-arrows-clockwise aria-hidden=true></i> Hệ thống đang <strong>tự động hoàn ${Pay.vnd(ex.amount)}</strong> về tài khoản bạn đã chuyển (gửi lại mỗi 30 phút, tối đa 24 giờ). Bạn không cần điền thông tin.`;
       box.innerHTML += ` <a href="${trackUrl}" style="font-weight: 700;">Theo dõi chi tiết →</a>`;
     }
 

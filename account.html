@@ -13,6 +13,7 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="css/prototype-theme.css">
+  <link rel="stylesheet" href="css/icons.css">
   <style>
     /* Virtual Member Card */
     .member-virtual-card {
@@ -39,7 +40,7 @@
     .card-rank-badge {
       background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
       color: #78350f;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 900;
       padding: 4px 12px;
       border-radius: var(--radius-full);
@@ -174,7 +175,7 @@
     }
 
     .filter-tab-count {
-      font-size: 11px;
+      font-size: 12px;
       background: rgba(0, 0, 0, 0.08);
       padding: 2px 7px;
       border-radius: 999px;
@@ -427,7 +428,7 @@
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span>📞 Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
+        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span>
       </div>
       <div class="top-auth-links">
         
@@ -508,7 +509,7 @@
         <div style="text-align: right;">
           <div style="font-size: 12px; opacity: 0.8; text-transform: uppercase;">Tổng Chi Tiêu</div>
           <div style="font-family: var(--font-display); font-size: 28px; font-weight: 900; color: #fde047;" id="member-spend">0 đ</div>
-          <div style="font-size: 11.5px; opacity: 0.8;"><span id="member-paid-count">0</span> đơn đã xuất vé</div>
+          <div style="font-size: 12px; opacity: 0.8;"><span id="member-paid-count">0</span> đơn đã xuất vé</div>
         </div>
       </div>
     </div>
@@ -518,17 +519,17 @@
       <!-- Sidebar -->
       <aside class="account-sidebar">
         <button class="account-nav-btn active" id="btn-tab-orders" onclick="switchAccountTab('orders')">
-          <span>🎟️</span> Lịch Sử Đặt Vé & Đơn Hàng
+          <span><i class="ph-ticket" aria-hidden="true"></i></span> Lịch Sử Đặt Vé & Đơn Hàng
         </button>
         <button class="account-nav-btn" id="btn-tab-profile" onclick="switchAccountTab('profile')">
-          <span>👤</span> Thông Tin Cá Nhân
+          <span><i class="ph-user" aria-hidden="true"></i></span> Thông Tin Cá Nhân
         </button>
         <button class="account-nav-btn" id="btn-tab-password" onclick="switchAccountTab('password')">
-          <span>🔒</span> Đổi Mật Khẩu
+          <span><i class="ph-lock" aria-hidden="true"></i></span> Đổi Mật Khẩu
         </button>
         <div style="border-top: 1px solid #f1f5f9; margin: 12px 0;"></div>
         <a href="support.html" class="account-nav-btn" style="color: var(--beta-navy);">
-          <span>💬</span> Khiếu Nại & CSKH
+          <span><i class="ph-chat-circle-dots" aria-hidden="true"></i></span> Khiếu Nại & CSKH
         </a>
       </aside>
 
@@ -570,13 +571,13 @@
               <span class="filter-tab-count" id="count-unrefunded" style="background: #fef3c7; color: #b45309;">0</span>
             </button>
             <button class="filter-tab-btn" data-filter="refunded" onclick="applyOrderFilter('refunded', this)" style="border-color: #bfdbfe;">
-              <span style="color: #1e40af; font-weight: 700;">🎉 Đã hoàn tiền</span>
+              <span style="color: #1e40af; font-weight: 700;"><i class="ph-confetti" aria-hidden="true"></i> Đã hoàn tiền</span>
               <span class="filter-tab-count" id="count-refunded" style="background: #dbeafe; color: #1e40af;">0</span>
             </button>
           </div>
 
           <div class="filter-search-box">
-            <span class="filter-search-icon">🔍</span>
+            <span class="filter-search-icon"><i class="ph-magnifying-glass" aria-hidden="true"></i></span>
             <input aria-label="Tìm theo tên phim, rạp, mã đơn..." type="text" class="filter-search-input" id="orders-search-input"
               placeholder="Tìm theo tên phim, rạp, mã đơn..." oninput="searchOrders(this.value)">
           </div>
@@ -592,12 +593,12 @@
           <!-- Empty State (Khi lọc không có kết quả) -->
           <div id="orders-empty-state"
             style="display: none; text-align: center; padding: 40px 20px; background: white; border-radius: 16px; border: 1px dashed #cbd5e1; margin-top: 10px;">
-            <div style="font-size: 36px; margin-bottom: 10px;">🔍</div>
+            <div style="font-size: 36px; margin-bottom: 10px;"><i class="ph-magnifying-glass" aria-hidden="true"></i></div>
             <h4
               style="font-family: var(--font-display); font-size: 16px; font-weight: 800; color: #475569; margin-bottom: 6px;">
               Không tìm thấy đơn hàng nào phù hợp
             </h4>
-            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
               Vui lòng thử lại với từ khóa tìm kiếm khác hoặc chuyển sang tab "Tất cả".
             </p>
             <button class="btn btn-outline btn-sm"
@@ -696,7 +697,7 @@
             Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
           </p>
           <div>
-            <img src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
+            <img loading="lazy" decoding="async" src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
           </div>
         </div>
 
@@ -743,12 +744,12 @@
           <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
             <span
-              style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VietQR
+              style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR
               / SePay</span>
             <span
-              style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">VNPAY-QR</span>
+              style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VNPAY-QR</span>
             <span
-              style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800;">MoMo</span>
+              style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">MoMo</span>
           </div>
         </div>
 
@@ -767,17 +768,17 @@
       <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
     <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
-      <span class="fab-icon-open">⚡</span>
-      <span class="fab-icon-close" style="display: none;">✕</span>
+      <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
+      <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
     </button>
     <nav id="quick-dock-nav" class="prototype-dock quick-dock-menu" style="display: none;">
       <span class="dock-label">GIAO DIỆN:</span>
-      <a href="verify.html" class="dock-item" data-page="verify">⏳ Xác Minh GD</a>
-      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled">❌ Đơn Hủy</a>
-      <a href="refund.html" class="dock-item" data-page="refund">💸 Hoàn Tiền</a>
-      <a href="ticket-refunded.html" class="dock-item" data-page="ticket-refunded">🎉 Đã Hoàn</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn">✕</button>
+      <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
+      <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
+      <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
+      <a href="ticket-refunded.html" class="dock-item" data-page="ticket-refunded"><i class="ph-confetti" aria-hidden="true"></i> Đã Hoàn</a>
+      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -796,15 +797,15 @@
 
     // Nhóm bộ lọc theo trạng thái thật của đơn
     const STATUS_STYLE = {
-      PENDING:          { group: 'cancelled',  bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '⏳' },
-      EXPIRED:          { group: 'unrefunded', bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '🔎' },
-      CONFIRMED:        { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '✓' },
-      CONFIRMED_LATE:   { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '✓' },
-      REFUND_REQUESTED: { group: 'unrefunded', bg: '#dbeafe', fg: '#1e40af', bd: '#bfdbfe', bar: '#3b82f6', icon: '💸' },
-      MANUAL_REVIEW:    { group: 'unrefunded', bg: '#fee2e2', fg: '#991b1b', bd: '#fca5a5', bar: '#ef4444', icon: '📝' },
-      REFUNDED:         { group: 'refunded',   bg: '#e0e7ff', fg: '#3730a3', bd: '#c7d2fe', bar: '#6366f1', icon: '✓' },
-      CANCELLED:        { group: 'cancelled',  bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '✕' },
-      FAILED:           { group: 'cancelled',  bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '✕' }
+      PENDING:          { group: 'cancelled',  bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '<i class=ph-hourglass-medium aria-hidden=true></i>' },
+      EXPIRED:          { group: 'unrefunded', bg: '#fef3c7', fg: '#92400e', bd: '#fde68a', bar: '#f59e0b', icon: '<i class=ph-magnifying-glass aria-hidden=true></i>' },
+      CONFIRMED:        { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '<i class=ph-check aria-hidden=true></i>' },
+      CONFIRMED_LATE:   { group: 'upcoming',   bg: '#d1fae5', fg: '#065f46', bd: '#a7f3d0', bar: '#10b981', icon: '<i class=ph-check aria-hidden=true></i>' },
+      REFUND_REQUESTED: { group: 'unrefunded', bg: '#dbeafe', fg: '#1e40af', bd: '#bfdbfe', bar: '#3b82f6', icon: '<i class=ph-money-wavy aria-hidden=true></i>' },
+      MANUAL_REVIEW:    { group: 'unrefunded', bg: '#fee2e2', fg: '#991b1b', bd: '#fca5a5', bar: '#ef4444', icon: '<i class=ph-note-pencil aria-hidden=true></i>' },
+      REFUNDED:         { group: 'refunded',   bg: '#e0e7ff', fg: '#3730a3', bd: '#c7d2fe', bar: '#6366f1', icon: '<i class=ph-check aria-hidden=true></i>' },
+      CANCELLED:        { group: 'cancelled',  bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '<i class=ph-x aria-hidden=true></i>' },
+      FAILED:           { group: 'cancelled',  bg: '#f1f5f9', fg: '#475569', bd: '#cbd5e1', bar: '#64748b', icon: '<i class=ph-x aria-hidden=true></i>' }
     };
 
     function groupOf(o) {
@@ -830,23 +831,23 @@
       const stop = 'onclick="event.stopPropagation();"';
       let html = '';
       if (o.has_ticket) {
-        html += `<a href="ticket.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #005198; border-color: #005198; font-weight: 700;">🎟️ Xem vé</a>`;
-        html += `<a href="invoice.html?order=${c}" class="btn btn-outline btn-sm" ${stop} style="font-weight: 700;">🧾 Hóa đơn</a>`;
+        html += `<a href="ticket.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #005198; border-color: #005198; font-weight: 700;"><i class=ph-ticket aria-hidden=true></i> Xem vé</a>`;
+        html += `<a href="invoice.html?order=${c}" class="btn btn-outline btn-sm" ${stop} style="font-weight: 700;"><i class=ph-receipt aria-hidden=true></i> Hóa đơn</a>`;
       } else if (o.status === 'PENDING') {
-        html += `<a href="${Pay.routeFor(o)}" class="btn btn-primary btn-sm" ${stop} style="background: #ea580c; border-color: #ea580c; font-weight: 700;">📱 Tiếp tục thanh toán</a>`;
+        html += `<a href="${Pay.routeFor(o)}" class="btn btn-primary btn-sm" ${stop} style="background: #ea580c; border-color: #ea580c; font-weight: 700;"><i class=ph-device-mobile aria-hidden=true></i> Tiếp tục thanh toán</a>`;
       } else if (o.refund && o.refund.needs_form) {
-        html += `<a href="refund.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #dc2626; border-color: #dc2626; font-weight: 700;">📝 Điền biểu mẫu nhận hoàn tiền</a>`;
+        html += `<a href="refund.html?order=${c}" class="btn btn-primary btn-sm" ${stop} style="background: #dc2626; border-color: #dc2626; font-weight: 700;"><i class=ph-note-pencil aria-hidden=true></i> Điền biểu mẫu nhận hoàn tiền</a>`;
       }
-      html += `<a href="order.html?code=${c}" class="btn btn-outline btn-sm" ${stop} style="border-color: #005198; color: #005198; font-weight: 700;">📈 Theo dõi đơn hàng</a>`;
+      html += `<a href="order.html?code=${c}" class="btn btn-outline btn-sm" ${stop} style="border-color: #005198; color: #005198; font-weight: 700;"><i class=ph-trend-up aria-hidden=true></i> Theo dõi đơn hàng</a>`;
       return html;
     }
 
     function refundMini(o) {
       const r = o.refund;
       if (!r) return '';
-      const dots = r.steps.map(s => `<span title="${esc(s.label)}" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: ${s.done ? '#166534' : '#94a3b8'}; font-weight: ${s.done ? 700 : 500};"><span style="width: 14px; height: 14px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 9px; background: ${s.done ? '#15803d' : '#e2e8f0'}; color: #fff;">${s.done ? '✓' : ''}</span>${esc(s.label)}</span>`).join('<span style="color: #cbd5e1;">—</span>');
+      const dots = r.steps.map(s => `<span title="${esc(s.label)}" style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: ${s.done ? '#166534' : '#94a3b8'}; font-weight: ${s.done ? 700 : 500};"><span style="width: 14px; height: 14px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 12px; background: ${s.done ? '#15803d' : '#e2e8f0'}; color: #fff;">${s.done ? '<i class=ph-check aria-hidden=true></i>' : ''}</span>${esc(s.label)}</span>`).join('<span style="color: #cbd5e1;">—</span>');
       return `<div style="margin: -4px 0 12px; padding: 8px 10px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
-        <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">💸 Hoàn <strong>${Pay.vnd(r.amount)}</strong> · ${esc(r.reason_label)}${r.is_manual ? ' · thủ công' : ' · tự động'}</div>
+        <div style="font-size: 12px; color: #475569; margin-bottom: 6px;"><i class=ph-money-wavy aria-hidden=true></i> Hoàn <strong>${Pay.vnd(r.amount)}</strong> · ${esc(r.reason_label)}${r.is_manual ? ' · thủ công' : ' · tự động'}</div>
         <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">${dots}</div>
       </div>`;
     }
@@ -861,25 +862,25 @@
       card.title = 'Bấm để theo dõi đơn hàng';
       card.onclick = () => { location.href = 'order.html?code=' + encodeURIComponent(o.code); };
       card.innerHTML = `
-        <img class="order-item-poster" src="${esc(m.poster)}" alt="" onerror="this.src='images/400x633-145627-230926-40.jpg'">
+        <img loading="lazy" decoding="async" class="order-item-poster" src="${esc(m.poster)}" alt="" onerror="this.src='images/400x633-145627-230926-40.jpg'">
         <div style="flex: 1; min-width: 0;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
             <div>
-              <span class="badge" style="background: ${st.bg}; color: ${st.fg}; border: 1px solid ${st.bd}; font-size: 11px; font-weight: 800;">${st.icon} ${esc(o.status_label).toUpperCase()}</span>
+              <span class="badge" style="background: ${st.bg}; color: ${st.fg}; border: 1px solid ${st.bd}; font-size: 12px; font-weight: 800;">${st.icon} ${esc(o.status_label).toUpperCase()}</span>
               <h4 style="font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 6px;">${esc(m.title)}</h4>
               ${o.status_sublabel ? `<div style="font-size: 12px; color: #64748b;">${esc(o.status_sublabel)}</div>` : ''}
             </div>
             <div style="text-align: right;">
-              <div style="font-size: 11px; color: #64748b;">Mã đơn:</div>
+              <div style="font-size: 12px; color: #64748b;">Mã đơn:</div>
               <strong style="font-family: monospace; font-size: 14px; color: #005198;">${esc(o.code)}</strong>
             </div>
           </div>
           <div style="font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.6;">
-            📍 Rạp: <strong>${esc(o.cinema)}</strong><br>
-            🕒 Suất: <strong>${esc(o.show_time)} • ${esc(o.show_date)}</strong><br>
-            📅 Thời gian đặt vé: <strong>${new Date(o.created_at).toLocaleString('vi-VN')}</strong><br>
-            💺 Ghế: <strong>${esc((o.seats || []).join(', '))}</strong><br>
-            💳 Giá trị đơn: <strong>${Pay.vnd(o.total)}</strong> · Đã nhận: <strong>${Pay.vnd(o.paid_amount)}</strong>
+            <i class=ph-map-pin aria-hidden=true></i> Rạp: <strong>${esc(o.cinema)}</strong><br>
+            <i class=ph-clock aria-hidden=true></i> Suất: <strong>${esc(o.show_time)} • ${esc(o.show_date)}</strong><br>
+            <i class=ph-calendar aria-hidden=true></i> Thời gian đặt vé: <strong>${new Date(o.created_at).toLocaleString('vi-VN')}</strong><br>
+            <i class=ph-armchair aria-hidden=true></i> Ghế: <strong>${esc((o.seats || []).join(', '))}</strong><br>
+            <i class=ph-credit-card aria-hidden=true></i> Giá trị đơn: <strong>${Pay.vnd(o.total)}</strong> · Đã nhận: <strong>${Pay.vnd(o.paid_amount)}</strong>
           </div>
           ${refundMini(o)}
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">${orderActions(o)}</div>
