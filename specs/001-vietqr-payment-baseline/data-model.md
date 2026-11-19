@@ -54,10 +54,8 @@ DUPLICATE, RECOVERED, UNMATCHED, IGNORED, ERROR; `note`.
 `code` unique `CS-YYMM-NNN`; `bank_ref`; `order_code`; `phone`; `amount`; `description`;
 `status` OPEN | RESOLVED.
 
-## Lệch giữa code và schema (cần sửa)
+## Lệch giữa code và schema (đã sửa 2026-11-19)
 
-- Webhook truyền `raw_payload`/`refund_id` nhưng `saveBankTransaction` chỉ đọc `raw`, nên `raw` lưu cả
-  object đã trộn thay vì payload gốc; liên kết giao dịch ↔ hồ sơ hoàn chỉ có ở `refunds.bank_tx_id`
-  mà hiện không được điền.
-- Lỗi ghi Supabase bị nuốt và âm thầm rơi về Mock Store (mất dữ liệu ở production).
-- `seat_holds` không bao giờ được chuyển SOLD hoặc nhả khi đơn hết hạn.
+- ~~`raw` lưu object đã trộn~~ → `raw` lưu nguyên payload SePay; `refunds.bank_tx_id` được điền.
+- ~~Lỗi Supabase bị nuốt, rơi về Mock Store~~ → ở production (`NODE_ENV=production`) lỗi được ném ra.
+- ~~`seat_holds` không chuyển SOLD / không nhả~~ → PAID → SOLD; EXPIRED/CANCELLED → xóa giữ ghế.

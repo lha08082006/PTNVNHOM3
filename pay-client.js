@@ -106,6 +106,12 @@ const Pay = {
     }
   },
 
+  // Chỉ dùng chế độ mô phỏng local khi KHÔNG kết nối được backend (mất mạng / Live Server 405).
+  // Khi server trả lỗi nghiệp vụ (400, 404, 409, 500...) phải báo lỗi thật cho khách.
+  isOfflineError(err) {
+    return !err || !err.status || err.status === 405;
+  },
+
   post: (path, body) =>
     Pay.call(path, {
       method: 'POST',
@@ -181,6 +187,7 @@ const Pay = {
         Pay.saveLocalOrder({ ...payload, combos: payload.combos || {}, code: orderCode, status: 'HOLDING', paid_amount: 0 });
       }
     } catch (err) {
+      if (!Pay.isOfflineError(err)) throw err;
       console.warn('[Pay.createOrderAndGo fallback local]:', err.message);
       orderCode = 'BC' + Math.floor(1000000000 + Math.random() * 9000000000);
       Pay.saveLocalOrder({ ...payload, code: orderCode, status: 'HOLDING', paid_amount: 0 });
@@ -244,6 +251,9 @@ const Pay = {
     try {
       return await Pay.post('reconcile', data);
     } catch (e) {
+      if (!Pay.isOfflineError(e)) {
+        return { ok: false, status: 'ERROR', error: e.message, message: e.message };
+      }
       return {
         ok: true,
         success: true,
@@ -258,6 +268,7 @@ const Pay = {
     try {
       return await Pay.post('refund', data);
     } catch (e) {
+      if (!Pay.isOfflineError(e)) throw e;
       const code = 'REF-' + Math.floor(100000 + Math.random() * 900000);
       return {
         ok: true,

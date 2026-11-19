@@ -1061,6 +1061,7 @@
       appendUserMessage(`Kiểm tra đối soát mã GD ngân hàng: ${txid}`);
 
       try {
+        const escapeBotHtml = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const res = await Pay.reconcile({
           order_code: orderParam,
           bank_ref: txid,
@@ -1110,6 +1111,34 @@
                 <a href="${res.refund_url || 'refund.html?order=' + res.code}" class="btn btn-primary btn-sm" style="background:#f59e0b; border:none; width:100%; text-align:center; font-weight:800; display:block;">
                   💸 Nhận Lại Tiền Hoàn 100% Ngay →
                 </a>
+              </div>
+            `);
+          }, 600);
+          return;
+        }
+
+        // Đơn mới thanh toán một phần -> hướng dẫn chuyển bù
+        if (res.ok && res.status === 'PARTIAL') {
+          setTimeout(() => {
+            appendBotMessage(`
+              <div class="form-subcard" style="border-left: 4px solid #f59e0b;">
+                <p style="font-size: 13px; color: #334155; margin-bottom: 8px;">${escapeBotHtml(res.message)}</p>
+                <a href="${res.underpay_url || 'underpay.html?order=' + res.code}" class="btn btn-primary btn-sm" style="background:#f59e0b; border:none; width:100%; text-align:center; font-weight:800; display:block;">
+                  💳 Chuyển bù số tiền còn thiếu →
+                </a>
+              </div>
+            `);
+          }, 600);
+          return;
+        }
+
+        // Server từ chối / không tìm thấy -> báo lỗi thật, không giả lập phiếu khiếu nại
+        if (!res.complaint_code && res.status !== 'COMPLAINT_CREATED') {
+          setTimeout(() => {
+            appendBotMessage(`
+              <div class="form-subcard" style="border-left: 4px solid #ef4444;">
+                <strong style="font-size: 14px; color: #b91c1c;">KHÔNG THỂ ĐỐI SOÁT</strong>
+                <p style="font-size: 13px; color: #334155; margin-top: 6px;">${escapeBotHtml(res.error || res.message || 'Vui lòng kiểm tra lại mã đơn hàng / mã giao dịch.')}</p>
               </div>
             `);
           }, 600);

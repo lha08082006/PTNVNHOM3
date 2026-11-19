@@ -686,7 +686,7 @@
         return;
       }
 
-      const finalTotal = calcTotal();
+      let finalTotal = calcTotal();
       const seatArray = selectedSeatsStr.split(',').map(s => s.trim()).filter(Boolean);
       const combosPayload = {};
       for (let k in COMBOS) {
@@ -730,9 +730,17 @@
           });
           if (o && o.code) {
             finalOrderCode = o.code;
+            // Tổng tiền do server tính là số tiền khách phải chuyển
+            if (o.total) finalTotal = o.total;
           }
         } catch (apiErr) {
-          console.warn('[Checkout] API tạo đơn lỗi, dùng mã local:', apiErr.message);
+          // Server từ chối (ghế đã có người giữ, dữ liệu sai...) -> báo khách, KHÔNG tạo mã giả
+          if (!(window.Pay && Pay.isOfflineError(apiErr))) {
+            alert(apiErr.message || 'Không thể tạo đơn hàng. Vui lòng thử lại!');
+            resetBtn();
+            return;
+          }
+          console.warn('[Checkout] Không kết nối được API, dùng mã local (chế độ demo):', apiErr.message);
         }
 
         // Lưu đơn hàng vào local để account.html có thể hiển thị

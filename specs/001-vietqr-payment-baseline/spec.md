@@ -149,10 +149,11 @@ Thành viên xem danh sách đơn mới nhất trước, lọc theo "Đã thanh 
 ### Edge Cases
 
 - Nội dung chuyển khoản không chứa mã đơn: giao dịch được lưu là "không khớp" để đối soát; hệ thống
-  KHÔNG tự ghép vào đơn đang chờ gần nhất (khoảng trống hiện tại — xem FR-004).
+  KHÔNG tự ghép vào đơn đang chờ gần nhất (FR-004).
 - Thông báo ngân hàng gửi lại nhiều lần với cùng mã tham chiếu: chỉ xử lý một lần.
-- Mã đơn trong nội dung không tồn tại: giao dịch lưu "không khớp"; KHÔNG tự tạo đơn giả với dữ liệu
-  mẫu (khoảng trống hiện tại — xem FR-005).
+- Mã đơn trong nội dung không tồn tại: giao dịch lưu "không khớp"; KHÔNG tự tạo đơn giả (FR-005).
+- Đơn đã thanh toán lại nhận thêm tiền: vé giữ nguyên, khoản mới được lập hồ sơ hoàn (lý do: trùng).
+- Đơn đã trả một phần nhưng hết hạn giữ ghế: phần đã trả được lập hồ sơ hoàn (lý do: trả thiếu).
 - Hai khách cùng chọn một ghế trong cùng suất: chỉ một đơn được giữ ghế.
 - Thông báo ngân hàng giả mạo (không từ cổng thanh toán): bị từ chối, không ghi nhận tiền.
 - Giao dịch tiền ra (không phải tiền vào): bị bỏ qua và đánh dấu "bỏ qua".
@@ -228,5 +229,5 @@ Thành viên xem danh sách đơn mới nhất trước, lọc theo "Đã thanh 
 - Đăng nhập/đăng ký hiện ở mức giao diện demo; xác thực thành viên thật ngoài phạm vi baseline,
   nhưng FR-017 yêu cầu bảo vệ dữ liệu theo chủ đơn khi có xác thực.
 - Nhân viên xử lý hoàn tiền bằng cách đổi trạng thái trực tiếp trong bảng quản trị cơ sở dữ liệu.
-- Các FR-002, FR-004, FR-005, FR-007, FR-016, FR-018 hiện CHƯA được đáp ứng trong code; chúng được
-  đưa vào spec có chủ đích để `tasks.md` theo dõi việc khắc phục.
+- Các FR-002, FR-004, FR-005, FR-007, FR-016, FR-018 ban đầu chưa được code đáp ứng; đã được khắc
+  phục theo `tasks.md` (2026-11-19).

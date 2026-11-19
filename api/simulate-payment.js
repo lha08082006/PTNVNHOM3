@@ -2,7 +2,20 @@
 const DB = require('../lib/db');
 const sepayWebhookHandler = require('./sepay-webhook');
 
+// Simulator chỉ bật ngoài production, hoặc khi đặt ENABLE_SIMULATOR=true (bản demo)
+function simulatorEnabled() {
+  if (process.env.ENABLE_SIMULATOR === 'true') return true;
+  if (process.env.ENABLE_SIMULATOR === 'false') return false;
+  return process.env.NODE_ENV !== 'production';
+}
+
+// id giao dịch giả: duy nhất kể cả khi gọi nhiều lần trong cùng 1 giây
+const fakeTxId = () => Date.now() * 1000 + Math.floor(Math.random() * 1000);
+
 module.exports = async function handler(req, res) {
+  if (!simulatorEnabled()) {
+    return res.status(404).json({ error: 'API Endpoint không tồn tại: /api/simulate-payment' });
+  }
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -25,12 +38,12 @@ module.exports = async function handler(req, res) {
         seats: body.seats ? (Array.isArray(body.seats) ? body.seats : body.seats.split(',').map(s => s.trim())) : ['D5', 'D6'],
         combos: body.combos || { couple: 1 },
         total: stubTotal,
-        phone: body.phone || '0987654321'
-      });
+        phone: body.phone || null
+      }, { holdSeats: false });
     }
 
     const orderTotal = Number(order.total || 179000);
-    const txId = Math.floor(Date.now() / 1000);
+    const txId = fakeTxId();
     const referenceCode = 'FT' + Math.floor(10000000 + Math.random() * 90000000);
 
     let transferAmount = orderTotal;
@@ -67,7 +80,7 @@ module.exports = async function handler(req, res) {
       description = `Giả lập khách chuyển tiền sau khi ĐÃ HẾT 10 PHÚT giữ ghế`;
     } else if (scenario === 'NETWORK_LAG') {
       // Giả lập lưu giao dịch vào ngân hàng nhưng chưa khớp đơn (chờ BetaBot đối soát)
-      await DB.saveBankTransaction({
+      await DB.insertBankTransaction({
         id: txId,
         gateway: 'MSB',
         account_number: '4208082006',
@@ -77,6 +90,7 @@ module.exports = async function handler(req, res) {
         transfer_type: 'in',
         amount: orderTotal,
         reference_code: referenceCode,
+        raw: { simulated: true, scenario: 'NETWORK_LAG' },
         result: 'ERROR',
         note: 'Giao dịch ngân hàng thành công nhưng webhook bị trễ mạng chưa kích hoạt xuất vé'
       });
@@ -111,6 +125,7 @@ module.exports = async function handler(req, res) {
     // Tạo payload webhook SePay giả lập
     const fakeWebhookReq = {
       method: 'POST',
+      headers: process.env.SEPAY_API_KEY ? { authorization: 'Apikey ' + process.env.SEPAY_API_KEY } : {},
       body: {
         id: txId,
         gateway: 'MSB',

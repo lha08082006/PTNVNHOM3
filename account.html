@@ -586,9 +586,11 @@
         
 
         <div id="orders-list-wrapper">
+          <!-- DEMO: các đơn data-demo="true" dưới đây là dữ liệu mẫu tĩnh cho giao diện, KHÔNG lấy từ CSDL.
+               Đơn thật được chèn động bởi syncRealOrdersToUI() từ /api/orders. -->
 
           <!-- Đơn hàng (ĐÃ THANH TOÁN - CẤP BÙ VÉ): QUỶ ĂN TẠNG 4 - Đặt lúc: 05/11/2026 21:56:43 -->
-          <div class="order-history-item" data-status="upcoming" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
+          <div class="order-history-item" data-demo="true" data-status="upcoming" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
             data-code="BC2885539882" data-created="2026-11-05T21:56:43" onclick="openInvoiceModal('BC2885539882')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #10b981; background: #fafdfc;">
             <img class="order-item-poster" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg"
               alt="Quỷ Ăn Tạng 4" onerror="this.src='images/400x633-145627-230926-40.jpg'">
@@ -625,7 +627,7 @@
           </div>
 
           <!-- Đơn hàng 1 (Mới nhất - Sắp chiếu): LINH GIỚI ĐẠI CHIẾN - Đặt lúc: 27/10/2026 18:14:02 -->
-          <div class="order-history-item" data-status="upcoming" data-title="Linh Giới Đại Chiến: Thần Sư Chung Quỳ"
+          <div class="order-history-item" data-demo="true" data-status="upcoming" data-title="Linh Giới Đại Chiến: Thần Sư Chung Quỳ"
             data-code="BC2610279854" data-created="2026-10-27T18:14:02" onclick="openInvoiceModal('BC2610279854')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid var(--color-success);">
             <img class="order-item-poster" src="images/400x633-145627-230926-40.jpg" alt="Linh Giới Đại Chiến">
             <div style="flex: 1;">
@@ -662,7 +664,7 @@
           </div>
 
           <!-- Đơn hàng 2 (ĐÃ HỦY): ÚT LAN 2 - Đặt lúc: 24/10/2026 18:28:44 -->
-          <div class="order-history-item" data-status="cancelled" data-title="Út Lan 2"
+          <div class="order-history-item" data-demo="true" data-status="cancelled" data-title="Út Lan 2"
             data-code="BC2610264412" data-created="2026-10-24T18:28:44" onclick="openInvoiceModal('BC2610264412')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #f59e0b; background: #fffdf5;">
             <img class="order-item-poster" src="images/ul2-main-dam-hoi-digital-094550-140926-42.jpg"
               alt="Út Lan 2" onerror="this.src='images/400x633-145627-230926-40.jpg'">
@@ -714,7 +716,7 @@
           </div>
 
           <!-- Đơn hàng 3 (ĐÃ HỦY - ĐANG XỬ LÝ HOÀN TIỀN): ÁN MẠNG KARAOKE - Đặt lúc: 22/10/2026 19:40:55 -->
-          <div class="order-history-item" data-status="cancelled" data-refund="unrefunded" data-title="Án Mạng Karaoke"
+          <div class="order-history-item" data-demo="true" data-status="cancelled" data-refund="unrefunded" data-title="Án Mạng Karaoke"
             data-code="BC2610227189" data-created="2026-10-22T19:40:55" onclick="openInvoiceModal('BC2610227189')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #3b82f6; background: #f8fafc;">
             <img class="order-item-poster" src="images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.jpg"
               alt="Án Mạng Karaoke" onerror="this.src='images/400x633-145627-230926-40.jpg'">
@@ -763,7 +765,7 @@
           </div>
 
           <!-- Đơn hàng 4 (ĐÃ HOÀN TIỀN): TRẠI BUÔN NGƯỜI - Giao diện theo đúng mockup TicketRefunded -->
-          <div class="order-history-item" data-status="refunded" data-refund="refunded"
+          <div class="order-history-item" data-demo="true" data-status="refunded" data-refund="refunded"
             data-title="Trại Buôn Người: Vùng Cấm Biên Giới" data-code="BC2610208819" data-created="2026-10-20T17:30:10" onclick="window.location.href='ticket-refunded.html?order=BC2610208819&movie=trai-buon-nguoi&total=180000&seats=G09,%20G10&cinema=Beta%20Thanh%20Xu%C3%A2n%20(HN)&refund_code=REF-2610-889'" title="Bấm vào đơn để xem chi tiết đơn đã hoàn tiền"
             style="border-left: 4px solid rgb(106, 166, 255); background: #fafcff; cursor: pointer;">
             <img class="order-item-poster" src="images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg"
@@ -813,7 +815,7 @@
           </div>
 
           <!-- Đơn hàng 5 (Đã xem hoàn tất): QUỶ ĂN TẠNG 4 - Đặt lúc: 15/10/2026 19:42:15 -->
-          <div class="order-history-item" data-status="completed" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
+          <div class="order-history-item" data-demo="true" data-status="completed" data-title="Quỷ Ăn Tạng 4: Lời Nguyền Trở Lại"
             data-code="BC2610153321" data-created="2026-10-15T19:42:15" onclick="openInvoiceModal('BC2610153321')" title="Bấm vào đơn để xem chi tiết hóa đơn" style="border-left: 4px solid #94a3b8; opacity: 0.9;">
             <img class="order-item-poster"
               src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg" alt="Quỷ Ăn Tạng">
@@ -2077,7 +2079,7 @@
   async function syncRealOrdersToUI() {
     if (!window.Pay || !Pay.getOrders) return;
     try {
-      const realOrders = await Pay.getOrders({ limit: 15 });
+      const realOrders = await Pay.getOrders({ limit: 15, phone: '0987654321' }); // SĐT tài khoản demo
       if (!realOrders || realOrders.length === 0) return;
 
       const wrapper = document.getElementById('orders-list-wrapper');

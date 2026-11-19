@@ -7,6 +7,17 @@ const url = require('url');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = __dirname;
+const MAX_BODY_BYTES = 1024 * 1024; // 1 MB
+
+// Không bao giờ phục vụ mã nguồn server, cấu hình, bí mật dưới dạng file tĩnh
+const BLOCKED_PREFIXES = ['api/', 'lib/', 'tests/', 'specs/', 'node_modules/'];
+const BLOCKED_FILES = new Set(['server.js', 'package.json', 'package-lock.json', 'schema.sql', 'vercel.json']);
+function isBlockedPath(relPath) {
+  const parts = relPath.split('/');
+  if (parts.some(p => p.startsWith('.'))) return true; // .env, .git, .claude, .specify ...
+  if (BLOCKED_FILES.has(relPath)) return true;
+  return BLOCKED_PREFIXES.some(prefix => relPath.startsWith(prefix));
+}
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -67,14 +78,25 @@ const server = http.createServer(async (req, res) => {
     if (handler) {
       req.query = parsedUrl.query;
 
-      // Đọc JSON Body nếu có
+      // Đọc JSON Body nếu có (giới hạn kích thước, JSON lỗi -> 400)
       let rawBody = '';
-      req.on('data', chunk => { rawBody += chunk; });
+      let tooLarge = false;
+      req.on('data', chunk => {
+        if (tooLarge) return;
+        rawBody += chunk;
+        if (Buffer.byteLength(rawBody) > MAX_BODY_BYTES) {
+          tooLarge = true;
+          res.status(413).json({ error: 'Dữ liệu gửi lên quá lớn' });
+          req.destroy();
+        }
+      });
       req.on('end', async () => {
+        if (tooLarge) return;
         try {
           req.body = rawBody ? JSON.parse(rawBody) : {};
         } catch (e) {
-          req.body = {};
+          res.status(400).json({ error: 'Dữ liệu JSON không hợp lệ' });
+          return;
         }
 
         try {
@@ -94,7 +116,22 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 2. Xử lý Static Files (HTML, CSS, JS, Images)
-  let filePath = path.join(PUBLIC_DIR, pathname === '/' ? 'index.html' : pathname);
+  let decoded;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch (e) {
+    res.statusCode = 400;
+    res.end('Bad Request');
+    return;
+  }
+  let filePath = path.resolve(PUBLIC_DIR, '.' + path.posix.normalize(decoded === '/' ? '/index.html' : decoded));
+  const relPath = path.relative(PUBLIC_DIR, filePath).split(path.sep).join('/');
+  if (relPath.startsWith('..') || path.isAbsolute(relPath) || isBlockedPath(relPath)) {
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.end('<h2>404 - Không tìm thấy trang</h2><p><a href="/">Quay về trang chủ</a></p>');
+    return;
+  }
 
   // Clean URLs: Hỗ trợ truy cập không cần gõ .html (VD: /checkout -> /checkout.html)
   if (!path.extname(filePath)) {
@@ -107,7 +144,7 @@ const server = http.createServer(async (req, res) => {
     if (err || !stats.isFile()) {
       res.statusCode = 404;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.end(`<h2>404 - Không tìm thấy trang: ${pathname}</h2><p><a href="/">Quay về trang chủ</a></p>`);
+      res.end(`<h2>404 - Không tìm thấy trang</h2><p><a href="/">Quay về trang chủ</a></p>`);
       return;
     }
 
@@ -122,7 +159,9 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+if (require.main !== module) {
+  module.exports = server;
+} else server.listen(PORT, () => {
   console.log(`=======================================================`);
   console.log(`🎬 BETA CINEMAS SERVER ĐANG CHẠY TẠI: http://localhost:${PORT}`);
   console.log(`💳 Cổng thanh toán VietQR & Webhook SePay đã sẵn sàng!`);
