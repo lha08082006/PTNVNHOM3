@@ -505,6 +505,9 @@
     })();
     let voucherCode = null;
     let SHOWTIME = null; // suất chiếu thật (database)
+    let TYPES = null;    // bảng loại vé đang áp dụng
+    const typeCounts = Pay.typesFromUrl();
+    let seatLabel = '';
 
     let baseSeatPrice = 90000;
     let discountAmount = 0;
@@ -518,7 +521,14 @@
     function parseParams() {
       const p = new URLSearchParams(window.location.search);
       if (p.get('seats')) selectedSeatsStr = p.get('seats');
-      try { baseSeatPrice = BetaCatalog.quote({ seats: selectedSeatsStr, prices: SHOWTIME.prices }).seat_total; } catch (e) {
+      try {
+        const q = BetaCatalog.quote({ seats: selectedSeatsStr, prices: SHOWTIME.prices, ticket_types: typeCounts, types: TYPES || undefined });
+        baseSeatPrice = q.seat_total;
+        const T = TYPES || BetaCatalog.TICKET_TYPES;
+        const groups = {};
+        q.seats.forEach(s => { const k = s.ticket_type === 'COUPLE' ? 'Ghế đôi' : (T[s.ticket_type] || {}).label || s.ticket_type; (groups[k] = groups[k] || []).push(s.id); });
+        seatLabel = Object.entries(groups).map(([k, ids]) => k + ': ' + ids.join(', ')).join(' · ');
+      } catch (e) {
         alert('Vui lòng chọn ghế trước khi thanh toán.');
         location.replace('seats.html?' + p.toString());
         return;
@@ -559,11 +569,12 @@
 
       // Ghế
       const seatCount = selectedSeatsStr.split(',').length;
-      document.getElementById('summary-seat-label').textContent = 'Ghế ' + selectedSeatsStr + ' × ' + seatCount;
+      document.getElementById('summary-seat-label').textContent = (seatLabel || 'Ghế ' + selectedSeatsStr) + ' × ' + seatCount;
       document.getElementById('summary-seat-amount').textContent = new Intl.NumberFormat('vi-VN').format(baseSeatPrice) + ' đ';
 
       // Nút back quay về combo.html
       const backUrl = 'combo.html?showtime=' + encodeURIComponent(SHOWTIME.id) + '&seats=' + encodeURIComponent(selectedSeatsStr) +
+                      (Object.keys(typeCounts).length ? '&types=' + encodeURIComponent(JSON.stringify(typeCounts)) : '') +
                       '&combos=' + encodeURIComponent(p.get('combos') || '{}');
       document.getElementById('btn-back-seats').href = backUrl;
 
@@ -663,6 +674,7 @@
           showtime_id: SHOWTIME.id,
           seats: seatArray,
           combos: combosPayload,
+          ticket_types: typeCounts,
           voucher: voucherCode,
           total: finalTotal
         });
@@ -701,6 +713,8 @@
       currentCinema = SHOWTIME.cinema;
       currentDate = SHOWTIME.date_label;
       currentTime = SHOWTIME.time;
+      const pr = await Pay.pricing();
+      if (pr && pr.ticket_types) TYPES = pr.ticket_types;
       parseParams();
     })();
   </script>

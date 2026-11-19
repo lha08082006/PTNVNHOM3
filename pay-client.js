@@ -293,6 +293,20 @@ const Pay = {
 
   // Danh mục từ database
   catalog: (action, params = {}) => Pay.call("catalog?" + new URLSearchParams({ action, ...params })),
+  // Bảng giá (loại vé, quy tắc giá theo khung giờ, ngày lễ) – tải một lần mỗi trang
+  _pricing: null,
+  async pricing() {
+    if (!Pay._pricing) Pay._pricing = Pay.catalog("pricing").catch(() => null);
+    return Pay._pricing;
+  },
+  // Số vé theo loại khách chọn ở bước Ghế, truyền qua URL: ?types={"STUDENT":1}
+  typesFromUrl() {
+    try {
+      const raw = new URLSearchParams(location.search).get("types");
+      const o = raw ? JSON.parse(raw) : {};
+      return Object.fromEntries(Object.entries(o).filter(([k, v]) => /^[A-Z_]{3,20}$/.test(k) && Number.isInteger(+v) && +v > 0).map(([k, v]) => [k, +v]));
+    } catch (e) { return {}; }
+  },
   async getShowtime(id) {
     if (!id) return null;
     try { return (await Pay.catalog("showtime", { id })).showtime; } catch (e) { return null; }

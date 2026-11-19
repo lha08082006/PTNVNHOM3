@@ -644,16 +644,39 @@
       setText('page-inv-seats', (o.seats || []).join(', '));
       setText('page-inv-format', m.format);
 
-      // Bảng kê tính lại từ catalog.js – cùng công thức máy chủ đã dùng khi tạo đơn
+      // Bảng kê: giá ghế lấy đúng số đã lưu khi tạo đơn (giá theo khung giờ + loại vé); combo theo catalog.js
       let q = null;
-      try { q = BetaCatalog.quote({ seats: o.seats, combos: o.combos, voucher: o.voucher }); } catch (e) {}
-      const items = q
+      const pr = await Pay.pricing();
+      const T = (pr && pr.ticket_types) || BetaCatalog.TICKET_TYPES;
+      const sp = o.seat_prices || {};
+      let items;
+      if (Object.keys(sp).length) {
+        const groups = {};
+        (o.seats || []).forEach(id => {
+          const seatT = BetaCatalog.seatType(id);
+          const tt = (o.ticket_types || {})[id];
+          const label = BetaCatalog.SEAT_LABEL[seatT] + (tt && tt !== 'ADULT' && tt !== 'COUPLE' ? ' – vé ' + ((T[tt] || {}).label || tt) : '');
+          const key = label + '|' + sp[id];
+          (groups[key] = groups[key] || { label, price: Number(sp[id]) || 0, ids: [] }).ids.push(id);
+        });
+        const combos = Object.entries(o.combos || {}).filter(([k, n]) => BetaCatalog.COMBOS[k] && n > 0)
+          .map(([k, n]) => ({ name: BetaCatalog.COMBOS[k].name, qty: n, price: BetaCatalog.COMBOS[k].price, amount: n * BetaCatalog.COMBOS[k].price }));
+        items = [
+          ...Object.values(groups).map(g => ({ name: g.label + ' (' + g.ids.join(', ') + ')', qty: g.ids.length, price: g.price, amount: g.price * g.ids.length })),
+          ...combos
+        ];
+        const gross = items.reduce((s, it) => s + it.amount, 0);
+        q = { discount: Math.max(0, gross - o.total) };
+      } else {
+        try { q = BetaCatalog.quote({ seats: o.seats, combos: o.combos, voucher: o.voucher }); } catch (e) {}
+      }
+      items = items || (q
         ? [
             ...Object.entries(q.seats.reduce((acc, s) => { (acc[s.type] = acc[s.type] || []).push(s); return acc; }, {}))
               .map(([type, list]) => ({ name: BetaCatalog.SEAT_LABEL[type] + ' (' + list.map(s => s.id).join(', ') + ')', qty: list.length, price: list[0].price, amount: list.length * list[0].price })),
             ...q.combos.map(c => ({ name: c.name, qty: c.qty, price: c.price, amount: c.amount }))
           ]
-        : [{ name: 'Vé xem phim (' + (o.seats || []).join(', ') + ')', qty: (o.seats || []).length || 1, price: o.total, amount: o.total }];
+        : [{ name: 'Vé xem phim (' + (o.seats || []).join(', ') + ')', qty: (o.seats || []).length || 1, price: o.total, amount: o.total }]);
       const discount = q ? q.discount : 0;
 
       const tbody = document.getElementById('page-inv-items-body');

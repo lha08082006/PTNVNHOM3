@@ -108,6 +108,15 @@
     CINEMA:  { discount: 20000, label: 'Giảm 20.000 đ' }
   };
 
+  // Loại vé theo đối tượng: giảm thẳng vào giá ghế (không áp dụng cho ghế đôi Sweetbox).
+  // Giá trị mặc định; máy chủ lấy bảng loại vé đang áp dụng trong database (admin > Danh mục > Bảng giá).
+  const TICKET_TYPES = {
+    ADULT:   { label: 'Người lớn', off: 0, note: '' },
+    STUDENT: { label: 'HSSV / U22', off: 10000, note: 'Xuất trình thẻ học sinh, sinh viên hoặc CCCD (dưới 22 tuổi) khi soát vé' },
+    CHILD:   { label: 'Trẻ em', off: 15000, note: 'Dưới 13 tuổi hoặc cao dưới 1m30; phim phải phù hợp độ tuổi' },
+    SENIOR:  { label: 'Người cao tuổi', off: 15000, note: 'Từ 60 tuổi, xuất trình CCCD khi soát vé' }
+  };
+
   const err = (msg) => Object.assign(new Error(msg), { http: 400 });
 
   // Toàn bộ ghế của phòng chiếu (dùng để đếm ghế trống)
@@ -118,7 +127,9 @@
   // Tính tiền một đơn. Ném lỗi (http 400) nếu ghế/combo/voucher không hợp lệ.
   //   prices   : giá ghế của suất chiếu (mặc định SEAT_PRICES)
   //   vouchers : danh sách voucher hợp lệ (mặc định VOUCHERS; máy chủ truyền voucher đã kiểm tra trong DB)
-  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS } = {}) {
+  //   ticket_types : số vé theo loại, vd { STUDENT: 1, CHILD: 1 } (phần còn lại là Người lớn)
+  //   types        : bảng loại vé đang áp dụng (mặc định TICKET_TYPES)
+  function quote({ seats = [], combos = {}, voucher = null, prices = SEAT_PRICES, vouchers = VOUCHERS, ticket_types = {}, types = TICKET_TYPES } = {}) {
     prices = { ...SEAT_PRICES, ...(prices || {}) };
     const list = (Array.isArray(seats) ? seats : String(seats).split(','))
       .map(s => String(s).trim().toUpperCase()).filter(Boolean);
@@ -130,6 +141,27 @@
       if (!type) throw err('Ghế không tồn tại: ' + id);
       return { id, type, price: prices[type] };
     });
+    // Gán loại vé ưu đãi cho các ghế thường/VIP (ghế đắt hơn được gán trước, kết quả không phụ thuộc thứ tự chọn)
+    const want = [];
+    for (const [code, raw] of Object.entries(ticket_types || {})) {
+      const n = Number(raw);
+      if (!n || code === 'ADULT') continue;
+      if (!types[code]) throw err('Loại vé không tồn tại: ' + code);
+      if (!Number.isInteger(n) || n < 0) throw err('Số lượng loại vé không hợp lệ');
+      for (let i = 0; i < n; i++) want.push(code);
+    }
+    const eligible = seatLines.filter(x => x.type !== 'sweetbox').sort((a, b) => b.price - a.price || (a.id < b.id ? -1 : 1));
+    if (want.length > eligible.length) throw err('Số vé ưu đãi (' + want.length + ') nhiều hơn số ghế thường/VIP đã chọn (' + eligible.length + '). Ghế đôi Sweetbox không áp dụng vé ưu đãi.');
+    want.sort((a, b) => (types[b].off || 0) - (types[a].off || 0));
+    seatLines.forEach(x => { x.ticket_type = x.type === 'sweetbox' ? 'COUPLE' : 'ADULT'; x.base_price = x.price; });
+    want.forEach((code, i) => {
+      const x = eligible[i];
+      x.ticket_type = code;
+      x.price = Math.max(0, x.base_price - (Number(types[code].off) || 0));
+    });
+    const type_discount = seatLines.reduce((s, x) => s + (x.base_price - x.price), 0);
+    const type_counts = {};
+    seatLines.forEach(x => { if (x.ticket_type !== 'ADULT' && x.ticket_type !== 'COUPLE') type_counts[x.ticket_type] = (type_counts[x.ticket_type] || 0) + 1; });
     const seat_total = seatLines.reduce((s, x) => s + x.price, 0);
 
     const comboLines = [];
@@ -147,7 +179,7 @@
     const discount = code ? Math.min(vouchers[code].discount, seat_total + combo_total) : 0;
 
     return {
-      seats: seatLines, combos: comboLines, voucher: code,
+      seats: seatLines, combos: comboLines, voucher: code, ticket_types: type_counts, type_discount,
       seat_total, combo_total, discount, total: seat_total + combo_total - discount
     };
   }
@@ -157,5 +189,5 @@
     return MOVIES[k] || null;
   }
 
-  return { MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
+  return { MOVIES, MOVIE_ALIASES, CINEMAS, SEAT_IDS, SEAT_PRICES, SEAT_LABEL, TICKET_TYPES, seatType, COMBOS, VOUCHERS, MAX_SEATS, MAX_COMBO_QTY, quote, getMovie };
 });

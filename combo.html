@@ -345,6 +345,8 @@
     const showtimeId = params.get('showtime') || '';
     const selectedSeatsStr = params.get('seats') || '';
     let ticketTotal = 0;
+    let typeSummary = '';
+    const typeCounts = Pay.typesFromUrl(); // loại vé chọn ở bước Ghế
     let seatCount = 0;
 
     const items = {};
@@ -412,7 +414,8 @@
       const grandTotal = ticketTotal + comboTotal;
       document.getElementById('order-summary-detail').innerText = seatCount + ' Vé (' + Pay.vnd(ticketTotal) + ')' + (comboSummary.length ? ' + ' + comboSummary.join(', ') : '');
       document.getElementById('total-amount-display').innerText = Pay.vnd(grandTotal);
-      const base = 'showtime=' + encodeURIComponent(showtimeId) + '&seats=' + encodeURIComponent(selectedSeatsStr);
+      const base = 'showtime=' + encodeURIComponent(showtimeId) + '&seats=' + encodeURIComponent(selectedSeatsStr) +
+        (Object.keys(typeCounts).length ? '&types=' + encodeURIComponent(JSON.stringify(typeCounts)) : '');
       document.getElementById('btn-next-checkout').href = 'checkout.html?' + base + '&combos=' + encodeURIComponent(JSON.stringify(combosPayload));
       document.getElementById('btn-back-seats').href = 'seats.html?' + base;
     }
@@ -423,7 +426,9 @@
       if (!selectedSeatsStr) { location.replace('seats.html?showtime=' + encodeURIComponent(showtimeId)); return; }
       // Tiền vé tính theo giá ghế của suất chiếu, không tin số tiền trên URL
       try {
-        const q = BetaCatalog.quote({ seats: selectedSeatsStr, prices: st.prices });
+        const pr = await Pay.pricing();
+        const q = BetaCatalog.quote({ seats: selectedSeatsStr, prices: st.prices, ticket_types: typeCounts, types: (pr && pr.ticket_types) || undefined });
+        typeSummary = Object.entries(q.ticket_types).map(([c, n]) => n + ' ' + (((pr && pr.ticket_types) || BetaCatalog.TICKET_TYPES)[c] || {}).label).join(', ');
         ticketTotal = q.seat_total;
         seatCount = q.seats.length;
       } catch (e) {
@@ -433,7 +438,7 @@
       }
       const m = Pay.getMovie(st.movie_key);
       document.getElementById('combo-movie-display').textContent = m.title + (m.age ? ' · ' + m.age : '');
-      document.getElementById('combo-seat-summary').textContent = selectedSeatsStr + ' (' + seatCount + ' ghế)';
+      document.getElementById('combo-seat-summary').textContent = selectedSeatsStr + ' (' + seatCount + ' ghế' + (typeSummary ? ', gồm ' + typeSummary : '') + ')';
       document.getElementById('combo-cinema-showtime').textContent = st.cinema + ' · ' + st.time + ' (' + st.date_label + ')';
       document.getElementById('combo-ticket-total-display').textContent = 'Tiền vé: ' + Pay.vnd(ticketTotal);
       recalcTotal();

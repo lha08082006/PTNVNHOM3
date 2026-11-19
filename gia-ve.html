@@ -65,9 +65,27 @@
 
   <main class="gv-wrap">
     <h1>Giá vé & Combo</h1>
-    <p class="gv-lead">Giá dưới đây là giá niêm yết. Mỗi suất chiếu có thể có giá riêng (suất đặc biệt, ngày lễ); giá chính xác luôn hiện khi bạn chọn ghế và là số tiền máy chủ tính khi tạo đơn.</p>
+    <p class="gv-lead">Giá thay đổi theo ngày (ngày thường, cuối tuần, ngày lễ) và khung giờ (suất sớm, suất khuya). Giá chính xác của từng suất luôn hiện khi bạn chọn ghế và là số tiền máy chủ tính khi tạo đơn.</p>
 
     <div class="gv-cards" id="gv-cards" aria-live="polite"></div>
+
+    <section class="gv-sec">
+      <h2>Giá theo ngày & khung giờ</h2>
+      <p class="sub">Các mức giá áp dụng lần lượt từ trên xuống; mức ở dưới (ưu tiên cao hơn) được áp sau cùng. Ô "—" là giữ nguyên giá của mức phía trên.</p>
+      <div class="gv-table-wrap">
+        <table class="gv-table">
+          <thead><tr><th>Áp dụng</th><th>Ngày</th><th>Khung giờ</th><th>Ghế thường</th><th>Ghế VIP</th><th>Ghế đôi</th></tr></thead>
+          <tbody id="gv-rules"><tr><td colspan="6" class="m">Đang tải bảng giá…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="sub" id="gv-holidays" style="margin-top: 8px;"></p>
+    </section>
+
+    <section class="gv-sec">
+      <h2>Vé ưu đãi theo đối tượng</h2>
+      <p class="sub">Chọn ở bước chọn ghế. Giảm thẳng vào giá ghế thường và VIP (không áp dụng ghế đôi Sweetbox). Nhân viên sẽ kiểm tra giấy tờ khi soát vé.</p>
+      <div class="gv-combos" id="gv-types"></div>
+    </section>
 
     <section class="gv-sec">
       <h2>Giá theo rạp (7 ngày tới)</h2>
@@ -125,6 +143,23 @@
       $('gv-combos').innerHTML = Object.values(C.COMBOS).map((c) => `<div class="gv-combo"><b>${esc(c.name)}</b><span>${vnd(c.price)}</span></div>`).join('');
       $('gv-max-combo').textContent = C.MAX_COMBO_QTY;
       $('gv-max-seats').textContent = C.MAX_SEATS;
+
+      // Bảng giá thật từ database: quy tắc theo ngày / khung giờ, ngày lễ, loại vé
+      try {
+        const pr = await Pay.pricing();
+        const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        const days = (r) => (r.holiday ? 'Ngày lễ' + (r.days.length ? ' + ' : '') : '') + (r.days.length === 7 ? 'Mọi ngày' : [1, 2, 3, 4, 5, 6, 0].filter(d => r.days.includes(d)).map(d => DOW[d]).join(', '));
+        const hours = (r) => (r.start_time === '00:00' && r.end_time === '24:00') ? 'Cả ngày' : (r.start_time === '00:00' ? 'Trước ' + r.end_time : r.end_time === '24:00' ? 'Từ ' + r.start_time : r.start_time + ' – ' + r.end_time);
+        const cell = (v) => v ? vnd(v) : '<span class="m">—</span>';
+        $('gv-rules').innerHTML = (pr.rules || []).map(r => `<tr><td><strong>${esc(r.name)}</strong></td><td>${esc(days(r))}</td><td>${esc(hours(r))}</td>
+          <td class="num">${cell(r.price_standard)}</td><td class="num">${cell(r.price_vip)}</td><td class="num">${cell(r.price_sweetbox)}</td></tr>`).join('')
+          || '<tr><td colspan="6" class="m">Đang áp dụng giá niêm yết ở trên cho mọi suất.</td></tr>';
+        $('gv-holidays').textContent = (pr.holidays || []).length ? 'Ngày lễ sắp tới: ' + pr.holidays.map(h => h.date.split('-').reverse().join('/') + ' (' + h.name + ')').join(', ') : '';
+        $('gv-types').innerHTML = Object.entries(pr.ticket_types || {}).filter(([k]) => k !== 'ADULT').map(([, t]) =>
+          `<div class="gv-combo"><b>${esc(t.label)}</b><span>Giảm ${vnd(t.off)}</span>${t.note ? `<small class="m" style="display:block;font-size:12px;line-height:1.4;margin-top:4px;">${esc(t.note)}</small>` : ''}</div>`).join('');
+      } catch (e) {
+        $('gv-rules').innerHTML = '<tr><td colspan="6" class="m">Không tải được bảng giá. <button type="button" class="btn btn-outline btn-sm" onclick="location.reload()">Thử lại</button></td></tr>';
+      }
 
       const range = (arr) => {
         const v = arr.filter((x) => x > 0);

@@ -18,11 +18,13 @@ module.exports = async function handler(req, res) {
     if (!st || !st.active) return res.status(400).json({ ok: false, error: 'Suất chiếu không tồn tại hoặc đã ngừng bán' });
     if (new Date(st.starts_at).getTime() - STOP_SALE_MS <= Date.now()) return res.status(400).json({ ok: false, error: 'Suất chiếu đã bắt đầu, vui lòng chọn suất khác' });
     const v = b.voucher ? await CatalogDB.checkVoucher(b.voucher, me.id) : null;
+    const pr = await CatalogDB.pricing();
 
     const order = await Flow.createOrder({
       movie_key: st.movie_key, cinema: st.cinema, show_date: st.date_label, show_time: st.time, show_at: st.starts_at,
       showtime_key: st.id, prices: st.prices, trusted_movie: true,
       seats: b.seats, combos: b.combos, voucher: v ? v.code : null, voucher_def: v,
+      ticket_types: b.ticket_types || {}, types: pr.types,
       total: b.total, user_id: me.id, phone: me.phone, email: me.email, customer_name: me.full_name
     });
     return res.status(200).json(await Flow.view(order));

@@ -212,6 +212,41 @@
     <!-- ===================== DANH MỤC (Quản lý) ===================== -->
     <section id="tab-danhmuc" hidden>
       <div class="card">
+        <h2>Bảng giá vé <small>giá ghế theo ngày & khung giờ · ưu tiên cao áp sau cùng · ô trống = giữ giá của quy tắc trước</small></h2>
+        <div class="grid2">
+          <div>
+            <h3 style="font-size: 13px; color: #005198; margin: 0 0 8px;">QUY TẮC GIÁ</h3>
+            <div id="pr-rules"></div>
+            <form class="form-grid" id="pr-form" onsubmit="event.preventDefault(); savePriceRule()" style="margin-top: 12px;">
+              <input type="hidden" id="pr-id">
+              <label>Tên quy tắc<input id="pr-name" required placeholder="vd: Happy Monday"></label>
+              <label>Áp dụng thứ<span id="pr-days" style="display: flex; gap: 6px; flex-wrap: wrap; font-weight: 500; color: #0f172a;"></span></label>
+              <label>Ngày lễ<select id="pr-holiday"><option value="false">Không</option><option value="true">Áp dụng cho ngày lễ</option></select></label>
+              <label>Từ giờ<input id="pr-start" type="time" value="00:00"></label>
+              <label>Đến trước<input id="pr-end" placeholder="24:00" value="24:00"></label>
+              <label>Ưu tiên<input id="pr-priority" type="number" value="20"></label>
+              <label>Ghế thường<input id="pr-p1" type="number" min="0" step="1000"></label>
+              <label>Ghế VIP<input id="pr-p2" type="number" min="0" step="1000"></label>
+              <label>Ghế đôi<input id="pr-p3" type="number" min="0" step="1000"></label>
+              <label>Trạng thái<select id="pr-active"><option value="true">Đang áp dụng</option><option value="false">Tạm dừng</option></select></label>
+              <div class="row-actions"><button class="btn primary">Lưu quy tắc</button><button type="button" class="btn" onclick="resetRuleForm()">Mới</button></div>
+            </form>
+          </div>
+          <div>
+            <h3 style="font-size: 13px; color: #005198; margin: 0 0 8px;">LOẠI VÉ THEO ĐỐI TƯỢNG <small style="color: var(--muted); font-weight: 500;">giảm thẳng vào giá ghế, không áp dụng ghế đôi</small></h3>
+            <div id="tt-table"></div>
+            <h3 style="font-size: 13px; color: #005198; margin: 16px 0 8px;">NGÀY LỄ</h3>
+            <form class="toolbar" onsubmit="event.preventDefault(); saveHoliday()">
+              <input id="hd-date" type="date" required>
+              <input id="hd-name" placeholder="vd: Quốc khánh 2/9" style="flex: 1;">
+              <button class="btn primary">+ Thêm</button>
+            </form>
+            <div id="hd-list" class="hint"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <h2>Suất chiếu <small>tạo nhanh nhiều giờ × nhiều ngày · giá để trống = giá mặc định</small></h2>
         <form class="form-grid" onsubmit="event.preventDefault(); createShowtimes()" style="margin-bottom: 14px;">
           <label>Phim<select id="sc-movie" required></select></label>
@@ -612,6 +647,7 @@
           Đơn <b class="mono">${esc(sm.code)}</b>${sm.signed ? '' : ' (soát bằng mã đơn)'}<br>
           ${sm.movie_title ? esc(sm.movie_title) + '<br>' : ''}${esc(sm.cinema)} · <b>${esc(sm.show_time)}</b> ${esc(sm.show_date)}<br>
           Ghế: <b style="font-size: 18px;">${esc((sm.seats || []).join(', '))}</b>${sm.customer_name ? ' · ' + esc(sm.customer_name) : ''}
+          ${(sm.special || []).length ? `<div style="margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #fef3c7; color: #78350f; font-weight: 700;">⚠ Kiểm tra giấy tờ: ${sm.special.map(x => esc(x.seat + ' – ' + x.label)).join(', ')}</div>` : ''}
         </div>` : ''}
       </div>`;
       ckHistory.unshift({ at: new Date(), ok, code: sm ? sm.code : raw.slice(0, 20), seats: sm ? sm.seats.join(', ') : '' });
@@ -644,7 +680,63 @@
     // ---------------- DANH MỤC (Quản lý) ----------------
     let CAT = null;
     const val = (id) => document.getElementById(id).value.trim();
+    // ---------- Bảng giá ----------
+    let PRICING = null;
+    const DOWS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    async function loadPricing() {
+      PRICING = await api('admin?action=pricing');
+      document.getElementById('pr-days').innerHTML = [1, 2, 3, 4, 5, 6, 0].map(d => `<label style="display: inline-flex; gap: 3px; align-items: center;"><input type="checkbox" value="${d}" class="pr-day">${DOWS[d]}</label>`).join('');
+      const daysText = (r) => (r.holiday ? 'Ngày lễ' + ((r.days || []).length ? ' + ' : '') : '') + ((r.days || []).length === 7 ? 'Mọi ngày' : (r.days || []).map(d => DOWS[d]).join(', '));
+      document.getElementById('pr-rules').innerHTML = `<table><thead><tr><th>Quy tắc</th><th>Ngày</th><th>Giờ</th><th>Thường / VIP / Đôi</th><th>Ưu tiên</th><th></th></tr></thead><tbody>${
+        PRICING.rules.map(r => `<tr class="${r.active === false ? 'inactive' : ''}"><td><b>${esc(r.name)}</b></td><td>${esc(daysText(r))}</td><td>${esc(r.start_time)}–${esc(r.end_time)}</td>
+          <td>${[r.price_standard, r.price_vip, r.price_sweetbox].map(v => v ? vnd(v) : '—').join(' / ')}</td><td>${r.priority}</td>
+          <td class="row-actions"><button class="btn" onclick="editRule('${r.id}')">Sửa</button><button class="btn danger" onclick="deleteRule('${r.id}')">Xóa</button></td></tr>`).join('')
+      }</tbody></table><p class="hint">Giá mặc định khi không quy tắc nào khớp: ${vnd(PRICING.default_prices.standard)} / ${vnd(PRICING.default_prices.vip)} / ${vnd(PRICING.default_prices.sweetbox)}.</p>`;
+      document.getElementById('tt-table').innerHTML = `<table><thead><tr><th>Loại vé</th><th>Giảm</th><th>Ghi chú (hiện cho khách & quầy)</th><th></th></tr></thead><tbody>${
+        PRICING.ticket_types.map(t => `<tr class="${t.active === false ? 'inactive' : ''}"><td><input id="tt-label-${t.id}" value="${esc(t.label)}" style="width: 120px;"><div class="hint mono">${t.id}</div></td>
+          <td>${t.id === 'ADULT' ? '—' : `<input id="tt-off-${t.id}" type="number" step="1000" min="0" value="${t.off}" style="width: 90px;">`}</td>
+          <td><input id="tt-note-${t.id}" value="${esc(t.note || '')}" style="width: 100%;"></td>
+          <td class="row-actions"><button class="btn" onclick="saveTicketType('${t.id}')">Lưu</button>${t.id === 'ADULT' ? '' : `<button class="btn ${t.active === false ? 'ok' : 'danger'}" onclick="saveTicketType('${t.id}', ${t.active === false})">${t.active === false ? 'Bật' : 'Tắt'}</button>`}</td></tr>`).join('')
+      }</tbody></table>`;
+      document.getElementById('hd-list').innerHTML = PRICING.holidays.length
+        ? PRICING.holidays.map(h => `<span class="pill p-info" style="margin: 2px;">${h.id.split('-').reverse().join('/')} · ${esc(h.name)} <a href="#" onclick="deleteHoliday('${h.id}'); return false;" style="color: inherit; margin-left: 4px;">✕</a></span>`).join('')
+        : 'Chưa khai báo ngày lễ nào – quy tắc "ngày lễ" chỉ áp dụng cho các ngày trong danh sách này.';
+    }
+    function resetRuleForm() {
+      ['pr-id', 'pr-name', 'pr-p1', 'pr-p2', 'pr-p3'].forEach(id => { document.getElementById(id).value = ''; });
+      document.getElementById('pr-start').value = '00:00'; document.getElementById('pr-end').value = '24:00';
+      document.getElementById('pr-priority').value = 20; document.getElementById('pr-holiday').value = 'false'; document.getElementById('pr-active').value = 'true';
+      document.querySelectorAll('.pr-day').forEach(c => { c.checked = false; });
+    }
+    function editRule(id) {
+      const r = PRICING.rules.find(x => x.id === id);
+      const set = (k, v) => { document.getElementById(k).value = v == null ? '' : v; };
+      set('pr-id', r.id); set('pr-name', r.name); set('pr-start', r.start_time); set('pr-end', r.end_time); set('pr-priority', r.priority);
+      set('pr-p1', r.price_standard); set('pr-p2', r.price_vip); set('pr-p3', r.price_sweetbox);
+      set('pr-holiday', String(!!r.holiday)); set('pr-active', String(r.active !== false));
+      document.querySelectorAll('.pr-day').forEach(c => { c.checked = (r.days || []).includes(Number(c.value)); });
+      document.getElementById('pr-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const savePriceRule = () => act(async () => {
+      await post('price_rule_save', { id: val('pr-id') || undefined, name: val('pr-name'), days: [...document.querySelectorAll('.pr-day:checked')].map(c => Number(c.value)),
+        holiday: val('pr-holiday') === 'true', start_time: val('pr-start'), end_time: val('pr-end'), priority: val('pr-priority'),
+        price_standard: val('pr-p1'), price_vip: val('pr-p2'), price_sweetbox: val('pr-p3'), active: val('pr-active') === 'true' });
+      resetRuleForm();
+      await loadPricing();
+    });
+    const deleteRule = (id) => act(async () => { if (!confirm('Xóa quy tắc giá này?')) return; await post('price_rule_delete', { id }); await loadPricing(); });
+    const saveTicketType = (id, toggleTo) => act(async () => {
+      const t = PRICING.ticket_types.find(x => x.id === id);
+      const offEl = document.getElementById('tt-off-' + id);
+      await post('ticket_type_save', { id, label: val('tt-label-' + id), off: offEl ? offEl.value : 0, note: val('tt-note-' + id), sort: t.sort,
+        active: toggleTo === undefined ? t.active !== false : toggleTo });
+      await loadPricing();
+    });
+    const saveHoliday = () => act(async () => { await post('holiday_save', { date: val('hd-date'), name: val('hd-name') }); document.getElementById('hd-name').value = ''; await loadPricing(); });
+    const deleteHoliday = (date) => act(async () => { await post('holiday_delete', { date }); await loadPricing(); });
+
     async function loadCatalog() {
+      loadPricing().catch(e => console.warn(e));
       CAT = await api('admin?action=catalog');
       const opt = (rows, label, sel) => rows.map(r => `<option value="${esc(r.id)}" ${r.id === sel ? 'selected' : ''}>${esc(label(r))}</option>`).join('');
       document.getElementById('sc-movie').innerHTML = opt(CAT.movies.filter(m => m.status !== 'HIDDEN'), m => m.title);
@@ -749,7 +841,7 @@
     }
     const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
       remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
-      movie_save: 'Lưu phim', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
+      movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
       change_password: 'Đổi mật khẩu', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
     function renderAudit() {
       const q = document.getElementById('au-search').value.trim().toLowerCase();

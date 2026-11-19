@@ -528,6 +528,16 @@
       </span>
     </div>
 
+    <!-- Chọn loại vé theo đối tượng (giá giảm cho HSSV / trẻ em / người cao tuổi) -->
+    <section class="c" id="ticket-type-panel" hidden aria-labelledby="tt-title" style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline;">
+        <h3 id="tt-title" style="font-size: 16px; font-weight: 800; margin: 0;">Loại vé</h3>
+        <span class="m" style="font-size: 12.5px;" id="tt-hint">Mặc định tất cả là vé Người lớn. Ghế đôi Sweetbox không áp dụng vé ưu đãi.</span>
+      </div>
+      <div id="tt-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;"></div>
+      <p class="m" id="tt-price-note" style="font-size: 12.5px; margin: 0;"></p>
+    </section>
+
     <!-- Khối Tóm Tắt & Tiếp Tục Thanh Toán (Sticky Bottom Bar) -->
     <div class="c seat-summary-bar" style="position: sticky; bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; z-index: 1000; box-shadow: 0 10px 30px rgba(0, 81, 152, 0.12); border: 1.5px solid #cbd5e1; background: #ffffff;">
       <div>
@@ -689,7 +699,48 @@
     });
 
     // Cập nhật thanh tóm tắt & tính tổng tiền
+    // ---------- Loại vé ----------
+    let TYPES = BetaCatalog.TICKET_TYPES;
+    const typeCounts = Pay.typesFromUrl();
+    const eligibleCount = () => selectedSeats.filter(s => s.type !== 'sweetbox').length;
+    const specialCount = () => Object.values(typeCounts).reduce((a, b) => a + b, 0);
+    function renderTypes() {
+      const panel = document.getElementById('ticket-type-panel');
+      panel.hidden = selectedSeats.length === 0;
+      // Bớt ghế thì bớt vé ưu đãi tương ứng (ưu đãi lớn bị bớt sau cùng)
+      let over = specialCount() - eligibleCount();
+      const order = Object.keys(typeCounts).sort((a, b) => ((TYPES[a] || {}).off || 0) - ((TYPES[b] || {}).off || 0));
+      for (const k of order) { while (over > 0 && typeCounts[k] > 0) { typeCounts[k]--; over--; } if (!typeCounts[k]) delete typeCounts[k]; }
+      const adults = eligibleCount() - specialCount();
+      const esc = (x) => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      document.getElementById('tt-list').innerHTML = Object.entries(TYPES).map(([code, t]) => {
+        const n = code === 'ADULT' ? adults : (typeCounts[code] || 0);
+        const canAdd = code !== 'ADULT' && adults > 0;
+        return `<div style="border: 1.5px solid ${n ? 'var(--a, #005198)' : 'var(--border-dark, #cbd5e1)'}; border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; gap: 10px; align-items: center;">
+          <div style="min-width: 0;">
+            <b style="font-size: 14px;">${esc(t.label)}</b>${t.off ? ` <span style="color: #15803d; font-weight: 800; font-size: 12.5px;">−${Pay.vnd(t.off)}</span>` : ''}
+            ${t.note ? `<div class="m" style="font-size: 12px; line-height: 1.4;">${esc(t.note)}</div>` : ''}
+          </div>
+          ${code === 'ADULT' ? `<b style="font-size: 16px; min-width: 24px; text-align: center;" aria-label="Số vé người lớn">${n}</b>` : `
+          <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+            <button type="button" class="o" style="min-width: 34px; min-height: 34px; padding: 0;" aria-label="Bớt vé ${esc(t.label)}" onclick="changeType('${code}', -1)" ${n ? '' : 'disabled'}>−</button>
+            <b style="min-width: 20px; text-align: center;" aria-live="polite">${n}</b>
+            <button type="button" class="o" style="min-width: 34px; min-height: 34px; padding: 0;" aria-label="Thêm vé ${esc(t.label)}" onclick="changeType('${code}', 1)" ${canAdd ? '' : 'disabled'}>+</button>
+          </div>`}
+        </div>`;
+      }).join('');
+      const rules = (SHOWTIME && SHOWTIME.prices && SHOWTIME.prices.rules) || [];
+      document.getElementById('tt-price-note').textContent = rules.length ? 'Giá suất này: ' + rules.join(' · ') + (SHOWTIME.prices.holiday ? ' (' + SHOWTIME.prices.holiday + ')' : '') : '';
+    }
+    function changeType(code, d) {
+      const next = (typeCounts[code] || 0) + d;
+      if (next < 0 || (d > 0 && specialCount() >= eligibleCount())) return;
+      if (next) typeCounts[code] = next; else delete typeCounts[code];
+      updateSummary();
+    }
+
     function updateSummary() {
+      renderTypes();
       const seatsDisplay = document.getElementById('checkout-selected-seats');
       const totalDisplay = document.getElementById('checkout-total-price');
       const metaDisplay = document.getElementById('checkout-meta-detail');
@@ -703,7 +754,9 @@
         btnNext.removeAttribute('href');
       } else {
         const seatIds = selectedSeats.map(s => s.id).join(', ');
-        const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+        // Tạm tính theo đúng công thức máy chủ (giá ghế của suất + giảm theo loại vé)
+        let total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+        try { total = BetaCatalog.quote({ seats: seatIds, prices: PRICES, ticket_types: typeCounts, types: TYPES }).seat_total; } catch (e) {}
         seatsDisplay.textContent = seatIds;
         totalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(total) + 'đ';
         
@@ -712,7 +765,8 @@
         btnNext.classList.remove('disabled');
 
         // Chuyển tiếp mượt mà sang bước 3: Chọn bắp nước (combo.html)
-        const comboUrl = 'combo.html?showtime=' + encodeURIComponent(SHOWTIME ? SHOWTIME.id : '') + '&seats=' + encodeURIComponent(seatIds);
+        const comboUrl = 'combo.html?showtime=' + encodeURIComponent(SHOWTIME ? SHOWTIME.id : '') + '&seats=' + encodeURIComponent(seatIds) +
+          (specialCount() ? '&types=' + encodeURIComponent(JSON.stringify(typeCounts)) : '');
         btnNext.href = comboUrl;
       }
     }
@@ -749,6 +803,8 @@
       currentDate = SHOWTIME.date_label;
       currentTime = SHOWTIME.time;
       PRICES = SHOWTIME.prices;
+      const pr = await Pay.pricing();
+      if (pr && pr.ticket_types) TYPES = pr.ticket_types;
       ['standard', 'vip', 'sweetbox'].forEach(t => { const el = document.getElementById('lg-' + t); if (el) el.textContent = Pay.vnd(PRICES[t]).replace(' ', ''); });
       document.querySelectorAll('.r i[data-id]').forEach(el => { const t = BetaCatalog.seatType(el.dataset.id); if (t) el.dataset.price = PRICES[t]; });
       initParams();

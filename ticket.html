@@ -740,6 +740,18 @@
         const s = Array.isArray(ord.seats) ? ord.seats.join(', ') : ord.seats;
         const count = Array.isArray(ord.seats) ? ord.seats.length : ord.seats.split(',').length;
         document.getElementById('ticket-seats-list').textContent = s + ' (' + count + ' ghế)';
+        // Vé ưu đãi theo đối tượng: nhắc khách mang giấy tờ khi vào rạp
+        const special = Object.entries(ord.ticket_types || {}).filter(([, c]) => c && c !== 'ADULT' && c !== 'COUPLE');
+        if (special.length) {
+          Pay.pricing().then(pr => {
+            const T = (pr && pr.ticket_types) || BetaCatalog.TICKET_TYPES;
+            const el = document.getElementById('ticket-seats-list');
+            const note = document.createElement('div');
+            note.style.cssText = 'font-size: 12.5px; font-weight: 700; color: #92400e; margin-top: 4px;';
+            note.textContent = 'Vé ưu đãi: ' + special.map(([seat, c]) => seat + ' – ' + ((T[c] || {}).label || c)).join(', ') + '. Vui lòng mang giấy tờ để nhân viên kiểm tra.';
+            el.after(note);
+          });
+        }
         // Nhãn hạng vé theo ghế thật (thường / VIP / Sweetbox)
         const types = new Set((Array.isArray(ord.seats) ? ord.seats : String(ord.seats).split(',')).map((x) => window.BetaCatalog ? BetaCatalog.seatType(x) : null));
         const cls = document.getElementById('ticket-seat-class');

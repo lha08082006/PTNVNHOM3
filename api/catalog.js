@@ -4,6 +4,7 @@
 //   GET ?action=showtimes&cinema=&date=&movie=&days= suất chiếu (ngày YYYY-MM-DD, giờ VN) kèm số ghế trống
 //   GET ?action=showtime&id=                        một suất chiếu (phim, rạp, giá ghế)
 //   GET ?action=voucher&code=                       kiểm tra mã giảm giá (theo thành viên đang đăng nhập)
+//   GET ?action=pricing                             bảng giá: loại vé, quy tắc giá theo ngày/khung giờ, ngày lễ sắp tới
 const CatalogDB = require('../lib/catalog-db');
 const Auth = require('../lib/auth');
 const { fail, clean } = require('../lib/api-util');
@@ -13,6 +14,18 @@ module.exports = async function handler(req, res) {
   const q = req.query || {};
   const action = clean(q.action);
   try {
+    if (action === 'pricing') {
+      const pr = await CatalogDB.pricing();
+      const today = CatalogDB.vnToday();
+      return res.status(200).json({
+        ok: true, ticket_types: pr.types, default_prices: require('../catalog').SEAT_PRICES,
+        rules: pr.rules.sort((a, b) => (a.priority || 0) - (b.priority || 0)).map(r => ({
+          name: r.name, days: r.days || [], holiday: !!r.holiday, start_time: r.start_time, end_time: r.end_time,
+          price_standard: r.price_standard || null, price_vip: r.price_vip || null, price_sweetbox: r.price_sweetbox || null
+        })),
+        holidays: [...pr.holidays.entries()].filter(([d]) => d >= today).sort().slice(0, 20).map(([date, name]) => ({ date, name }))
+      });
+    }
     if (action === 'movies') return res.status(200).json({ ok: true, movies: await CatalogDB.movies() });
     if (action === 'cinemas') return res.status(200).json({ ok: true, cinemas: await CatalogDB.cinemas() });
     if (action === 'showtimes') {
