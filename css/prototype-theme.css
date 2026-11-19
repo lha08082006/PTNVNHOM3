@@ -1280,3 +1280,12 @@ a[href], button:not(:disabled), [role="button"], label[for], select, summary {
     scroll-behavior: auto !important;
   }
 }
+/* SVG icon system (Lucide-style) – replaces emoji icons */
+.ic {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.18em;
+  flex-shrink: 0;
+  stroke-width: 2;
+}

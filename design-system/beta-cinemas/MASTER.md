@@ -1,214 +1,121 @@
-# Design System Master File
+# Design System Master File — Beta Cinemas
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+> **LOGIC:** Khi làm một trang cụ thể, xem trước `design-system/beta-cinemas/pages/[page-name].md`.
+> Nếu file đó tồn tại, quy tắc trong đó ghi đè file Master này. Nếu không, dùng file này.
 
----
-
-**Project:** Beta Cinemas
-**Generated:** 2026-11-19 04:49:35
-**Category:** Theater/Cinema
+**Project:** Beta Cinemas (website đặt vé xem phim + thanh toán VietQR/SePay)
+**Stack:** HTML tĩnh + CSS thuần (`css/prototype-theme.css`) + JS thuần. Không dùng framework.
+**Nguồn token:** `:root` trong `css/prototype-theme.css` — luôn dùng biến CSS, không viết mã hex mới trong trang.
 
 ---
 
 ## Global Rules
 
-### Color Palette
+### Color Palette (nhận diện Beta — giữ nguyên)
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#1E1B4B` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#312E81` | `--color-secondary` |
-| On Secondary | `#FFFFFF` | `--color-on-secondary` |
-| Accent/CTA | `#CA8A04` | `--color-accent` |
-| On Accent/CTA | `#0F172A` | `--color-on-accent` |
-| Background | `#0F0F23` | `--color-background` |
-| Foreground | `#F8FAFC` | `--color-foreground` |
-| Card | `#1B1B30` | `--color-card` |
-| Card Foreground | `#F8FAFC` | `--color-card-foreground` |
-| Muted | `#27273B` | `--color-muted` |
-| Muted Foreground | `#94A3B8` | `--color-muted-foreground` |
-| Border | `#4338CA` | `--color-border` |
-| Destructive | `#EF4444` | `--color-destructive` |
-| On Destructive | `#000000` | `--color-on-destructive` |
-| Ring | `#FFFFFF` | `--color-ring` |
+| Role | Hex | CSS Variable | Ghi chú |
+|------|-----|--------------|---------|
+| Primary (Navy) | `#005198` | `--beta-navy` | Header, link, nút chính, ghế VIP |
+| Primary dark | `#003768` | `--beta-navy-dark` | Hover/active của navy |
+| Primary soft | `#f0f7ff` | `--beta-blue-soft` | Nền khối thông tin |
+| Accent / CTA | `#ff5400` | `--beta-orange` | Nút "Đặt vé", giá tiền, nhãn tuổi |
+| Accent hover | `#e04a00` | `--beta-orange-hover` | |
+| Warning | `#f59e0b` | `--beta-yellow` / `--color-warning` | Chờ xử lý, cảnh báo |
+| Success | `#10b981` | `--color-success` | Đã thanh toán, hoàn tiền xong |
+| Danger | `#ef4444` | `--color-danger` | Đã hủy, lỗi |
+| Text | `#0f172a` | `--slate-900` | Văn bản chính |
+| Text muted | `#64748b` | `--slate-500` | Văn bản phụ (≥ 13px) |
+| Border | `#e2e8f0` | `--slate-200` | |
+| Background | `#f8fafc` | `--slate-50` | Nền trang |
 
-**Color Notes:** Dramatic dark + spotlight gold
+**Lưu ý tương phản (WCAG):**
+- Chữ trắng trên `--beta-orange` chỉ đạt ~3.3:1 → chỉ dùng cho chữ **đậm ≥ 14px** (nút, badge). Chữ cam nhỏ trên nền trắng: dùng `--beta-orange-hover` (#e04a00).
+- Chữ trắng trên `--beta-navy` đạt ~8:1 — an toàn mọi cỡ.
+- Không truyền đạt trạng thái chỉ bằng màu: badge luôn có icon + chữ (vd. icon check + "ĐÃ THANH TOÁN").
 
 ### Typography
 
-- **Heading Font:** Righteous
-- **Body Font:** Poppins
-- **Mood:** music, entertainment, fun, energetic, bold, performance
-- **Google Fonts:** [Righteous + Poppins](https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Righteous&display=swap)
+- **Heading / số liệu nổi bật:** Montserrat (600–900)
+- **Body / UI:** Be Vietnam Pro (400–800) — hỗ trợ đầy đủ dấu tiếng Việt
+- **Google Fonts:** `https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap`
+- Body tối thiểu 14px (khuyến nghị 15–16px), line-height 1.5. Chữ < 12px chỉ cho nhãn phụ in hoa.
 
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Righteous&display=swap');
-```
-
-### Spacing Variables
+### Spacing & Radius
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
+| xs | 4px | Khoảng cách icon–chữ |
+| sm | 8px | Gap trong nhóm nút/chip |
+| md | 16px | Padding chuẩn |
+| lg | 24px | Padding card |
+| xl | 32px | Khoảng cách section |
+| radius | 8px (input, nút) / 12–16px (card) / 999px (chip, badge) | |
 
-### Shadow Depths
+### Shadows
 
 | Level | Value | Usage |
 |-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
+| sm | `0 1px 2px rgba(15,23,42,.06)` | Chip, input |
+| md | `0 4px 12px rgba(15,23,42,.08)` | Card |
+| lg | `0 12px 32px rgba(15,23,42,.12)` | Modal, dropdown |
 
 ---
+
+## Icons
+
+- **Không dùng emoji làm icon.** Dùng SVG inline kiểu Lucide (stroke 2, `stroke="currentColor"`), class `ic`:
+  ```html
+  <svg class="ic" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">…</svg>
+  ```
+- Icon tự theo cỡ chữ (1em) và màu chữ cha. Icon trang trí luôn `aria-hidden="true"`.
+- Nút chỉ có icon (đóng, tìm kiếm, slider…) **bắt buộc** có `aria-label`.
+- Bảng icon dùng chung: x (đóng), check, hourglass (chờ), alert (cảnh báo), circle-x (hủy), ticket, receipt (hóa đơn), banknote/wallet (tiền), card (thanh toán), map-pin (rạp), clock (suất chiếu), calendar, seat (ghế), user, bot, phone, search.
 
 ## Component Specs
 
 ### Buttons
-
-```css
-/* Primary Button */
-.btn-primary {
-  background: #CA8A04;
-  color: #0F172A;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #F8FAFC;
-  border: 2px solid #1E1B4B;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
+- Primary CTA: nền `--beta-orange`, chữ trắng đậm, radius 8px, cao ≥ 44px, hover `--beta-orange-hover`, transition 200ms.
+- Secondary: nền `--beta-navy`, chữ trắng; Outline: viền navy, chữ navy.
+- Disabled: opacity .5, `cursor: not-allowed`.
 
 ### Cards
+- Nền trắng, viền `--slate-200`, radius 12–16px, shadow md, padding 24px.
 
-```css
-.card {
-  background: #0F0F23;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
+### Badges trạng thái đơn
+| Trạng thái | Nền | Chữ | Icon |
+|-----------|-----|-----|------|
+| Đã thanh toán | `#d1fae5` | `#065f46` | check |
+| Đang xử lý hoàn tiền | `#dbeafe` | `#1e40af` | hourglass |
+| Chưa hoàn tiền / cảnh báo | `#fef3c7` | `#b45309` | alert |
+| Đã hủy | `#fee2e2` | `#b91c1c` | circle-x |
 
 ### Inputs
+- Label hiển thị phía trên (không dùng placeholder thay label), viền `--slate-300`, focus viền navy + ring.
+- Lỗi hiển thị ngay dưới ô, màu danger, kèm icon alert.
 
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
-
-.input:focus {
-  border-color: #1E1B4B;
-  outline: none;
-  box-shadow: 0 0 0 3px #1E1B4B20;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
+### Ghế ngồi
+- Thường `--seat-standard`, VIP `--seat-vip`, Sweetbox `--seat-sweetbox`; ghế đã bán phải khác biệt cả về **hình** (gạch chéo/icon x), không chỉ màu.
 
 ---
 
-## Style Guidelines
-
-**Style:** Dark Mode (OLED)
-
-**Keywords:** Dark theme, low light, high contrast, deep black, midnight blue, eye-friendly, OLED, night mode, power efficient
-
-**Best For:** Night-mode apps, coding platforms, entertainment, eye-strain prevention, OLED devices, low-light
-
-**Key Effects:** Minimal glow (text-shadow: 0 0 10px), dark-to-light transitions, low white emission, high readability, visible focus
-
-### Page Pattern
-
-**Pattern Name:** Funnel (3-Step Conversion)
-
-- **Conversion Strategy:** Progressive disclosure. Show only essential info per step. Use progress indicators. Multiple CTAs.
-- **CTA Placement:** Each step: mini-CTA. Final: main CTA
-- **Section Order:** Hero > Step 1 (problem) > Step 2 (solution) > Step 3 (action) > CTA progression
-
----
+## Accessibility & Motion (đã có trong `prototype-theme.css`)
+- `:focus-visible` viền cam 3px — không được `outline: none` mà không thay thế.
+- `prefers-reduced-motion` tắt animation/transition.
+- `cursor: pointer` cho mọi phần tử bấm được.
 
 ## Anti-Patterns (Do NOT Use)
-
-- ❌ Poor booking UX
-- ❌ No trailers
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
-
----
+- Emoji làm icon
+- Mã hex rải rác trong trang thay vì biến CSS
+- Chữ xám nhạt trên nền xám (< 4.5:1)
+- Nút icon không có `aria-label`
+- Luồng đặt vé không có tiến trình / không có nút quay lại rõ ràng
 
 ## Pre-Delivery Checklist
-
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+- [ ] Không có emoji làm icon (dùng SVG `.ic`)
+- [ ] Màu lấy từ biến trong `:root`
+- [ ] Tương phản chữ ≥ 4.5:1
+- [ ] Focus bàn phím nhìn thấy được
+- [ ] `prefers-reduced-motion` được tôn trọng
+- [ ] Vùng chạm ≥ 44×44px trên mobile
+- [ ] Responsive: 375px, 768px, 1024px, 1440px — không cuộn ngang
