@@ -706,6 +706,107 @@ const Pay = {
     return JSON.parse(JSON.stringify(Pay.DEMO_INVOICES));
   },
 
+  // =========================================================================
+  // VOUCHER (bản demo lưu trình duyệt — sau này lấy từ bảng vouchers)
+  // type: 'percent' (value = %) | 'amount' (value = số tiền)
+  // =========================================================================
+  VOUCHERS: [
+    { code: 'BETAVIP', title: 'Thành viên VIP giảm 20%', type: 'percent', value: 20, max: 50000, minTotal: 100000, expires: '31/12/2026' },
+    { code: 'NEWMEMBER', title: 'Thành viên mới giảm 50.000đ', type: 'amount', value: 50000, minTotal: 150000, oncePerUser: true, expires: '31/12/2026' },
+    { code: 'COMBO30', title: 'Giảm 30.000đ khi mua kèm bắp nước', type: 'amount', value: 30000, needCombo: true, expires: '31/12/2026' },
+    { code: 'T3VUIVE', title: 'Thứ Ba vui vẻ giảm 15%', type: 'percent', value: 15, max: 40000, weekday: 2, expires: '31/12/2026' },
+    { code: 'HSSV', title: 'Học sinh - sinh viên giảm 10.000đ / vé', type: 'perSeat', value: 10000, expires: '31/12/2026' }
+  ],
+
+  getVoucher(code) {
+    code = String(code || '').trim().toUpperCase();
+    return Pay.VOUCHERS.find(v => v.code === code) || null;
+  },
+
+  _usedKey() {
+    const u = (typeof Layout !== 'undefined' && Layout.getUser && Layout.getUser()) || {};
+    return 'BETA_VOUCHER_USED_' + (u.email || u.phone || 'guest');
+  },
+
+  usedVouchers() {
+    try { return JSON.parse(localStorage.getItem(Pay._usedKey()) || '[]'); } catch (e) { return []; }
+  },
+
+  markVoucherUsed(code) {
+    const v = Pay.getVoucher(code);
+    if (!v || !v.oncePerUser) return;
+    const list = Pay.usedVouchers();
+    if (list.indexOf(v.code) < 0) list.push(v.code);
+    try { localStorage.setItem(Pay._usedKey(), JSON.stringify(list)); } catch (e) {}
+  },
+
+  /**
+   * Tính tiền giảm của voucher cho đơn hàng.
+   * ctx: { subtotal, comboTotal, seatCount, date: Date }
+   * Trả về { ok, discount, message }
+   */
+  evaluateVoucher(code, ctx) {
+    const v = Pay.getVoucher(code);
+    if (!v) return { ok: false, discount: 0, message: 'Mã giảm giá không tồn tại.' };
+    const exp = String(v.expires).split('/');
+    if (new Date() > new Date(+exp[2], +exp[1] - 1, +exp[0], 23, 59, 59)) return { ok: false, discount: 0, message: 'Mã ' + v.code + ' đã hết hạn.' };
+    if (v.oncePerUser && Pay.usedVouchers().indexOf(v.code) >= 0) return { ok: false, discount: 0, message: 'Bạn đã dùng mã ' + v.code + ' rồi.' };
+    if (v.minTotal && ctx.subtotal < v.minTotal) return { ok: false, discount: 0, message: 'Mã ' + v.code + ' áp dụng cho đơn từ ' + Pay.vnd(v.minTotal) + '.' };
+    if (v.needCombo && !ctx.comboTotal) return { ok: false, discount: 0, message: 'Mã ' + v.code + ' chỉ áp dụng khi mua kèm bắp nước.' };
+    if (v.weekday !== undefined && (ctx.date || new Date()).getDay() !== v.weekday) return { ok: false, discount: 0, message: 'Mã ' + v.code + ' chỉ áp dụng cho suất chiếu thứ Ba.' };
+
+    let discount = v.type === 'percent' ? Math.round(ctx.subtotal * v.value / 100)
+      : v.type === 'perSeat' ? v.value * (ctx.seatCount || 1)
+      : v.value;
+    if (v.max) discount = Math.min(discount, v.max);
+    discount = Math.min(discount, ctx.subtotal);
+    return { ok: true, discount, message: '✓ Áp dụng mã ' + v.code + ': giảm ' + Pay.vnd(discount) + '.' };
+  },
+
+  // =========================================================================
+  // PHIẾU HỖ TRỢ / KHIẾU NẠI (support.html tạo, admin.html xử lý)
+  // =========================================================================
+  getTickets() {
+    try { return JSON.parse(localStorage.getItem('BETA_SUPPORT_TICKETS') || '[]'); } catch (e) { return []; }
+  },
+
+  saveTickets(list) {
+    try { localStorage.setItem('BETA_SUPPORT_TICKETS', JSON.stringify(list)); } catch (e) {}
+  },
+
+  createTicket(data) {
+    const list = Pay.getTickets();
+    const ticket = Object.assign({
+      code: 'CS-' + String(Date.now()).slice(-6),
+      status: 'NEW',
+      created_at: new Date().toISOString(),
+      replies: []
+    }, data);
+    list.unshift(ticket);
+    Pay.saveTickets(list);
+    return ticket;
+  },
+
+  // Tìm đơn theo mã (BC...) hoặc số điện thoại: đơn đã lưu, đơn mẫu, rồi tới API
+  async findOrders(query) {
+    query = String(query || '').trim().toUpperCase();
+    if (!query) return [];
+    if (/^BC\d+$/.test(query)) {
+      const view = Pay.getOrderView(query);
+      if (view && (Pay.getLocalOrder(query) || Pay.DEMO_INVOICES[query])) return [view];
+      try {
+        const o = await Pay.call('order-status?code=' + encodeURIComponent(query));
+        if (o && o.code) { Pay.saveLocalOrder(o); return [Pay.getOrderView(o.code)]; }
+      } catch (e) {}
+      return [];
+    }
+    const phone = query.replace(/\D/g, '');
+    return Object.values(Pay.getLocalOrders())
+      .filter(o => o.phone === phone)
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .map(o => Pay.getOrderView(o.code));
+  },
+
   // Nhãn trạng thái đơn hàng dùng chung
   STATUS_BADGES: {
     PAID:      ['#d1fae5', '#065f46', '✓ ĐÃ THANH TOÁN'],

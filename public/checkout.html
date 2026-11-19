@@ -318,7 +318,7 @@
         <section class="c" style="display: flex; flex-direction: column; gap: 12px;">
           <h3 style="font-size: 17px; font-weight: 800;">🎟️ Khuyến mãi</h3>
           <div style="display: flex; gap: 10px;">
-            <input type="text" id="voucher-input" placeholder="Nhập mã voucher (Thử: BETAVIP)" style="flex: 1; height: 42px; border-radius: 8px; padding: 0 14px; background: #ffffff; border: 1.5px solid var(--border-dark); color: var(--text-light); font-size: 14px;">
+            <input type="text" id="voucher-input" placeholder="Nhập mã voucher (VD: BETAVIP, COMBO30, HSSV)" style="flex: 1; height: 42px; border-radius: 8px; padding: 0 14px; background: #ffffff; border: 1.5px solid var(--border-dark); color: var(--text-light); font-size: 14px;">
             <button class="b" onclick="applyVoucher()" style="min-height: 42px; height: 42px; padding: 0 20px; border-radius: 8px; font-size: 14px;">
               Áp dụng
             </button>
@@ -468,6 +468,7 @@
 
   <!-- Script quản lý giỏ hàng bắp nước, voucher, URL params và thanh toán -->
   <script src="js/pay-client.js"></script>
+  <script src="js/showtimes.js"></script>
   <script>
     const MOVIE_DETAILS = Pay.MOVIES;
 
@@ -560,6 +561,18 @@
     }
 
     // Áp dụng voucher
+    // Voucher: kiểm tra điều kiện bằng Pay.evaluateVoucher, tính lại mỗi khi đổi combo
+    let appliedVoucher = '';
+
+    function voucherContext(comboTotal) {
+      return {
+        subtotal: baseSeatPrice + comboTotal,
+        comboTotal,
+        seatCount: selectedSeatsStr.split(',').filter(x => x.trim()).length,
+        date: Showtimes.parseTag(currentDate)
+      };
+    }
+
     function applyVoucher() {
       const code = document.getElementById('voucher-input').value.trim().toUpperCase();
       const msgEl = document.getElementById('voucher-msg');
@@ -568,15 +581,7 @@
         msgEl.style.color = '#ef4444';
         return;
       }
-      if (code === 'BETAVIP' || code === 'ALPHA' || code === 'CINEMA') {
-        discountAmount = 20000;
-        msgEl.textContent = '✓ Áp dụng thành công mã ' + code + ': Giảm 20.000 đ!';
-        msgEl.style.color = 'var(--status-live)';
-        document.getElementById('summary-discount-row').style.display = 'flex';
-      } else {
-        msgEl.textContent = 'Mã giảm giá không hợp lệ hoặc đã hết lượt dùng.';
-        msgEl.style.color = '#ef4444';
-      }
+      appliedVoucher = code;
       calcTotal();
     }
 
@@ -597,6 +602,20 @@
           combosBox.appendChild(row);
         }
       }
+
+      // Tính lại voucher theo tổng tiền hiện tại
+      discountAmount = 0;
+      const msgEl = document.getElementById('voucher-msg');
+      const discountRow = document.getElementById('summary-discount-row');
+      if (appliedVoucher) {
+        const r = Pay.evaluateVoucher(appliedVoucher, voucherContext(comboTotal));
+        msgEl.textContent = r.message;
+        msgEl.style.color = r.ok ? 'var(--status-live)' : '#ef4444';
+        if (r.ok) discountAmount = r.discount;
+        else appliedVoucher = '';
+      }
+      discountRow.style.display = discountAmount > 0 ? 'flex' : 'none';
+      document.getElementById('summary-discount-amount').textContent = '-' + Pay.vnd(discountAmount);
 
       const finalTotal = Math.max(0, baseSeatPrice + comboTotal - discountAmount);
       document.getElementById('summary-total-amount').textContent = new Intl.NumberFormat('vi-VN').format(finalTotal) + ' đ';
@@ -648,7 +667,7 @@
             show_time: currentTime,
             seats: seatArray,
             combos: combosPayload,
-            voucher: discountAmount > 0 ? 'BETAVIP' : null,
+            voucher: appliedVoucher || null,
             total: finalTotal,
             phone: currentUser.phone || null,
             customer_name: currentUser.name || null,
@@ -676,8 +695,11 @@
           phone: currentUser.phone || null,
           customer_name: currentUser.name || null,
           email: currentUser.email || null,
+          voucher: appliedVoucher || null,
+          discount: discountAmount,
           created_at: new Date().toISOString()
         });
+        if (appliedVoucher) Pay.markVoucherUsed(appliedVoucher);
 
         // Luôn chuyển sang cổng QR sau khi có mã đơn
         const query = new URLSearchParams({

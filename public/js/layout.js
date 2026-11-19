@@ -41,7 +41,7 @@
     'ticket-cancelled': 'member', 'ticket-refunded': 'member'
   };
 
-  const DEMO_USER = { name: 'LƯƠNG HỒNG ANH' };
+  const DEMO_USER = { name: 'LƯƠNG HỒNG ANH', phone: '0987654321', email: 'luonghonganh@betacinemas.vn', dob: '2006-08-08' };
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

@@ -92,6 +92,7 @@
     }
   </style>
   <script src="js/layout.js"></script>
+  <script src="js/pay-client.js"></script>
 </head>
 <body>
 
@@ -109,7 +110,7 @@
 
       <!-- Fast Lookup Search Box -->
       <div class="support-search-box">
-        <input type="text" class="support-search-input" id="lookup-input" placeholder="Nhập mã đơn hàng BC... hoặc Số điện thoại mua vé" value="BC2610279854">
+        <input type="text" class="support-search-input" id="lookup-input" placeholder="Nhập mã đơn hàng BC... hoặc Số điện thoại mua vé" onkeydown="if (event.key === 'Enter') lookupOrder()">
         <button class="btn btn-primary support-search-btn" onclick="lookupOrder()">
           Tra Cứu Vé
         </button>
@@ -127,23 +128,8 @@
   <!-- Main Grid Content -->
   <main class="container">
     
-    <!-- Kết quả tra cứu nhanh (Mô phỏng) -->
-    <div id="lookup-result-box" style="display: block; margin: 30px auto; max-width: 800px; background: white; border-radius: 16px; border: 1.5px solid #10b981; padding: 20px 26px; box-shadow: var(--shadow-md);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="color: #10b981; font-size: 20px;">✓</span>
-          <strong style="font-size: 16px; color: var(--beta-navy);">Đơn hàng: BC2610279854</strong>
-        </div>
-        <span class="badge" style="background: #d1fae5; color: #065f46;">ĐÃ THANH TOÁN (HỢP LỆ)</span>
-      </div>
-      <div style="font-size: 13.5px; color: #475569; line-height: 1.6;">
-        Phim: <strong>Linh Giới Đại Chiến: Thần Sư Chung Quỳ</strong> • Suất chiếu: <strong>18:30 (27/10/2026)</strong><br>
-        Rạp: <strong>Beta Thanh Xuân (HN)</strong> • Ghế: <strong>F07, F08 (VIP)</strong> • Tổng tiền: <strong>179.000 đ</strong>
-      </div>
-      <div style="margin-top: 14px; display: flex; gap: 10px;">
-        <a href="ticket.html" class="btn btn-primary btn-sm">Xem Vé Điện Tử QR</a>
-      </div>
-    </div>
+    <!-- Kết quả tra cứu -->
+    <div id="lookup-result-box" aria-live="polite" style="display: none; margin: 30px auto; max-width: 800px;"></div>
 
     <div class="support-grid">
       
@@ -157,10 +143,10 @@
             Hệ thống đối soát tự động xử lý khiếu nại trong vòng 15-30 phút làm việc.
           </p>
 
-          <form onsubmit="event.preventDefault(); alert('Đã tiếp nhận yêu cầu hỗ trợ! Mã phiếu tiếp nhận: CS-2610-889. Nhân viên CSKH sẽ liên hệ lại bạn qua SĐT/Email.');">
+          <form id="support-form" onsubmit="event.preventDefault(); submitTicket();">
             <div class="form-group">
-              <label class="form-label">Loại vấn đề cần hỗ trợ <span style="color: var(--beta-orange);">*</span></label>
-              <select class="form-input" required>
+              <label class="form-label" for="tk-type">Loại vấn đề cần hỗ trợ <span style="color: var(--beta-orange);">*</span></label>
+              <select class="form-input" id="tk-type" required>
                 <option selected>Chuyển khoản VietQR/VNPay thành công nhưng chưa nhận vé</option>
                 <option>Chuyển nhầm số tiền hoặc sai cú pháp</option>
                 <option>Yêu cầu hoàn tiền vé theo chính sách</option>
@@ -171,29 +157,32 @@
 
             <div class="form-row-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div class="form-group">
-                <label class="form-label">Mã đơn hàng (nếu có)</label>
-                <input type="text" class="form-input" placeholder="Ví dụ: BC2610279854" value="BC2610279854">
+                <label class="form-label" for="tk-order">Mã đơn hàng (nếu có)</label>
+                <input type="text" class="form-input" id="tk-order" placeholder="Ví dụ: BC2610279854">
               </div>
               <div class="form-group">
-                <label class="form-label">Số điện thoại liên hệ <span style="color: var(--beta-orange);">*</span></label>
-                <input type="tel" class="form-input" value="0987654321" required>
+                <label class="form-label" for="tk-phone">Số điện thoại liên hệ <span style="color: var(--beta-orange);">*</span></label>
+                <input type="tel" class="form-input" id="tk-phone" placeholder="09xxxxxxxx" required>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Số tiền đã giao dịch (VNĐ)</label>
-              <input type="text" class="form-input" value="179.000">
+              <label class="form-label" for="tk-amount">Số tiền đã giao dịch (VNĐ)</label>
+              <input type="text" class="form-input" id="tk-amount" inputmode="numeric" placeholder="Ví dụ: 179000">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Mô tả chi tiết sự cố</label>
-              <textarea class="form-input" rows="4" style="height: auto; padding: 12px 16px;" placeholder="Vui lòng nêu rõ ngân hàng bạn chuyển khoản, thời gian chuyển tiền...">Tôi đã quét mã VietQR và tài khoản ngân hàng báo trừ tiền 179.000đ lúc 12:45 nhưng trình duyệt bị tắt đột ngột, xin rạp kiểm tra lại giúp tôi.</textarea>
+              <label class="form-label" for="tk-desc">Mô tả chi tiết sự cố <span style="color: var(--beta-orange);">*</span></label>
+              <textarea class="form-input" id="tk-desc" rows="4" style="height: auto; padding: 12px 16px;" required placeholder="Vui lòng nêu rõ ngân hàng bạn chuyển khoản, thời gian chuyển tiền..."></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
               Gửi Yêu Cầu Cho Đội Ngũ CSKH
             </button>
+            <p id="tk-msg" role="alert" style="display: none; margin-top: 12px; font-size: 13.5px; border-radius: 8px; padding: 10px 12px;"></p>
           </form>
+
+          <div id="my-tickets" style="margin-top: 24px;"></div>
         </div>
       </div>
 
@@ -275,15 +264,106 @@
       el.classList.toggle('open');
     }
 
-    function lookupOrder() {
+    const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const TICKET_STATUS = { NEW: ['#fef3c7', '#b45309', 'Mới tiếp nhận'], PROCESSING: ['#dbeafe', '#1e40af', 'Đang xử lý'], DONE: ['#d1fae5', '#065f46', 'Đã giải quyết'] };
+
+    async function lookupOrder() {
       const val = document.getElementById('lookup-input').value.trim();
+      const box = document.getElementById('lookup-result-box');
+      box.style.display = 'block';
       if (!val) {
-        alert('Vui lòng nhập mã đơn hàng hoặc số điện thoại!');
+        box.innerHTML = '<p style="color: #b91c1c;">Vui lòng nhập mã đơn hàng hoặc số điện thoại.</p>';
         return;
       }
-      document.getElementById('lookup-result-box').style.display = 'block';
-      alert('Đã tìm thấy thông tin đơn hàng ' + val + '!');
+      box.innerHTML = '<p style="color: #64748b;">Đang tra cứu...</p>';
+      const orders = await Pay.findOrders(val);
+      if (!orders.length) {
+        box.innerHTML = `<div style="background: white; border-radius: 16px; border: 1.5px solid #fca5a5; padding: 20px 26px;">
+          Không tìm thấy đơn hàng nào với <strong>${esc(val)}</strong>. Vui lòng kiểm tra lại hoặc gửi yêu cầu hỗ trợ bên dưới.</div>`;
+        return;
+      }
+      box.innerHTML = orders.map(o => {
+        const paid = o.status === 'PAID';
+        return `<div style="background: white; border-radius: 16px; border: 1.5px solid ${paid ? '#10b981' : '#cbd5e1'}; padding: 20px 26px; box-shadow: var(--shadow-md); margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <strong style="font-size: 16px; color: var(--beta-navy);">Đơn hàng: ${esc(o.code)}</strong>
+            ${o.status ? Pay.statusBadge(o.status) : ''}
+          </div>
+          <div style="font-size: 13.5px; color: #475569; line-height: 1.6;">
+            Phim: <strong>${esc(o.movie.title)}</strong> • Suất chiếu: <strong>${esc(o.showtime)}</strong><br>
+            Rạp: <strong>${esc(o.cinema)}</strong> • Ghế: <strong>${esc(o.seats)}</strong> • Tổng tiền: <strong>${Pay.vnd(o.total)}</strong>
+          </div>
+          <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
+            ${paid ? `<a href="ticket.html?order=${encodeURIComponent(o.code)}" class="btn btn-primary btn-sm">Xem Vé Điện Tử QR</a>` : ''}
+            <a href="invoice.html?order=${encodeURIComponent(o.code)}" class="btn btn-outline btn-sm">Hóa đơn</a>
+            <button type="button" class="btn btn-outline btn-sm" onclick="prefillTicket('${esc(o.code)}', ${o.total})">Báo lỗi đơn này</button>
+          </div>
+        </div>`;
+      }).join('');
     }
+
+    function prefillTicket(code, total) {
+      document.getElementById('tk-order').value = code;
+      document.getElementById('tk-amount').value = total;
+      document.getElementById('tk-desc').focus();
+    }
+
+    function submitTicket() {
+      const v = id => document.getElementById(id).value.trim();
+      const msg = document.getElementById('tk-msg');
+      const phone = v('tk-phone').replace(/\D/g, '');
+      const show = (t, ok) => {
+        msg.innerHTML = t;
+        msg.style.display = 'block';
+        msg.style.background = ok ? '#f0fdf4' : '#fef2f2';
+        msg.style.color = ok ? '#166534' : '#b91c1c';
+      };
+      if (!/^0\d{9}$/.test(phone)) return show('Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0.');
+      if (v('tk-desc').length < 10) return show('Vui lòng mô tả sự cố rõ hơn (ít nhất 10 ký tự).');
+
+      const user = Layout.getUser() || {};
+      const t = Pay.createTicket({
+        type: v('tk-type'), order_code: v('tk-order').toUpperCase(), phone,
+        amount: Number(v('tk-amount').replace(/\D/g, '')) || 0, description: v('tk-desc'),
+        customer_name: user.name || '', email: user.email || ''
+      });
+      document.getElementById('tk-desc').value = '';
+      show(`✓ Đã tiếp nhận yêu cầu. Mã phiếu: <strong>${t.code}</strong>. Nhân viên CSKH sẽ liên hệ lại qua số ${phone}.`, true);
+      renderMyTickets();
+    }
+
+    // Các phiếu hỗ trợ của người đang đăng nhập (theo SĐT / email)
+    function renderMyTickets() {
+      const user = Layout.getUser() || {};
+      const mine = Pay.getTickets().filter(t => (user.phone && t.phone === user.phone) || (user.email && t.email === user.email));
+      const box = document.getElementById('my-tickets');
+      if (!mine.length) { box.innerHTML = ''; return; }
+      box.innerHTML = '<h4 style="font-weight: 800; color: var(--beta-navy); margin-bottom: 10px;">Yêu cầu của bạn</h4>' + mine.map(t => {
+        const st = TICKET_STATUS[t.status] || TICKET_STATUS.NEW;
+        const reply = (t.replies || []).slice(-1)[0];
+        return `<div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; font-size: 13.5px;">
+          <div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+            <strong>${esc(t.code)}${t.order_code ? ' · ' + esc(t.order_code) : ''}</strong>
+            <span class="badge" style="background: ${st[0]}; color: ${st[1]}; font-weight: 800; font-size: 11px;">${st[2]}</span>
+          </div>
+          <div style="color: #64748b; margin-top: 4px;">${esc(t.type)} · ${new Date(t.created_at).toLocaleString('vi-VN')}</div>
+          ${reply ? `<div style="margin-top: 8px; background: #f0f9ff; border-radius: 8px; padding: 8px 10px;"><strong>CSKH:</strong> ${esc(reply.text)}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    (function initSupport() {
+      const user = Layout.getUser() || {};
+      if (user.phone) document.getElementById('tk-phone').value = user.phone;
+      const p = new URLSearchParams(location.search);
+      const order = p.get('order');
+      if (order) {
+        document.getElementById('tk-order').value = order;
+        document.getElementById('lookup-input').value = order;
+        lookupOrder();
+      }
+      renderMyTickets();
+    })();
   </script>
 </body>
 </html>

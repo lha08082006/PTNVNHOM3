@@ -261,3 +261,110 @@ describe('API', () => {
     assert.equal(res.status, 404);
   });
 });
+
+describe('Voucher, mật khẩu, hỗ trợ, BetaBot', () => {
+  const checkoutUrl = combos => 'checkout.html?movie=suzume&cinema=Beta%20Th%C3%A1i%20Nguy%C3%AAn&date=' +
+    encodeURIComponent(TOMORROW) + '&time=10:15&seats=A1,%20A2&seatsTotal=90000&combos=' +
+    encodeURIComponent(JSON.stringify(combos)) + '&total=90000';
+
+  test('voucher tính theo điều kiện và cập nhật khi đổi combo', async () => {
+    const page = await newPage(browser);
+    await page.goto(B + checkoutUrl({}));
+    const apply = async code => { await page.fill('#voucher-input', code); await page.click('button[onclick="applyVoucher()"]'); };
+
+    await apply('KHONGCO');
+    assert.match(await text(page, '#voucher-msg'), /không tồn tại/);
+
+    await apply('COMBO30');
+    assert.match(await text(page, '#voucher-msg'), /kèm bắp nước/);
+
+    await apply('HSSV');
+    assert.equal(await text(page, '#summary-discount-amount'), '-20.000 đ');
+    assert.equal(await text(page, '#summary-total-amount'), '70.000 đ');
+
+    // BETAVIP cần đơn từ 100.000đ: thêm combo thì đủ điều kiện, giảm 20%
+    await apply('BETAVIP');
+    assert.match(await text(page, '#voucher-msg'), /từ 100\.000/);
+    await page.evaluate(() => changeQty('couple', 1));
+    await apply('BETAVIP');
+    assert.equal(await text(page, '#summary-discount-amount'), '-35.800 đ');
+    await page.context().close();
+  });
+
+  test('quên mật khẩu bằng OTP rồi đổi mật khẩu trong tài khoản', async () => {
+    const page = await newPage(browser);
+    await page.goto(B + 'auth.html#forgot');
+    await page.fill('#forgot-id', '0987654321');
+    await page.click('#forgot-step-1 .btn-b');
+    const otp = await text(page, '#forgot-demo-otp');
+    assert.match(otp, /^\d{6}$/);
+
+    await page.fill('#forgot-otp', '000000');
+    await page.fill('#forgot-password', 'matkhaumoi1');
+    await page.click('#forgot-step-2 .btn-b');
+    assert.match(await text(page, '#forgot-error-2'), /không đúng/);
+
+    await page.fill('#forgot-otp', otp);
+    await page.click('#forgot-step-2 .btn-b');
+    await page.waitForURL(/account\.html/);
+
+    // Đổi lại mật khẩu trong tài khoản
+    await page.evaluate(() => switchAccountTab('password'));
+    await page.fill('#pw-current', 'sai-mat-khau');
+    await page.fill('#pw-new', 'matkhaumoi2');
+    await page.fill('#pw-new2', 'matkhaumoi2');
+    await page.click('#panel-password button[type=submit]');
+    assert.match(await text(page, '#pw-msg'), /không đúng/);
+    await page.fill('#pw-current', 'matkhaumoi1');
+    await page.click('#panel-password button[type=submit]');
+    assert.match(await text(page, '#pw-msg'), /Đã cập nhật/);
+
+    // Mật khẩu mới dùng được để đăng nhập
+    await page.evaluate(() => Layout.setUser(null));
+    await page.goto(B + 'auth.html#login');
+    await page.fill('#login-id', 'luonghonganh@betacinemas.vn');
+    await page.fill('#input-login-password', 'matkhaumoi2');
+    await page.click('#view-login .btn-b');
+    await page.waitForURL(/account\.html/);
+
+    // Kho voucher hiển thị đủ mã
+    await page.evaluate(() => switchAccountTab('vouchers'));
+    assert.equal(await page.locator('#voucher-list > div').count(), 5);
+    await page.context().close();
+  });
+
+  test('tra cứu đơn và gửi phiếu hỗ trợ', async () => {
+    const page = await newPage(browser);
+    await page.goto(B + 'support.html');
+    await page.fill('#lookup-input', 'BC2610208819');
+    await page.click('.support-search-btn');
+    await page.waitForSelector('#lookup-result-box >> text=Trại Buôn Người', { timeout: 5000 });
+
+    await page.fill('#lookup-input', 'BC0000000000');
+    await page.click('.support-search-btn');
+    await page.waitForSelector('#lookup-result-box >> text=Không tìm thấy', { timeout: 10000 });
+
+    await page.fill('#tk-desc', 'Đã chuyển khoản nhưng chưa nhận được vé xem phim');
+    await page.click('#support-form button[type=submit]');
+    assert.match(await text(page, '#tk-msg'), /Mã phiếu: CS-\d{6}/);
+    assert.equal(await page.locator('#my-tickets >> text=Mới tiếp nhận').count(), 1);
+    await page.context().close();
+  });
+
+  test('BetaBot trả lời theo mã đơn và lịch chiếu', async () => {
+    const page = await newPage(browser);
+    await page.goto(B + 'betabot.html');
+    const ask = async q => {
+      const n = await page.locator('.msg-row.bot').count();
+      await page.fill('#user-input-box', q);
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(c => document.querySelectorAll('.msg-row.bot:not([id^="typing"])').length > c, n, { timeout: 5000 });
+      return (await page.locator('.msg-row.bot').last().innerText()).replace(/\s+/g, ' ');
+    };
+    assert.match(await ask('kiểm tra đơn BC2610208819 giúp mình'), /Trại Buôn Người/);
+    assert.match(await ask('lịch chiếu Suzume'), /Suzume|suất/i);
+    assert.match(await ask('có voucher gì không'), /BETAVIP/);
+    assert.deepEqual(page.jsErrors, []);
+    await page.context().close();
+  });
+});

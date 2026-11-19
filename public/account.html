@@ -413,6 +413,7 @@
   </style>
   <script src="js/layout.js"></script>
   <script src="js/pay-client.js"></script>
+  <script src="js/accounts.js"></script>
   <script>Layout.requireLogin();</script>
 </head>
 
@@ -471,9 +472,8 @@
         <button class="account-nav-btn" id="btn-tab-password" onclick="switchAccountTab('password')">
           <span>🔒</span> Đổi Mật Khẩu
         </button>
-        <button class="account-nav-btn"
-          onclick="alert('Bạn đang có 2 Voucher còn hiệu lực: BETADAY20 (-20k) và BIRTHDAYGIFT (Vé 2D miễn phí)!')">
-          <span>🎁</span> Kho Voucher Của Tôi (2)
+        <button class="account-nav-btn" id="btn-tab-vouchers" onclick="switchAccountTab('vouchers')">
+          <span>🎁</span> Kho Voucher Của Tôi (<span id="voucher-count">0</span>)
         </button>
         <div style="border-top: 1px solid #f1f5f9; margin: 12px 0;"></div>
         <a href="support.html" class="account-nav-btn" style="color: var(--beta-navy);">
@@ -872,19 +872,20 @@
             style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--beta-navy); margin-bottom: 20px;">
             Đổi Mật Khẩu Tài Khoản
           </h3>
-          <form onsubmit="event.preventDefault(); alert('Cập nhật mật khẩu mới thành công!');">
+          <form onsubmit="event.preventDefault(); changePassword();">
             <div class="form-group">
-              <label class="form-label">Mật khẩu hiện tại</label>
-              <input type="password" class="form-input" placeholder="••••••••" required>
+              <label class="form-label" for="pw-current">Mật khẩu hiện tại</label>
+              <input type="password" id="pw-current" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
             </div>
             <div class="form-group">
-              <label class="form-label">Mật khẩu mới (Tối thiểu 6 ký tự)</label>
-              <input type="password" class="form-input" placeholder="••••••••" required>
+              <label class="form-label" for="pw-new">Mật khẩu mới (Tối thiểu 8 ký tự)</label>
+              <input type="password" id="pw-new" class="form-input" placeholder="••••••••" autocomplete="new-password" required>
             </div>
             <div class="form-group">
-              <label class="form-label">Xác nhận mật khẩu mới</label>
-              <input type="password" class="form-input" placeholder="••••••••" required>
+              <label class="form-label" for="pw-new2">Xác nhận mật khẩu mới</label>
+              <input type="password" id="pw-new2" class="form-input" placeholder="••••••••" autocomplete="new-password" required>
             </div>
+            <p id="pw-msg" role="alert" style="font-size: 13.5px; margin-bottom: 12px; display: none;"></p>
             <button type="submit" class="btn btn-primary">
               Cập Nhật Mật Khẩu
             </button>
@@ -892,6 +893,17 @@
         </div>
       </div>
 
+
+      <!-- Panel 4: Kho voucher -->
+      <div id="panel-vouchers" style="display: none;">
+        <div class="card" style="padding: 30px;">
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--beta-navy); margin-bottom: 6px;">
+            Kho Voucher Của Tôi
+          </h3>
+          <p style="font-size: 13.5px; color: #64748b; margin-bottom: 20px;">Nhập mã ở bước thanh toán để được giảm giá.</p>
+          <div id="voucher-list" style="display: grid; gap: 12px;"></div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -1319,23 +1331,13 @@
     updateOrderCounts();
 
     function switchAccountTab(tab) {
+      const tabs = ['orders', 'profile', 'password', 'vouchers'];
+      if (tabs.indexOf(tab) < 0) tab = 'orders';
       document.querySelectorAll('.account-nav-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('panel-orders').style.display = 'none';
-      document.getElementById('panel-profile').style.display = 'none';
-      document.getElementById('panel-password').style.display = 'none';
-
-      if (tab === 'orders') {
-        document.getElementById('btn-tab-orders').classList.add('active');
-        document.getElementById('panel-orders').style.display = 'block';
-      } else if (tab === 'profile') {
-        document.getElementById('btn-tab-profile').classList.add('active');
-        document.getElementById('panel-profile').style.display = 'block';
-      } else if (tab === 'password') {
-        document.getElementById('btn-tab-password').classList.add('active');
-        document.getElementById('panel-password').style.display = 'block';
-      }
+      tabs.forEach(t => { document.getElementById('panel-' + t).style.display = t === tab ? 'block' : 'none'; });
+      document.getElementById('btn-tab-' + tab).classList.add('active');
     }
-  
+
     // =========================================================================
     // DỮ LIỆU CHI TIẾT HÓA ĐƠN ĐIỆN TỬ (INVOICE DATA)
     // =========================================================================
@@ -2733,20 +2735,52 @@
     if (name.length < 2) return alert('Vui lòng nhập họ tên.');
     Object.assign(CURRENT_USER, { name, dob });
     Layout.setUser(CURRENT_USER);
-    // Đồng bộ vào danh sách tài khoản đã đăng ký
-    try {
-      const list = JSON.parse(localStorage.getItem('BETA_ACCOUNTS') || '[]');
-      const acc = list.find(a => a.email === CURRENT_USER.email);
-      if (acc) { Object.assign(acc, { name, dob }); localStorage.setItem('BETA_ACCOUNTS', JSON.stringify(list)); }
-    } catch (e) {}
+    Accounts.update(CURRENT_USER.email, { name, dob });
     document.getElementById('member-card-name').textContent = name;
     const top = document.getElementById('top-user-name');
     if (top) top.textContent = name;
     alert('Lưu thông tin thành công!');
   }
 
+  async function changePassword() {
+    const cur = document.getElementById('pw-current').value;
+    const np = document.getElementById('pw-new').value;
+    const np2 = document.getElementById('pw-new2').value;
+    const msg = document.getElementById('pw-msg');
+    const show = (text, ok) => { msg.textContent = text; msg.style.display = 'block'; msg.style.color = ok ? '#059669' : '#b91c1c'; };
+
+    if (!await Accounts.verify(CURRENT_USER.email, cur)) return show('Mật khẩu hiện tại không đúng.');
+    if (Accounts.validatePassword(np)) return show(Accounts.validatePassword(np));
+    if (np !== np2) return show('Mật khẩu xác nhận không khớp.');
+    if (np === cur) return show('Mật khẩu mới phải khác mật khẩu hiện tại.');
+    await Accounts.setPassword(CURRENT_USER.email, np);
+    ['pw-current', 'pw-new', 'pw-new2'].forEach(id => { document.getElementById(id).value = ''; });
+    show('✓ Đã cập nhật mật khẩu mới.', true);
+  }
+
+  function renderVouchers() {
+    const used = Pay.usedVouchers();
+    const list = Pay.VOUCHERS.map(v => {
+      const isUsed = v.oncePerUser && used.indexOf(v.code) >= 0;
+      const value = v.type === 'percent' ? 'Giảm ' + v.value + '%' + (v.max ? ' (tối đa ' + Pay.vnd(v.max) + ')' : '')
+        : v.type === 'perSeat' ? 'Giảm ' + Pay.vnd(v.value) + ' / vé' : 'Giảm ' + Pay.vnd(v.value);
+      const conds = [v.minTotal && 'Đơn từ ' + Pay.vnd(v.minTotal), v.needCombo && 'Kèm bắp nước',
+        v.weekday === 2 && 'Chỉ thứ Ba', v.oncePerUser && 'Dùng 1 lần'].filter(Boolean).join(' · ');
+      return `<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border: 1.5px dashed ${isUsed ? '#cbd5e1' : '#fdba74'}; background: ${isUsed ? '#f8fafc' : '#fff7ed'}; border-radius: 12px; padding: 14px 16px;${isUsed ? ' opacity: 0.6;' : ''}">
+        <div style="min-width: 0;">
+          <div style="font-weight: 800; color: #0f172a;">${v.title}</div>
+          <div style="font-size: 12.5px; color: #64748b; margin-top: 4px;">${value}${conds ? ' · ' + conds : ''} · HSD ${v.expires}</div>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" ${isUsed ? 'disabled' : ''} onclick="navigator.clipboard && navigator.clipboard.writeText('${v.code}'); this.textContent = 'Đã sao chép';" style="font-family: monospace; font-weight: 800; border-color: #ff5400; color: #ff5400;">${isUsed ? 'Đã dùng' : v.code}</button>
+      </div>`;
+    });
+    document.getElementById('voucher-list').innerHTML = list.join('');
+    document.getElementById('voucher-count').textContent = Pay.VOUCHERS.length - Pay.VOUCHERS.filter(v => v.oncePerUser && used.indexOf(v.code) >= 0).length;
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
     fillUserProfile();
+    renderVouchers();
     // 1. Kiểm tra URL params
     const pageParams = new URLSearchParams(window.location.search);
     const tabParam = pageParams.get('tab');
