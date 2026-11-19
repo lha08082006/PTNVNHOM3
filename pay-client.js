@@ -58,11 +58,12 @@ const Pay = {
     if (typeof window !== 'undefined' && window.location) {
       const port = window.location.port;
       // Đang truy cập trực tiếp qua server Node (port 5000, 3000) hoặc Vercel (port chuẩn 80/443 hoặc rỗng)
-      if (port === '5000' || port === '3000' || !port) {
-        return '/api/';
+      // Chỉ khi mở qua Live Server (port 5500, 5501...) mới gọi sang server Node ở port 5000;
+      // mọi trường hợp khác (node server.js ở bất kỳ port nào, Vercel) dùng API cùng origin.
+      if (/^55\d\d$/.test(port)) {
+        return 'http://localhost:5000/api/';
       }
-      // Đang mở qua Live Server (port 5500, 5501...) -> ưu tiên kết nối tới port 5000
-      return 'http://localhost:5000/api/';
+      return '/api/';
     }
     return '/api/';
   },
@@ -127,6 +128,9 @@ const Pay = {
   saveLocalOrder(ord) {
     if (typeof localStorage === 'undefined' || !ord || !ord.code) return;
     try {
+      const prev = Pay.getLocalOrder(ord.code) || {};
+      ord = Object.assign({}, prev, ord);
+      if (!ord.created_at) ord.created_at = new Date().toISOString();
       localStorage.setItem('BETA_ORDER_' + ord.code, JSON.stringify(ord));
     } catch (e) {}
   },
@@ -202,16 +206,60 @@ const Pay = {
   },
 
   // account.html: Lấy danh sách toàn bộ đơn hàng từ Server / Supabase
+  // Gộp đơn từ server với đơn lưu trên trình duyệt (bản local được ưu tiên vì
+  // có thể mới hơn — ví dụ sau khi chạy Sandbox ở chế độ client-side).
   async getOrders(query = {}) {
+    const merged = {};
     try {
       const q = new URLSearchParams(query).toString();
       const res = await Pay.call('orders' + (q ? '?' + q : ''));
-      if (res && res.orders) return res.orders;
+      (res && res.orders || []).forEach(o => { if (o && o.code) merged[o.code] = o; });
     } catch (e) {
       console.warn('Pay.getOrders error:', e.message);
     }
-    const localMap = Pay.getLocalOrders ? Pay.getLocalOrders() : {};
-    return Object.values(localMap).sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    const localMap = Pay.getLocalOrders();
+    Object.keys(localMap).forEach(code => {
+      merged[code] = Object.assign({}, merged[code] || {}, localMap[code]);
+    });
+    return Object.values(merged).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  },
+
+  // Toàn bộ đơn đã lưu trên trình duyệt: { code: order }
+  getLocalOrders() {
+    const out = {};
+    if (typeof localStorage === 'undefined') return out;
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf('BETA_ORDER_') === 0) {
+          const o = JSON.parse(localStorage.getItem(k));
+          if (o && o.code) out[o.code] = o;
+        }
+      }
+    } catch (e) {}
+    return out;
+  },
+
+  // Danh mục bắp nước dùng chung (combo.html / checkout.html / hóa đơn)
+  COMBOS: {
+    solo:    { name: 'Combo Solo',              price: 69000 },
+    couple:  { name: 'Combo Couple',            price: 89000 },
+    party:   { name: 'Combo Party Gold',        price: 129000 },
+    family:  { name: 'Combo Siêu Nhóm (Family)', price: 129000 },
+    sausage: { name: 'Xúc Xích Nướng Phô Mai',  price: 25000 }
+  },
+
+  // {"couple":1,"solo":2} -> "Combo Couple × 1, Combo Solo × 2"
+  comboText(combos) {
+    let obj = combos;
+    if (typeof obj === 'string') {
+      try { obj = JSON.parse(decodeURIComponent(obj)); } catch (e) { return obj || ''; }
+    }
+    if (!obj || typeof obj !== 'object') return '';
+    return Object.keys(obj)
+      .filter(k => Number(obj[k]) > 0)
+      .map(k => ((Pay.COMBOS[k] && Pay.COMBOS[k].name) || k) + ' × ' + obj[k])
+      .join(', ');
   },
 
   // gateway.html / verify.html: Lắng nghe trạng thái đơn mỗi 1.8s

@@ -205,7 +205,7 @@
       <!-- Logo chính thức -->
       <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
         <img class="official-logo" 
-             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             src="images/logo.png" 
              onerror="this.onerror=null; this.src='images/logo-official.png';" 
              alt="Beta Cinemas">
       </a>
@@ -415,7 +415,8 @@
 
     // Hiển thị thông tin suất chiếu & ghế
     document.getElementById('combo-movie-display').textContent = movieObj.title + ' · ' + movieObj.age;
-    document.getElementById('combo-seat-summary').textContent = selectedSeatsStr + ' (' + seatCount + ' Ghế VIP)';
+    const seatTypesStr = params.get('seatTypes') || (seatCount + ' Ghế');
+    document.getElementById('combo-seat-summary').textContent = selectedSeatsStr + ' (' + seatTypesStr + ')';
     document.getElementById('combo-cinema-showtime').textContent = currentCinema + ' · ' + currentTime + ' (' + currentDate + ')';
     document.getElementById('combo-ticket-total-display').textContent = 'Tiền vé: ' + (window.Pay ? Pay.vnd(ticketTotal) : new Intl.NumberFormat('vi-VN').format(ticketTotal) + ' đ');
 

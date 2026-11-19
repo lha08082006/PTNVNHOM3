@@ -186,7 +186,7 @@
       <!-- Logo chính thức -->
       <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
         <img class="official-logo" 
-             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             src="images/logo.png" 
              onerror="this.onerror=null; this.src='images/logo-official.png';" 
              alt="Beta Cinemas">
       </a>
@@ -415,7 +415,7 @@
         <div>
           <div style="margin-bottom: 18px;">
             <a href="home.html">
-              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png" 
+              <img src="images/logo-white.png" 
                    onerror="this.onerror=null; this.src='images/logo-white-official.png';" 
                    alt="Beta Cinemas" 
                    style="height: 48px;">
@@ -521,24 +521,6 @@
     const owner = (refundDet && refundDet.owner) || urlParams.get('owner') || 'LƯƠNG HỒNG ANH';
     const refundCode = (refundDet && refundDet.refund_code) || urlParams.get('refund_code') || ('REF-' + orderCode.slice(-6));
 
-    // Dữ liệu mặc định chuẩn cho đơn Trại Buôn Người nếu mở BC2610208819
-    const isTraiBuonNguoi = (orderCode === 'BC2610208819') || (movieKey === 'trai-buon-nguoi');
-
-    // Xử lý tên phim và poster
-    const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
-    let movieTitle = isTraiBuonNguoi ? 'Trại Buôn Người: Vùng Cấm Biên Giới' : ((movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4');
-    let poster = isTraiBuonNguoi ? 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg' : ((movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg');
-    let movieAge = isTraiBuonNguoi ? 'T18' : 'C18';
-    let movieGenre = isTraiBuonNguoi ? 'Tâm Lý, Tội Phạm · 118 phút · 2D phụ đề' : 'Kinh Dị, Giật Gân · 110 phút · 2D phụ đề';
-    let actualCinema = isTraiBuonNguoi ? 'Beta Thanh Xuân (HN) · Phòng 02' : (`${cinema} · Phòng 01`);
-    let actualShowtime = isTraiBuonNguoi ? '20/10/2026 · 21:00' : (`${date} · ${time}`);
-    let actualSeats = isTraiBuonNguoi ? 'G09, G10' : seats;
-    let actualCombos = isTraiBuonNguoi ? 'Combo Solo (1 Bắp Ngọt + 1 Coca) × 1' : combosText;
-    let actualTotal = isTraiBuonNguoi ? '180.000 đ' : formattedTotal;
-    let actualRefundCode = isTraiBuonNguoi ? 'REF-2610-889' : refundCode;
-    let actualTransCode = isTraiBuonNguoi ? 'FT26102088198842' : transCode;
-    let actualRefundTime = isTraiBuonNguoi ? '20/10/2026 17:45' : fullRefundTime;
-
     // Mask số tài khoản: ví dụ 0987654321 -> ****4321
     const cleanBank = bank.split('(')[0].trim();
     const last4Acc = acc.length >= 4 ? acc.slice(-4) : acc;
@@ -553,11 +535,9 @@
       if (typeof rawCombos === 'string' && rawCombos.startsWith('{')) {
         try {
           const parsed = JSON.parse(rawCombos);
-          const parts = [];
-          for (let k in parsed) {
-            parts.push(`Combo (${k}) × ${parsed[k]}`);
-          }
-          if (parts.length > 0) combosText = parts.join(', ');
+          const txt = (window.Pay && Pay.comboText) ? Pay.comboText(parsed)
+            : Object.keys(parsed).map(k => `Combo (${k}) × ${parsed[k]}`).join(', ');
+          if (txt) combosText = txt;
         } catch (e) {
           combosText = rawCombos;
         }
@@ -577,6 +557,24 @@
 
     // Tạo mã giao dịch ngân hàng
     const transCode = 'FT' + orderCode.slice(-8) + Math.floor(1000 + Math.random() * 9000);
+
+    // Dữ liệu mặc định chuẩn cho đơn Trại Buôn Người nếu mở BC2610208819
+    const isTraiBuonNguoi = (orderCode === 'BC2610208819') || (movieKey === 'trai-buon-nguoi');
+
+    // Xử lý tên phim và poster
+    const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
+    let movieTitle = isTraiBuonNguoi ? 'Trại Buôn Người: Vùng Cấm Biên Giới' : ((movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4');
+    let poster = isTraiBuonNguoi ? 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.jpg' : ((movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.jpg');
+    let movieAge = isTraiBuonNguoi ? 'T18' : 'C18';
+    let movieGenre = isTraiBuonNguoi ? 'Tâm Lý, Tội Phạm · 118 phút · 2D phụ đề' : 'Kinh Dị, Giật Gân · 110 phút · 2D phụ đề';
+    let actualCinema = isTraiBuonNguoi ? 'Beta Thanh Xuân (HN) · Phòng 02' : (`${cinema} · Phòng 01`);
+    let actualShowtime = isTraiBuonNguoi ? '20/10/2026 · 21:00' : (`${date} · ${time}`);
+    let actualSeats = isTraiBuonNguoi ? 'G09, G10' : seats;
+    let actualCombos = isTraiBuonNguoi ? 'Combo Solo (1 Bắp Ngọt + 1 Coca) × 1' : combosText;
+    let actualTotal = isTraiBuonNguoi ? '180.000 đ' : formattedTotal;
+    let actualRefundCode = isTraiBuonNguoi ? 'REF-2610-889' : refundCode;
+    let actualTransCode = isTraiBuonNguoi ? 'FT26102088198842' : transCode;
+    let actualRefundTime = isTraiBuonNguoi ? '20/10/2026 17:45' : fullRefundTime;
 
     // Gán dữ liệu vào HTML
     document.getElementById('order-code-display').textContent = orderCode;

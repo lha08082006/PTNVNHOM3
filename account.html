@@ -436,7 +436,7 @@
     <div class="container header-row">
       <!-- Logo chính thức -->
       <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
-        <img class="official-logo" src="https://betacinemas.vn/Assets/Common/logo/logo.png"
+        <img class="official-logo" src="images/logo.png"
           onerror="this.onerror=null; this.src='images/logo-official.png';" alt="Beta Cinemas">
       </a>
 
@@ -478,7 +478,7 @@
     <div class="member-virtual-card">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png"
+          <img src="images/logo-white.png"
             onerror="this.onerror=null; this.src='images/logo-white-official.png';" alt="Beta Cinemas"
             style="height: 45px;">
           <span class="card-rank-badge">HẠNG GOLD MEMBER</span>
@@ -955,7 +955,7 @@
         <div>
           <div style="margin-bottom: 18px;">
             <a href="home.html">
-              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png"
+              <img src="images/logo-white.png"
                 onerror="this.onerror=null; this.src='images/logo-white-official.png';" alt="Beta Cinemas"
                 style="height: 48px;">
             </a>
@@ -1043,7 +1043,7 @@
       <!-- Modal Header -->
       <div class="invoice-modal-header">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <img src="https://betacinemas.vn/Assets/Common/logo/logo.png" onerror="this.src='images/logo-official.png'" alt="Beta Cinemas" style="height: 38px;">
+          <img src="images/logo.png" onerror="this.src='images/logo-official.png'" alt="Beta Cinemas" style="height: 38px;">
           <div>
             <h3 id="inv-modal-title" style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; color: #005198;">
               CHI TIẾT HÓA ĐƠN ĐIỆN TỬ
@@ -2139,6 +2139,18 @@
         const seatsStr = Array.isArray(ord.seats) ? ord.seats.join(', ') : (ord.seats || 'D5, D6');
         const showTimeStr = (ord.show_time || '18:30') + ' • ' + (ord.show_date || 'Hôm nay');
         const totalFormatted = (window.Pay ? Pay.vnd(ord.total) : new Intl.NumberFormat('vi-VN').format(ord.total) + ' đ');
+        const comboStr = (window.Pay && Pay.comboText) ? Pay.comboText(ord.combos) : '';
+        const seatCount = Array.isArray(ord.seats) ? ord.seats.length : String(seatsStr).split(',').length;
+
+        // Tách tiền vé / tiền bắp nước để lập hóa đơn
+        const comboObj = (() => { try { return typeof ord.combos === 'string' ? JSON.parse(ord.combos) : (ord.combos || {}); } catch (e) { return {}; } })();
+        const comboItems = Object.keys(comboObj).filter(k => Number(comboObj[k]) > 0).map(k => {
+          const c = (window.Pay && Pay.COMBOS && Pay.COMBOS[k]) || { name: k, price: 0 };
+          const qty = Number(comboObj[k]);
+          return { name: c.name, qty, price: c.price, amount: c.price * qty };
+        });
+        const comboAmount = comboItems.reduce((s, i) => s + i.amount, 0);
+        const ticketAmount = Math.max(0, Number(ord.total || 0) - comboAmount);
 
         // Tạo thẻ đơn hàng HTML
         const card = document.createElement('div');
@@ -2199,6 +2211,7 @@
               🕒 Suất: <strong>${showTimeStr}</strong><br>
               📅 Thời gian đặt vé: <strong>${new Date(ord.created_at || Date.now()).toLocaleString('vi-VN')}</strong><br>
               💺 Ghế: <strong>${seatsStr}</strong><br>
+              ${comboStr ? `🍿 Bắp nước: <strong>${comboStr}</strong><br>` : ''}
               💳 Thanh toán: <strong>${totalFormatted}</strong> (Qua SePay VietQR - MSB)
             </div>
 
@@ -2238,7 +2251,8 @@
             statusBadge: badgeHtml,
             statusNote: 'Đơn hàng được đồng bộ tự động từ cơ sở dữ liệu Supabase và cổng thanh toán SePay.',
             items: [
-              { name: 'Vé xem phim 2D VIP (Ghế ' + seatsStr + ')', qty: Array.isArray(ord.seats) ? ord.seats.length : 2, price: 65000, amount: ord.total }
+              { name: 'Vé xem phim (Ghế ' + seatsStr + ')', qty: seatCount, price: Math.round(ticketAmount / Math.max(1, seatCount)), amount: ticketAmount },
+              ...comboItems
             ],
             subtotal: subtotal,
             vat: vat,

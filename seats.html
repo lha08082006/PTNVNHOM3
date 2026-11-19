@@ -291,7 +291,7 @@
       <!-- Logo chính thức -->
       <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
         <img class="official-logo" 
-             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             src="images/logo.png" 
              onerror="this.onerror=null; this.src='images/logo-official.png';" 
              alt="Beta Cinemas">
       </a>
@@ -406,9 +406,9 @@
         <i data-id="D2" data-type="standard" data-price="45000">2</i>
         <i data-id="D3" data-type="standard" data-price="45000">3</i>
         <i data-id="D4" data-type="standard" data-price="45000">4</i>
-        <i class="s" data-id="D5" data-type="standard" data-price="45000" title="Đang chọn D5">5</i>
+        <i data-id="D5" data-type="standard" data-price="45000">5</i>
         <b style="width: 24px;"></b>
-        <i class="s" data-id="D6" data-type="standard" data-price="45000" title="Đang chọn D6">6</i>
+        <i data-id="D6" data-type="standard" data-price="45000">6</i>
         <i data-id="D7" data-type="standard" data-price="45000">7</i>
         <i data-id="D8" data-type="standard" data-price="45000">8</i>
         <i data-id="D9" data-type="standard" data-price="45000">9</i>
@@ -566,10 +566,9 @@
     };
 
     // Danh sách ghế đang được chọn
-    let selectedSeats = [
-      { id: 'D5', type: 'standard', price: 45000 },
-      { id: 'D6', type: 'standard', price: 45000 }
-    ];
+    let selectedSeats = [];
+    const MAX_SEATS = 8;
+    const SEAT_TYPE_LABEL = { standard: 'Thường', vip: 'VIP', sweetbox: 'Đôi Sweetbox' };
 
     let currentMovieKey = 'linh-gioi-dai-chien';
     let currentCinema = 'Beta Thanh Xuân';
@@ -602,7 +601,48 @@
         }
       }
 
+      markSoldSeatsFromOrders();
+      restoreSelectedSeats(params.get('seats'));
       updateSummary();
+    }
+
+    // Ghế đã được bán trong các đơn đã thanh toán của CÙNG suất chiếu -> khóa lại
+    function markSoldSeatsFromOrders() {
+      if (!window.Pay || !Pay.getLocalOrders) return;
+      const orders = Object.values(Pay.getLocalOrders());
+      orders.forEach(o => {
+        if (o.status !== 'PAID') return;
+        if (o.movie_key !== currentMovieKey || o.cinema !== currentCinema ||
+            o.show_date !== currentDate || o.show_time !== currentTime) return;
+        const list = Array.isArray(o.seats) ? o.seats : String(o.seats || '').split(',');
+        list.map(x => String(x).trim()).filter(Boolean).forEach(id => {
+          const el = document.querySelector(`.r i[data-id="${id}"]`);
+          if (el) {
+            el.className = 'x';
+            el.dataset.type = 'sold';
+            el.title = 'Đã bán';
+            el.textContent = '✕';
+          }
+        });
+      });
+    }
+
+    // Khôi phục ghế đã chọn khi quay lại từ combo.html (?seats=F3, F4)
+    function restoreSelectedSeats(seatsParam) {
+      if (!seatsParam) return;
+      seatsParam.split(',').map(x => x.trim()).filter(Boolean).forEach(id => {
+        const el = document.querySelector(`.r i[data-id="${id}"]`);
+        if (!el || el.classList.contains('x') || el.classList.contains('h') || el.classList.contains('k')) return;
+        if (selectedSeats.some(s => s.id === id)) return;
+        selectedSeats.push({ id, type: el.dataset.type, price: parseInt(el.dataset.price) || 45000 });
+        el.classList.add('s');
+      });
+    }
+
+    function seatTypeSummary() {
+      const counts = {};
+      selectedSeats.forEach(s => { counts[s.type] = (counts[s.type] || 0) + 1; });
+      return Object.keys(counts).map(t => counts[t] + ' Ghế ' + (SEAT_TYPE_LABEL[t] || t)).join(' + ');
     }
 
     // Gắn sự kiện click chọn ghế
@@ -621,6 +661,10 @@
           selectedSeats.splice(existsIndex, 1);
           this.classList.remove('s');
         } else {
+          if (selectedSeats.length >= MAX_SEATS) {
+            alert('Mỗi đơn chỉ được chọn tối đa ' + MAX_SEATS + ' ghế.');
+            return;
+          }
           selectedSeats.push({ id, type, price });
           this.classList.add('s');
         }
@@ -649,11 +693,11 @@
         totalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(total) + 'đ';
         
         const count = selectedSeats.length;
-        metaDisplay.textContent = 'Phòng 01 (Dolby Atmos) · ' + count + ' Ghế (' + new Intl.NumberFormat('vi-VN').format(total) + 'đ)';
+        metaDisplay.textContent = 'Phòng 01 (Dolby Atmos) · ' + seatTypeSummary() + ' (' + new Intl.NumberFormat('vi-VN').format(total) + 'đ)';
         btnNext.classList.remove('disabled');
 
         // Chuyển tiếp mượt mà sang bước 3: Chọn bắp nước (combo.html)
-        const comboUrl = 'combo.html?movie=' + encodeURIComponent(currentMovieKey) + '&cinema=' + encodeURIComponent(currentCinema) + '&date=' + encodeURIComponent(currentDate) + '&time=' + encodeURIComponent(currentTime) + '&seats=' + encodeURIComponent(seatIds) + '&total=' + total;
+        const comboUrl = 'combo.html?movie=' + encodeURIComponent(currentMovieKey) + '&cinema=' + encodeURIComponent(currentCinema) + '&date=' + encodeURIComponent(currentDate) + '&time=' + encodeURIComponent(currentTime) + '&seats=' + encodeURIComponent(seatIds) + '&seatTypes=' + encodeURIComponent(seatTypeSummary()) + '&total=' + total;
         btnNext.href = comboUrl;
       }
     }
@@ -666,8 +710,18 @@
         const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
         const s = (secondsLeft % 60).toString().padStart(2, '0');
         document.getElementById('countdown-timer').textContent = `${m}:${s}`;
+        if (secondsLeft === 0) onHoldExpired();
       }
     }, 1000);
+
+    // Hết 10 phút giữ ghế -> bỏ chọn toàn bộ, yêu cầu chọn lại
+    function onHoldExpired() {
+      document.querySelectorAll('.r i.s').forEach(el => el.classList.remove('s'));
+      selectedSeats = [];
+      updateSummary();
+      alert('Đã hết thời gian giữ ghế 10 phút. Vui lòng chọn lại ghế.');
+      secondsLeft = 600;
+    }
 
     initParams();
   </script>

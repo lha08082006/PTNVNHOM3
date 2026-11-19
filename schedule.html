@@ -363,7 +363,7 @@
       <!-- Logo chính thức -->
       <a href="home.html" style="flex-shrink: 0;" aria-label="Beta Cinemas">
         <img class="official-logo" 
-             src="https://betacinemas.vn/Assets/Common/logo/logo.png" 
+             src="images/logo.png" 
              onerror="this.onerror=null; this.src='images/logo-official.png';" 
              alt="Beta Cinemas">
       </a>
@@ -670,7 +670,7 @@
         <div>
           <div style="margin-bottom: 18px;">
             <a href="home.html">
-              <img src="https://betacinemas.vn/Assets/Common/logo/logo-white.png" 
+              <img src="images/logo-white.png" 
                    onerror="this.onerror=null; this.src='images/logo-white-official.png';" 
                    alt="Beta Cinemas" 
                    style="height: 48px;">
@@ -828,7 +828,7 @@
 
         const item = document.createElement('div');
         item.className = 'date-item-official' + (i === 0 ? ' active' : '');
-        item.onclick = function() { selectDate(this, shortDate); };
+        item.onclick = function() { selectDate(this, dow + ' ' + shortDate); };
 
         item.innerHTML = `
           <span class="d-number">${day}</span>
@@ -838,7 +838,7 @@
         bar.appendChild(item);
 
         if (i === 0) {
-          currentDate = shortDate;
+          currentDate = dow + ' ' + shortDate; // cùng định dạng với booking.html: "T5 19/11"
         }
       }
 
