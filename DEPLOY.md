@@ -15,6 +15,7 @@
   9. `migrations/2026-11-26_dot-4-cong-thanh-toan-hoa-don.sql` — phiên thanh toán VNPay / MoMo / ZaloPay, yêu cầu xuất hóa đơn điện tử
   10. `migrations/2026-11-27_dot-5-van-hanh-yeu-thich.sql` — ghi lỗi máy chủ, cảnh báo, trạng thái vận hành, phim yêu thích
   11. `migrations/2026-11-28_dot-6-du-lieu-ca-nhan-2fa-email.sql` — đồng ý điều khoản, nhận email ưu đãi, xóa tài khoản; đăng nhập 2 lớp cho nhân viên; email ưu đãi theo nhóm khách
+  12. `migrations/2026-11-29_dot-7-ke-toan-cskh-quay.sql` — Kế toán chốt sổ ngày; CSKH nhận xử lý phiếu, ghi chú nội bộ; chỉ mục tăng tốc màn hình Quầy
 
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 

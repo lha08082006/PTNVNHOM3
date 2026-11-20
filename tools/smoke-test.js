@@ -563,7 +563,7 @@ async function test(name, fn) {
     const cs = asStaff(await staffLogin('cskh@beta.local'));
     assert.strictEqual((await cs.post({ action: 'price_rule_save', name: 'X', days: [1], price_standard: 1 })).status, 403);
     // Ngày lễ: thêm ngày của một suất -> suất đó tính giá lễ
-    const target = all.find(s => s.time >= '10:00' && s.time < '22:00' && !/^T3/.test(s.date_label));
+    const target = norm.find(s => s.time >= '10:00' && s.time < '22:00' && !/^T3/.test(s.date_label));
     assert.strictEqual((await ql.post({ action: 'holiday_save', date: target.date, name: 'Ngày lễ thử' })).status, 200);
     const after = (await call('catalog', { query: { action: 'showtime', id: target.id } })).data.showtime;
     assert.strictEqual(after.prices.standard, 65000);
@@ -1316,6 +1316,132 @@ async function test(name, fn) {
     assert.ok(rs.filter(r => r.status !== 200).every(r => r.status === 409));
     const holds = await require('../lib/store').find('seat_holds', { showtime_key: ST2.id, seat_id: seat });
     assert.strictEqual(holds.length, 1);
+  });
+
+  // ======================= Đợt 7: Kế toán / CSKH / Quầy =======================
+  const Store7 = require('../lib/store');
+  const CDB7 = require('../lib/catalog-db');
+
+  await test('Đợt 7: Kế toán – chỉ số, bảng kê chuyển khoản, đã chi hàng loạt (giữ nguyên tắc 2 người)', async () => {
+    const kt = asStaff(await staffLogin('ketoan@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const csId = (await Store7.one('staff', { email: 'cskh@beta.local' })).id;
+    const ktId = (await Store7.one('staff', { email: 'ketoan@beta.local' })).id;
+    const o = (await Store7.find('orders', { status: 'CONFIRMED' }, { limit: 1 }))[0];
+    const mk = async (code, sender, name) => Store7.insert('refunds', { code, order_id: o.id, order_code: o.code, amount: 30000, reason: 'MISMATCH', status: 'CS_APPROVED', idempotency_key: 'k7:' + code,
+      bank_name: 'Vietcombank', acc_number: '0011223344', acc_name: 'Nguyễn Văn Đức', is_manual: true, review_log: [{ at: new Date().toISOString(), role: 'NHÂN VIÊN', actor: name, actor_id: sender, action: 'Gửi Kế toán' }] });
+    await mk('REF-K7A', csId, 'CSKH Demo'); await mk('REF-K7B', csId, 'CSKH Demo'); await mk('REF-K7C', ktId, 'Kế Toán Demo');
+    const s = (await kt.get('acc_summary')).data;
+    assert.ok(s.pending_count >= 3 && s.pending_amount >= 90000, JSON.stringify(s));
+    assert.ok(Array.isArray(s.days_unclosed));
+    assert.strictEqual((await cs.get('acc_summary')).status, 403);
+    const csv = await call('admin', { query: { action: 'payout_csv', codes: 'REF-K7A,REF-K7B' }, headers: { authorization: 'Bearer ' + kt.token } });
+    assert.strictEqual(csv.body.charCodeAt(0), 0xfeff);
+    assert.ok(csv.body.includes('NGUYEN VAN DUC') && csv.body.includes('HOAN TIEN REF-K7A DON ' + o.code), csv.body.slice(0, 300));
+    assert.ok(!csv.body.includes('REF-K7C'));
+    assert.strictEqual((await cs.post({ action: 'accounting_paid_batch', items: [{ refund_code: 'REF-K7A', refund_ref: 'FT1' }] })).status, 403);
+    const r = await kt.post({ action: 'accounting_paid_batch', items: [{ refund_code: 'REF-K7A', refund_ref: 'FT7001' }, { refund_code: 'REF-K7B' }, { refund_code: 'REF-K7C', refund_ref: 'FT7003' }] });
+    assert.strictEqual(r.status, 200);
+    assert.strictEqual(r.data.paid, 1);
+    assert.ok(/mã giao dịch/.test(r.data.results.find(x => x.code === 'REF-K7B').error));
+    assert.ok(/người gửi/.test(r.data.results.find(x => x.code === 'REF-K7C').error), 'Kế toán không tự duyệt hồ sơ mình gửi');
+    // Mã lô dùng chung
+    const lot = await kt.post({ action: 'accounting_paid_batch', batch_ref: 'LO-2026-11-20', items: [{ refund_code: 'REF-K7B' }] });
+    assert.strictEqual(lot.data.paid, 1);
+    assert.strictEqual((await Store7.one('refunds', { code: 'REF-K7B' })).refund_ref, 'LO-2026-11-20');
+    assert.strictEqual((await Store7.one('refunds', { code: 'REF-K7A' })).status, 'PAID_OUT');
+  });
+
+  await test('Đợt 7: Kế toán – chốt sổ ngày, phát sinh sau chốt, chỉ Quản lý mở lại; tiền vào không khớp đơn', async () => {
+    const kt = asStaff(await staffLogin('ketoan@beta.local'));
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const today = CDB7.vnToday(), y = CDB7.addDays(today, -1);
+    const list = (await kt.get('day_list')).data;
+    assert.strictEqual(list.days.length, 14);
+    assert.strictEqual(list.days[0].date, today);
+    assert.strictEqual(list.can_reopen, false);
+    assert.strictEqual((await kt.post({ action: 'day_close', date: today })).status, 400); // hôm nay chưa kết thúc
+    const c = await kt.post({ action: 'day_close', date: y, note: 'Đã đối chiếu sao kê' });
+    assert.strictEqual(c.status, 200, JSON.stringify(c.data));
+    assert.strictEqual((await kt.post({ action: 'day_close', date: y })).status, 409);
+    let d = (await kt.get('day_list')).data.days.find(x => x.date === y);
+    assert.strictEqual(d.status, 'CLOSED');
+    // Webhook về trễ cho ngày đã chốt -> phát sinh sau chốt
+    await Store7.insert('bank_transactions', { gateway: 'MB', transaction_date: CDB7.vnIso(y, '15:00'), content: 'CHUYEN TIEN KHONG RO', code: null, transfer_type: 'in', amount: 77000, reference_code: 'FT-LATE-K7', result: 'UNMATCHED', raw: {} });
+    await Store7.insert('support_tickets', { code: 'CS-K70001', type: 'UNMATCHED_TX', priority: 'HIGH', status: 'OPEN', summary: 'Tiền vào 77.000đ không khớp đơn', context: { transaction: { reference_code: 'FT-LATE-K7', amount: 77000 } } });
+    d = (await kt.get('day_list')).data.days.find(x => x.date === y);
+    assert.strictEqual(d.status, 'CHANGED');
+    assert.ok(d.changed.includes('received') && d.changed.includes('unmatched'));
+    const um = (await kt.get('unmatched_list')).data.rows.find(x => x.reference_code === 'FT-LATE-K7');
+    assert.strictEqual(um.ticket_code, 'CS-K70001');
+    assert.strictEqual(um.resolved, false);
+    assert.strictEqual((await kt.post({ action: 'day_reopen', date: y, note: 'Sai số liệu' })).status, 403);
+    assert.strictEqual((await ql.post({ action: 'day_reopen', date: y, note: 'x' })).status, 400); // phải ghi lý do
+    assert.strictEqual((await ql.post({ action: 'day_reopen', date: y, note: 'Webhook về trễ, chốt lại' })).status, 200);
+    assert.strictEqual((await kt.get('day_list')).data.days.find(x => x.date === y).status, 'OPEN');
+    const csv = await call('admin', { query: { action: 'day_list', format: 'csv' }, headers: { authorization: 'Bearer ' + kt.token } });
+    assert.ok(csv.body.includes('Phát sinh sau chốt') || csv.body.includes('Chưa chốt'));
+  });
+
+  await test('Đợt 7: CSKH – nhận xử lý phiếu, ghi chú nội bộ, tra cứu khách 360°, gửi lại vé', async () => {
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    const a = await cs.post({ action: 'ticket_assign', ticket_code: 'CS-K70001' });
+    assert.strictEqual(a.data.ticket.assigned_name, 'CSKH Demo');
+    assert.strictEqual((await ql.post({ action: 'ticket_assign', ticket_code: 'CS-K70001' })).status, 409); // người khác đang xử lý
+    await cs.post({ action: 'ticket_note', ticket_code: 'CS-K70001', note: 'Đã gọi khách, chờ biên lai' });
+    const g = (await call('admin', { query: { action: 'ticket_get', code: 'CS-K70001' }, headers: { authorization: 'Bearer ' + cs.token } })).data.ticket;
+    assert.strictEqual(g.internal_notes[0].note, 'Đã gọi khách, chờ biên lai');
+    assert.strictEqual((await cs.post({ action: 'ticket_assign', ticket_code: 'CS-K70001', release: true })).data.ticket.assigned_to, null);
+    // Tra cứu khách: theo mã đơn, email, SĐT, tên không dấu
+    const me = (await call('auth', { token: tokE, query: { action: 'me' } })).data.user;
+    const anyOrder = (await Store7.find('orders', { user_id: me.id, status: 'CONFIRMED' }, { limit: 1 }))[0];
+    const q = (s) => call('admin', { query: { action: 'customer_search', q: s }, headers: { authorization: 'Bearer ' + cs.token } });
+    assert.ok((await q(anyOrder.code)).data.customers.some(c => c.id === me.id));
+    assert.ok((await q(me.email)).data.customers.some(c => c.id === me.id));
+    assert.ok((await q(me.phone)).data.customers.some(c => c.id === me.id));
+    assert.ok((await q('khach eee')).data.customers.some(c => c.id === me.id));
+    assert.strictEqual((await q('ab')).status, 400);
+    assert.strictEqual((await call('admin', { query: { action: 'customer_search', q: me.email }, headers: { authorization: 'Bearer ' + quay.token } })).status, 403);
+    const det = (await call('admin', { query: { action: 'customer_detail', id: me.id }, headers: { authorization: 'Bearer ' + cs.token } })).data;
+    assert.ok(det.stats.paid_orders >= 1 && det.orders.length >= det.stats.paid_orders);
+    assert.ok(det.points && typeof det.points.balance === 'number');
+    const rs = await cs.post({ action: 'staff_resend_ticket', code: anyOrder.code });
+    assert.strictEqual(rs.status, 200, JSON.stringify(rs.data));
+    assert.ok((await Store7.find('notifications', { order_code: anyOrder.code, event: 'TICKET_RESENT' })).length >= 1);
+    const pend = (await Store7.find('orders', { status: 'CANCELLED' }, { limit: 1 }))[0];
+    if (pend) assert.strictEqual((await cs.post({ action: 'staff_resend_ticket', code: pend.code })).status, 409);
+  });
+
+  await test('Đợt 7: Quầy – bảng suất hôm nay có tiến độ soát vé, bắp nước chờ nhận, số vé đã soát trong ca', async () => {
+    await require('../lib/throttle').reset('s:quay@beta.local');
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    // Suất 30 phút nữa (nếu vẫn trong hôm nay theo giờ VN)
+    const startsAt = new Date(Date.now() + 30 * 60000).toISOString();
+    const st = await Store7.insert('showtimes', { movie_id: 'suzume', cinema_id: 'beta-giai-phong', starts_at: startsAt, format: '2D', room: 'Phòng 07', active: true });
+    const seats = ['C1', 'C2'];
+    const o = await call('create-order', { method: 'POST', token: tokE, body: { showtime_id: st.id, seats } });
+    assert.strictEqual(o.status, 200, JSON.stringify(o.data));
+    await payOK(o.data.code);
+    const qr = (await call('order-status', { token: tokE, query: { code: o.data.code } })).data.ticket_qr;
+    assert.strictEqual((await quay.post({ action: 'checkin', qr })).status, 200);
+    const cin = (await call('catalog', { query: { action: 'cinemas' } })).data.cinemas.find(c => c.id === 'beta-giai-phong');
+    const fnb = await call('create-order', { method: 'POST', token: tokE, body: { kind: 'FNB', cinema_id: cin.id, combos: { couple: 1 } } });
+    await payOK(fnb.data.code);
+    const b = await call('admin', { query: { action: 'counter_board', cinema: 'beta-giai-phong' }, headers: { authorization: 'Bearer ' + quay.token } });
+    assert.strictEqual(b.status, 200, JSON.stringify(b.data));
+    assert.ok(b.data.my_checkins_today >= 1);
+    assert.ok(b.data.pickups.some(p => p.code === fnb.data.code && /Combo Couple/.test(p.items)));
+    if (CDB7.vnParts(startsAt).date === b.data.date) {
+      const row = b.data.showtimes.find(s => s.id === st.id);
+      assert.strictEqual(row.sold_seats, 2);
+      assert.strictEqual(row.checked_seats, 2);
+      assert.strictEqual(row.phase, 'SOON');
+    }
+    assert.strictEqual((await call('admin', { query: { action: 'counter_board', cinema: 'beta-giai-phong' }, headers: { authorization: 'Bearer ' + cs.token } })).status, 403);
+    assert.strictEqual((await call('admin', { query: { action: 'counter_board', cinema: 'khong-co' }, headers: { authorization: 'Bearer ' + quay.token } })).status, 400);
   });
 
   for (const [ok, name] of results) console.log(ok, name);

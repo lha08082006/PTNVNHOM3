@@ -205,9 +205,21 @@
 
     <!-- ===================== CSKH ===================== -->
     <section id="tab-cskh" hidden>
-      <div class="card">
-        <h2>Hàng đợi ưu tiên <small>MANUAL_REVIEW · báo lỗi của khách · tiền không khớp đơn (SOP 6.5.1)</small></h2>
+      <!-- Đợt 7: việc của tôi -->
+      <div class="kpis" id="cs-work"></div>
+      <div class="card" id="cs-queue">
+        <h2>Hàng đợi phiếu hỗ trợ <small>bấm "Nhận" để nhận xử lý · thời gian chờ: xanh &lt; 2 giờ, vàng &lt; 24 giờ, đỏ ≥ 24 giờ</small></h2>
+        <div class="chips" id="tk-chips"></div>
+        <div class="toolbar"><input aria-label="Tìm phiếu" id="tk-search" placeholder="Tìm mã phiếu, mã đơn, nội dung, tên khách..." style="flex: 1; min-width: 220px;" oninput="renderTickets()"></div>
         <div id="tickets"></div>
+      </div>
+      <div class="card" id="cs-customer">
+        <h2>Tra cứu khách hàng 360° <small>mã đơn BC…, email, SĐT hoặc tên · xem đơn, hoàn tiền, phiếu, điểm Beta Club, gửi lại vé</small></h2>
+        <form class="toolbar" onsubmit="event.preventDefault(); searchCustomers()">
+          <input aria-label="Tìm khách hàng" id="cu-q" placeholder="VD: BC2610279854 · ten@gmail.com · 0912345678 · Nguyễn Văn An" style="flex: 1; min-width: 240px;">
+          <button class="btn primary"><i class="ph-magnifying-glass" aria-hidden="true"></i> Tìm</button>
+        </form>
+        <div id="cu-results"></div>
       </div>
       <div class="card">
         <h2>Thuê rạp · vé nhóm · Private Show <small>khách gửi ở thue-rap.html → CSKH báo giá → chốt (khách nhận email mỗi bước)</small></h2>
@@ -217,7 +229,7 @@
         <h2>Đánh giá phim <small>chỉ khách đã soát vé mới đánh giá được · ẩn đánh giá vi phạm (spoil, xúc phạm, quảng cáo)</small></h2>
         <div id="reviews"><div class="empty">Đang tải…</div></div>
       </div>
-      <div class="card">
+      <div class="card" id="cs-refund-card">
         <h2>Hồ sơ hoàn tiền thủ công <small>nhân viên lọc & đối chiếu → gửi Kế toán → Kế toán kiểm tra: đạt thì chi, không đạt thì trả về</small></h2>
         <div class="chips" id="cs-chips"></div>
         <div class="toolbar">
@@ -230,17 +242,34 @@
 
     <!-- ===================== KẾ TOÁN ===================== -->
     <section id="tab-ketoan" hidden>
+      <!-- Đợt 7: chỉ số Kế toán -->
+      <div class="kpis" id="kt-kpis"></div>
+      <div class="card">
+        <h2>Duyệt chi hoàn tiền <small>hồ sơ nhân viên đã gửi · kiểm tra lại: đạt → chi & nhập mã GD, không đạt → trả về nhân viên</small></h2>
+        <div class="toolbar">
+          <button class="btn" onclick="downloadPayout()"><i class="ph-tray-arrow-down" aria-hidden="true"></i> Xuất bảng kê chuyển khoản (<span id="kt-sel-n">tất cả</span>)</button>
+          <button class="btn ok" id="kt-batch-btn" onclick="openPaidBatch()" disabled><i class="ph-check" aria-hidden="true"></i> Đánh dấu đã chi (<span id="kt-sel-count">0</span>)</button>
+          <span class="hint">Chuyển khoản theo lô trên internet banking bằng bảng kê, rồi nhập mã giao dịch để đánh dấu đã chi.</span>
+        </div>
+        <div id="kt-refunds"></div>
+      </div>
+      <div class="card">
+        <h2>Chốt sổ theo ngày <small>tiền vào theo kênh · doanh thu xuất vé · hoàn tiền · số liệu được lưu lại lúc chốt, phát sinh sau chốt sẽ được đánh dấu</small></h2>
+        <div class="toolbar"><button class="btn" onclick="downloadDays()"><i class="ph-tray-arrow-down" aria-hidden="true"></i> Tải sổ 31 ngày (CSV)</button></div>
+        <div id="kt-days"><div class="empty">Đang tải…</div></div>
+      </div>
+      <div class="card">
+        <h2>Tiền vào không khớp đơn <small>khách ghi sai nội dung chuyển khoản · 30 ngày gần nhất · CSKH liên hệ khách qua phiếu tương ứng</small></h2>
+        <div id="kt-unmatched"><div class="empty">Đang tải…</div></div>
+      </div>
       <div class="card">
         <h2>Hóa đơn điện tử <small id="inv-sub">khách yêu cầu → xuất CSV lập hóa đơn trên phần mềm nhà cung cấp → nhập số hóa đơn (khách nhận email)</small></h2>
         <div class="toolbar">
           <select id="inv-status" onchange="loadInvoices()"><option value="PENDING">Chờ xuất</option><option value="ISSUED">Đã xuất</option><option value="CANCELLED">Đã hủy</option><option value="">Tất cả</option></select>
           <button class="btn" onclick="downloadInvoices()"><i class="ph-tray-arrow-down" aria-hidden="true"></i> Xuất CSV</button>
+          <button class="btn" onclick="document.getElementById('invb-dlg').showModal()"><i class="ph-upload-simple" aria-hidden="true"></i> Nhập số hóa đơn hàng loạt</button>
         </div>
         <div id="invoices"><div class="empty">Đang tải…</div></div>
-      </div>
-      <div class="card">
-        <h2>Duyệt chi hoàn tiền <small>hồ sơ nhân viên đã gửi · kiểm tra lại: đạt → chi & nhập mã GD, không đạt → trả về nhân viên</small></h2>
-        <div id="kt-refunds"></div>
       </div>
       <div class="card">
         <h2>Báo cáo đối soát định kỳ <small>REQ-05 · website <i class="ph-arrows-left-right" aria-hidden="true"></i> cổng thanh toán</small></h2>
@@ -450,6 +479,13 @@
 
     <!-- ===================== QUẦY ===================== -->
     <section id="tab-quay" hidden>
+      <!-- Đợt 7: rạp làm việc, ca của tôi, âm báo, toàn màn hình -->
+      <div class="toolbar" style="background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px;">
+        <label style="display: flex; gap: 6px; align-items: center; font-weight: 700;">Rạp làm việc <select id="qc-cinema" onchange="saveCounterCinema()"></select></label>
+        <span id="qc-mine" class="pill p-info">Ca của tôi: 0 vé đã soát hôm nay</span>
+        <label class="hint" style="display: flex; gap: 6px; align-items: center;"><input type="checkbox" id="qc-sound" checked onchange="try{localStorage.setItem('beta_qc_sound', this.checked ? '1' : '0')}catch(e){}"> Âm báo khi soát</label>
+        <button type="button" class="btn" onclick="toggleFullscreen()"><i class="ph-desktop" aria-hidden="true"></i> Toàn màn hình</button>
+      </div>
       <div class="grid2">
         <div class="card">
           <h2>Soát vé vào phòng chiếu <small>máy quét USB: đặt con trỏ vào ô rồi quét · hoặc dùng camera</small></h2>
@@ -474,6 +510,14 @@
           <h3 style="font-size: 13px; color: #005198; margin-top: 16px;">VỪA SOÁT TẠI QUẦY NÀY</h3>
           <div id="ck-history" class="hint">Chưa có.</div>
         </div>
+      </div>
+      <div class="card">
+        <h2>Suất chiếu hôm nay tại rạp <small id="qc-sub">tiến độ soát vé theo suất · tự cập nhật 30 giây/lần</small></h2>
+        <div id="qc-board"><div class="empty">Chọn rạp làm việc.</div></div>
+      </div>
+      <div class="card">
+        <h2>Phiếu bắp nước chờ nhận <small>khách mua online, đã thanh toán, chưa nhận món (hạn 30 ngày) – chuẩn bị trước khi khách tới</small></h2>
+        <div id="qc-pickups"><div class="empty">—</div></div>
       </div>
     </section>
 
@@ -560,6 +604,60 @@
       </div>
     </section>
   </main>
+
+  <!-- Đợt 7: đánh dấu đã chi hàng loạt -->
+  <dialog id="paid-dlg" style="width: min(760px, 96vw);">
+    <form method="dialog" onsubmit="event.preventDefault(); submitPaidBatch();">
+      <h3 style="color: #15803d;">Đánh dấu đã chi <span id="pd-count"></span> hồ sơ</h3>
+      <label style="display: flex; gap: 8px; align-items: center; font-size: 13px;"><input type="checkbox" id="pd-same" onchange="document.getElementById('pd-batch').disabled = !this.checked"> Dùng chung một mã giao dịch (chuyển theo lô)
+        <input id="pd-batch" class="mono" placeholder="Mã lô / mã GD chung" disabled style="flex: 1;"></label>
+      <div id="pd-rows" style="max-height: 50vh; overflow: auto;"></div>
+      <div id="pd-err" style="color: #b91c1c; font-size: 13px; white-space: pre-line;"></div>
+      <div class="row-actions" style="justify-content: flex-end;">
+        <button type="button" class="btn" onclick="document.getElementById('paid-dlg').close()">Hủy</button>
+        <button class="btn ok"><i class="ph-check" aria-hidden="true"></i> Xác nhận đã chi</button>
+      </div>
+    </form>
+  </dialog>
+  <!-- Đợt 7: chốt sổ ngày -->
+  <dialog id="close-dlg">
+    <form method="dialog" onsubmit="event.preventDefault(); submitCloseDay();">
+      <h3 style="color: #005198;">Chốt sổ ngày <span id="cd-date"></span></h3>
+      <div id="cd-sum" class="kv"></div>
+      <label>Ghi chú (vd: đã đối chiếu sao kê ngân hàng)<textarea id="cd-note" rows="2" style="width: 100%; margin-top: 4px;"></textarea></label>
+      <div id="cd-err" style="color: #b91c1c; font-size: 13px;"></div>
+      <div class="row-actions" style="justify-content: flex-end;">
+        <button type="button" class="btn" onclick="document.getElementById('close-dlg').close()">Hủy</button>
+        <button class="btn primary"><i class="ph-lock-key" aria-hidden="true"></i> Chốt sổ</button>
+      </div>
+    </form>
+  </dialog>
+  <!-- Đợt 7: nhập số hóa đơn (từng đơn / hàng loạt) -->
+  <dialog id="inv-dlg">
+    <form method="dialog" onsubmit="event.preventDefault(); submitInvoice();">
+      <h3 style="color: #15803d;">Đã xuất hóa đơn cho đơn <span class="mono" id="iv-code"></span></h3>
+      <label>Số hóa đơn<input id="iv-no" required class="mono" style="width: 100%; margin-top: 4px;"></label>
+      <label>Ký hiệu (vd 1C26TBC)<input id="iv-series" class="mono" style="width: 100%; margin-top: 4px;"></label>
+      <label>Link tra cứu (https://…)<input id="iv-url" type="url" style="width: 100%; margin-top: 4px;"></label>
+      <div id="iv-err" style="color: #b91c1c; font-size: 13px;"></div>
+      <div class="row-actions" style="justify-content: flex-end;">
+        <button type="button" class="btn" onclick="document.getElementById('inv-dlg').close()">Hủy</button>
+        <button class="btn ok">Lưu & gửi email cho khách</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="invb-dlg" style="width: min(640px, 96vw);">
+    <form method="dialog" onsubmit="event.preventDefault(); submitInvoiceBulk();">
+      <h3 style="color: #005198;">Nhập số hóa đơn hàng loạt</h3>
+      <div class="hint">Mỗi dòng: <span class="mono">Mã đơn, Số hóa đơn, Ký hiệu, Link tra cứu</span> (2 cột sau có thể bỏ trống). Dán thẳng từ Excel (cột cách nhau bằng Tab) cũng được.</div>
+      <textarea id="ib-text" rows="8" class="mono" style="width: 100%;" placeholder="BC1234567890, 0000123, 1C26TBC, https://tracuu.example.vn/123"></textarea>
+      <div id="ib-err" style="font-size: 13px; white-space: pre-line;"></div>
+      <div class="row-actions" style="justify-content: flex-end;">
+        <button type="button" class="btn" onclick="document.getElementById('invb-dlg').close()">Đóng</button>
+        <button class="btn ok">Nhập</button>
+      </div>
+    </form>
+  </dialog>
 
   <dialog id="reject-dlg">
     <form method="dialog" onsubmit="event.preventDefault(); submitReject();">
@@ -768,6 +866,7 @@
       if (name === 'nhansu') loadStaff();
       if (name === 'danhmuc') loadCatalog();
       if (name === 'tongquan') loadDashboard();
+      if (name === 'quay') initCounter();
     }
     document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => show(b.dataset.tab));
 
@@ -872,7 +971,58 @@
       document.getElementById('ck-history').innerHTML = '<table><tbody>' + ckHistory.slice(0, 15).map(h =>
         `<tr><td>${h.at.toLocaleTimeString('vi-VN')}</td><td class="mono">${esc(h.code)}</td><td>${esc(h.seats)}</td><td>${h.ok ? pill('Vào', 'ok') : pill('Từ chối', 'danger')}</td></tr>`).join('') + '</tbody></table>';
       try { navigator.vibrate && navigator.vibrate(ok ? 80 : [80, 60, 80]); } catch (e) {}
+      beep(ok);
+      loadCounterBoard();
     }
+
+    // ---- Đợt 7: Quầy ----
+    // Âm báo: 1 tiếng cao = hợp lệ, 2 tiếng trầm = từ chối (không cần file âm thanh)
+    let audioCtx = null;
+    function beep(ok) {
+      if (!document.getElementById('qc-sound') || !document.getElementById('qc-sound').checked) return;
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const tone = (freq, at, dur) => { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.frequency.value = freq; o.type = 'sine'; g.gain.setValueAtTime(0.25, audioCtx.currentTime + at); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + at + dur); o.connect(g); g.connect(audioCtx.destination); o.start(audioCtx.currentTime + at); o.stop(audioCtx.currentTime + at + dur); };
+        if (ok) tone(1046, 0, 0.18); else { tone(330, 0, 0.16); tone(262, 0.2, 0.22); }
+      } catch (e) { /* trình duyệt chặn âm thanh: bỏ qua */ }
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById('tab-quay');
+      if (document.fullscreenElement) document.exitFullscreen(); else if (el.requestFullscreen) { el.style.background = '#f1f5f9'; el.style.padding = '16px'; el.style.overflow = 'auto'; el.requestFullscreen(); }
+      setTimeout(() => document.getElementById('ck-input').focus(), 300);
+    }
+    async function initCounter() {
+      const sel = document.getElementById('qc-cinema');
+      try { document.getElementById('qc-sound').checked = localStorage.getItem('beta_qc_sound') !== '0'; } catch (e) {}
+      if (!sel.options.length) {
+        try {
+          const r = await api('catalog?action=cinemas');
+          let saved = null; try { saved = localStorage.getItem('beta_qc_cinema'); } catch (e) {}
+          sel.innerHTML = r.cinemas.map(c => `<option value="${esc(c.id)}" ${c.id === saved ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+        } catch (e) { /* bỏ qua */ }
+      }
+      await loadCounterBoard();
+    }
+    function saveCounterCinema() { try { localStorage.setItem('beta_qc_cinema', val('qc-cinema')); } catch (e) {} loadCounterBoard(); }
+    async function loadCounterBoard() {
+      if (!document.getElementById('qc-cinema') || !val('qc-cinema')) return;
+      try {
+        const d = await api('admin?action=counter_board&cinema=' + encodeURIComponent(val('qc-cinema')));
+        document.getElementById('qc-mine').textContent = 'Ca của tôi: ' + d.my_checkins_today + ' vé đã soát hôm nay';
+        document.getElementById('qc-sub').textContent = `${d.cinema.name} · ${d.date.split('-').reverse().join('/')} · đã soát ${d.totals.checked_seats}/${d.totals.sold_seats} ghế đã bán · tự cập nhật 30 giây/lần`;
+        const PH = { SOON: pill('Sắp chiếu ≤ 30 phút', 'warn'), PLAYING: pill('Đang chiếu', 'info'), ENDED: pill('Đã chiếu', 'muted'), LATER: pill('Chưa tới giờ', 'muted') };
+        document.getElementById('qc-board').innerHTML = d.showtimes.length ? `<table><thead><tr><th>Giờ</th><th>Phim</th><th>Phòng</th><th style="width: 32%;">Đã soát / đã bán</th><th>Trạng thái</th></tr></thead><tbody>${
+          d.showtimes.map(s => { const rate = s.sold_seats ? Math.round(s.checked_seats / s.sold_seats * 100) : 0; return `<tr class="${s.phase === 'ENDED' ? 'inactive' : ''}" style="${s.phase === 'SOON' ? 'background:#fffbeb' : ''}">
+            <td><b style="font-size: 15px;">${s.time}</b><div class="hint">→ ${esc(s.end_time || '')}</div></td><td>${esc(s.movie)}<div class="hint">${esc(s.format || '')}</div></td><td>${esc(s.room || '')}</td>
+            <td><div class="hbar" style="grid-template-columns: 1fr auto; padding: 0;"><span class="track"><i style="width: ${Math.max(rate, 0.5)}%"></i></span><span class="v">${s.checked_seats}/${s.sold_seats} ghế · ${rate}%</span></div><div class="hint">${s.sold_seats}/${s.seats_total} ghế đã bán · ${s.orders} đơn</div></td>
+            <td>${s.active ? PH[s.phase] : pill('Ngừng bán', 'danger')}</td></tr>`; }).join('')}</tbody></table>`
+          : '<div class="empty">Rạp không có suất chiếu hôm nay.</div>';
+        document.getElementById('qc-pickups').innerHTML = d.pickups.length ? `<table><thead><tr><th>Mã đơn</th><th>Khách</th><th>Món</th><th>Thanh toán lúc</th></tr></thead><tbody>${
+          d.pickups.map(p => `<tr><td class="mono">${esc(p.code)}</td><td>${esc(p.customer)}</td><td><b>${esc(p.items)}</b></td><td>${t(p.paid_at)}</td></tr>`).join('')}</tbody></table>`
+          : '<div class="empty">Không có phiếu bắp nước nào chờ nhận.</div>';
+      } catch (e) { document.getElementById('qc-board').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+    setInterval(() => { if (tab === 'quay' && !document.hidden) loadCounterBoard(); }, 30000);
 
     // Quét QR bằng camera (trình duyệt hỗ trợ BarcodeDetector: Chrome Android, macOS, ChromeOS)
     let camStream = null, camTimer = null, lastScan = '';
@@ -1282,7 +1432,7 @@
     const AUDIT_LABEL = { login: 'Đăng nhập', send_to_accounting: 'Gửi Kế toán', accounting_reject: 'Trả về nhân viên', accounting_paid: 'Duyệt chi', decide: 'Đối chiếu hồ sơ',
       remind: 'Nhắc khách', confirm_done: 'Xác nhận hoàn tất', resolve_ticket: 'Đóng phiếu', ticket_reply: 'Trả lời khách', run_job: 'Chạy Job', staff_create: 'Thêm nhân viên', staff_update: 'Sửa nhân viên',
       movie_save: 'Lưu phim', ticket_type_save: 'Sửa loại vé', post_save: 'Lưu tin / ưu đãi', post_delete: 'Xóa tin / ưu đãi', price_rule_save: 'Lưu quy tắc giá', price_rule_delete: 'Xóa quy tắc giá', holiday_save: 'Thêm ngày lễ', holiday_delete: 'Xóa ngày lễ', dashboard: 'Xem tổng quan', cinema_save: 'Lưu rạp', showtime_create: 'Tạo suất chiếu', room_save: 'Lưu phòng chiếu', showtime_copy: 'Sao chép lịch chiếu', campaign_create: 'Gửi email ưu đãi', review_hide: 'Ẩn/hiện đánh giá', event_update: 'Cập nhật yêu cầu thuê rạp', invoice_issue: 'Xác nhận đã xuất hóa đơn', invoice_cancel: 'Hủy yêu cầu hóa đơn', showtime_update: 'Sửa suất chiếu', voucher_save: 'Lưu voucher', checkin: 'Soát vé',
-      change_password: 'Đổi mật khẩu', totp_setup: 'Tạo mã bảo mật 2 lớp', totp_enable: 'Bật bảo mật 2 lớp', totp_disable: 'Tắt bảo mật 2 lớp', staff_reset_2fa: 'Đặt lại bảo mật 2 lớp của nhân viên', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
+      change_password: 'Đổi mật khẩu', totp_setup: 'Tạo mã bảo mật 2 lớp', totp_enable: 'Bật bảo mật 2 lớp', totp_disable: 'Tắt bảo mật 2 lớp', staff_reset_2fa: 'Đặt lại bảo mật 2 lớp của nhân viên', ticket_assign: 'Nhận / trả phiếu', ticket_note: 'Ghi chú nội bộ phiếu', staff_resend_ticket: 'Gửi lại vé cho khách', accounting_paid_batch: 'Đã chi hàng loạt', day_close: 'Chốt sổ ngày', day_reopen: 'Mở lại sổ ngày', payout_csv: 'Xuất bảng kê chuyển khoản', bootstrap_manager: 'Tạo Quản lý đầu tiên' };
     function renderAudit() {
       const q = document.getElementById('au-search').value.trim().toLowerCase();
       const rows = AUDIT.filter(l => !q || [l.staff_name, l.action, AUDIT_LABEL[l.action], l.target, JSON.stringify(l.detail || {})].join(' ').toLowerCase().includes(q));
@@ -1318,6 +1468,7 @@
       const box = document.getElementById('events');
       try {
         EVENTS = await api('admin?action=event_list');
+        if (overview) renderWork();
         const tone = { NEW: 'danger', QUOTED: 'warn', CONFIRMED: 'ok', DONE: 'muted', CANCELLED: 'muted' };
         box.innerHTML = EVENTS.requests.length ? `<table><thead><tr><th>Mã</th><th>Loại</th><th>Khách</th><th>Rạp / ngày</th><th>Số khách</th><th>Báo giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
           EVENTS.requests.map(x => `<tr><td class="mono">${esc(x.code)}<div class="hint">${t(x.created_at)}</div></td><td>${esc(EVENTS.kinds[x.kind] || x.kind)}</td>
@@ -1362,16 +1513,145 @@
     function renderCskh() {
       loadReviews();
       loadEvents();
-      const tk = overview.tickets;
-      badge('c-cskh', tk.filter(x => x.status === 'OPEN').length);
-      document.getElementById('tickets').innerHTML = tk.length ? `<table><thead><tr><th>Phiếu</th><th>Loại</th><th>Đơn</th><th>Nội dung</th><th>Trạng thái</th><th>Cập nhật</th><th></th></tr></thead><tbody>${
-        tk.map(x => `<tr><td class="mono">${esc(x.code)}</td><td>${pill(TK_LABEL[x.type] || x.type, x.type === 'PAYMENT_REPORT' ? 'warn' : 'danger')}</td>
-          <td class="mono">${x.order_code ? `<a href="#" onclick="openOrder('${esc(x.order_code)}'); return false;">${esc(x.order_code)}</a>` : '—'}</td>
-          <td>${esc(x.summary)}${(x.replies || []).length ? `<div class="hint">${(x.replies || []).slice(-3).map(r => (r.from === 'STAFF' ? 'CSKH ' : 'Khách ') + esc(r.name || '') + ': ' + esc(r.message)).join('<br>')}</div>` : ''}</td><td>${pill(TK_STATUS[x.status] || x.status, x.status === 'OPEN' ? 'danger' : 'info')}</td><td>${t(x.updated_at || x.created_at)}</td>
-          <td>${x.customer_id ? `<button class="btn" onclick="replyTicket('${esc(x.code)}')">Trả lời</button> ` : ''}<button class="btn" onclick="resolveTicket('${esc(x.code)}')">Đóng phiếu</button></td></tr>`).join('')
-      }</tbody></table>` : '<div class="empty">Không có phiếu nào cần xử lý <i class=ph-confetti aria-hidden=true></i></div>';
+      badge('c-cskh', overview.tickets.filter(x => x.status === 'OPEN').length);
+      renderTickets();
+      renderWork();
 
       renderCsRefunds();
+    }
+
+    // ---- Đợt 7: hàng đợi phiếu, việc của tôi, khách hàng 360° ----
+    let tkFilter = 'OPEN';
+    const TK_FILTERS = [
+      ['OPEN', 'Đang mở', x => true], ['MINE', 'Của tôi', x => x.assigned_to === ME.id], ['UNASSIGNED', 'Chưa ai nhận', x => !x.assigned_to],
+      ['WAITING', 'Chờ khách', x => x.status === 'WAITING_CUSTOMER'],
+      ['PAY', 'Thanh toán / hoàn tiền', x => ['PAYMENT_REPORT', 'UNMATCHED_TX', 'DATA_MISMATCH', 'MANUAL_REVIEW'].includes(x.type)],
+      ['GENERAL', 'Yêu cầu hỗ trợ', x => x.type === 'GENERAL']
+    ];
+    const ageOf = (iso) => { const m = Math.max(0, (Date.now() - new Date(iso)) / 60000); return { m, label: m < 60 ? Math.round(m) + ' phút' : m < 1440 ? Math.round(m / 60) + ' giờ' : Math.round(m / 1440) + ' ngày', tone: m < 120 ? 'ok' : m < 1440 ? 'warn' : 'danger' }; };
+    function renderTickets() {
+      const all = overview.tickets;
+      document.getElementById('tk-chips').innerHTML = TK_FILTERS.map(([k, l, f]) => `<button class="chip ${tkFilter === k ? 'on' : ''}" onclick="tkFilter='${k}'; renderTickets()">${l}<span class="n">${all.filter(f).length}</span></button>`).join('');
+      const q = val('tk-search').toLowerCase();
+      const f = TK_FILTERS.find(x => x[0] === tkFilter)[2];
+      const rows = all.filter(f).filter(x => !q || [x.code, x.order_code, x.summary, x.assigned_name].join(' ').toLowerCase().includes(q))
+        .sort((a, b) => (a.status === 'OPEN' ? 0 : 1) - (b.status === 'OPEN' ? 0 : 1) || new Date(a.created_at) - new Date(b.created_at));
+      document.getElementById('tickets').innerHTML = rows.length ? `<table><thead><tr><th>Phiếu</th><th>Chờ</th><th>Loại</th><th>Đơn</th><th>Nội dung</th><th>Người xử lý</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+        rows.map(x => { const a = ageOf(x.created_at); const last = (x.replies || []).slice(-1)[0]; return `<tr class="clickable" onclick="openTicket('${esc(x.code)}')">
+          <td class="mono" style="white-space: nowrap;">${esc(x.code)}</td><td>${pill(a.label, a.tone)}</td><td>${pill(TK_LABEL[x.type] || x.type, x.type === 'GENERAL' ? 'info' : 'warn')}</td>
+          <td class="mono">${esc(x.order_code || '—')}</td>
+          <td>${esc(x.summary)}${last ? `<div class="hint">${last.from === 'STAFF' ? 'CSKH' : 'Khách'}: ${esc(String(last.message).slice(0, 90))}</div>` : ''}</td>
+          <td>${x.assigned_name ? esc(x.assigned_name) + (x.assigned_to === ME.id ? ' (tôi)' : '') : '<span class="hint">chưa ai nhận</span>'}</td>
+          <td>${pill(TK_STATUS[x.status] || x.status, x.status === 'OPEN' ? 'danger' : 'info')}</td>
+          <td onclick="event.stopPropagation()" style="white-space: nowrap;">${!x.assigned_to ? `<button class="btn" onclick="assignTicket('${esc(x.code)}')">Nhận</button> ` : ''}<button class="btn primary" onclick="openTicket('${esc(x.code)}')">Mở</button></td></tr>`; }).join('')
+      }</tbody></table>` : '<div class="empty">Không có phiếu nào trong mục này <i class=ph-confetti aria-hidden=true></i></div>';
+    }
+    function renderWork() {
+      const tk = overview.tickets, rf = overview.refunds;
+      const items = [
+        [tk.filter(x => !x.assigned_to).length, 'Phiếu chưa ai nhận', "tkFilter='UNASSIGNED'; renderTickets(); document.getElementById('cs-queue').scrollIntoView({behavior:'smooth'})", 'warn'],
+        [tk.filter(x => x.assigned_to === ME.id).length, 'Phiếu của tôi', "tkFilter='MINE'; renderTickets(); document.getElementById('cs-queue').scrollIntoView({behavior:'smooth'})", ''],
+        [rf.filter(r => r.status === 'FORM_SUBMITTED').length, 'Hồ sơ hoàn tiền cần đối chiếu', "csFilter='FORM_SUBMITTED'; renderCsRefunds(); document.getElementById('cs-refund-card').scrollIntoView({behavior:'smooth'})", 'warn'],
+        [rf.filter(r => r.status === 'ACC_RETURNED').length, 'Kế toán trả về', "csFilter='ACC_RETURNED'; renderCsRefunds(); document.getElementById('cs-refund-card').scrollIntoView({behavior:'smooth'})", 'danger'],
+        [rf.filter(r => r.status === 'PAID_OUT').length, 'Kế toán đã chi – chờ xác nhận', "csFilter='PAID_OUT'; renderCsRefunds(); document.getElementById('cs-refund-card').scrollIntoView({behavior:'smooth'})", ''],
+        [(EVENTS.requests || []).filter(e => e.status === 'NEW').length, 'Yêu cầu thuê rạp mới', "document.getElementById('events').scrollIntoView({behavior:'smooth'})", '']
+      ];
+      document.getElementById('cs-work').innerHTML = items.map(([n, l, go, tone]) => `<button type="button" class="kpi" onclick="${go}" style="text-align:left;cursor:pointer;font:inherit;${n && tone === 'danger' ? 'border-color:#fca5a5;background:#fef2f2' : n && tone === 'warn' ? 'border-color:#fcd34d;background:#fffbeb' : ''}"><b>${n}</b><span>${l}</span></button>`).join('');
+    }
+    const assignTicket = (code, release) => act(async () => { await post('ticket_assign', { ticket_code: code, release: !!release }); if (document.getElementById('drawer').classList.contains('open')) await openTicket(code); });
+    const TEMPLATES = [
+      ['Đã nhận – đang kiểm tra', 'Chào {ten}, Beta Cinemas đã nhận phản ánh của bạn và đang kiểm tra. Chúng tôi sẽ phản hồi trong vòng 24 giờ.'],
+      ['Đã đối soát – có vé', 'Chào {ten}, giao dịch của bạn đã được đối soát thành công. Vé điện tử đã có trong mục Tài khoản → Lịch sử đặt vé.'],
+      ['Cần thêm thông tin', 'Chào {ten}, để hỗ trợ nhanh, bạn vui lòng gửi ảnh biên lai chuyển khoản (có mã giao dịch) và số tài khoản đã chuyển.'],
+      ['Đã chuyển Kế toán hoàn tiền', 'Chào {ten}, yêu cầu hoàn tiền của bạn đã được chuyển Kế toán. Tiền về tài khoản trong 3–7 ngày làm việc tùy ngân hàng.'],
+      ['Xin lỗi sự cố phòng chiếu', 'Chào {ten}, Beta Cinemas thành thật xin lỗi về trải nghiệm chưa tốt. Rạp đã ghi nhận và khắc phục. Mong được đón bạn lần sau.']
+    ];
+    let TK = null;
+    async function openTicket(code) {
+      TK = (await api('admin?action=ticket_get&code=' + encodeURIComponent(code))).ticket;
+      const x = TK, cx = x.context || {}, cust = cx.customer || {};
+      const first = String(cust.name || '').trim().split(/\s+/).pop() || 'bạn';
+      document.getElementById('d-title').innerHTML = `Phiếu <span class="mono">${esc(x.code)}</span> ${pill(TK_STATUS[x.status] || x.status, x.status === 'OPEN' ? 'danger' : x.status === 'RESOLVED' ? 'ok' : 'info')}`;
+      document.getElementById('d-body').innerHTML = `
+        <div class="kv">
+          <span>Loại</span><b>${esc(TK_LABEL[x.type] || x.type)}${cx.category_label ? ' · ' + esc(cx.category_label) : ''}</b>
+          <span>Tạo lúc</span><span>${t(x.created_at)} (${ageOf(x.created_at).label} trước)</span>
+          ${x.order_code ? `<span>Đơn</span><span><a href="#" class="mono" onclick="openOrder('${esc(x.order_code)}'); return false;">${esc(x.order_code)}</a></span>` : ''}
+          ${cust.name || cx.phone ? `<span>Khách</span><span>${esc(cust.name || '')} ${cust.email ? '· ' + esc(cust.email) : ''} ${cx.phone ? '· ' + esc(cx.phone) : ''}${cust.id ? ` · <a href="#" onclick="openCustomer('${esc(cust.id)}'); return false;">hồ sơ 360°</a>` : ''}</span>` : ''}
+          <span>Người xử lý</span><span>${x.assigned_name ? esc(x.assigned_name) : 'chưa ai nhận'} ${!x.assigned_to ? `<button class="btn" onclick="assignTicket('${esc(x.code)}')">Nhận xử lý</button>` : x.assigned_to === ME.id ? `<button class="btn" onclick="assignTicket('${esc(x.code)}', true)">Trả lại hàng đợi</button>` : ''}</span>
+        </div>
+        <div class="card" style="padding: 12px 14px;"><b>Nội dung</b><p style="margin: 6px 0 0; white-space: pre-line;">${esc(cx.description || x.summary || '')}</p>${cx.amount ? `<div class="hint">Số tiền khách khai: ${esc(cx.amount)}</div>` : ''}</div>
+        <h3 style="font-size: 13px; color: #005198;">TRAO ĐỔI VỚI KHÁCH</h3>
+        ${(x.replies || []).length ? (x.replies || []).map(r => `<div style="margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: ${r.from === 'STAFF' ? '#eff6ff' : '#f8fafc'};"><b>${r.from === 'STAFF' ? 'CSKH ' : 'Khách '}${esc(r.name || '')}</b> <span class="hint">${t(r.at)}</span><div style="white-space: pre-line;">${esc(r.message)}</div></div>`).join('') : '<div class="hint">Chưa có trao đổi.</div>'}
+        ${x.customer_id && x.status !== 'RESOLVED' ? `
+          <div style="margin-top: 10px;">
+            <select aria-label="Mẫu trả lời" onchange="if(this.value){ const ta=document.getElementById('tk-reply'); ta.value=TEMPLATES[this.value][1].replace(/\\{ten\\}/g, '${esc(first)}'); this.value=''; }">
+              <option value="">Chèn câu trả lời mẫu…</option>${TEMPLATES.map((m, i) => `<option value="${i}">${esc(m[0])}</option>`).join('')}
+            </select>
+            <textarea id="tk-reply" rows="3" style="width: 100%; margin-top: 6px;" placeholder="Trả lời khách (khách xem ở trang Hỗ trợ và nhận email)"></textarea>
+            <div class="row-actions" style="margin-top: 6px;">
+              <label class="hint" style="display: flex; gap: 6px; align-items: center;"><input type="checkbox" id="tk-close"> Đóng phiếu sau khi gửi</label>
+              <button class="btn primary" onclick="sendTicketReply()">Gửi trả lời</button>
+            </div>
+          </div>` : !x.customer_id ? '<div class="hint" style="margin-top: 8px;">Phiếu không gắn tài khoản khách – liên hệ khách qua số điện thoại / email ở trên.</div>' : ''}
+        <h3 style="font-size: 13px; color: #005198; margin-top: 16px;">GHI CHÚ NỘI BỘ <small class="hint">khách không thấy</small></h3>
+        ${(x.internal_notes || []).map(n => `<div class="hint" style="border-top: 1px dashed var(--line); padding: 4px 0;"><b>${esc(n.name)}</b> · ${t(n.at)}<br>${esc(n.note)}</div>`).join('') || '<div class="hint">Chưa có.</div>'}
+        <div class="row-actions" style="margin-top: 6px;"><input id="tk-note" placeholder="Ghi chú cho đồng nghiệp…" style="flex: 1;"><button class="btn" onclick="addTicketNote()">Lưu ghi chú</button></div>
+        ${x.status !== 'RESOLVED' ? `<div class="row-actions" style="margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px;">
+          <input id="tk-result" placeholder="Kết quả xử lý (bắt buộc khi đóng)" style="flex: 1;"><button class="btn ok" onclick="closeTicket()">Đóng phiếu</button></div>` : `<div class="hint" style="margin-top: 12px;">Đã đóng${x.note ? ': ' + esc(x.note) : ''}</div>`}`;
+      document.getElementById('drawer').classList.add('open');
+    }
+    const sendTicketReply = () => act(async () => {
+      const message = val('tk-reply');
+      if (message.length < 2) return alert('Nhập nội dung trả lời');
+      await post('ticket_reply', { ticket_code: TK.code, message, close: document.getElementById('tk-close').checked });
+      await openTicket(TK.code);
+    });
+    const addTicketNote = () => act(async () => { await post('ticket_note', { ticket_code: TK.code, note: val('tk-note') }); await openTicket(TK.code); });
+    const closeTicket = () => act(async () => {
+      const note = val('tk-result');
+      if (note.length < 3) return alert('Ghi kết quả xử lý trước khi đóng phiếu');
+      await post('resolve_ticket', { ticket_code: TK.code, note });
+      closeDrawer();
+    });
+    async function searchCustomers() {
+      const box = document.getElementById('cu-results');
+      try {
+        const r = await api('admin?action=customer_search&q=' + encodeURIComponent(val('cu-q')));
+        box.innerHTML = r.customers.length ? `<table><thead><tr><th>Khách hàng</th><th>Email</th><th>SĐT</th><th>Thành viên từ</th><th></th></tr></thead><tbody>${
+          r.customers.map(c => `<tr class="clickable ${c.deleted ? 'inactive' : ''}" onclick="openCustomer('${esc(c.id)}')"><td><b>${esc(c.full_name)}</b>${c.deleted ? ' ' + pill('Đã xóa tài khoản', 'muted') : ''}</td><td>${esc(c.email)}</td><td class="mono">${esc(c.phone || '')}</td><td>${t(c.created_at)}</td><td><button class="btn primary">Xem</button></td></tr>`).join('')}</tbody></table>`
+          : '<div class="empty">Không tìm thấy khách hàng phù hợp.</div>';
+      } catch (e) { box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+    async function openCustomer(id) {
+      const d = await api('admin?action=customer_detail&id=' + encodeURIComponent(id));
+      const c = d.customer, s = d.stats;
+      const PAIDST = ['CONFIRMED', 'CONFIRMED_LATE'];
+      document.getElementById('d-title').innerHTML = `Khách hàng · ${esc(c.full_name)}${c.deleted ? ' ' + pill('Đã xóa tài khoản', 'muted') : ''}`;
+      document.getElementById('d-body').innerHTML = `
+        <div class="kv">
+          <span>Email / SĐT</span><b>${esc(c.email)} · <span class="mono">${esc(c.phone || '—')}</span></b>
+          <span>Thành viên từ</span><span>${t(c.created_at)}${c.birthday ? ' · sinh ' + esc(c.birthday.split('-').reverse().join('/')) : ''}</span>
+          <span>Email ưu đãi</span><span>${c.marketing_opt_in ? 'Đồng ý nhận' : 'Không nhận'}</span>
+          ${d.points ? `<span>Beta Club</span><span>Hạng <b>${esc(d.points.tier)}</b> · ${d.points.balance} điểm${d.points.expiring_soon ? ' · ' + d.points.expiring_soon + ' điểm sắp hết hạn' : ''}</span>` : ''}
+        </div>
+        <div class="kpis">${[[s.paid_orders + '/' + s.orders, 'Đơn đã xuất vé'], [vnd(s.spend), 'Tổng chi tiêu'], [s.refunds, 'Hồ sơ hoàn tiền'], [s.open_tickets, 'Phiếu đang mở']].map(([v, l]) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+        <h3 style="font-size: 13px; color: #005198;">ĐƠN HÀNG</h3>
+        ${d.orders.length ? `<table><thead><tr><th>Đơn</th><th>Nội dung</th><th>Giá trị</th><th>Trạng thái</th><th></th></tr></thead><tbody>${d.orders.map(o => `<tr>
+          <td class="mono"><a href="#" onclick="openOrder('${esc(o.code)}'); return false;">${esc(o.code)}</a><div class="hint">${t(o.created_at)}</div></td>
+          <td>${o.kind === 'FNB' ? 'Bắp nước · ' + esc(o.cinema) : esc(o.movie_key) + '<div class="hint">' + esc(o.cinema) + ' · ' + esc(o.show_time) + ' ' + esc(o.show_date) + ' · ghế ' + esc(o.seats.join(', ')) + '</div>'}</td>
+          <td>${vnd(o.total)}</td><td>${pill(o.label, STATUS_TONE[o.status])}</td>
+          <td>${PAIDST.includes(o.status) && !c.deleted ? `<button class="btn" onclick="staffResend('${esc(o.code)}', this)"><i class=ph-envelope aria-hidden=true></i> Gửi lại vé</button>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Chưa có đơn.</div>'}
+        ${d.refunds.length ? `<h3 style="font-size: 13px; color: #005198; margin-top: 14px;">HOÀN TIỀN</h3><table><tbody>${d.refunds.map(r => `<tr><td class="mono">${esc(r.code)}</td><td class="mono">${esc(r.order_code)}</td><td>${vnd(r.amount)}</td><td>${pill(RF_LABEL[r.status] || r.status, RF_TONE[r.status])}</td></tr>`).join('')}</tbody></table>` : ''}
+        ${d.tickets.length ? `<h3 style="font-size: 13px; color: #005198; margin-top: 14px;">PHIẾU HỖ TRỢ</h3><table><tbody>${d.tickets.map(x => `<tr class="clickable" onclick="openTicket('${esc(x.code)}')"><td class="mono">${esc(x.code)}</td><td>${esc(x.summary || '')}</td><td>${pill(TK_STATUS[x.status] || (x.status === 'RESOLVED' ? 'Đã đóng' : x.status), x.status === 'RESOLVED' ? 'ok' : 'warn')}</td></tr>`).join('')}</tbody></table>` : ''}
+        ${d.reviews.length ? `<h3 style="font-size: 13px; color: #005198; margin-top: 14px;">ĐÁNH GIÁ PHIM</h3>${d.reviews.map(r => `<div class="hint">${'★'.repeat(r.rating)} ${esc(r.movie_id)}${r.hidden ? ' (đã ẩn)' : ''}: ${esc(r.content || '')}</div>`).join('')}` : ''}
+        ${d.invoices.length ? `<h3 style="font-size: 13px; color: #005198; margin-top: 14px;">HÓA ĐƠN</h3>${d.invoices.map(i => `<div class="hint mono">${esc(i.order_code)} · ${esc(i.status)} ${esc(i.company_name || '')} ${esc(i.invoice_no || '')}</div>`).join('')}` : ''}`;
+      document.getElementById('drawer').classList.add('open');
+    }
+    async function staffResend(code, btn) {
+      btn.disabled = true;
+      try { const r = await post('staff_resend_ticket', { code }); btn.textContent = r.sent ? 'Đã gửi tới ' + r.email : 'Đã ghi nhận (email chưa cấu hình)'; }
+      catch (e) { alert(e.message); btn.disabled = false; }
     }
 
     function renderCsRefunds() {
@@ -1451,14 +1731,33 @@
           : '<div class="empty">Không có yêu cầu hóa đơn.</div>';
       } catch (e) { box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
     }
-    const issueInvoice = (code) => act(async () => {
-      const no = prompt('Số hóa đơn đã xuất cho đơn ' + code + ':');
-      if (!no) return;
-      const series = prompt('Ký hiệu hóa đơn (vd 1C26TBC), có thể để trống:') || '';
-      const url = prompt('Link tra cứu hóa đơn (https://…), có thể để trống:') || '';
-      await post('invoice_issue', { order_code: code, invoice_no: no, invoice_series: series, lookup_url: url });
-      await loadInvoices();
-    });
+    function issueInvoice(code) {
+      document.getElementById('iv-code').textContent = code;
+      ['iv-no', 'iv-series', 'iv-url'].forEach(id => { document.getElementById(id).value = ''; });
+      document.getElementById('iv-err').textContent = '';
+      document.getElementById('inv-dlg').showModal();
+    }
+    async function submitInvoice() {
+      try {
+        await post('invoice_issue', { order_code: document.getElementById('iv-code').textContent, invoice_no: val('iv-no'), invoice_series: val('iv-series'), lookup_url: val('iv-url') });
+        document.getElementById('inv-dlg').close();
+        await loadInvoices(); loadAccSummary();
+      } catch (e) { document.getElementById('iv-err').textContent = e.message; }
+    }
+    async function submitInvoiceBulk() {
+      const lines = val('ib-text').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const out = document.getElementById('ib-err');
+      let ok = 0; const bad = [];
+      for (const l of lines) {
+        const [code, no, series, url] = l.split(/\t|,|;/).map(s => (s || '').trim());
+        try { await post('invoice_issue', { order_code: code.toUpperCase(), invoice_no: no, invoice_series: series || '', lookup_url: url || '' }); ok++; }
+        catch (e) { bad.push(code + ': ' + e.message); }
+      }
+      out.style.color = bad.length ? '#b91c1c' : '#15803d';
+      out.textContent = `Đã nhập ${ok}/${lines.length} hóa đơn.` + (bad.length ? '\n' + bad.join('\n') : '');
+      if (!bad.length) document.getElementById('ib-text').value = '';
+      await loadInvoices(); loadAccSummary();
+    }
     const cancelInvoice = (code) => act(async () => {
       const reason = prompt('Lý do không xuất được (gửi cho khách):');
       if (!reason) return;
@@ -1476,14 +1775,133 @@
       } catch (e) { alert('Không xuất được: ' + e.message); }
     }
 
+    // ---- Đợt 7: công cụ Kế toán ----
+    const ktSel = new Set();
+    function ktSync() {
+      document.getElementById('kt-sel-count').textContent = ktSel.size;
+      document.getElementById('kt-sel-n').textContent = ktSel.size ? ktSel.size + ' hồ sơ chọn' : 'tất cả';
+      document.getElementById('kt-batch-btn').disabled = !ktSel.size;
+    }
+    function ktToggle(code, on) { on ? ktSel.add(code) : ktSel.delete(code); ktSync(); }
+    function ktToggleAll(on) { overview.refunds.filter(r => r.status === 'CS_APPROVED').forEach(r => on ? ktSel.add(r.code) : ktSel.delete(r.code)); renderKetoan(); }
+    async function downloadFile(path, fallbackName) {
+      try {
+        const r = await fetch(API + path, { headers: TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {} });
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'HTTP ' + r.status);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(await r.blob());
+        a.download = (/filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '') || [])[1] || fallbackName;
+        document.body.appendChild(a); a.click(); a.remove();
+      } catch (e) { alert('Không tải được: ' + e.message); }
+    }
+    const downloadPayout = () => downloadFile('admin?action=payout_csv&codes=' + encodeURIComponent([...ktSel].join(',')), 'bang-ke-chuyen-khoan.csv');
+    const downloadDays = () => downloadFile('admin?action=day_list&format=csv', 'so-quy-theo-ngay.csv');
+    function openPaidBatch() {
+      const rows = overview.refunds.filter(r => ktSel.has(r.code));
+      document.getElementById('pd-count').textContent = rows.length;
+      document.getElementById('pd-err').textContent = '';
+      document.getElementById('pd-same').checked = false; document.getElementById('pd-batch').disabled = true; document.getElementById('pd-batch').value = '';
+      document.getElementById('pd-rows').innerHTML = `<table><thead><tr><th>Hồ sơ</th><th>Chuyển tới</th><th>Số tiền</th><th>Mã GD</th></tr></thead><tbody>${rows.map(r => `<tr>
+        <td class="mono">${esc(r.code)}</td><td>${esc(r.bank_name)} · <span class="mono">${esc(r.acc_number)}</span><div class="hint">${esc(r.acc_name)}</div></td><td><b>${vnd(r.amount)}</b></td>
+        <td><input class="mono pd-ref" data-code="${esc(r.code)}" placeholder="FT…" style="width: 150px;"></td></tr>`).join('')}</tbody></table>
+        <div class="hint" style="margin-top: 6px;">Tổng: <b>${vnd(rows.reduce((s, r) => s + Number(r.amount || 0), 0))}</b></div>`;
+      document.getElementById('paid-dlg').showModal();
+    }
+    async function submitPaidBatch() {
+      const same = document.getElementById('pd-same').checked;
+      const batch = val('pd-batch');
+      const items = [...document.querySelectorAll('.pd-ref')].map(i => ({ refund_code: i.dataset.code, refund_ref: same ? batch : i.value.trim() }));
+      const err = document.getElementById('pd-err');
+      if (items.some(i => !i.refund_ref)) return (err.textContent = same ? 'Nhập mã giao dịch chung.' : 'Nhập mã giao dịch cho mọi hồ sơ (hoặc dùng mã chung).');
+      try {
+        const r = await post('accounting_paid_batch', { items });
+        const bad = r.results.filter(x => !x.ok);
+        r.results.filter(x => x.ok).forEach(x => ktSel.delete(x.code));
+        if (bad.length) err.textContent = `Đã chi ${r.paid}/${items.length}. Không được:\n` + bad.map(x => x.code + ': ' + x.error).join('\n');
+        else document.getElementById('paid-dlg').close();
+        await load(); loadAccSummary();
+      } catch (e) { err.textContent = e.message; }
+    }
+    async function loadAccSummary() {
+      if (!can('report.view')) return;
+      try {
+        const s = await api('admin?action=acc_summary');
+        document.getElementById('kt-kpis').innerHTML = [
+          [s.pending_count + ' · ' + vnd(s.pending_amount), 'Hồ sơ chờ duyệt chi', s.pending_count ? 'warn' : ''],
+          [s.paid_today_count + ' · ' + vnd(s.paid_today_amount), 'Đã chi hôm nay', ''],
+          [s.invoices_pending, 'Hóa đơn chờ xuất', s.invoices_pending ? 'warn' : ''],
+          [s.unmatched_count + ' · ' + vnd(s.unmatched_amount), 'Tiền vào chưa khớp đơn (chưa xử lý)', s.unmatched_count ? 'danger' : ''],
+          [s.days_unclosed.length, 'Ngày chưa chốt sổ (7 ngày qua)', s.days_unclosed.length ? 'warn' : '']
+        ].map(([v, l, tone]) => `<div class="kpi" style="${tone === 'danger' ? 'border-color:#fca5a5;background:#fef2f2' : tone === 'warn' ? 'border-color:#fcd34d;background:#fffbeb' : ''}"><b>${v}</b><span>${l}</span></div>`).join('');
+      } catch (e) { /* không chặn tab nếu lỗi */ }
+    }
+    let DAYS = [];
+    async function loadDays() {
+      const box = document.getElementById('kt-days');
+      try {
+        const r = await api('admin?action=day_list');
+        DAYS = r.days;
+        const st = { OPEN: pill('Chưa chốt', 'warn'), TODAY: pill('Hôm nay', 'info'), CLOSED: pill('Đã chốt', 'ok'), CHANGED: pill('Phát sinh sau chốt', 'danger') };
+        box.innerHTML = `<table><thead><tr><th>Ngày</th><th>Tiền vào</th><th>Theo kênh</th><th>Chưa khớp</th><th>Doanh thu xuất vé</th><th>Đã hoàn</th><th>Kế toán đã chi</th><th>Hồ sơ hoàn mở</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+          r.days.map(x => `<tr class="${x.status === 'CHANGED' ? 'flag' : ''}"><td><b>${x.date.split('-').reverse().join('/')}</b></td><td><b>${vnd(x.received)}</b><div class="hint">${x.tx_count} GD</div></td>
+            <td class="hint">${Object.entries(x.by_channel).filter(([, v]) => v).map(([k, v]) => k + ' ' + vnd(v)).join('<br>') || '—'}</td>
+            <td>${x.unmatched ? `<b style="color:#b91c1c">${vnd(x.unmatched)}</b>` : '—'}</td><td>${vnd(x.revenue)}<div class="hint">${x.orders} đơn</div></td>
+            <td>${vnd(x.refunded_auto + x.refunded_manual)}${x.refunded_manual ? `<div class="hint">thủ công ${vnd(x.refunded_manual)}</div>` : ''}</td><td>${x.payouts ? vnd(x.payouts) : '—'}</td><td>${x.refunds_open ? vnd(x.refunds_open) : '—'}</td>
+            <td>${st[x.status]}${x.closing ? `<div class="hint">${esc(x.closing.closed_by)} · ${t(x.closing.closed_at)}</div>${x.closing.note ? `<div class="hint">${esc(x.closing.note)}</div>` : ''}` : ''}${x.status === 'CHANGED' ? `<div class="ret-note">Đổi: ${esc(x.changed.join(', '))}</div>` : ''}</td>
+            <td>${x.status === 'OPEN' && can('refund.pay') ? `<button class="btn primary" onclick="openCloseDay('${x.date}')">Chốt sổ</button>` : ''}
+              ${(x.status === 'CLOSED' || x.status === 'CHANGED') && r.can_reopen ? `<button class="btn" onclick="reopenDay('${x.date}')">Mở lại</button>` : ''}</td></tr>`).join('')}</tbody></table>`;
+      } catch (e) { box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+    function openCloseDay(date) {
+      const x = DAYS.find(d => d.date === date);
+      document.getElementById('cd-date').textContent = date.split('-').reverse().join('/');
+      document.getElementById('cd-date').dataset.date = date;
+      document.getElementById('cd-sum').innerHTML = [['Tiền vào', vnd(x.received) + ' (' + x.tx_count + ' GD)'], ['Chưa khớp đơn', vnd(x.unmatched)], ['Doanh thu xuất vé', vnd(x.revenue)],
+        ['Đã hoàn (tự động / thủ công)', vnd(x.refunded_auto) + ' / ' + vnd(x.refunded_manual)], ['Tiền giữ lại', vnd(x.net)], ['Hồ sơ hoàn còn mở', vnd(x.refunds_open)]]
+        .map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join('');
+      document.getElementById('cd-note').value = ''; document.getElementById('cd-err').textContent = '';
+      document.getElementById('close-dlg').showModal();
+    }
+    async function submitCloseDay() {
+      try {
+        await post('day_close', { date: document.getElementById('cd-date').dataset.date, note: val('cd-note') });
+        document.getElementById('close-dlg').close();
+        await loadDays(); loadAccSummary();
+      } catch (e) { document.getElementById('cd-err').textContent = e.message; }
+    }
+    const reopenDay = (date) => act(async () => {
+      const reason = prompt('Lý do mở lại sổ ngày ' + date.split('-').reverse().join('/') + ' (bắt buộc):');
+      if (!reason) return;
+      await post('day_reopen', { date, note: reason });
+      await loadDays(); loadAccSummary();
+    });
+    async function loadUnmatched() {
+      const box = document.getElementById('kt-unmatched');
+      try {
+        const r = await api('admin?action=unmatched_list');
+        box.innerHTML = r.rows.length ? `<table><thead><tr><th>Thời điểm</th><th>Mã GD</th><th>Số tiền</th><th>Nội dung khách ghi</th><th>Phiếu CSKH</th></tr></thead><tbody>${
+          r.rows.map(x => `<tr class="${x.resolved ? 'inactive' : 'flag'}"><td>${t(x.transaction_date)}</td><td class="mono">${esc(x.reference_code)}<div class="hint">${esc(x.gateway || '')}</div></td><td><b>${vnd(x.amount)}</b></td>
+            <td>${esc(x.content || '')}</td><td>${x.ticket_code ? `<span class="mono">${esc(x.ticket_code)}</span> ${pill(x.resolved ? 'Đã xử lý' : 'Đang xử lý', x.resolved ? 'ok' : 'warn')}${x.ticket_note ? `<div class="hint">${esc(x.ticket_note)}</div>` : ''}` : '<span class="hint">chưa có phiếu</span>'}</td></tr>`).join('')}</tbody></table>`
+          : '<div class="empty">Không có khoản tiền nào không khớp đơn trong 30 ngày.</div>';
+      } catch (e) { box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+    }
+
+    // Trang tự làm mới 15 giây/lần: phần nặng (sổ ngày, tiền không khớp, hóa đơn) chỉ tải lại mỗi phút
+    let ktHeavyAt = 0;
     function renderKetoan() {
-      if (can('report.view')) loadInvoices();
+      if (can('report.view')) {
+        loadAccSummary();
+        if (Date.now() - ktHeavyAt > 60000) { ktHeavyAt = Date.now(); loadInvoices(); loadDays(); loadUnmatched(); }
+      }
+      setTimeout(ktSync);
       const rf = overview.refunds.filter(r => r.status === 'CS_APPROVED')
         .sort((x, y) => new Date(x.reconciled_at || x.created_at) - new Date(y.reconciled_at || y.created_at));
       badge('c-ketoan', rf.length);
       const sentBy = (r) => { const l = (r.review_log || []).filter(x => x.role === 'NHÂN VIÊN').pop(); return l ? `${esc(l.actor)} · ${t(l.at)}` : ''; };
-      document.getElementById('kt-refunds').innerHTML = rf.length ? `<table><thead><tr><th>Hồ sơ</th><th>Đơn</th><th>Số tiền hoàn</th><th>Tiền thực nhận của đơn</th><th>Chuyển tới</th><th>Nhân viên gửi</th><th>Kiểm tra</th></tr></thead><tbody>${
+      for (const c of [...ktSel]) if (!rf.some(r => r.code === c)) ktSel.delete(c);
+      document.getElementById('kt-refunds').innerHTML = rf.length ? `<table><thead><tr><th style="width: 28px;"><input type="checkbox" aria-label="Chọn tất cả hồ sơ chờ chi" onchange="ktToggleAll(this.checked)" ${rf.length && rf.every(r => ktSel.has(r.code)) ? 'checked' : ''}></th><th>Hồ sơ</th><th>Đơn</th><th>Số tiền hoàn</th><th>Tiền thực nhận của đơn</th><th>Chuyển tới</th><th>Nhân viên gửi</th><th>Kiểm tra</th></tr></thead><tbody>${
         rf.map(r => `<tr class="${r.received != null && r.amount > r.received ? 'flag' : ''}">
+          <td><input type="checkbox" aria-label="Chọn hồ sơ ${esc(r.code)}" ${ktSel.has(r.code) ? 'checked' : ''} onchange="ktToggle('${esc(r.code)}', this.checked)"></td>
           <td class="mono">${esc(r.code)}${r.returned_count ? `<div class="hint">gửi lại lần ${r.returned_count + 1}</div>` : ''}</td>
           <td class="mono"><a href="#" onclick="openOrder('${esc(r.order_code)}'); return false;">${esc(r.order_code)}</a></td>
           <td><b>${vnd(r.amount)}</b><div class="hint">${esc(r.reason)}</div></td>
