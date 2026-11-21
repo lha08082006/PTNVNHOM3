@@ -9,7 +9,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const SHOW_ALL = process.argv.includes('--all');
-const PAGES = ['home', 'schedule', 'gia-ve', 'tin-tuc', 'bap-nuoc', 'thue-rap', 'support', 'auth', 'policy', 'offline', 'account', 'phim/suzume', 'seats', 'checkout', 'order', 'ticket'];
+const PAGES = ['home', 'schedule', 'gia-ve', 'tin-tuc', 'bap-nuoc', 'thue-rap', 'rap', 'rap?id=beta-my-dinh', 'support', 'auth', 'policy', 'offline', 'account', 'phim/suzume', 'seats', 'checkout', 'order', 'ticket'];
 const EXTERNAL = /fonts\.googleapis|fonts\.gstatic|qr\.sepay\.vn|img\.vietqr|youtube\.com|ytimg\.com/;
 const exe = [process.env.CHROME_PATH, 'C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '/usr/bin/google-chrome', '/usr/bin/chromium']
   .filter(Boolean).find(p => { try { return fs.existsSync(p); } catch (e) { return false; } });

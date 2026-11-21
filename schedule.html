@@ -283,7 +283,7 @@
     /* Lưới các ô suất chiếu (Showtime Slots) */
     .sch-slots-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
       gap: 10px;
       max-width: 850px;
     }
@@ -309,10 +309,27 @@
     }
     .sch-slot-time {
       font-family: 'Be Vietnam Pro', sans-serif;
-      font-size: 13.5px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 800;
       color: #0f172a;
       line-height: 1.2;
+    }
+    .sch-slot-end { font-size: 11.5px; color: #475569; font-weight: 600; margin-top: 2px; line-height: 1.2; white-space: nowrap; }
+    .sch-slot-card .sch-slot-seats { white-space: nowrap; }
+    .sch-slot-seats.low { color: #b91c1c; }
+    .sch-format-title .from { font-weight: 600; color: #475569; text-transform: none; margin-left: 6px; }
+    /* Dải ngày: nút mũi tên khi còn ngày bị khuất */
+    .dbar-wrap { position: relative; }
+    .dbar-nav { position: absolute; top: 0; bottom: 4px; width: 44px; border: 0; cursor: pointer; z-index: 2; font-size: 22px; color: #03599d; display: none; align-items: center; justify-content: center; }
+    .dbar-nav.prev { left: 0; background: linear-gradient(90deg, #fff 55%, rgba(255,255,255,0)); justify-content: flex-start; }
+    .dbar-nav.next { right: 0; background: linear-gradient(270deg, #fff 55%, rgba(255,255,255,0)); justify-content: flex-end; }
+    .dbar-nav.show { display: flex; }
+    .date-row-official { scrollbar-width: none; scroll-behavior: smooth; }
+    .date-row-official::-webkit-scrollbar { display: none; }
+    @media (max-width: 640px) {
+      .date-row-official { gap: 18px !important; }
+      .date-item-official .d-number { font-size: 28px !important; }
+      .date-item-official .d-sub { font-size: 12px !important; }
     }
     .sch-slot-date {
       font-size: 12px;
@@ -357,7 +374,7 @@
       .sch-movie-title { font-size: 19px; margin-bottom: 6px; }
       .sch-movie-meta-tags { flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; margin-bottom: 12px; }
       .sch-format-title { font-size: 12.5px; margin-bottom: 8px; }
-      .sch-slots-grid { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+      .sch-slots-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
     }
   </style>
 </head>
@@ -401,11 +418,12 @@
       <!-- Main Navigation Menu -->
       <nav>
         <ul class="main-menu-official">
-          <li><a href="schedule.html" class="menu-link-official active">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="schedule.html" class="menu-link-official active" aria-current="page">LỊCH CHIẾU</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
+          <li><a href="rap.html" class="menu-link-official">RẠP</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
           <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
-          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
         </ul>
       </nav>
@@ -415,7 +433,11 @@
   <!-- Thanh Chọn Ngày Chiếu (Date Bar Chuẩn Y Hệt Ảnh Chụp Của Beta Cinemas) -->
   <section class="sch-date-bar-official">
     <div class="container">
-      <div class="date-row-official" id="official-date-bar" tabindex="0" role="group" aria-label="Chọn ngày xem phim (cuộn ngang)">
+      <div class="dbar-wrap">
+        <button type="button" class="dbar-nav prev" aria-label="Xem các ngày trước" onclick="scrollDates(-1)"><i class="ph-caret-left" aria-hidden="true"></i></button>
+        <div class="date-row-official" id="official-date-bar" tabindex="0" role="group" aria-label="Chọn ngày xem phim (cuộn ngang)">
+        </div>
+        <button type="button" class="dbar-nav next" aria-label="Xem các ngày sau" onclick="scrollDates(1)"><i class="ph-caret-right" aria-hidden="true"></i></button>
       </div>
     </div>
   </section>
@@ -437,7 +459,7 @@
       <span id="fmt-chips" role="group" aria-label="Lọc theo định dạng" style="display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto;"></span>
     </div>
     <div id="sch-list"></div>
-    <p class="m" style="font-size: 12.5px; margin-top: 10px;">Giờ kết thúc là dự kiến. Suất chiếu có thể bắt đầu muộn 10–15 phút do quảng cáo và giới thiệu phim.</p>
+    <p class="m" style="font-size: 12.5px; margin-top: 10px;">Giờ sau mũi tên (→) là giờ kết thúc dự kiến. Suất chiếu có thể bắt đầu muộn 10–15 phút do quảng cáo và giới thiệu phim.</p>
 
   </main>
 
@@ -606,7 +628,22 @@
         item.innerHTML = `<span class="d-number">${d}</span><span class="d-sub">/${m} - ${i === 0 ? 'Hôm nay' : dow}</span>`;
         bar.appendChild(item);
       }
+      const act = bar.querySelector('.active');
+      if (act) bar.scrollLeft = Math.max(0, act.offsetLeft - bar.offsetLeft - 60);
+      updateDateNav();
     }
+    function updateDateNav() {
+      const bar = document.getElementById('official-date-bar');
+      const max = bar.scrollWidth - bar.clientWidth;
+      document.querySelector('.dbar-nav.prev').classList.toggle('show', bar.scrollLeft > 4);
+      document.querySelector('.dbar-nav.next').classList.toggle('show', bar.scrollLeft < max - 4);
+    }
+    function scrollDates(dir) {
+      const bar = document.getElementById('official-date-bar');
+      bar.scrollBy({ left: dir * Math.max(200, bar.clientWidth * 0.7), behavior: 'smooth' });
+    }
+    document.getElementById('official-date-bar').addEventListener('scroll', () => updateDateNav(), { passive: true });
+    window.addEventListener('resize', () => updateDateNav());
 
     function changeCinema(id) {
       currentCinema = id;
@@ -651,14 +688,14 @@
                 ${m.duration_min ? `<span><span style="color: #03599d;"><i class=ph-timer aria-hidden=true></i></span> ${m.duration_min} phút</span>` : ''}
               </div>
               ${Object.entries(byFormat).map(([fmt, list]) => `
-                <div class="sch-format-title">${esc(fmt)}</div>
+                <div class="sch-format-title">${esc(fmt)}${(() => { const p = list.map(s => s.prices && s.prices.standard).filter(Boolean); return p.length ? `<span class="from">· vé từ ${Pay.vnd(Math.min(...p))}</span>` : ''; })()}</div>
                 <div class="sch-slots-grid">
                   ${list.map(st => st.seats_free > 0 ? `
-                    <a href="seats.html?showtime=${encodeURIComponent(st.id)}" class="sch-slot-card${st.late ? ' late' : ''}">
+                    <a href="seats.html?showtime=${encodeURIComponent(st.id)}" class="sch-slot-card${st.late ? ' late' : ''}" title="${esc(st.time + (st.end_time ? ' – kết thúc khoảng ' + st.end_time : '') + ' · ' + st.room + ' · vé từ ' + Pay.vnd(st.prices.standard))}">
                       <span class="sch-slot-time">${st.time}</span>
                       ${st.late ? `<span class="sch-slot-date">${esc(st.date_label.split(' ')[1])}</span>` : ''}
-                      ${st.end_time ? `<span class="sch-slot-seats" style="opacity: .8;">~${st.end_time} kết thúc</span>` : ''}
-                      <span class="sch-slot-seats">${st.seats_free} ghế trống · từ ${Pay.vnd(st.prices.standard)}</span>
+                      ${st.end_time ? `<span class="sch-slot-end">→ ${st.end_time}</span>` : ''}
+                      <span class="sch-slot-seats${st.seats_free <= 10 ? ' low' : ''}">${st.seats_free <= 10 ? 'Sắp hết · ' + st.seats_free : 'Còn ' + st.seats_free + ' ghế'}</span>
                     </a>` : `
                     <span class="sch-slot-card" style="opacity: .5; cursor: not-allowed;">
                       <span class="sch-slot-time">${st.time}</span>

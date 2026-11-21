@@ -10,7 +10,7 @@ const puppeteer = require('puppeteer-core');
 const BASE = process.argv[2] || 'http://localhost:5015';
 const MODE_EN = process.argv[3] === 'en';
 const ROOT = path.join(__dirname, '..');
-const PAGES = ['home', 'schedule', 'booking', 'gia-ve', 'tin-tuc', 'bap-nuoc', 'thue-rap', 'support', 'auth', 'account', 'account?tab=points', 'offline', '404'];
+const PAGES = ['home', 'schedule', 'booking', 'gia-ve', 'tin-tuc', 'bap-nuoc', 'thue-rap', 'rap', 'rap?id=beta-my-dinh', 'support', 'auth', 'account', 'account?tab=points', 'offline', '404'];
 const exe = [process.env.CHROME_PATH, 'C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '/usr/bin/google-chrome'].filter(Boolean).find(p => fs.existsSync(p));
 const VI = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
 

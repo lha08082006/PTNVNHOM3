@@ -453,6 +453,10 @@
           <label>Địa chỉ<input id="cn-address"></label>
           <label>Vĩ độ (lat)<input id="cn-lat" type="number" step="0.0001" placeholder="21.0005"></label>
           <label>Kinh độ (lng)<input id="cn-lng" type="number" step="0.0001" placeholder="105.8148"></label>
+          <label>Hotline rạp<input id="cn-phone" placeholder="0824 812 878"></label>
+          <label>Ảnh rạp (link https:// hoặc images/…)<input id="cn-image" placeholder="images/rap-thanh-xuan.webp"></label>
+          <label>Tiện ích (cách nhau dấu phẩy)<input id="cn-amenities" placeholder="Bãi gửi xe, Thang máy, Ghế đôi, Thanh toán VietQR"></label>
+          <label style="grid-column: 1 / -1;">Giới thiệu rạp (hiện ở trang Rạp)<textarea id="cn-intro" rows="2" maxlength="2000"></textarea></label>
           <label>Hoạt động<select id="cn-active"><option value="true">Có</option><option value="false">Tạm đóng</option></select></label>
           <button class="btn primary">Lưu rạp</button>
         </form>
@@ -1405,10 +1409,13 @@
       document.getElementById('cn-city').value = c.city || ''; document.getElementById('cn-address').value = c.address || '';
       document.getElementById('cn-active').value = String(c.active);
       document.getElementById('cn-lat').value = c.lat == null ? '' : c.lat; document.getElementById('cn-lng').value = c.lng == null ? '' : c.lng;
+      document.getElementById('cn-phone').value = c.phone || ''; document.getElementById('cn-image').value = c.image || '';
+      document.getElementById('cn-intro').value = c.intro || ''; document.getElementById('cn-amenities').value = (c.amenities || []).join(', ');
     }
     const saveCinema = () => act(async () => {
-      await post('cinema_save', { id: val('cn-id'), name: val('cn-name'), city: val('cn-city'), address: val('cn-address'), active: val('cn-active') === 'true', lat: val('cn-lat'), lng: val('cn-lng') });
-      ['cn-id', 'cn-name', 'cn-city', 'cn-address', 'cn-lat', 'cn-lng'].forEach(id => { document.getElementById(id).value = ''; });
+      await post('cinema_save', { id: val('cn-id'), name: val('cn-name'), city: val('cn-city'), address: val('cn-address'), active: val('cn-active') === 'true', lat: val('cn-lat'), lng: val('cn-lng'),
+        phone: val('cn-phone'), image: val('cn-image'), intro: val('cn-intro'), amenities: val('cn-amenities') });
+      ['cn-id', 'cn-name', 'cn-city', 'cn-address', 'cn-lat', 'cn-lng', 'cn-phone', 'cn-image', 'cn-intro', 'cn-amenities'].forEach(id => { document.getElementById(id).value = ''; });
       await loadCatalog();
     });
 

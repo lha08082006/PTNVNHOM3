@@ -1444,6 +1444,63 @@ async function test(name, fn) {
     assert.strictEqual((await call('admin', { query: { action: 'counter_board', cinema: 'khong-co' }, headers: { authorization: 'Bearer ' + quay.token } })).status, 400);
   });
 
+  // ======================= Đợt 9: xếp hạng / điểm phim, trang Rạp =======================
+  await test('Đợt 9: xếp hạng bán chạy 7 ngày, điểm ★ chỉ khi đủ lượt đánh giá, không lộ số vé', async () => {
+    const S9 = require('../lib/store');
+    const MS = require('../lib/movie-stats');
+    const seats8 = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8'];
+    for (let i = 0; i < 10; i++) await S9.insert('orders', { code: 'BC9RANK' + i, kind: 'TICKET', movie_key: 'ut-lan-2', seats: seats8, status: 'CONFIRMED', total: 1, hold_expires_at: new Date().toISOString() });
+    // Đơn cũ hơn 7 ngày không được tính, dù rất nhiều vé
+    await S9.insert('orders', { code: 'BC9OLD', kind: 'TICKET', movie_key: 'ca-voi-nuot-chung', seats: Array.from({ length: 200 }, (_, i) => 'Z' + i), status: 'CONFIRMED', total: 1, hold_expires_at: new Date().toISOString(), created_at: new Date(Date.now() - 8 * 864e5).toISOString() });
+    // Đơn chưa thanh toán không được tính
+    await S9.insert('orders', { code: 'BC9PEND', kind: 'TICKET', movie_key: 'me-min', seats: Array.from({ length: 150 }, (_, i) => 'Y' + i), status: 'PENDING', total: 1, hold_expires_at: new Date().toISOString() });
+    await S9.insert('movie_reviews', { movie_id: 'ut-lan-2', customer_id: 'r1', order_code: 'R1', rating: 5, content: '', hidden: false });
+    await S9.insert('movie_reviews', { movie_id: 'ut-lan-2', customer_id: 'r2', order_code: 'R2', rating: 4, content: '', hidden: false });
+    MS._reset();
+    let r = await call('catalog', { query: { action: 'movie_stats' } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.strictEqual(r.data.stats['ut-lan-2'].rank, 1);
+    assert.strictEqual(r.data.stats['ut-lan-2'].avg, null, 'mới 2 đánh giá -> chưa công bố điểm');
+    assert.ok(!r.data.stats['ca-voi-nuot-chung'] || r.data.stats['ca-voi-nuot-chung'].rank !== 1);
+    assert.ok(!r.data.stats['me-min'] || r.data.stats['me-min'].rank !== 1);
+    assert.ok(!/sold|seats/i.test(JSON.stringify(r.data)), 'không trả số vé đã bán');
+    assert.ok(r.data.top.length <= 5 && r.data.top[0] === 'ut-lan-2');
+    await S9.insert('movie_reviews', { movie_id: 'ut-lan-2', customer_id: 'r3', order_code: 'R3', rating: 3, content: '', hidden: false });
+    await S9.insert('movie_reviews', { movie_id: 'ut-lan-2', customer_id: 'r4', order_code: 'R4', rating: 1, content: 'spam', hidden: true });
+    MS._reset();
+    r = await call('catalog', { query: { action: 'movie_stats' } });
+    assert.strictEqual(r.data.stats['ut-lan-2'].avg, 4, 'đủ 3 đánh giá (bỏ đánh giá bị ẩn) -> 4.0');
+    assert.strictEqual(r.data.stats['ut-lan-2'].count, 3);
+  });
+
+  await test('Đợt 9: trang Rạp – hotline, ảnh, giới thiệu, tiện ích, phòng chiếu; kiểm tra dữ liệu nhập; sitemap', async () => {
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const base = { action: 'cinema_save', id: 'beta-my-dinh', name: 'Beta Mỹ Đình', city: 'Hà Nội' };
+    assert.strictEqual((await cs.post({ ...base, phone: '0866 154 610' })).status, 403);
+    let s = await ql.post({ ...base, address: 'Tầng 4, TTTM The Garden', phone: '0866 154 610', image: 'images/rap-my-dinh.webp', intro: 'Rạp 6 phòng chiếu.', amenities: 'Bãi gửi xe, Thang máy,  Ghế đôi ' });
+    assert.strictEqual(s.status, 200, JSON.stringify(s.data));
+    assert.strictEqual((await ql.post({ ...base, phone: 'goi-toi-di' })).status, 400);
+    assert.strictEqual((await ql.post({ ...base, image: 'javascript:alert(1)' })).status, 400);
+    assert.strictEqual((await ql.post({ ...base, image: 'http://khong-an-toan.vn/a.jpg' })).status, 400);
+    // Lưu lại không gửi các trường mới (như form cũ) -> giữ nguyên hotline, ảnh, tiện ích
+    assert.strictEqual((await ql.post({ ...base, address: 'Tầng 4, TTTM The Garden' })).status, 200);
+    await require('../lib/store').insert('rooms', { cinema_id: 'beta-my-dinh', name: 'Phòng 09', kind: 'IMAX', layout: require('../catalog').DEFAULT_LAYOUT, active: true });
+    const r = await call('catalog', { query: { action: 'cinema', id: 'beta-my-dinh' } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.strictEqual(r.data.cinema.phone, '0866 154 610');
+    assert.strictEqual(r.data.cinema.address, 'Tầng 4, TTTM The Garden');
+    assert.deepStrictEqual(r.data.cinema.amenities, ['Bãi gửi xe', 'Thang máy', 'Ghế đôi']);
+    const room = r.data.rooms.find(x => x.name === 'Phòng 09');
+    assert.ok(room && room.kind === 'IMAX' && room.seats > 0 && !room.layout, JSON.stringify(r.data.rooms));
+    assert.strictEqual((await call('catalog', { query: { action: 'cinema', id: 'khong-co-rap' } })).status, 404);
+    const list = (await call('catalog', { query: { action: 'cinemas' } })).data.cinemas;
+    assert.ok(list.every(c => Array.isArray(c.amenities) && 'phone' in c));
+    const sm = { headers: {}, statusCode: 0, body: '', setHeader(k, v) { this.headers[k] = v; }, end(b) { this.body = b; } };
+    await require('../lib/routes/sitemap')({ query: {}, headers: { host: 'beta.test' } }, sm);
+    assert.ok(sm.body.includes('/rap</loc>') && sm.body.includes('/rap?id=beta-my-dinh</loc>'), sm.body.slice(0, 400));
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

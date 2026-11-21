@@ -139,7 +139,8 @@
       width: 30px;
       height: 28px;
       border-radius: 7px 7px 3px 3px;
-      background: #64748b;
+      background: #ffffff;
+      box-shadow: inset 0 0 0 1.5px #64748b;
       cursor: pointer;
       transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
       position: relative;
@@ -148,13 +149,15 @@
       justify-content: center;
       font-style: normal;
       font-size: 10px;
-      color: #ffffff;
+      color: #334155;
+      font-weight: 700;
       user-select: none;
     }
     .r i:hover:not(.x):not(.h):not(.k) {
       transform: scale(1.18);
       z-index: 10;
-      background: #475569;
+      background: #e0f2fe;
+      box-shadow: inset 0 0 0 2px #005198;
     }
     .r i:focus-visible {
       outline: 3px solid #005198;
@@ -190,11 +193,10 @@
       box-shadow: 0 4px 12px rgba(255, 90, 60, 0.45) !important;
     }
     i.x {
-      background: #e2e8f0 !important;
-      color: #94a3b8 !important;
+      background: #cbd5e1 !important;
+      color: #64748b !important;
       box-shadow: none !important;
       cursor: not-allowed !important;
-      opacity: 0.65;
     }
     i.h {
       background: repeating-linear-gradient(45deg, #fef3c7 0 3px, #e2e8f0 3px 6px) !important;
@@ -208,6 +210,11 @@
       pointer-events: none;
     }
 
+    .seat-legend { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 20px; font-size: 13.5px; font-weight: 600; color: #334155; }
+    .seat-legend span { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .seat-legend em { font-style: normal; font-weight: 800; color: #0f172a; }
+    .seat-legend .sep { width: 1px; height: 22px; background: #cbd5e1; }
+    @media (max-width: 640px) { .seat-legend { gap: 8px 14px; font-size: 12.5px; justify-content: flex-start; } .seat-legend .sep { flex-basis: 100%; height: 0; } }
     .q {
       display: block;
       width: 18px;
@@ -339,11 +346,12 @@
       <!-- Main Navigation Menu -->
       <nav>
         <ul class="main-menu-official">
-          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU</a></li>
           <li><a href="home.html" class="menu-link-official">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
+          <li><a href="rap.html" class="menu-link-official">RẠP</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
           <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
-          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
         </ul>
       </nav>
@@ -386,30 +394,15 @@
       <span id="ap-msg" role="status" style="font-size: 13px; color: #b45309;"></span>
     </div>
 
-    <!-- Chú Giải Trạng Thái Ghế -->
-    <div class="g m" style="justify-content: center; gap: 24px; font-weight: 600;">
-      <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: var(--a);"></b> Đang chọn
-      </span>
-      <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: #e2e8f0; border: 1px solid #cbd5e1;"></b> Đã bán
-      </span>
-      <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: repeating-linear-gradient(45deg, #fef3c7 0 3px, #e2e8f0 3px 6px);"></b> Đang được giữ
-      </span>
-    </div>
-
-    <!-- Chú Giải Phân Loại Ghế & Giá -->
-    <div class="g m" style="justify-content: center; gap: 24px; font-weight: 600;">
-      <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: #94a3b8;"></b> Thường [<span id="lg-standard">45.000đ</span>]
-      </span>
-      <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: #fef3c7; box-shadow: 0 0 0 1.5px var(--status-warning);"></b> VIP [<span id="lg-vip">50.000đ</span>]
-      </span>
-      <span style="display: flex; gap: 8px; align-items: center;">
-        <b class="q" style="background: #fce7f3; box-shadow: 0 0 0 1.5px #f472b6; width: 32px;"></b> Sweetbox đôi [<span id="lg-sweetbox">100.000đ</span>]
-      </span>
+    <!-- Chú giải: loại ghế kèm giá (ghế còn trống) + trạng thái -->
+    <div class="seat-legend" role="list" aria-label="Chú giải sơ đồ ghế">
+      <span role="listitem"><b class="q" style="background: #fff; box-shadow: inset 0 0 0 1.5px #64748b;"></b> Ghế thường <em id="lg-standard">45.000đ</em></span>
+      <span role="listitem"><b class="q" style="background: #fef3c7; box-shadow: 0 0 0 2px #f59e0b;"></b> Ghế VIP <em id="lg-vip">50.000đ</em></span>
+      <span role="listitem"><b class="q" style="background: #fce7f3; box-shadow: 0 0 0 1.5px #f472b6; width: 32px;"></b> Ghế đôi <em id="lg-sweetbox">100.000đ</em></span>
+      <span class="sep" aria-hidden="true"></span>
+      <span role="listitem"><b class="q" style="background: #d63a1c;"></b> Ghế đang chọn</span>
+      <span role="listitem"><b class="q" style="background: #cbd5e1;"></b> Ghế đã bán</span>
+      <span role="listitem"><b class="q" style="background: repeating-linear-gradient(45deg, #fef3c7 0 3px, #e2e8f0 3px 6px);"></b> Người khác đang giữ</span>
     </div>
 
     <!-- Chọn loại vé theo đối tượng (giá giảm cho HSSV / trẻ em / người cao tuổi) -->

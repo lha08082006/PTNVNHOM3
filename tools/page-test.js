@@ -58,6 +58,14 @@ async function startServer() {
           if (label === 'mobile') {
             const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
             if (over > 2) fails.push(`${label} ${file}: tràn ngang ${over}px`);
+            // Đợt 8: trang có đầu trang chuẩn -> gọn 1 hàng (≤ 72px), có nút ☰, menu ngang ẩn
+            const hdr = await page.evaluate(() => {
+              const h = document.querySelector('.header-main-official');
+              if (!h) return null;
+              const b = h.querySelector('.hdr-burger'), nav = h.querySelector('nav');
+              return { h: Math.round(h.getBoundingClientRect().height), burger: !!b && getComputedStyle(b).display !== 'none', nav: !!nav && getComputedStyle(nav).display !== 'none' };
+            });
+            if (hdr && (hdr.h > 72 || !hdr.burger || hdr.nav)) fails.push(`${label} ${file}: đầu trang điện thoại chưa gọn – ${JSON.stringify(hdr)}`);
           }
         } catch (e) {
           fails.push(`${label} ${file}: không tải được – ${e.message}`);

@@ -362,11 +362,12 @@
       <!-- Main Navigation Menu -->
       <nav>
         <ul class="main-menu-official">
-          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
-          <li><a href="home.html" class="menu-link-official active">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU</a></li>
+          <li><a href="home.html" class="menu-link-official active" aria-current="page">PHIM</a></li>
+          <li><a href="rap.html" class="menu-link-official">RẠP</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
           <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
-          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
         </ul>
       </nav>
@@ -446,6 +447,25 @@
         <div id="rv-list" aria-live="polite"><p class="m">Đang tải đánh giá…</p></div>
       </div>
     </section>
+
+    <!-- Đợt 9: phim cùng thể loại -->
+    <section id="related" class="container" style="margin: 0 auto 48px;" aria-labelledby="rel-title" hidden>
+      <h3 id="rel-title" style="font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--beta-navy); margin: 0 0 14px;">Có thể bạn cũng thích</h3>
+      <div class="rel-grid" id="rel-grid"></div>
+    </section>
+    <style>
+      .rel-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+      .rel-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+      .rel-card .pw { position: relative; display: block; aspect-ratio: 2 / 3; background: #e2e8f0; }
+      .rel-card .pw img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .rel-card .pw .movie-rating { right: 8px; bottom: 8px; }
+      .rel-card .bd { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+      .rel-card b a { color: #0f172a; text-decoration: none; font-size: 14.5px; line-height: 1.35; }
+      .rel-card b a:hover { color: #c94200; }
+      .rel-card small { color: #475569; font-size: 12.5px; }
+      .rel-card .movie-actions { margin-top: auto; padding-top: 6px; }
+      @media (max-width: 760px) { .rel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+    </style>
   </main>
 
   <!-- CHÂN TRANG FOOTER CHÍNH THỨC -->
@@ -973,6 +993,36 @@
       };
       if (!token) return paint(false);
       try { paint((await Pay.call('member?action=watch&movie=' + encodeURIComponent(m.key))).watching); } catch (e) { paint(false); }
+    });
+
+    // Đợt 9: "Có thể bạn cũng thích" – phim trùng thể loại, ưu tiên đang chiếu và bán chạy
+    document.addEventListener('md:movie', async (ev) => {
+      const m = ev.detail;
+      const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const gs = (x) => String(x.genre || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const mine = new Set(gs(m));
+      try {
+        const { movies } = await Pay.catalog('movies');
+        let stats = {};
+        try { stats = (await Pay.catalog('movie_stats')).stats || {}; } catch (e) { /* không có xếp hạng */ }
+        const rank = (x) => (stats[x.key] && stats[x.key].rank) || 99;
+        const pool = movies.filter(x => x.key !== m.key && x.status !== 'HIDDEN')
+          .map(x => ({ x, s: gs(x).filter(g => mine.has(g)).length }))
+          .sort((a, b) => b.s - a.s || (a.x.status === 'SOON') - (b.x.status === 'SOON') || rank(a.x) - rank(b.x));
+        const pick = pool.slice(0, 4).map(o => o.x);
+        if (!pick.length) return;
+        document.getElementById('rel-title').textContent = pool[0].s > 0 ? 'Phim cùng thể loại' : 'Phim đang chiếu khác';
+        document.getElementById('rel-grid').innerHTML = pick.map(x => {
+          const s = stats[x.key];
+          return `<article class="rel-card">
+            <a class="pw" href="phim/${encodeURIComponent(x.key)}" tabindex="-1" aria-hidden="true"><img src="${esc(x.poster)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">${s && s.avg != null ? `<span class="movie-rating"><i class="ph-star" aria-hidden="true"></i>${s.avg.toFixed(1)}</span>` : ''}</a>
+            <div class="bd"><b><a href="phim/${encodeURIComponent(x.key)}">${esc(x.title)}</a></b>
+              <small>${esc([x.genre, x.duration_min ? x.duration_min + ' phút' : '', x.age].filter(Boolean).join(' · '))}</small>
+              <div class="movie-actions"><a class="ma-buy" href="booking.html?movie=${encodeURIComponent(x.key)}"><i class="ph-ticket" aria-hidden="true"></i> ${x.status === 'SOON' ? 'Đặt trước' : 'Mua vé'}</a></div>
+            </div></article>`;
+        }).join('');
+        document.getElementById('related').hidden = false;
+      } catch (e) { /* không hiện mục gợi ý */ }
     });
 
     // Đánh giá phim: danh sách công khai + form cho khách đã soát vé (mỗi đơn vé một đánh giá)

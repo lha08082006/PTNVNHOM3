@@ -76,3 +76,6 @@ i[class^="ph-"], i[class*=" ph-"] {
 
 /* Dấu × (đóng / hủy) – dùng ở nhiều trang nhưng trước đây chưa có trong bộ icon */
 .ph-x { --ph: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22%3E%3Cpath d=%22M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z%22/%3E%3C/svg%3E"); }
+/* Đợt 8: nút menu ☰ và điểm ★ */
+.ph-list { --ph: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22%3E%3Crect x=%2232%22 y=%2256%22 width=%22192%22 height=%2218%22 rx=%229%22/%3E%3Crect x=%2232%22 y=%22119%22 width=%22192%22 height=%2218%22 rx=%229%22/%3E%3Crect x=%2232%22 y=%22182%22 width=%22192%22 height=%2218%22 rx=%229%22/%3E%3C/svg%3E"); }
+.ph-star { --ph: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22%3E%3Cpath d=%22M128,18l33.6,72.4L240,98.6l-58.4,53.2L197.4,230,128,190.2,58.6,230l15.8-78.2L16,98.6l78.4-8.2Z%22/%3E%3C/svg%3E"); }

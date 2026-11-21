@@ -156,6 +156,50 @@ const expect = (cond, msg) => { if (!cond) throw new Error(msg); };
       await a.waitForFunction(() => /ĐÃ ĐƯỢC SOÁT/.test(document.getElementById('ck-result').innerText), { timeout: 10000 });
     });
 
+    // ===== Đợt 8 + 9: điện thoại – menu ☰, tìm rạp không dấu, trang Rạp; Mua vé nhanh 4 bước =====
+    await step('Điện thoại: mở menu ☰, tìm "my dinh" ra Beta Mỹ Đình, mở trang rạp có suất chiếu', async () => {
+      const m = await browser.newPage();
+      await m.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+      await m.setRequestInterception(true);
+      m.on('request', r => EXTERNAL.test(r.url()) ? r.abort() : r.continue());
+      m.on('pageerror', e => errors.push(e.message));
+      await m.goto(B + '/home.html', { waitUntil: 'networkidle2' });
+      await m.waitForSelector('.hdr-burger', { visible: true });
+      await m.$eval('.hdr-burger', el => el.click());
+      await m.waitForFunction(() => document.body.classList.contains('drawer-open'));
+      const items = await m.$$eval('#site-drawer .sd-nav a', as => as.map(a => a.getAttribute('href')));
+      expect(items.includes('rap.html') && items.includes('schedule.html'), 'Menu thiếu mục: ' + items.join(','));
+      await m.keyboard.press('Escape');
+      await m.waitForFunction(() => !document.body.classList.contains('drawer-open'));
+      await m.$eval('.hdr-search', el => el.click());
+      await m.waitForSelector('#ss-q', { visible: true });
+      await m.type('#ss-q', 'my dinh');
+      await m.waitForFunction(() => /Mỹ Đình/.test(document.getElementById('ss-list').innerText), { timeout: 8000 });
+      await m.keyboard.press('Enter');
+      await m.waitForFunction(() => /rap\.html\?id=beta-my-dinh/.test(location.href), { timeout: 8000 });
+      await m.waitForFunction(() => document.querySelectorAll('#rd-shows .rd-times a').length > 0, { timeout: 10000 });
+      const over = await m.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      expect(over <= 2, 'Trang rạp tràn ngang ' + over + 'px');
+      await m.close();
+    });
+
+    await step('Trang chủ: Mua vé nhanh Phim → Rạp → Ngày → Suất vào thẳng trang chọn ghế', async () => {
+      await p.bringToFront(); // tab nền không chạy requestAnimationFrame -> waitForFunction treo
+      await p.goto(B + '/home.html', { waitUntil: 'networkidle2' });
+      await p.waitForFunction(() => document.querySelectorAll('#qb-movie option[value]:not([value=""])').length > 0, { timeout: 8000 });
+      await p.select('#qb-movie', 'suzume');
+      const qbState = () => p.evaluate(() => ['qb-movie', 'qb-cinema', 'qb-date', 'qb-time'].map(id => { const e = document.getElementById(id); return id + '=' + e.value + (e.disabled ? '(khóa)' : '') + '[' + e.options.length + ': ' + (e.options[0] || {}).textContent + ']'; }).join(' '));
+      await p.waitForFunction(() => !document.getElementById('qb-cinema').disabled && document.querySelectorAll('#qb-cinema option').length > 1, { timeout: 8000 }).catch(async (e) => { throw new Error(e.message + ' – ' + await qbState()); });
+      const cin = await p.$$eval('#qb-cinema option', os => os.map(o => o.value).find(Boolean));
+      await p.select('#qb-cinema', cin);
+      const t = await p.$$eval('#qb-time option', os => (os.find(o => o.value && !o.disabled) || {}).value);
+      expect(t, 'Không có suất còn ghế');
+      await p.select('#qb-time', t);
+      await Promise.all([p.waitForNavigation({ waitUntil: 'networkidle2' }), p.$eval('#qb-go', el => el.click())]);
+      expect(p.url().includes('seats.html?showtime=' + t), 'Sai trang: ' + p.url());
+      await p.waitForSelector('.r i[data-id]', { timeout: 8000 });
+    });
+
     expect(!errors.length, 'Lỗi JavaScript: ' + errors.join(' | '));
     ok = true;
   } catch (e) {

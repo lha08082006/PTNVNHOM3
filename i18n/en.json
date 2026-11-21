@@ -188,6 +188,74 @@
   [
    "^ngày (\\d{1,2}/\\d{1,2}/\\d{4}) \\(phiên bản (.+)\\)$",
    "on $1 (version $2)"
+  ],
+  [
+   "^(\\d+) rạp tại (\\d+) tỉnh / thành phố\\. Chọn rạp để xem địa chỉ, chỉ đường và suất chiếu\\.$",
+   "$1 cinemas in $2 cities. Choose one for its address, directions and showtimes."
+  ],
+  [
+   "^Cách bạn ~([\\d.]+) km$",
+   "~$1 km away"
+  ],
+  [
+   "^Sắp hết · (\\d+)$",
+   "Almost full · $1"
+  ],
+  [
+   "^· vé từ (.+)$",
+   "· tickets from $1"
+  ],
+  [
+   "^từ ([\\d.,]+ ?đ)$",
+   "from $1"
+  ],
+  [
+   "^Hôm nay · (.+)$",
+   "Today · $1"
+  ],
+  [
+   "^(\\d{1,2}:\\d{2}) · (.+) · còn (\\d+) ghế$",
+   "$1 · $2 · $3 seats left"
+  ],
+  [
+   "^(\\d{1,2}:\\d{2}) · (.+) · hết vé$",
+   "$1 · $2 · sold out"
+  ],
+  [
+   "^Xem trailer (.+)$",
+   "Watch the trailer: $1"
+  ],
+  [
+   "^Khán giả chấm ([\\d.]+) trên 5 sao, (\\d+) lượt$",
+   "Audience score $1 out of 5, $2 ratings"
+  ],
+  [
+   "^Top (\\d) bán chạy tuần này$",
+   "Top $1 best-seller this week"
+  ],
+  [
+   "^Top (\\d) bán chạy 7 ngày qua$",
+   "Top $1 best-seller in the last 7 days"
+  ],
+  [
+   "^Chỉ đường tới (.+) \\(mở Google Maps\\)$",
+   "Directions to $1 (opens Google Maps)"
+  ],
+  [
+   "^Không tìm thấy phim hay rạp nào khớp “(.*)”\\. Thử gõ ít chữ hơn\\.$",
+   "No movies or cinemas match “$1”. Try fewer words."
+  ],
+  [
+   "^Đã sắp xếp theo khoảng cách\\. Gần nhất: (.+) \\(~([\\d.]+) km\\)\\.$",
+   "Sorted by distance. Nearest: $1 (~$2 km)."
+  ],
+  [
+   "^(.+) - Địa chỉ, hotline, lịch chiếu \\| Beta Cinemas$",
+   "$1 - Address, hotline, showtimes | Beta Cinemas"
+  ],
+  [
+   "^(.+) thuộc hệ thống Beta Cinemas\\. Đặt vé online, thanh toán VietQR và nhận vé điện tử trong vài giây; đến rạp chỉ cần đưa mã QR cho nhân viên soát vé\\.$",
+   "$1 is part of Beta Cinemas. Book online, pay with VietQR and get your e-ticket in seconds; just show the QR code at the door."
   ]
  ],
  "strings": {
@@ -881,6 +949,80 @@
   "Gõ XOA để xác nhận xóa tài khoản": "Type XOA to confirm account deletion",
   "Vui lòng đồng ý điều khoản sử dụng và chính sách bảo mật": "Please accept the terms of use and privacy policy",
   "Vui lòng đồng ý điều khoản sử dụng và chính sách bảo mật.": "Please accept the terms of use and privacy policy.",
-  "Bạn đã đồng ý": "You accepted the"
+  "Bạn đã đồng ý": "You accepted the",
+  "Phim": "Movie",
+  "Sắp chiếu": "Coming soon",
+  "Phim đang chiếu": "Now showing",
+  "LỊCH CHIẾU": "SHOWTIMES",
+  "RẠP": "CINEMAS",
+  "Mua vé": "Buy tickets",
+  "Đặt trước": "Pre-book",
+  "Trailer": "Trailer",
+  "Tra cứu hoàn tiền": "Track a refund",
+  "Chọn phim": "Choose a movie",
+  "Suất": "Showtime",
+  "Chọn suất": "Choose a showtime",
+  "Chọn ngày": "Choose a date",
+  "Chọn phim trước": "Choose a movie first",
+  "Chọn rạp trước": "Choose a cinema first",
+  "Chọn ngày trước": "Choose a date first",
+  "Đang tải suất chiếu…": "Loading showtimes…",
+  "Không tải được suất chiếu": "Couldn’t load showtimes",
+  "Phim chưa có suất chiếu": "No showtimes yet",
+  "Chưa có phim đang chiếu": "No movies showing",
+  "Mua vé nhanh": "Quick booking",
+  "Tìm phim, rạp": "Search movies, cinemas",
+  "Tìm phim, rạp (phím /)": "Search movies, cinemas (press /)",
+  "Tìm phim, rạp… (vd: suzume, my dinh)": "Search movies, cinemas… (e.g. suzume, my dinh)",
+  "Mở menu": "Open menu",
+  "Đóng menu": "Close menu",
+  "Menu": "Menu",
+  "Điều hướng chính": "Main navigation",
+  "Đăng nhập để tích điểm Beta Club và xem vé đã mua.": "Log in to earn Beta Club points and see your tickets.",
+  "Hỏi BetaBot 24/7": "Ask BetaBot 24/7",
+  "Chat với BetaBot – hỗ trợ 24/7": "Chat with BetaBot – 24/7 support",
+  "Không tải được danh sách phim. Kiểm tra kết nối mạng rồi thử lại.": "Couldn’t load the movie list. Check your connection and try again.",
+  "Xem các ngày trước": "Earlier dates",
+  "Xem các ngày sau": "Later dates",
+  "Giờ sau mũi tên (→) là giờ kết thúc dự kiến. Suất chiếu có thể bắt đầu muộn 10–15 phút do quảng cáo và giới thiệu phim.": "The time after the arrow (→) is the estimated end time. Shows may start 10–15 minutes late due to ads and trailers.",
+  "Ghế đang chọn": "Selected",
+  "Ghế đã bán": "Sold",
+  "Người khác đang giữ": "Held by others",
+  "Chú giải sơ đồ ghế": "Seat map legend",
+  "Đăng nhập để thanh toán": "Log in to pay",
+  "Bạn cứ chọn món trước. Khi bấm thanh toán, web sẽ hỏi đăng nhập rồi đưa bạn quay lại với đúng các món đã chọn.": "Pick your items first. When you pay, we’ll ask you to log in and bring you back with the same items.",
+  "Có thể bạn cũng thích": "You may also like",
+  "Phim cùng thể loại": "Same genre",
+  "Phim đang chiếu khác": "Other movies now showing",
+  "Hệ thống rạp Beta Cinemas": "Beta Cinemas locations",
+  "Hệ thống rạp Beta Cinemas - Địa chỉ, hotline, lịch chiếu": "Beta Cinemas locations - address, hotline, showtimes",
+  "Đang tải danh sách rạp…": "Loading cinemas…",
+  "Lọc theo tỉnh / thành phố": "Filter by city",
+  "Hệ thống rạp": "Cinemas",
+  "Lịch chiếu đầy đủ": "Full showtimes",
+  "Chỉ đường": "Directions",
+  "Chi tiết": "Details",
+  "Giới thiệu": "About",
+  "Phòng chiếu": "Screens",
+  "Giá vé tham khảo": "Ticket prices",
+  "Xem bảng giá đầy đủ →": "See the full price list →",
+  "Địa chỉ đang cập nhật": "Address coming soon",
+  "(tổng đài chung)": "(central hotline)",
+  "Đường dẫn": "Breadcrumb",
+  "Rạp chưa có suất chiếu trong 7 ngày tới.": "No showtimes in the next 7 days.",
+  "Không tải được suất chiếu. Vui lòng thử lại.": "Couldn’t load showtimes. Please try again.",
+  "Chưa có suất chiếu để tính giá.": "No showtimes to price yet.",
+  "Ghế đôi (2 người)": "Couple seat (2 people)",
+  "Không tìm thấy rạp": "Cinema not found",
+  "Rạp này không tồn tại hoặc đã tạm đóng.": "This cinema doesn’t exist or is temporarily closed.",
+  "Xem danh sách rạp": "See all cinemas",
+  "Không tải được danh sách rạp. Vui lòng thử lại sau.": "Couldn’t load cinemas. Please try again later.",
+  "Đang lấy vị trí của bạn…": "Getting your location…",
+  "Trình duyệt không hỗ trợ định vị.": "Your browser doesn’t support location.",
+  "Bạn chưa cho phép truy cập vị trí.": "You haven’t allowed location access.",
+  "Không lấy được vị trí, vui lòng chọn rạp theo thành phố.": "Couldn’t get your location; please choose a cinema by city.",
+  "Các rạp chưa có tọa độ để so sánh khoảng cách.": "Cinemas don’t have coordinates yet.",
+  "Hà Nội": "Hanoi",
+  "Chọn ngày xem phim (cuộn ngang)": "Choose a date (scroll sideways)"
  }
 }

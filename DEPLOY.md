@@ -16,6 +16,7 @@
   10. `migrations/2026-11-27_dot-5-van-hanh-yeu-thich.sql` — ghi lỗi máy chủ, cảnh báo, trạng thái vận hành, phim yêu thích
   11. `migrations/2026-11-28_dot-6-du-lieu-ca-nhan-2fa-email.sql` — đồng ý điều khoản, nhận email ưu đãi, xóa tài khoản; đăng nhập 2 lớp cho nhân viên; email ưu đãi theo nhóm khách
   12. `migrations/2026-11-29_dot-7-ke-toan-cskh-quay.sql` — Kế toán chốt sổ ngày; CSKH nhận xử lý phiếu, ghi chú nội bộ; chỉ mục tăng tốc màn hình Quầy
+  13. `migrations/2026-11-30_dot-9-trang-rap-xep-hang.sql` — trang Rạp (hotline, ảnh, giới thiệu, tiện ích của từng rạp), chỉ mục tính phim bán chạy
 
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 
@@ -35,6 +36,7 @@
 | `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2` | tùy chọn | Bật nút ZaloPay (sandbox mặc định; production đặt `ZALOPAY_ENDPOINT=https://openapi.zalopay.vn`) |
 | `STAFF_REQUIRE_2FA` | nên đặt | `1` = mọi nhân viên phải bật đăng nhập 2 lớp (Google Authenticator) trước khi làm việc. Mất điện thoại: Quản lý bấm "Tắt 2 lớp" ở tab Nhân sự |
 | `ALERT_EMAILS` | tùy chọn | Email nhận cảnh báo hệ thống (cách nhau dấu phẩy). Trống → gửi cho mọi tài khoản Quản lý. Cần `RESEND_API_KEY` để gửi thật |
+| `MIN_REVIEWS_SHOW` | tùy chọn | Số lượt đánh giá tối thiểu để hiện điểm ★ trên poster (mặc định 3) |
 | `INVOICE_REQUEST_HOURS` | tùy chọn | Số giờ sau khi thanh toán khách còn được gửi yêu cầu hóa đơn (mặc định 24 – Kế toán xác nhận theo quy định) |
 | `SITE_URL` | tùy chọn | Dùng cho link "Xem đơn hàng" trong email |
 | `ALLOW_SANDBOX` | **không** đặt trên production | `1` = mở `/api/simulate-payment` (vẫn cần `x-admin-key`) cho UAT |
@@ -73,6 +75,11 @@ Phải tự làm trên các dịch vụ bên ngoài, code không làm thay đư�
   - [ ] Hồ sơ hoàn tiền thủ công: CSKH gửi → Kế toán trả về → gửi lại → chi → hoàn tất.
 - [ ] Rà lại nội dung `policy.html` (điều khoản, bảo mật, hoàn tiền) với người phụ trách pháp lý/kế toán trước khi công bố.
 - [ ] Gửi `https://<tên-miền>/sitemap.xml` lên Google Search Console.
+
+### Trang Rạp (Đợt 9)
+
+- admin.html → Danh mục → Cụm rạp: nhập **địa chỉ, hotline, ảnh, giới thiệu, tiện ích** cho từng rạp – trang `/rap` và `/rap?id=<mã-rạp>` hiện các thông tin này (còn trống thì hiện "Địa chỉ đang cập nhật" và tổng đài chung 1900 636 807).
+- Nhập **tọa độ** (vĩ độ / kinh độ) để nút "Rạp gần tôi" và "Chỉ đường" chính xác.
 
 ### Giám sát & sao lưu (Đợt 5)
 

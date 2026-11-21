@@ -196,13 +196,17 @@
     .slider-btn.pause { top: auto; bottom: 12px; right: 20px; transform: none; width: 44px; height: 44px; font-size: 13px; }
     .slider-dots {
       position: absolute;
-      bottom: 20px;
+      bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 10px;
+      gap: 2px;
       z-index: 10;
+      background: rgba(15, 23, 42, 0.45);
+      border-radius: 999px;
+      padding: 0 6px;
     }
+    .slider-dots[hidden] { display: none; }
     .slider-dot {
       /* Vùng bấm 24x24 (WCAG 2.5.8), phần chấm nhìn thấy vẫn 12px nhờ padding + background-clip */
       box-sizing: content-box;
@@ -216,10 +220,23 @@
       cursor: pointer;
       transition: all 0.3s;
     }
+    .slider-dot {
+      width: 8px;
+      height: 8px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.7);
+      background-clip: content-box;
+    }
     .slider-dot.active {
-      background: #c94200;
-      width: 28px;
-      border-radius: 6px;
+      background: #fff;
+      background-clip: content-box;
+      width: 22px;
+      border-radius: 999px;
+    }
+    @media (max-width: 640px) {
+      .slider-btn.prev, .slider-btn.next { display: none; }
+      .slider-btn.pause { width: 32px; height: 32px; bottom: 8px; right: 8px; font-size: 11px; }
+      .slider-dots { bottom: 6px; }
     }
 
     /* Tabs Phim chuẩn Beta Cinemas */
@@ -496,11 +513,12 @@
       <!-- Main Navigation Menu -->
       <nav>
         <ul class="main-menu-official">
-          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU THEO RẠP</a></li>
-          <li><a href="home.html" class="menu-link-official active">PHIM</a></li>
-          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li><li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
-          <li><a href="#promos" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
-          <li><a href="support.html" class="menu-link-official">NHƯỢNG QUYỀN</a></li>
+          <li><a href="schedule.html" class="menu-link-official">LỊCH CHIẾU</a></li>
+          <li><a href="home.html" class="menu-link-official active" aria-current="page">PHIM</a></li>
+          <li><a href="rap.html" class="menu-link-official">RẠP</a></li>
+          <li><a href="gia-ve.html" class="menu-link-official">GIÁ VÉ</a></li>
+          <li><a href="bap-nuoc.html" class="menu-link-official">BẮP NƯỚC</a></li>
+          <li><a href="tin-tuc.html" class="menu-link-official">TIN MỚI & ƯU ĐÃI</a></li>
           <li><a href="account.html" class="menu-link-official">THÀNH VIÊN</a></li>
         </ul>
       </nav>
@@ -532,6 +550,16 @@
     </div>
   </section>
 
+  <!-- Đợt 9: Mua vé nhanh 4 bước (Phim → Rạp → Ngày → Suất) -->
+  <section class="quick-buy" id="quick-buy" aria-labelledby="qb-title">
+    <h2 id="qb-title" class="sr-only">Mua vé nhanh</h2>
+    <div><label for="qb-movie"><b>1</b>Phim</label><select id="qb-movie"><option value="">Đang tải…</option></select></div>
+    <div><label for="qb-cinema"><b>2</b>Rạp</label><select id="qb-cinema" disabled><option value="">Chọn phim trước</option></select></div>
+    <div><label for="qb-date"><b>3</b>Ngày</label><select id="qb-date" disabled><option value="">Chọn rạp trước</option></select></div>
+    <div><label for="qb-time"><b>4</b>Suất</label><select id="qb-time" disabled><option value="">Chọn ngày trước</option></select></div>
+    <button type="button" class="qb-go" id="qb-go" disabled><i class="ph-ticket" aria-hidden="true"></i> Mua vé nhanh</button>
+  </section>
+
   <!-- Danh Sách Phim (Chuẩn Tab & Movie Card có Hover Overlay của Beta Cinemas) -->
   <main id="main-content" class="container" style="padding: 50px 20px 40px;">
     
@@ -544,7 +572,7 @@
 
     <!-- Grid Phim -->
     <!-- Lọc phim theo thể loại (dựng từ danh mục phim) -->
-    <div id="genre-chips" role="group" aria-label="Lọc theo thể loại" style="display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; justify-content: safe center; min-height: 42px; align-items: center; margin: -6px 0 18px; padding-bottom: 4px;"></div>
+    <div id="genre-chips" class="chip-row" role="group" aria-label="Lọc theo thể loại" style="justify-content: safe center; min-height: 44px; align-items: center; margin: -6px 0 18px;"></div>
     <div class="grid-4 syncing" id="movie-grid">
       
       <!-- Phim 1: Linh Giới Đại Chiến -->
@@ -951,10 +979,9 @@
   </div>
 
   <!-- Floating BetaBot Chat Launcher Button -->
-  <a href="betabot.html" class="betabot-fab" aria-label="Chat với BetaBot hỗ trợ đối soát" style="position: fixed; bottom: 84px; right: 24px; z-index: 9998; display: flex; align-items: center; gap: 10px; background: #d63a1c; color: white; padding: 10px 18px; border-radius: 999px; box-shadow: 0 8px 24px rgba(255, 90, 60, 0.45); text-decoration: none; font-weight: 800; font-size: 13.5px; transition: all 0.25s;">
-    <img src="images/betabot-avatar.webp" alt="BetaBot" style="width: 28px; height: 28px; border-radius: 50%; background: #0f172a; border: 1.5px solid white;" onerror="this.onerror=null; this.src='images/logo-official.png'">
-    <span class="betabot-fab-label">Hỗ trợ đối soát • BetaBot 24/7</span>
-    <span style="width: 8px; height: 8px; background: #3ddc97; border-radius: 50%;"></span>
+  <a href="betabot.html" class="betabot-fab" aria-label="Chat với BetaBot – hỗ trợ 24/7">
+    <img src="images/betabot-avatar.webp" alt="" width="40" height="40" onerror="this.onerror=null; this.src='images/logo-official.png'">
+    <span class="betabot-fab-label">Hỏi BetaBot 24/7</span>
   </a>
 
   <!-- PROTOTYPE SWITCHER DOCK (TIỆN ÍCH CHUYỂN NHANH TẤT CẢ GIAO DIỆN) -->
@@ -1281,7 +1308,7 @@
             <div class="movie-poster-wrap">
               <img loading="lazy" class="movie-poster-img" src="${esc(m.poster)}" alt="${esc(m.title)}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
               ${m.age ? `<div class="movie-age-tag"><span class="badge">${esc(m.age)}</span></div>` : ''}
-              <div class="movie-poster-overlay"><a href="${link}" class="btn-overlay-buy"><i class=ph-ticket aria-hidden=true></i> MUA VÉ</a></div>
+              <div class="movie-poster-overlay"><a href="${link}" class="btn-overlay-buy"><i class=ph-ticket aria-hidden=true></i> ${m.status === 'SOON' ? 'ĐẶT TRƯỚC' : 'MUA VÉ'}</a>${m.trailer ? `<button type="button" class="btn-overlay-trailer" data-trailer="${esc(m.trailer)}"><i class=ph-play aria-hidden=true></i> XEM TRAILER</button>` : ''}</div>
             </div>
             <div class="movie-info-official">
               <h3 class="movie-title-official"><a href="${link}">${esc(m.title)}</a></h3>
@@ -1299,7 +1326,33 @@
           if (key && byKey[key]) card.dataset.genre = byKey[key].genre || '';
           const t = card.querySelector('.movie-title-official a');
           if (key && t) t.href = 'phim/' + encodeURIComponent(key);
+          if (key) card.dataset.key = key;
+          const info = card.querySelector('.movie-info-official');
+          if (buy && info && !info.querySelector('.movie-actions')) {
+            const tr = card.querySelector('.btn-overlay-trailer');
+            const title = (t && t.textContent.trim()) || '';
+            if (tr && !tr.getAttribute('onclick')) tr.onclick = () => openTrailerModal(key, title, tr);
+            const row = document.createElement('div');
+            row.className = 'movie-actions';
+            const soon = /ĐẶT TRƯỚC/i.test(buy.textContent);
+            row.innerHTML = `<a class="ma-buy" href="${esc(buy.getAttribute('href'))}"><i class="ph-ticket" aria-hidden="true"></i> ${soon ? 'Đặt trước' : 'Mua vé'}</a>` +
+              (tr ? `<button type="button" class="ma-trailer" aria-label="Xem trailer ${esc(title)}"><i class="ph-play" aria-hidden="true"></i><span>Trailer</span></button>` : '');
+            if (tr) row.querySelector('.ma-trailer').onclick = () => tr.click();
+            info.appendChild(row);
+          }
         });
+        window.__movies = movies;
+        window.dispatchEvent(new Event('beta:movies'));
+        // Đợt 9: điểm khán giả ★ (đủ lượt đánh giá) + thứ hạng bán chạy 7 ngày
+        Pay.catalog('movie_stats').then(({ stats }) => {
+          grid.querySelectorAll('.movie-card').forEach(card => {
+            const s = stats && stats[card.dataset.key];
+            const wrap = card.querySelector('.movie-poster-wrap');
+            if (!s || !wrap) return;
+            if (s.avg != null && !wrap.querySelector('.movie-rating')) wrap.insertAdjacentHTML('beforeend', `<span class="movie-rating" aria-label="Khán giả chấm ${s.avg} trên 5 sao, ${s.count} lượt"><i class="ph-star" aria-hidden="true"></i>${s.avg.toFixed(1)}<small>(${s.count})</small></span>`);
+            if (s.rank && s.rank <= 3 && !wrap.querySelector('.movie-rank')) wrap.insertAdjacentHTML('beforeend', `<span class="movie-rank" title="Top ${s.rank} bán chạy 7 ngày qua" aria-label="Top ${s.rank} bán chạy tuần này">${s.rank}</span>`);
+          });
+        }).catch(() => { /* không có điểm: thẻ phim vẫn đủ thông tin */ });
         // Khối TIN MỚI & ƯU ĐÃI: 3 bài đang hiển thị (ghim lên đầu) – Quản lý đăng trong admin
         try {
           const pr = await Pay.catalog('posts', { limit: 3 });
@@ -1317,9 +1370,8 @@
         // Nút lọc thể loại: gom từ thể loại của các phim đang có
         const genres = [...new Set(movies.flatMap(m => String(m.genre || '').split(',').map(x => x.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b, 'vi'));
         const chips = document.getElementById('genre-chips');
-        const chipCss = (on) => 'border: 1.5px solid ' + (on ? '#005198' : '#cbd5e1') + '; background: ' + (on ? '#005198' : '#fff') + '; color: ' + (on ? '#fff' : '#0f172a') + '; border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; min-height: 36px;';
         const drawChips = () => {
-          chips.innerHTML = ['', ...genres].map(g => `<button type="button" aria-pressed="${(window.__genre || '') === g}" style="${chipCss((window.__genre || '') === g)}" data-genre="${esc(g)}">${g ? esc(g) : 'Tất cả thể loại'}</button>`).join('');
+          chips.innerHTML = ['', ...genres].map(g => `<button type="button" class="chip" aria-pressed="${(window.__genre || '') === g}" data-genre="${esc(g)}">${g ? esc(g) : 'Tất cả'}</button>`).join('');
           chips.querySelectorAll('button').forEach(b => b.onclick = () => {
             window.__genre = b.dataset.genre;
             drawChips();
@@ -1335,6 +1387,55 @@
       } finally {
         document.getElementById('movie-grid').classList.remove('syncing');
       }
+    })();
+    // Đợt 9: Mua vé nhanh – chọn lần lượt phim, rạp, ngày, suất rồi vào thẳng trang chọn ghế
+    (function quickBuy() {
+      const $ = (id) => document.getElementById(id);
+      const mSel = $('qb-movie'), cSel = $('qb-cinema'), dSel = $('qb-date'), tSel = $('qb-time'), go = $('qb-go');
+      if (!mSel) return;
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const opt = (v, t, dis) => `<option value="${esc(v)}"${dis ? ' disabled' : ''}>${esc(t)}</option>`;
+      const reset = (sel, text) => { sel.innerHTML = opt('', text); sel.disabled = true; };
+      let sts = [], today = '';
+      const fill = (movies) => {
+        const now = movies.filter(m => m.status !== 'SOON');
+        mSel.innerHTML = opt('', now.length ? 'Chọn phim' : 'Chưa có phim đang chiếu') + now.map(m => opt(m.key, m.title)).join('');
+      };
+      if (window.__movies) fill(window.__movies); else window.addEventListener('beta:movies', () => fill(window.__movies), { once: true });
+      mSel.onchange = async () => {
+        reset(dSel, 'Chọn rạp trước'); reset(tSel, 'Chọn ngày trước'); go.disabled = true;
+        if (!mSel.value) { reset(cSel, 'Chọn phim trước'); return; }
+        reset(cSel, 'Đang tải suất chiếu…');
+        try {
+          const r = await Pay.catalog('showtimes', { movie: mSel.value, days: 7 });
+          sts = r.showtimes || []; today = r.today || '';
+        } catch (e) { reset(cSel, 'Không tải được suất chiếu'); return; }
+        const cins = [...new Map(sts.map(s => [s.cinema_id, s.cinema])).entries()];
+        if (!cins.length) { reset(cSel, 'Phim chưa có suất chiếu'); return; }
+        cSel.innerHTML = opt('', 'Chọn rạp') + cins.map(([id, n]) => opt(id, n)).join('');
+        cSel.disabled = false;
+        let saved = null; try { saved = localStorage.getItem('BETA_CINEMA'); } catch (e) { /* bỏ qua */ }
+        if (cins.some(([id]) => id === saved)) { cSel.value = saved; cSel.onchange(); }
+      };
+      cSel.onchange = () => {
+        reset(tSel, 'Chọn ngày trước'); go.disabled = true;
+        const days = [...new Map(sts.filter(s => s.cinema_id === cSel.value).map(s => [s.date, s.date_label])).entries()];
+        if (!cSel.value || !days.length) { reset(dSel, 'Chọn rạp trước'); return; }
+        dSel.innerHTML = days.map(([d, l]) => opt(d, (d === today ? 'Hôm nay · ' : '') + l)).join('');
+        dSel.disabled = false;
+        dSel.onchange();
+      };
+      dSel.onchange = () => {
+        const list = sts.filter(s => s.cinema_id === cSel.value && s.date === dSel.value);
+        tSel.innerHTML = opt('', 'Chọn suất') + list.map(s => opt(s.id, s.time + ' · ' + s.format + (s.seats_free ? ' · còn ' + s.seats_free + ' ghế' : ' · hết vé'), !s.seats_free)).join('');
+        tSel.disabled = false; go.disabled = true;
+      };
+      tSel.onchange = () => { go.disabled = !tSel.value; };
+      go.onclick = () => {
+        if (!tSel.value) return;
+        if (window.BetaRememberCinema) window.BetaRememberCinema(cSel.value);
+        location.href = 'seats.html?showtime=' + encodeURIComponent(tSel.value);
+      };
     })();
     // Mạng chậm / lỗi: không giữ ẩn quá 4 giây
     setTimeout(() => { const g = document.getElementById('movie-grid'); if (g) g.classList.remove('syncing'); }, 4000);
