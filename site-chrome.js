@@ -262,7 +262,7 @@
     openSearch();
   });
 
-  // ---- PWA (Đợt 2): cài web lên màn hình điện thoại như app, mở vé QR khi mất mạng ----
+  // ---- PWA (Đợt 2): cài web lên màn hình điện thoại như app, mở vé (mã vạch) khi mất mạng ----
   function pwa() {
     var head = document.head;
     function link(rel, href) {
@@ -291,7 +291,7 @@
       bar.setAttribute('role', 'region');
       bar.setAttribute('aria-label', 'Cài ứng dụng Beta Cinemas');
       bar.innerHTML = '<img src="/images/pwa-192.png" alt="" width="30" height="30">' +
-        '<span>Cài app Beta: xem vé QR cả khi mất mạng</span>' +
+        '<span>Cài app Beta: xem vé cả khi mất mạng</span>' +
         '<button type="button" class="ok" data-a="ok">Cài</button>' +
         '<button type="button" class="no" data-a="no" aria-label="Đóng">×</button>';
       bar.onclick = function (e) {

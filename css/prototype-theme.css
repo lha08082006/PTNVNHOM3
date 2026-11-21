@@ -1611,8 +1611,15 @@ textarea.form-input { min-height: 110px; resize: vertical; }
 @media (max-width: 640px) { .form-input { font-size: 16px; } } /* iPhone không tự phóng to khi chạm ô nhập */
 
 /* Đợt 10: dải ngày trang Đặt vé vuốt ngang (trước đây 30 ngày xếp thành lưới dài 2 màn hình) */
-#date-selector { display: flex !important; flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: thin; padding-bottom: 6px; scroll-behavior: smooth; }
-#date-selector .date-btn { flex: 0 0 auto; }
+/* Đợt 11: dải ngày gọn – 7 ngày vừa một hàng (điện thoại xuống 2 hàng), không thanh cuộn ngang */
+#date-selector { display: flex; flex-wrap: wrap; gap: 8px; }
+#date-selector .date-btn { flex: 1 1 0; min-width: 62px; max-width: 120px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; line-height: 1.2; text-align: center; cursor: pointer; }
+#date-selector .date-btn .d1 { font-size: 13px; font-weight: 700; }
+#date-selector .date-btn .d2 { font-size: 15px; font-weight: 800; }
+#date-selector .date-btn.empty:not(.b) { opacity: .45; }
+#date-selector .date-more { flex: 0 1 140px; min-width: 110px; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 8px 10px; font: inherit; font-weight: 700; color: #0f172a; background: #fff; cursor: pointer; }
+#date-selector .date-more.on { border-color: var(--beta-blue, #005198); color: var(--beta-blue, #005198); }
+@media (max-width: 640px) { #date-selector .date-btn { flex: 1 1 calc(25% - 8px); max-width: none; } #date-selector .date-more { flex: 1 1 100%; } }
 
 /* Máy tính bảng: lưới phim 3 cột */
 @media (min-width: 700px) and (max-width: 1024px) {

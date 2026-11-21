@@ -398,7 +398,7 @@ async function test(name, fn) {
     assert.strictEqual((await ql.post({ action: 'showtime_update', id: SOON.id, active: false })).status, 409);
   });
 
-  await test('Soát vé QR: hợp lệ một lần, chặn vé giả và vé đã soát', async () => {
+  await test('Soát vé bằng mã vạch (QR cũ vẫn nhận): hợp lệ một lần, chặn vé giả và vé đã soát', async () => {
     const quay = asStaff(await staffLogin('quay@beta.local'));
     const cs = asStaff(await staffLogin('cskh@beta.local'));
     // Đơn chưa thanh toán thì không soát được
@@ -407,13 +407,17 @@ async function test(name, fn) {
     await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: SOON_CODE } });
     const view = await call('order-status', { query: { code: SOON_CODE }, token: tokB }); // chủ vé mới thấy mã QR
     assert.match(view.data.ticket_qr, /^BETA1\.BC\d{10}\.[A-Za-z0-9_-]{16}$/);
-    assert.strictEqual((await cs.post({ action: 'checkin', qr: view.data.ticket_qr })).status, 403);
-    const forged = await quay.post({ action: 'checkin', qr: view.data.ticket_qr.slice(0, -2) + 'xx' });
+    const bar = view.data.ticket_barcode;
+    assert.ok(/^BC\d{18}$/.test(bar) && bar.startsWith(SOON_CODE), 'mã vạch: ' + bar);
+    assert.strictEqual((await cs.post({ action: 'checkin', qr: bar })).status, 403);
+    const forged = await quay.post({ action: 'checkin', qr: bar.slice(0, -2) + String((Number(bar.slice(-2)) + 1) % 100).padStart(2, '0') });
     assert.strictEqual(forged.status, 400);
-    const ok = await quay.post({ action: 'checkin', qr: view.data.ticket_qr });
+    assert.ok(/làm giả/.test(forged.data.error), forged.data.error);
+    assert.strictEqual((await quay.post({ action: 'checkin', qr: view.data.ticket_qr.slice(0, -2) + 'xx' })).status, 400);
+    const ok = await quay.post({ action: 'checkin', qr: bar });
     assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
     assert.deepStrictEqual(ok.data.summary.seats, ['A1']);
-    const twice = await quay.post({ action: 'checkin', qr: view.data.ticket_qr });
+    const twice = await quay.post({ action: 'checkin', qr: view.data.ticket_qr }); // QR cũ vẫn đọc được -> báo đã soát
     assert.strictEqual(twice.status, 409);
     assert.strictEqual(twice.data.already, true);
     const byCode = await quay.post({ action: 'checkin', code: SOON_CODE });
@@ -512,16 +516,18 @@ async function test(name, fn) {
     for (const tok of [undefined, tokB]) {
       const v = (await call('order-status', { query: { code }, token: tok })).data;
       assert.strictEqual(v.limited, true);
-      for (const k of ['phone', 'email', 'customer_name', 'ticket_qr', 'history', 'notifications']) assert.strictEqual(v[k], undefined, k + ' bị lộ');
+      for (const k of ['phone', 'email', 'customer_name', 'ticket_qr', 'ticket_barcode', 'history', 'notifications']) assert.strictEqual(v[k], undefined, k + ' bị lộ');
       assert.ok(v.status && v.code === code);
     }
     const g = await call('orders', { query: { codes: code } });
     assert.strictEqual(g.data.orders[0].ticket_qr, undefined);
+    assert.strictEqual(g.data.orders[0].ticket_barcode, undefined);
     assert.strictEqual(g.data.orders[0].email, undefined);
     const rep = await call('report-issue', { method: 'POST', body: { order_code: code } });
     assert.strictEqual(rep.data.phone, undefined);
     const rec = await call('reconcile', { method: 'POST', body: { order_code: code } });
     assert.strictEqual(rec.data.order.ticket_qr, undefined);
+    assert.strictEqual(rec.data.order.ticket_barcode, undefined);
     // Chủ đơn và nhân viên vẫn xem đầy đủ
     const own = (await call('order-status', { query: { code }, token: tokA2 })).data;
     assert.ok(own.ticket_qr && own.email && !own.limited);

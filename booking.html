@@ -381,8 +381,8 @@
           </div>
         </div>
 
-        <!-- Thanh Chọn Ngày Chiếu (7 ngày trong tuần) -->
-        <div class="g" id="date-selector" style="gap: 8px;">
+        <!-- Thanh Chọn Ngày Chiếu: 7 ngày tới + ô "Ngày khác" cho ngày xa hơn (Đợt 11) -->
+        <div id="date-selector" role="group" aria-label="Chọn ngày xem phim">
         </div>
 
         <!-- Khối Chọn Suất Chiếu (Thời Gian Thực) -->
@@ -491,22 +491,38 @@
       document.getElementById('summary-movie').textContent = m.shortTitle || m.title;
     }
 
+    // Dải ngày gọn (Đợt 11): 7 ngày tới vừa một hàng, ngày rạp không có suất làm mờ; ngày xa hơn chọn ở ô "Ngày khác"
+    let WEEK = [];
+    const DAYS_SHOWN = 7;
     function renderDates() {
       const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
       const box = document.getElementById('date-selector');
       box.innerHTML = '';
-      for (let i = 0; i < 30; i++) {
+      const has = new Set(WEEK.filter(s => s.cinema_id === cinemaId).map(s => s.date));
+      const label = (date) => { const [, mm, dd] = date.split('-'); return { dow: date === today ? 'Hôm nay' : DOW[new Date(date + 'T00:00:00Z').getUTCDay()], dm: dd + '/' + mm }; };
+      for (let i = 0; i < DAYS_SHOWN; i++) {
         const date = addDays(today, i);
-        const [, mm, dd] = date.split('-');
+        const l = label(date);
         const btn = document.createElement('button');
-        btn.className = (date === selectedDate ? 'b' : 'o') + ' date-btn';
-        btn.style.cssText = 'min-width: 76px; text-align: center; line-height: 1.3; cursor: pointer;';
-        btn.innerHTML = `${i === 0 ? 'Hôm nay' : DOW[new Date(date + 'T00:00:00Z').getUTCDay()]}<br>${dd}/${mm}`;
+        btn.type = 'button';
+        btn.className = (date === selectedDate ? 'b' : 'o') + ' date-btn' + (has.has(date) ? '' : ' empty');
+        btn.setAttribute('aria-pressed', String(date === selectedDate));
+        if (!has.has(date)) btn.title = 'Chưa có suất chiếu';
+        btn.innerHTML = `<span class="d1">${l.dow}</span><span class="d2">${l.dm}</span>`;
         btn.onclick = () => { selectedDate = date; renderDates(); loadShowtimes(); };
         box.appendChild(btn);
       }
-      const on = box.querySelector('.date-btn.b');
-      if (on) box.scrollLeft = Math.max(0, on.offsetLeft - box.offsetLeft - 40);
+      const last = addDays(today, DAYS_SHOWN - 1);
+      const later = [...has].filter(d => d > last).sort();
+      if (later.length) {
+        const sel = document.createElement('select');
+        sel.className = 'date-more' + (selectedDate > last ? ' on' : '');
+        sel.setAttribute('aria-label', 'Chọn ngày khác');
+        sel.innerHTML = (selectedDate > last ? '' : '<option value="">Ngày khác ▾</option>') +
+          later.map(d => { const l = label(d); return `<option value="${d}" ${d === selectedDate ? 'selected' : ''}>${l.dow} ${l.dm}</option>`; }).join('');
+        sel.onchange = () => { if (!sel.value) return; selectedDate = sel.value; renderDates(); loadShowtimes(); };
+        box.appendChild(sel);
+      }
     }
 
     function updateSummary() {
@@ -573,6 +589,7 @@
         const m = mv.movies.find(x => x.key === movieKey);
         if (!m) { location.replace('home.html'); return; }
         renderMovie(m);
+        WEEK = week.showtimes || [];
         // Chỉ liệt kê các rạp có chiếu phim này trong 7 ngày tới
         const showing = new Set(week.showtimes.map(x => x.cinema_id));
         // Rạp yêu thích (đã lưu ở trang Lịch chiếu) lên đầu danh sách

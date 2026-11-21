@@ -521,7 +521,7 @@
         <div class="card">
           <h2>Soát vé vào phòng chiếu <small>máy quét USB: đặt con trỏ vào ô rồi quét · hoặc dùng camera</small></h2>
           <form class="toolbar" onsubmit="event.preventDefault(); doCheckin(document.getElementById('ck-input').value)">
-            <input aria-label="Quét QR hoặc nhập mã đơn BC..." id="ck-input" class="mono" placeholder="Quét QR hoặc nhập mã đơn BC..." style="flex: 1;" autocomplete="off" autofocus>
+            <input aria-label="Quét mã vạch hoặc nhập mã đơn BC..." id="ck-input" class="mono" placeholder="Quét mã vạch hoặc nhập mã đơn BC..." style="flex: 1;" autocomplete="off" autofocus>
             <button class="btn primary">Soát vé</button>
           </form>
           <div class="row-actions" style="margin-bottom: 10px;">
@@ -1073,18 +1073,20 @@
     }
     setInterval(() => { if (tab === 'quay' && !document.hidden) loadCounterBoard(); }, 30000);
 
-    // Quét QR bằng camera (trình duyệt hỗ trợ BarcodeDetector: Chrome Android, macOS, ChromeOS)
+    // Quét mã vạch vé (Code 128, Đợt 11) hoặc QR cũ bằng camera (trình duyệt hỗ trợ BarcodeDetector: Chrome Android, macOS, ChromeOS)
     let camStream = null, camTimer = null, lastScan = '';
     async function toggleCamera() {
       const video = document.getElementById('ck-video');
       const hint = document.getElementById('ck-cam-hint');
       if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; clearInterval(camTimer); video.style.display = 'none'; document.getElementById('ck-cam-btn').innerHTML = '<i class=ph-camera aria-hidden=true></i> Quét bằng camera'; return; }
-      if (!('BarcodeDetector' in window)) { hint.textContent = 'Trình duyệt này chưa hỗ trợ quét QR bằng camera – hãy dùng máy quét USB hoặc nhập mã đơn.'; return; }
+      if (!('BarcodeDetector' in window)) { hint.textContent = 'Trình duyệt này chưa hỗ trợ quét mã bằng camera – hãy dùng máy quét mã vạch USB hoặc nhập mã đơn.'; return; }
       try {
         camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
         video.srcObject = camStream; video.style.display = 'block'; await video.play();
         document.getElementById('ck-cam-btn').innerHTML = '<i class=ph-stop aria-hidden=true></i> Tắt camera';
-        const det = new BarcodeDetector({ formats: ['qr_code'] });
+        let formats = ['code_128', 'qr_code'];
+        try { const sup = await BarcodeDetector.getSupportedFormats(); formats = formats.filter(f => sup.includes(f)); } catch (e) { /* dùng mặc định */ }
+        const det = new BarcodeDetector({ formats });
         camTimer = setInterval(async () => {
           try {
             const codes = await det.detect(video);

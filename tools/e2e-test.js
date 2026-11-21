@@ -13,6 +13,8 @@ const exe = [process.env.CHROME_PATH, 'C:/Program Files/Google/Chrome/Applicatio
   .filter(Boolean).find(p => { try { return fs.existsSync(p); } catch (e) { return false; } });
 const freePort = () => new Promise((ok, no) => { const s = net.createServer(); s.listen(0, () => { const { port } = s.address(); s.close(() => ok(port)); }); s.on('error', no); });
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+// E2E_SHOTS=<thư mục>: chụp trang vé và trang đặt vé (máy tính + điện thoại) để xem giao diện
+const SHOTS = process.env.E2E_SHOTS || '';
 
 async function startServer() {
   const port = await freePort();
@@ -121,15 +123,17 @@ const expect = (cond, msg) => { if (!cond) throw new Error(msg); };
       st.code = new URL(p.url()).searchParams.get('order');
     });
 
-    await step('Ngân hàng báo đã nhận tiền (sandbox) -> tự sang trang vé có mã QR', async () => {
+    await step('Ngân hàng báo đã nhận tiền (sandbox) -> tự sang trang vé có mã vạch', async () => {
       const r = await api('/api/simulate-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scenario: 'OK', order_code: st.code }) });
       expect(r.status === 200, 'Sandbox lỗi: ' + JSON.stringify(r.data));
       await p.waitForFunction(() => /ticket\.html/.test(location.href), { timeout: 15000 });
-      await p.waitForSelector('#ticket-qr canvas, #ticket-qr img', { timeout: 10000 });
+      await p.waitForSelector('#ticket-barcode svg', { timeout: 10000 });
+      if (SHOTS) { await sleep(500); await p.screenshot({ path: path.join(SHOTS, 'e2e-ticket.png'), fullPage: true }); }
       const tok = await p.evaluate(() => localStorage.getItem('BETA_AUTH_TOKEN'));
       const v = await api('/api/order-status?code=' + st.code, { headers: { Authorization: 'Bearer ' + tok } });
       expect(v.data.status === 'CONFIRMED' && v.data.combos.solo === 1 && v.data.seats.length === 2, 'Đơn sai: ' + JSON.stringify({ s: v.data.status, c: v.data.combos }));
-      st.qr = v.data.ticket_qr;
+      st.qr = v.data.ticket_barcode;
+      expect(/^BC\d{18}$/.test(st.qr || ''), 'Mã vạch sai dạng: ' + st.qr);
     });
 
     await step('Nhân viên quầy đăng nhập admin, soát vé: hợp lệ; soát lần 2: bị chặn', async () => {
@@ -225,6 +229,14 @@ const expect = (cond, msg) => { if (!cond) throw new Error(msg); };
     });
 
     expect(!errors.length, 'Lỗi JavaScript: ' + errors.join(' | '));
+    if (SHOTS) {
+      for (const [w, h, name] of [[1280, 900, 'desktop'], [390, 844, 'mobile']]) {
+        await p.setViewport({ width: w, height: h });
+        await p.goto(B + '/booking.html?movie=suzume&cinema=beta-thanh-xuan', { waitUntil: 'networkidle2' });
+        await p.waitForSelector('#date-selector .date-btn', { timeout: 10000 });
+        await p.screenshot({ path: path.join(SHOTS, 'e2e-booking-' + name + '.png') });
+      }
+    }
     ok = true;
   } catch (e) {
     if (errors.length) console.log('Lỗi JavaScript trên trang:', errors.join(' | '));

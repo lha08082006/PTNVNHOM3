@@ -134,7 +134,7 @@
       .ticket-actions, .betabot-fab, .no-print { display: none !important; }
       .ticket-wrapper { max-width: 100% !important; padding: 0 !important; }
       * { box-shadow: none !important; }
-      #ticket-qr { break-inside: avoid; }
+      #ticket-barcode { break-inside: avoid; }
     }
   </style>
 </head>
@@ -321,12 +321,12 @@
         <div class="ticket-barcode-side">
           <div style="font-size: 12.5px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
             <span><i class="ph-ticket" aria-hidden="true"></i></span>
-            <span>MÃ QR SOÁT VÉ VÀO CỬA</span>
+            <span>MÃ VẠCH SOÁT VÉ VÀO CỬA</span>
           </div>
 
           <!-- BARCODE CODE-128 SVG -->
           <div style="background: white; padding: 16px 24px 12px; border-radius: 12px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.04); width: 100%; max-width: 480px; margin-bottom: 12px;">
-            <div id="ticket-qr" role="img" aria-label="Mã QR vé vào cửa" style="display: flex; justify-content: center; padding: 6px 0;"></div>
+            <div id="ticket-barcode" role="img" aria-label="Mã vạch vé vào cửa" style="display: flex; justify-content: center; padding: 6px 0; min-height: 84px;"></div>
             <div id="ticket-checkin-state" style="display: none; margin-top: 8px; font-weight: 800; color: #b45309;"></div>
             <div style="font-family: 'Courier New', Courier, monospace; font-size: 17px; font-weight: 800; color: #0f172a; letter-spacing: 5px; margin-top: 8px;" id="ticket-barcode-num">
               BC 2610 2798 54
@@ -334,7 +334,7 @@
           </div>
 
           <div style="font-size: 12.5px; color: #64748b; line-height: 1.5; max-width: 480px; margin-top: 4px;">
-            Đưa mã QR này cho nhân viên soát vé tại cửa phòng chiếu. Mỗi vé chỉ được soát một lần – không chia sẻ ảnh mã QR cho người khác.
+            Đưa mã vạch này cho nhân viên soát vé tại cửa phòng chiếu (tăng độ sáng màn hình nếu khó quét). Mỗi vé chỉ được soát một lần – không chia sẻ ảnh mã vạch cho người khác.
           </div>
           <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
             Mã đơn: <strong id="ticket-order-code-foot">—</strong> • Đặt lúc: <strong id="ticket-created-at">—</strong>
@@ -348,7 +348,7 @@
         <button type="button" class="btn btn-primary" id="btn-save-ticket" onclick="saveTicketImage()">
           <i class="ph-tray-arrow-down" aria-hidden="true"></i> Lưu Ảnh Vé Về Điện Thoại
         </button>
-        <!-- Đợt 5: thêm vào lịch điện thoại, mời bạn đi cùng (không chia sẻ mã QR) -->
+        <!-- Đợt 5: thêm vào lịch điện thoại, mời bạn đi cùng (không chia sẻ mã vạch) -->
         <button type="button" class="btn btn-outline" id="btn-add-cal" hidden onclick="addToCalendar()">
           <i class="ph-calendar" aria-hidden="true"></i> Thêm Vào Lịch
         </button>
@@ -470,7 +470,7 @@
   <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="barcode.js"></script>
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
   <script>
@@ -620,12 +620,12 @@
       }
     }
 
-    // Lưu vé thành ảnh PNG (thông tin vé + mã QR soát vé) để mở nhanh tại quầy khi không có mạng
+    // Lưu vé thành ảnh PNG (thông tin vé + mã vạch soát vé) để mở nhanh tại quầy khi không có mạng
     async function saveTicketImage() {
       const btn = document.getElementById('btn-save-ticket');
       const txt = (id) => ((document.getElementById(id) || {}).textContent || '').replace(/\s+/g, ' ').trim();
-      const qrSrc = document.querySelector('#ticket-qr canvas, #ticket-qr img');
-      if (!qrSrc) { alert('Vé chưa có mã QR. Vui lòng đợi trang tải xong rồi thử lại.'); return; }
+      const barText = window.__ticketBarcode;
+      if (!barText || !window.BetaBarcode) { alert('Vé chưa có mã vạch. Vui lòng đợi trang tải xong rồi thử lại.'); return; }
       if (btn) btn.disabled = true;
       try {
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
@@ -674,17 +674,14 @@
         g.strokeStyle = '#cbd5e1'; g.setLineDash([8, 8]); g.lineWidth = 2;
         g.beginPath(); g.moveTo(P, y + 10); g.lineTo(W - P, y + 10); g.stroke(); g.setLineDash([]);
         y += 44;
-        // mã QR
-        const q = 300, qx = (W - q) / 2;
-        g.fillStyle = '#ffffff'; g.fillRect(qx - 12, y - 12, q + 24, q + 24);
-        g.imageSmoothingEnabled = false;
-        g.drawImage(qrSrc, qx, y, q, q);
-        y += q + 44;
+        // mã vạch (vẽ thẳng lên canvas, mỗi module là số nguyên điểm ảnh để vạch sắc nét)
+        BetaBarcode.draw(g, barText, P, y, W - 2 * P, 150);
+        y += 150 + 44;
         g.textAlign = 'center';
         g.fillStyle = '#0f172a'; g.font = '800 24px "Courier New", monospace';
         g.fillText(txt('ticket-barcode-num') || txt('ticket-order-code-foot'), W / 2, y); y += 32;
         g.fillStyle = '#64748b'; g.font = font(500, 14);
-        g.fillText('Đưa mã QR này cho nhân viên soát vé. Mỗi vé chỉ dùng được một lần.', W / 2, y); y += 22;
+        g.fillText('Đưa mã vạch này cho nhân viên soát vé. Mỗi vé chỉ dùng được một lần.', W / 2, y); y += 22;
         g.fillText('Khách hàng: ' + (txt('ticket-card-customer') || txt('ticket-customer-name')), W / 2, y);
         g.textAlign = 'left';
 
@@ -709,7 +706,7 @@
           setTimeout(() => URL.revokeObjectURL(a.href), 4000);
         }
       } catch (e) {
-        if (e && e.name !== 'AbortError') alert('Không lưu được ảnh vé: ' + e.message + '. Bạn có thể chụp màn hình mã QR thay thế.');
+        if (e && e.name !== 'AbortError') alert('Không lưu được ảnh vé: ' + e.message + '. Bạn có thể chụp màn hình mã vạch thay thế.');
       } finally {
         if (btn) btn.disabled = false;
       }
@@ -732,7 +729,7 @@
       const body = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Beta Cinemas//Ve xem phim//VI', 'BEGIN:VEVENT',
         'UID:' + c.o.code + '@betacinemas', 'DTSTAMP:' + ics(new Date()), 'DTSTART:' + ics(c.start), 'DTEND:' + ics(c.end),
         'SUMMARY:' + esc('🎬 ' + c.title), 'LOCATION:' + esc(c.where),
-        'DESCRIPTION:' + esc('Ghế ' + (c.o.seats || []).join(', ') + ' · Mã đơn ' + c.o.code + '. Mở vé QR trong mục Tài khoản trước khi vào rạp.'),
+        'DESCRIPTION:' + esc('Ghế ' + (c.o.seats || []).join(', ') + ' · Mã đơn ' + c.o.code + '. Mở vé (mã vạch) trong mục Tài khoản trước khi vào rạp.'),
         'BEGIN:VALARM', 'TRIGGER:-PT1H', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc('1 giờ nữa: ' + c.title), 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([body], { type: 'text/calendar;charset=utf-8' }));
@@ -761,7 +758,7 @@
       }
       const movieObj = ord.kind === 'FNB' ? Pay.FNB_MOVIE : resolveMovie(ord.movie_key);
       if (ord.kind === 'FNB') {
-        // Đơn bắp nước: không có suất / ghế – nhân viên quầy quét QR để giao món
+        // Đơn bắp nước: không có suất / ghế – nhân viên quầy quét mã vạch để giao món
         document.getElementById('ticket-seats-list').textContent = 'Không có ghế';
         document.getElementById('ticket-showtime').textContent = 'Nhận tại quầy trong 30 ngày kể từ ngày mua';
         const cls = document.getElementById('ticket-seat-class');
@@ -773,7 +770,7 @@
         const h1 = document.querySelector('main h1');
         if (h1) h1.textContent = 'Đặt Bắp Nước Thành Công!';
         document.querySelectorAll('main div').forEach((d) => {
-          if (d.children.length === 0 && /^Đưa mã QR này cho nhân viên soát vé/.test(d.textContent.trim())) d.textContent = 'Đưa mã QR này cho nhân viên quầy bắp nước để nhận món. Mỗi phiếu chỉ dùng được một lần.';
+          if (d.children.length === 0 && /^Đưa mã vạch này cho nhân viên soát vé/.test(d.textContent.trim())) d.textContent = 'Đưa mã vạch này cho nhân viên quầy bắp nước để nhận món. Mỗi phiếu chỉ dùng được một lần.';
         });
       }
       if (movieObj) {
@@ -854,19 +851,18 @@
       const custPhoneEl = document.getElementById('ticket-customer-phone');
       if (custPhoneEl) custPhoneEl.textContent = custPhone;
 
-      // Mã QR ký số (máy chủ cấp) cho nhân viên quầy quét
-      if (ord.ticket_qr && window.QRCode) {
-        const box = document.getElementById('ticket-qr');
-        box.innerHTML = '';
-        new QRCode(box, { text: ord.ticket_qr, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
-        // Thư viện QR tự chèn <img> không có alt: khung ngoài đã mô tả (role="img") nên ảnh bên trong để trống alt
-        box.querySelectorAll('img, canvas').forEach((el) => { if (el.tagName === 'IMG') el.alt = ''; el.setAttribute('aria-hidden', 'true'); });
+      // Mã vạch Code 128 ký số (máy chủ cấp) cho nhân viên quầy quét – Đợt 11 thay mã QR
+      const barText = ord.ticket_barcode || ord.ticket_qr; // vé lưu offline từ trước chỉ có nội dung QR cũ – quầy vẫn nhận
+      if (barText && window.BetaBarcode) {
+        window.__ticketBarcode = barText;
+        const box = document.getElementById('ticket-barcode');
+        box.innerHTML = '<div style="width: 100%; max-width: 420px;">' + BetaBarcode.svg(barText, { height: 84 }) + '</div>';
       }
-      // Chỉ chủ vé (đăng nhập đúng tài khoản đặt vé) mới thấy mã QR vào rạp
+      // Chỉ chủ vé (đăng nhập đúng tài khoản đặt vé) mới thấy mã vạch vào rạp
       if (ord.limited) {
-        const box = document.getElementById('ticket-qr');
+        const box = document.getElementById('ticket-barcode');
         const next = encodeURIComponent('ticket.html?order=' + ord.code);
-        box.innerHTML = '<div style="padding: 14px; text-align: center; color: #475569; font-size: 14px; line-height: 1.5;"><i class=ph-lock aria-hidden=true></i> Mã QR vào rạp chỉ hiện với tài khoản đã đặt vé.<br><a href="auth.html?next=' + next + '#login" style="font-weight: 700; color: #005198;">Đăng nhập để xem mã QR →</a></div>';
+        box.innerHTML = '<div style="padding: 14px; text-align: center; color: #475569; font-size: 14px; line-height: 1.5;"><i class=ph-lock aria-hidden=true></i> Mã vạch vào rạp chỉ hiện với tài khoản đã đặt vé.<br><a href="auth.html?next=' + next + '#login" style="font-weight: 700; color: #005198;">Đăng nhập để xem mã vạch →</a></div>';
       }
       const ck = document.getElementById('ticket-checkin-state');
       if (ck && ord.checked_in_at) { ck.style.display = 'block'; ck.textContent = '✓ Vé đã được soát lúc ' + new Date(ord.checked_in_at).toLocaleString('vi-VN'); }
