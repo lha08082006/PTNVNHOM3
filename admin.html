@@ -887,6 +887,14 @@
         document.getElementById('login-form').hidden = st.needs_bootstrap;
         document.getElementById('demo-hint').hidden = st.live_db || st.db_missing;
         document.getElementById('db-missing').hidden = !st.db_missing;
+        if (st.db_missing && st.diag) {
+          const d = st.diag;
+          const box = document.getElementById('db-missing');
+          box.insertAdjacentHTML('beforeend', '<div style="margin-top:10px; padding-top:10px; border-top:1px solid #fecaca;"><b>Chẩn đoán tự động:</b><ul style="margin:6px 0 0 18px; padding:0;">' +
+            (d.hints || []).map(h => '<li>' + esc(h) + '</li>').join('') + '</ul>' +
+            '<div class="hint" style="margin-top:6px; color:#7f1d1d;">Biến SUPABASE bản deploy nhận được: ' + (d.supabase_vars.length ? d.supabase_vars.map(esc).join(', ') : '(không có)') +
+            ' · môi trường: ' + esc(d.vercel_env || '—') + (d.db_mode ? ' · DB_MODE=' + esc(d.db_mode) : '') + '</div></div>');
+        }
         if (st.db_missing) { document.getElementById('env').textContent = 'CHƯA NỐI DATABASE'; document.getElementById('login-form').hidden = true; document.getElementById('boot-form').hidden = true; }
       } catch (e) {}
     }

@@ -1589,6 +1589,40 @@ async function test(name, fn) {
     fs10.unlinkSync(path10.join(__dirname, '..', r2.data.url));
   });
 
+  await test('Đợt 10b: đọc cấu hình Supabase chịu lỗi nhập, từ chối khóa công khai, chẩn đoán không lộ giá trị', async () => {
+    const S = require('../lib/store');
+    const R = S.resolveConfig;
+    const jwt = (role) => 'eyJhbGciOiJIUzI1NiJ9.' + Buffer.from(JSON.stringify({ role })).toString('base64url') + '.chuky';
+    let r = R({ SUPABASE_URL: ' "https://abc.supabase.co/" ', SUPABASE_SECRET_KEY: '"sb_secret_abc"\n' });
+    assert.strictEqual(r.url, 'https://abc.supabase.co'); assert.strictEqual(r.key, 'sb_secret_abc');
+    r = R({ SUPABASE_URL: 'abc.supabase.co/rest/v1', SUPABASE_SERVICE_ROLE_KEY: jwt('service_role') });
+    assert.strictEqual(r.url, 'https://abc.supabase.co'); assert.strictEqual(r.diag.key_kind, 'service_role');
+    r = R({ NEXT_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co', SUPABASE_SERVICE_KEY: 'sb_secret_x' });
+    assert.ok(r.url && r.key, 'nhận tên biến của tích hợp Supabase trên Vercel');
+    for (const bad of [{ SUPABASE_SECRET_KEY: jwt('anon') }, { SUPABASE_SECRET_KEY: 'sb_publishable_x' }, { SUPABASE_ANON_KEY: jwt('anon') }]) {
+      r = R({ SUPABASE_URL: 'https://abc.supabase.co', ...bad });
+      assert.strictEqual(r.key, '', 'không dùng khóa công khai: ' + Object.keys(bad)[0]);
+      assert.ok(r.diag.other_key_vars.length === 1 && /:(anon|publishable)$/.test(r.diag.other_key_vars[0]));
+    }
+    r = R({ SUPABASE_URL: 'ftp://sai', SUPABASE_SECRET_KEY: 'sb_secret_x' });
+    assert.strictEqual(r.url, ''); assert.strictEqual(r.diag.url_ok, false);
+    // Chẩn đoán + lời khuyên chỉ có tên biến, không có giá trị
+    const saved = { DB_MODE: process.env.DB_MODE, VERCEL_ENV: process.env.VERCEL_ENV, K: process.env.SUPABASE_ANON_KEY };
+    try {
+      process.env.DB_MODE = ''; process.env.VERCEL_ENV = 'production'; process.env.SUPABASE_ANON_KEY = jwt('anon');
+      const h = await call('health');
+      assert.strictEqual(h.status, 503);
+      assert.ok(Array.isArray(h.data.hints) && h.data.hints.some(x => /SUPABASE_URL/.test(x)), JSON.stringify(h.data.hints));
+      const st = await call('admin', { query: { action: 'status' } });
+      assert.ok(st.data.diag && Array.isArray(st.data.diag.hints));
+      assert.ok(!JSON.stringify(st.data).includes(process.env.SUPABASE_ANON_KEY), 'không lộ giá trị khóa');
+    } finally {
+      process.env.DB_MODE = saved.DB_MODE;
+      if (saved.VERCEL_ENV === undefined) delete process.env.VERCEL_ENV; else process.env.VERCEL_ENV = saved.VERCEL_ENV;
+      if (saved.K === undefined) delete process.env.SUPABASE_ANON_KEY; else process.env.SUPABASE_ANON_KEY = saved.K;
+    }
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);
