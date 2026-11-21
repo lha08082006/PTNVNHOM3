@@ -518,7 +518,7 @@
         const sel = document.createElement('select');
         sel.className = 'date-more' + (selectedDate > last ? ' on' : '');
         sel.setAttribute('aria-label', 'Chọn ngày khác');
-        sel.innerHTML = (selectedDate > last ? '' : '<option value="">Ngày khác ▾</option>') +
+        sel.innerHTML = (selectedDate > last ? '' : '<option value="">Ngày khác</option>') +
           later.map(d => { const l = label(d); return `<option value="${d}" ${d === selectedDate ? 'selected' : ''}>${l.dow} ${l.dm}</option>`; }).join('');
         sel.onchange = () => { if (!sel.value) return; selectedDate = sel.value; renderDates(); loadShowtimes(); };
         box.appendChild(sel);
