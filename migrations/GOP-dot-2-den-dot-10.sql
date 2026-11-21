@@ -356,4 +356,7 @@ on conflict (id) do update set public = true, file_size_limit = excluded.file_si
 
 commit;
 
--- Xong. Mở <tên-miền>/api/catalog?action=showtimes&days=1 phải trả danh sách suất chiếu (không còn "Hệ thống đang bận").
+-- Nhắc API của Supabase (PostgREST) nạp lại danh sách bảng / cột mới ngay
+notify pgrst, 'reload schema';
+
+-- Xong. Mở <tên-miền>/api/health?schema=1 phải thấy "schema":{"ok":true…}; <tên-miền>/api/catalog?action=showtimes&days=1 phải trả danh sách suất chiếu (không còn "Hệ thống đang bận").

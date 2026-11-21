@@ -1623,6 +1623,25 @@ async function test(name, fn) {
     }
   });
 
+  await test('Đợt 10d: tự kiểm tra migration – danh sách dấu hiệu khớp file migrations/, health?schema=1 và status không lỗi', async () => {
+    const Schema = require('../lib/schema-check');
+    const files = new Set(require('fs').readdirSync(require('path').join(__dirname, '..', 'migrations')));
+    for (const [file, probes] of Schema.MIGRATIONS) {
+      if (!file.startsWith('schema.sql')) assert.ok(files.has(file), 'không có file ' + file);
+      assert.ok(probes.length && probes.every(([t, c]) => /^[a-z_]+$/.test(t) && /^[a-z_,]+$/.test(c)));
+    }
+    // Mọi bảng có dấu hiệu đều có trong schema.sql (database mới tạo từ schema.sql không bị báo thiếu)
+    const schemaSql = require('fs').readFileSync(require('path').join(__dirname, '..', 'schema.sql'), 'utf8');
+    for (const [, probes] of Schema.MIGRATIONS) for (const [t] of probes) assert.ok(schemaSql.includes('create table if not exists ' + t + ' ('), 'schema.sql thiếu bảng ' + t);
+    Schema._reset();
+    const r = await Schema.check();
+    assert.strictEqual(r.ok, true); assert.deepStrictEqual(r.missing, []);
+    const h = await call('health', { query: { schema: '1' } });
+    assert.strictEqual(h.status, 200); assert.strictEqual(h.data.schema.ok, true);
+    const st = await call('admin', { query: { action: 'status' } });
+    assert.strictEqual(st.status, 200); assert.strictEqual(st.data.schema_missing, undefined);
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);
