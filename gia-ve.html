@@ -291,14 +291,15 @@
         return lo === hi ? vnd(lo) : vnd(lo) + ' – ' + vnd(hi);
       };
       try {
-        const [cn, st] = await Promise.all([Pay.catalog('cinemas'), Pay.catalog('showtimes', { days: 14 })]);
-        const shows = st.showtimes || [];
+        // Tóm tắt giá theo rạp do máy chủ tính sẵn (nhẹ, lưu đệm 5 phút) thay vì tải cả lịch 14 ngày
+        const [cn, st] = await Promise.all([Pay.catalog('cinemas'), Pay.catalog('price_summary')]);
+        const sum = Object.fromEntries((st.cinemas || []).map((x) => [x.cinema_id, x]));
         const rows = (cn.cinemas || []).map((c) => {
-          const list = shows.filter((s) => s.cinema_id === c.id);
-          const p = (k) => list.map((s) => (s.prices || {})[k]);
+          const x = sum[c.id] || { count: 0 };
+          const p = (k) => x[k] || [];
           return `<tr><td><strong>${esc(c.name)}</strong>${c.city ? '<div class="m" style="font-size:12.5px">' + esc(c.city) + '</div>' : ''}</td>` +
             `<td class="num">${range(p('standard'))}</td><td class="num">${range(p('vip'))}</td><td class="num">${range(p('sweetbox'))}</td>` +
-            `<td>${list.length}</td><td>${list.length ? `<a href="schedule.html?cinema=${encodeURIComponent(c.id)}">Lịch chiếu →</a>` : '<span class="m">Chưa có suất</span>'}</td></tr>`;
+            `<td>${x.count}</td><td>${x.count ? `<a href="schedule.html?cinema=${encodeURIComponent(c.id)}">Lịch chiếu →</a>` : '<span class="m">Chưa có suất</span>'}</td></tr>`;
         });
         $('gv-cinemas').innerHTML = rows.join('') || '<tr><td colspan="6" class="m">Chưa có rạp nào.</td></tr>';
       } catch (e) {

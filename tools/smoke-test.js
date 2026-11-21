@@ -1740,6 +1740,20 @@ async function test(name, fn) {
     assert.ok(pub.length === 2 && pub.every(s => s.prices.standard === 55000 && s.room === 'Phòng 07'), JSON.stringify(pub));
   });
 
+  await test('Đợt 10h: price_summary (trang Giá vé) khớp số suất và khoảng giá tính từ lịch 14 ngày', async () => {
+    const full = (await call('catalog', { query: { action: 'showtimes', days: '14' } })).data.showtimes;
+    const sum = await call('catalog', { query: { action: 'price_summary' } });
+    assert.strictEqual(sum.status, 200);
+    assert.ok(sum.data.cinemas.length > 0);
+    for (const x of sum.data.cinemas) {
+      const list = full.filter(s => s.cinema_id === x.cinema_id);
+      assert.strictEqual(x.count, list.length, x.cinema_id);
+      const v = list.map(s => s.prices.standard).filter(n => n > 0);
+      assert.deepStrictEqual(x.standard, v.length ? [Math.min(...v), Math.max(...v)] : null);
+    }
+    assert.ok(JSON.stringify(sum.data).length * 5 < JSON.stringify(full).length, 'nhẹ hơn nhiều so với cả lịch');
+  });
+
   await test('Đợt 10h: health?schema=1 kèm chẩn đoán thanh toán SePay – chỉ đúng/sai, không lộ khóa', async () => {
     const saved = { w: process.env.SEPAY_WEBHOOK_KEY, a: process.env.SEPAY_API_KEY };
     try {
