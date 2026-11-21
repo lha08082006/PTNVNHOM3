@@ -1,5 +1,6 @@
 // tools/page-test.js - Kiểm thử giao diện: mọi trang mở không lỗi JS, không tràn ngang trên điện thoại.
 // Chạy: npm run test:pages   (cần Chrome/Edge; đặt CHROME_PATH nếu không tự tìm thấy - không có thì bỏ qua)
+// PAGE_BASE=https://<tên-miền> : kiểm tra thẳng web thật (chỉ mở trang xem, không gửi form) thay vì server bộ nhớ trong.
 // Ý tưởng lấy từ tests/e2e.test.js của nhánh GitHub, viết lại bằng puppeteer-core cho kiến trúc hiện tại.
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -34,7 +35,7 @@ async function startServer() {
   const chrome = findChrome();
   if (!chrome) { console.log('Bỏ qua kiểm thử giao diện: không tìm thấy Chrome/Edge (đặt CHROME_PATH).'); return; }
   const puppeteer = require('puppeteer-core');
-  const srv = await startServer();
+  const srv = process.env.PAGE_BASE ? { url: process.env.PAGE_BASE.replace(/\/*$/, '/'), stop: () => {} } : await startServer();
   const browser = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox'] });
   const fails = [];
   try {
@@ -52,7 +53,7 @@ async function startServer() {
         page.on('console', m => { if (m.type() === 'error' && /Content Security Policy|Refused to (load|execute|connect|frame|apply)/i.test(m.text())) errs.push('CSP: ' + m.text().slice(0, 200)); });
         page.on('dialog', d => d.dismiss());
         try {
-          await page.goto(srv.url + file, { waitUntil: 'networkidle2', timeout: 20000 });
+          await page.goto(srv.url + file, { waitUntil: 'networkidle2', timeout: process.env.PAGE_BASE ? 60000 : 20000 });
           await new Promise(r => setTimeout(r, 300));
           if (errs.length) fails.push(`${label} ${file}: lỗi JS – ${errs[0]}`);
           if (label === 'mobile') {
