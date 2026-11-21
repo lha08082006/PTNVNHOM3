@@ -505,6 +505,8 @@
         btn.onclick = () => { selectedDate = date; renderDates(); loadShowtimes(); };
         box.appendChild(btn);
       }
+      const on = box.querySelector('.date-btn.b');
+      if (on) box.scrollLeft = Math.max(0, on.offsetLeft - box.offsetLeft - 40);
     }
 
     function updateSummary() {

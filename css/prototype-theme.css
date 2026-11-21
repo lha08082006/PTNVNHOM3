@@ -1599,6 +1599,21 @@ body.has-dock .betabot-fab { bottom: 84px; }
   .quick-buy .qb-go { grid-column: 1 / -1; }
 }
 
+/* Đợt 10: ô nhập dùng chung (.form-input) – trước đây chưa có kiểu, hiện ô mặc định của trình duyệt */
+.form-input {
+  width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 14px;
+  border: 1.5px solid #cbd5e1; border-radius: 10px; background: #fff; color: #0f172a;
+  font: 500 15px/1.4 'Be Vietnam Pro', system-ui, sans-serif;
+}
+.form-input::placeholder { color: #64748b; }
+.form-input:focus { border-color: #005198; box-shadow: 0 0 0 3px rgba(0, 81, 152, .12); outline: none; }
+textarea.form-input { min-height: 110px; resize: vertical; }
+@media (max-width: 640px) { .form-input { font-size: 16px; } } /* iPhone không tự phóng to khi chạm ô nhập */
+
+/* Đợt 10: dải ngày trang Đặt vé vuốt ngang (trước đây 30 ngày xếp thành lưới dài 2 màn hình) */
+#date-selector { display: flex !important; flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: thin; padding-bottom: 6px; scroll-behavior: smooth; }
+#date-selector .date-btn { flex: 0 0 auto; }
+
 /* Máy tính bảng: lưới phim 3 cột */
 @media (min-width: 700px) and (max-width: 1024px) {
   #movie-grid.grid-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }

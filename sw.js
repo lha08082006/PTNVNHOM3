@@ -4,7 +4,7 @@
 //   - /api/*: KHÔNG lưu (đơn, thanh toán luôn lấy trực tiếp; vé offline do pay-client.js lưu ở localStorage)
 // Vercel bật cleanUrls (/ticket.html -> /ticket) nên trang được lưu theo khóa đã chuẩn hóa: bỏ ".html", "/" = "/home".
 // Đổi VERSION khi đổi danh sách PRECACHE để xóa bộ nhớ đệm cũ.
-const VERSION = 'beta-v3'; // Đợt 8: đầu trang / CSS mới -> tải lại toàn bộ CSS, JS
+const VERSION = 'beta-v4'; // Đợt 10: site-chrome (báo bảo trì, đối tác thanh toán), CSS ô nhập -> tải lại CSS, JS
 const PAGES = ['/home.html', '/account.html', '/ticket.html', '/order.html', '/offline.html'];
 const ASSETS = [
   '/css/prototype-theme.css', '/css/icons.css',

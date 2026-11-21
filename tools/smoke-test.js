@@ -1501,6 +1501,94 @@ async function test(name, fn) {
     assert.ok(sm.body.includes('/rap</loc>') && sm.body.includes('/rap?id=beta-my-dinh</loc>'), sm.body.slice(0, 400));
   });
 
+  // ======================= Đợt 10: chốt an toàn database, banner, tải ảnh =======================
+  await test('Đợt 10: web thật chưa nối database -> khóa đặt vé / đăng ký / webhook, health 503, admin báo, không có khóa demo', async () => {
+    const dispatch = require('../api/[route]');
+    const S10 = require('../lib/store');
+    const via = async (route, { method = 'GET', query = {}, body = {} } = {}) => {
+      let status = 200, data;
+      const res = { headers: {}, statusCode: 200, setHeader(k, v) { this.headers[k] = v; }, status(c) { status = c; return this; }, json(d) { data = d; return this; }, end() {} };
+      await dispatch({ method, query: { route, ...query }, body, headers: { 'x-forwarded-for': '10.9.9.' + Math.floor(Math.random() * 200) } }, res);
+      return { status, data, headers: res.headers };
+    };
+    const saved = { DB_MODE: process.env.DB_MODE, VERCEL_ENV: process.env.VERCEL_ENV };
+    try {
+      assert.strictEqual(S10.dbMissing(), false, 'chạy thử ở máy không bị khóa');
+      process.env.DB_MODE = ''; process.env.VERCEL_ENV = 'production';
+      assert.strictEqual(S10.dbMissing(), true);
+      for (const [route, opt] of [['create-order', { method: 'POST', body: { showtime_id: 'x', seats: ['A1'] } }], ['auth', { method: 'POST', query: { action: 'register' } }],
+        ['sepay-webhook', { method: 'POST', body: {} }], ['cron', {}], ['admin', { method: 'POST', query: { action: 'login' } }]]) {
+        const r = await via(route, opt);
+        assert.strictEqual(r.status, 503, route + ' ' + JSON.stringify(r.data));
+        assert.strictEqual(r.data.code, 'DB_MISSING');
+      }
+      const h = await via('health');
+      assert.strictEqual(h.status, 503); assert.strictEqual(h.data.db, 'missing');
+      assert.strictEqual((await via('catalog', { query: { action: 'movies' } })).status, 200, 'vẫn xem được lịch chiếu');
+      const st = await via('admin', { query: { action: 'status' } });
+      assert.strictEqual(st.status, 200); assert.strictEqual(st.data.db_missing, true); assert.strictEqual(st.data.live_db, false);
+      assert.strictEqual(require('../lib/api-util').adminKey(), null, 'không có khóa demo beta-admin trên web thật');
+    } finally {
+      process.env.DB_MODE = saved.DB_MODE; if (saved.VERCEL_ENV === undefined) delete process.env.VERCEL_ENV; else process.env.VERCEL_ENV = saved.VERCEL_ENV;
+    }
+    assert.strictEqual(S10.dbMissing(), false);
+    assert.strictEqual((await call('health')).data.mode, 'mock');
+  });
+
+  await test('Đợt 10: banner trang chủ – lưu, kiểm tra dữ liệu, thời hạn, thứ tự, xóa, phân quyền', async () => {
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const ok = (r) => { assert.strictEqual(r.status, 200, JSON.stringify(r.data)); return r.data.banner; };
+    assert.strictEqual((await cs.post({ action: 'banner_save', title: 'Cấm', image: 'images/a.webp' })).status, 403);
+    const b2 = ok(await ql.post({ action: 'banner_save', title: 'Banner hai', image: 'images/t3.webp', link: 'tin-tuc.html?id=thu-ba-vui-ve', sort: 2 }));
+    const b1 = ok(await ql.post({ action: 'banner_save', title: 'Banner một', image: 'https://cdn.example.vn/b1.webp', image_mobile: 'images/b1-m.webp', link: 'phim/suzume', sort: 1 }));
+    ok(await ql.post({ action: 'banner_save', title: 'Chưa tới ngày', image: 'images/x.webp', starts_at: '2099-01-01' }));
+    ok(await ql.post({ action: 'banner_save', title: 'Đã hết hạn', image: 'images/x.webp', starts_at: '2020-01-01', ends_at: '2020-01-31' }));
+    ok(await ql.post({ action: 'banner_save', title: 'Đang tắt', image: 'images/x.webp', active: false }));
+    for (const bad of [{ image: 'javascript:alert(1)' }, { image: 'http://khong-an-toan.vn/a.jpg' }, { link: 'javascript:alert(1)' }, { link: 'https://x.vn/"><script>' },
+      { starts_at: '2026-12-10', ends_at: '2026-12-01' }, { title: 'A' }, { starts_at: 'ngay-mai' }]) {
+      const r = await ql.post({ action: 'banner_save', title: 'Banner lỗi', image: 'images/x.webp', ...bad });
+      assert.strictEqual(r.status, 400, JSON.stringify(bad) + ' -> ' + JSON.stringify(r.data));
+    }
+    let pub = (await call('catalog', { query: { action: 'banners' } })).data.banners;
+    assert.deepStrictEqual(pub.map(b => b.title), ['Banner một', 'Banner hai'], 'chỉ banner đang bật, trong hạn, theo thứ tự');
+    assert.strictEqual(pub[0].image_mobile, 'images/b1-m.webp');
+    // Ngày theo giờ Việt Nam: "đến hết ngày" = 23:59:59 +07:00
+    const e = ok(await ql.post({ action: 'banner_save', id: b2.id, title: 'Banner hai', image: 'images/t3.webp', ends_at: '2099-12-31' }));
+    assert.strictEqual(e.ends_at, new Date('2099-12-31T23:59:59+07:00').toISOString());
+    assert.strictEqual((await ql.get('banner_list')).data.banners.length, 5);
+    assert.strictEqual((await ql.post({ action: 'banner_delete', id: b1.id })).status, 200);
+    pub = (await call('catalog', { query: { action: 'banners' } })).data.banners;
+    assert.deepStrictEqual(pub.map(b => b.title), ['Banner hai']);
+  });
+
+  await test('Đợt 10: tải ảnh lên – chỉ nhận ảnh thật, giới hạn dung lượng, chỉ Quản lý danh mục', async () => {
+    const fs10 = require('fs'), path10 = require('path');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const cs = asStaff(await staffLogin('cskh@beta.local'));
+    const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+    assert.strictEqual((await cs.post({ action: 'media_upload', kind: 'poster', data: PNG })).status, 403);
+    const r = await ql.post({ action: 'media_upload', kind: 'poster', data: PNG });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.ok(/^images\/uploads\/poster\/\d{6}\/[a-f0-9]{16}\.png$/.test(r.data.url), r.data.url);
+    const file = path10.join(__dirname, '..', r.data.url);
+    assert.ok(fs10.existsSync(file));
+    fs10.unlinkSync(file);
+    // Đổi tên đuôi không lừa được: nội dung không phải ảnh
+    const fake = 'data:image/png;base64,' + Buffer.from('<script>alert(1)</script>').toString('base64');
+    assert.strictEqual((await ql.post({ action: 'media_upload', kind: 'poster', data: fake })).status, 400);
+    const big = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(2.6 * 1024 * 1024)]);
+    assert.strictEqual((await ql.post({ action: 'media_upload', kind: 'poster', data: 'data:image/png;base64,' + big.toString('base64') })).status, 413);
+    assert.strictEqual((await ql.post({ action: 'media_upload', kind: 'virus', data: PNG })).status, 400);
+    assert.strictEqual((await ql.post({ action: 'media_upload', kind: 'poster', data: 'khong-phai-anh' })).status, 400);
+    // Ảnh vừa tải dùng được ngay cho phim / banner
+    const r2 = await ql.post({ action: 'media_upload', kind: 'banner', data: PNG });
+    const bn = await ql.post({ action: 'banner_save', title: 'Banner ảnh tải lên', image: r2.data.url });
+    assert.strictEqual(bn.status, 200, JSON.stringify(bn.data));
+    await ql.post({ action: 'banner_delete', id: bn.data.banner.id });
+    fs10.unlinkSync(path10.join(__dirname, '..', r2.data.url));
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

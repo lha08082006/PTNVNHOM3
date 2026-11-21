@@ -430,7 +430,7 @@
 
           <!-- QR Code Frame Động -->
           <div class="qr-frame">
-            <img id="underpay-qr-img" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Mã VietQR chuyển bù" style="visibility: hidden;">
+            <img id="underpay-qr-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Mã VietQR chuyển bù" style="visibility: hidden;">
           </div>
 
           <!-- Danh sách thông tin chuyển bù kèm nút Sao chép -->
@@ -582,6 +582,16 @@
 
     const params = new URLSearchParams(window.location.search);
     let orderCode = (params.get('order') || '').toUpperCase();
+    // Đợt 10: mở trang mà không có mã đơn -> không hiện số liệu mẫu, hướng khách đi tra cứu
+    function showMissingOrder() {
+      const main = document.querySelector('main') || document.body;
+      main.innerHTML = '<section style="max-width: 520px; margin: 40px auto; padding: 28px 22px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; text-align: center;">' +
+        '<h1 style="font-size: 22px; color: #005198; margin: 0 0 8px;">Thiếu mã đơn hàng</h1>' +
+        '<p style="color: #475569; margin: 0 0 18px; line-height: 1.6;">Trang này mở từ một đơn hàng cụ thể. Nhập mã đơn (BC…) để tra cứu, hoặc xem lịch sử đặt vé trong tài khoản.</p>' +
+        '<div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;"><a class="btn btn-primary" href="order.html">Tra cứu đơn hàng</a><a class="btn btn-outline" href="account.html">Tài khoản của tôi</a></div></section>';
+    }
+    // Chạy sau khi các đoạn mã còn lại của trang đã gắn sự kiện xong (chúng tìm phần tử trong <main>)
+    if (!orderCode) document.addEventListener('DOMContentLoaded', showMissingOrder);
     let total = Number(params.get('total') || 179000);
     let currentPaid = Number(params.get('paid') || Math.max(50000, total - 79000));
     let currentRemaining = Number(params.get('remaining') || (total - currentPaid));

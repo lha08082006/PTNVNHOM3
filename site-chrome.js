@@ -304,8 +304,66 @@
   }
   if (!/\/admin\.html$/.test(location.pathname)) pwa();
 
+  // ---------------------------------------------------------------------------
+  // Đợt 10: trang thiếu css/icons.css (nút ☰ / tìm kiếm thành ô trống) -> tự thêm
+  // ---------------------------------------------------------------------------
+  function ensureIcons() {
+    if (document.querySelector('link[href$="icons.css"]')) return;
+    var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '/css/icons.css'; document.head.appendChild(l);
+  }
+
+  // Đợt 10: web thật chưa nối database (máy chủ khóa đặt vé) -> báo cho khách ngay đầu trang
+  function maintenance() {
+    var show = function (missing) {
+      if (!missing || document.getElementById('maint-bar')) return;
+      var bar = document.createElement('div');
+      bar.id = 'maint-bar';
+      bar.setAttribute('role', 'alert');
+      bar.style.cssText = 'background:#b91c1c;color:#fff;padding:10px 14px;text-align:center;font:700 14px/1.45 "Be Vietnam Pro",system-ui,sans-serif';
+      bar.textContent = 'Đặt vé online đang tạm ngưng để bảo trì. Bạn vẫn xem được lịch chiếu; vui lòng mua vé tại quầy hoặc quay lại sau.';
+      document.body.insertBefore(bar, document.body.firstChild);
+    };
+    try {
+      var c = JSON.parse(sessionStorage.getItem('BETA_HEALTH') || 'null');
+      if (c && Date.now() - c.at < 5 * 60 * 1000) return show(c.missing);
+    } catch (e) { /* bỏ qua */ }
+    fetch(apiBase() + 'health', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+      var missing = !!(j && j.db === 'missing');
+      try { sessionStorage.setItem('BETA_HEALTH', JSON.stringify({ at: Date.now(), missing: missing })); } catch (e) { /* bỏ qua */ }
+      show(missing);
+    }).catch(function () { /* mất mạng: không báo */ });
+  }
+
+  // Đợt 10: chân trang chỉ ghi cổng thanh toán đang thật sự bật (VietQR luôn có; VNPay / MoMo / ZaloPay khi đã cấu hình)
+  function partners() {
+    var h = [].slice.call(document.querySelectorAll('.footer-official-title')).find(function (x) { return /ĐỐI TÁC THANH TOÁN/i.test(x.textContent); });
+    var box = h && h.nextElementSibling;
+    if (!box) return;
+    var STY = { VNPAY: ['VNPAY-QR', 'background:#fff;color:#005198'], MOMO: ['MoMo', 'background:#a50064;color:#fff'], ZALOPAY: ['ZaloPay', 'background:#0068ff;color:#fff'] };
+    var got;
+    try { var c = JSON.parse(sessionStorage.getItem('BETA_PAY_METHODS') || 'null'); if (c && Date.now() - c.at < TTL) got = Promise.resolve(c.list); } catch (e) { /* bỏ qua */ }
+    if (!got) got = fetch(apiBase() + 'pay?action=methods').then(function (r) { return r.json(); }).then(function (j) {
+      var list = (j && j.methods) || [];
+      try { sessionStorage.setItem('BETA_PAY_METHODS', JSON.stringify({ at: Date.now(), list: list })); } catch (e) { /* bỏ qua */ }
+      return list;
+    });
+    got.then(function (list) {
+      list.forEach(function (m) {
+        var s = STY[m.id];
+        if (!s || box.querySelector('[data-pm="' + m.id + '"]')) return;
+        var b = document.createElement('span');
+        b.setAttribute('data-pm', m.id);
+        b.style.cssText = s[1] + ';padding:4px 8px;border-radius:4px;font-size:12px;font-weight:800';
+        b.textContent = s[0];
+        box.appendChild(b);
+      });
+    }).catch(function () { /* giữ VietQR */ });
+  }
+
   function run() {
+    ensureIcons();
     headerTools();
+    if (!/\/admin(\.html)?$/.test(location.pathname)) { maintenance(); partners(); }
     loadCinemas().then(apply).catch(function () { /* giữ nội dung tĩnh khi mất mạng */ });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);

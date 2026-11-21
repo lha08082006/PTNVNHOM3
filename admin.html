@@ -61,6 +61,9 @@
     .who .role { padding: 2px 9px; border-radius: 999px; background: #334155; font-weight: 700; font-size: 12px; }
     .who button { background: transparent; border: 1px solid #334155; color: #cbd5e1; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12px; cursor: pointer; }
     .who button:hover { background: #1e293b; }
+    .up-row { display: flex; gap: 6px; align-items: stretch; }
+    .up-row input { flex: 1; min-width: 0; }
+    .up-row .btn { white-space: nowrap; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; align-items: end; }
     .form-grid label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
     tr.inactive td { opacity: .55; }
@@ -163,6 +166,11 @@
         <input aria-label="Mật khẩu (≥ 8 ký tự)" id="bt-pass" type="password" placeholder="Mật khẩu (≥ 8 ký tự)" minlength="8" style="width: 100%; margin-bottom: 10px;" required>
         <button class="btn primary" style="width: 100%;">Tạo tài khoản Quản lý</button>
       </form>
+      <div id="db-missing" hidden role="alert" style="background:#fef2f2; border:1.5px solid #fca5a5; color:#991b1b; border-radius:10px; padding:12px 14px; margin:0 0 12px; font-size:14px; line-height:1.55;">
+        <b>Web thật chưa nối database (Supabase).</b> Đặt vé, đăng ký và thanh toán đang bị khóa để không nhận tiền vào bộ nhớ tạm.
+        Vào Vercel → Settings → Environment Variables (Production): đặt <span class="mono">SUPABASE_URL</span> (https://…supabase.co) và
+        <span class="mono">SUPABASE_SECRET_KEY</span> (khóa secret / service_role), xóa <span class="mono">DB_MODE</span> nếu có, rồi bấm Redeploy.
+      </div>
       <p class="hint" id="demo-hint" hidden>Chạy thử (bộ nhớ trong): <span class="mono">quanly@ · ketoan@ · cskh@ · quay@beta.local</span>, mật khẩu <span class="mono">beta-admin</span>.</p>
       <div id="login-err" style="color: #b91c1c; margin-top: 8px;"></div>
     </div>
@@ -372,7 +380,7 @@
             <label>Thời lượng (phút)<input id="mv-dur" type="number" min="1"></label>
             <label>Trạng thái<select id="mv-status"></select></label>
             <label>Thể loại · thời lượng · ngôn ngữ<input id="mv-meta"></label>
-            <label>Ảnh poster (đường dẫn)<input id="mv-poster" placeholder="images/..."></label>
+            <label>Ảnh poster (đường dẫn hoặc tải lên)<span class="up-row"><input id="mv-poster" placeholder="images/..."><button type="button" class="btn up-btn" onclick="uploadImage('mv-poster', 'poster', 800, 1200)"><i class="ph-upload-simple" aria-hidden="true"></i> Tải ảnh</button></span></label>
             <label>Định dạng<input id="mv-format" placeholder="2D Phụ đề Tiếng Việt"></label>
             <label>Nhãn định dạng<input id="mv-badge" placeholder="2D PHỤ ĐỀ"></label>
             <label>Thể loại<input id="mv-genre" placeholder="Hành động, Giả tưởng"></label>
@@ -409,13 +417,32 @@
         </div>
       </div>
 
+      <!-- Đợt 10: banner trang chủ -->
+      <div class="card">
+        <h2>Banner trang chủ <small>kích thước chuẩn 1702 × 621 px; chưa có banner nào đang hiển thị thì trang chủ dùng 3 ảnh mặc định</small></h2>
+        <form class="form-grid" id="bn-form" onsubmit="event.preventDefault(); saveBanner()" style="margin-bottom: 12px;">
+          <input type="hidden" id="bn-id">
+          <label>Tiêu đề (chữ thay thế cho ảnh)<input id="bn-title" required maxlength="120" placeholder="Thứ Ba vui vẻ – vé từ 40.000 đ"></label>
+          <label>Ảnh máy tính (1702 × 621)<span class="up-row"><input id="bn-image" required placeholder="https://… hoặc images/…"><button type="button" class="btn up-btn" onclick="uploadImage('bn-image', 'banner', 1702, 1000)"><i class="ph-upload-simple" aria-hidden="true"></i> Tải ảnh</button></span></label>
+          <label>Ảnh điện thoại (tùy chọn)<span class="up-row"><input id="bn-image-m" placeholder="để trống = dùng ảnh máy tính"><button type="button" class="btn up-btn" onclick="uploadImage('bn-image-m', 'banner', 900, 900)"><i class="ph-upload-simple" aria-hidden="true"></i> Tải ảnh</button></span></label>
+          <label>Bấm vào mở trang<input id="bn-link" placeholder="phim/suzume hoặc tin-tuc.html?id=thu-ba-vui-ve"></label>
+          <label>Thứ tự (số nhỏ hiện trước)<input id="bn-sort" type="number" min="0" max="99" value="0"></label>
+          <label>Hiện từ ngày<input id="bn-start" type="date"></label>
+          <label>Đến hết ngày<input id="bn-end" type="date"></label>
+          <label>Trạng thái<select id="bn-active"><option value="true">Đang bật</option><option value="false">Tắt</option></select></label>
+          <div class="row-actions" style="grid-column: 1 / -1;"><button class="btn primary">Lưu banner</button><button type="button" class="btn" onclick="resetBannerForm()">Banner mới</button>
+            <img id="bn-preview" alt="" hidden style="height: 54px; border-radius: 6px; border: 1px solid #e2e8f0; margin-left: 8px;"></div>
+        </form>
+        <div id="bn-table"></div>
+      </div>
+
       <div class="card">
         <h2>Tin tức & ưu đãi <small>hiện ở trang chủ, trang Tin mới & ưu đãi và trang phim (nếu gắn phim)</small></h2>
         <form class="form-grid" id="ps-form" onsubmit="event.preventDefault(); savePost()" style="margin-bottom: 12px;">
           <input type="hidden" id="ps-id">
           <label>Tiêu đề<input id="ps-title" required maxlength="160"></label>
           <label>Loại<select id="ps-type"><option value="PROMO">Ưu đãi</option><option value="NEWS">Tin mới</option><option value="EVENT">Sự kiện</option></select></label>
-          <label>Ảnh (images/… hoặc https://)<input id="ps-image" placeholder="images/t3.webp"></label>
+          <label>Ảnh (images/… / https:// hoặc tải lên)<span class="up-row"><input id="ps-image" placeholder="images/t3.webp"><button type="button" class="btn up-btn" onclick="uploadImage('ps-image', 'post', 1600, 1000)"><i class="ph-upload-simple" aria-hidden="true"></i> Tải ảnh</button></span></label>
           <label>Gắn với phim<select id="ps-movie"></select></label>
           <label>Gắn với rạp<select id="ps-cinema"></select></label>
           <label>Hiện từ<input id="ps-start" type="datetime-local"></label>
@@ -454,7 +481,7 @@
           <label>Vĩ độ (lat)<input id="cn-lat" type="number" step="0.0001" placeholder="21.0005"></label>
           <label>Kinh độ (lng)<input id="cn-lng" type="number" step="0.0001" placeholder="105.8148"></label>
           <label>Hotline rạp<input id="cn-phone" placeholder="0824 812 878"></label>
-          <label>Ảnh rạp (link https:// hoặc images/…)<input id="cn-image" placeholder="images/rap-thanh-xuan.webp"></label>
+          <label>Ảnh rạp (link https:// / images/… hoặc tải lên)<span class="up-row"><input id="cn-image" placeholder="images/rap-thanh-xuan.webp"><button type="button" class="btn up-btn" onclick="uploadImage('cn-image', 'cinema', 1600, 1000)"><i class="ph-upload-simple" aria-hidden="true"></i> Tải ảnh</button></span></label>
           <label>Tiện ích (cách nhau dấu phẩy)<input id="cn-amenities" placeholder="Bãi gửi xe, Thang máy, Ghế đôi, Thanh toán VietQR"></label>
           <label style="grid-column: 1 / -1;">Giới thiệu rạp (hiện ở trang Rạp)<textarea id="cn-intro" rows="2" maxlength="2000"></textarea></label>
           <label>Hoạt động<select id="cn-active"><option value="true">Có</option><option value="false">Tạm đóng</option></select></label>
@@ -858,7 +885,9 @@
         document.getElementById('env').textContent = st.live_db ? 'Supabase (dữ liệu thật)' : 'Bộ nhớ trong (chạy thử)';
         document.getElementById('boot-form').hidden = !st.needs_bootstrap;
         document.getElementById('login-form').hidden = st.needs_bootstrap;
-        document.getElementById('demo-hint').hidden = st.live_db;
+        document.getElementById('demo-hint').hidden = st.live_db || st.db_missing;
+        document.getElementById('db-missing').hidden = !st.db_missing;
+        if (st.db_missing) { document.getElementById('env').textContent = 'CHƯA NỐI DATABASE'; document.getElementById('login-form').hidden = true; document.getElementById('boot-form').hidden = true; }
       } catch (e) {}
     }
 
@@ -1108,6 +1137,86 @@
     const deleteHoliday = (date) => act(async () => { await post('holiday_delete', { date }); await loadPricing(); });
 
     // ---------- Tin tức & ưu đãi ----------
+    // ===== Đợt 10: tải ảnh lên (thu nhỏ trên trình duyệt trước khi gửi) =====
+    function shrinkImage(file, maxW, maxH) {
+      return new Promise((ok, no) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const k = Math.min(1, maxW / img.naturalWidth, maxH / img.naturalHeight);
+          const c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          let d = c.toDataURL('image/webp', 0.85);
+          if (!d.startsWith('data:image/webp')) d = c.toDataURL('image/jpeg', 0.85);
+          ok(d);
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); no(new Error('Không đọc được tệp ảnh (chỉ nhận JPG, PNG, WebP)')); };
+        img.src = url;
+      });
+    }
+    function uploadImage(inputId, kind, maxW, maxH) {
+      const pick = document.createElement('input');
+      pick.type = 'file'; pick.accept = 'image/jpeg,image/png,image/webp';
+      pick.onchange = async () => {
+        const file = pick.files && pick.files[0];
+        if (!file) return;
+        const btn = document.getElementById(inputId).parentElement.querySelector('.up-btn');
+        try {
+          if (file.size > 15 * 1024 * 1024) throw new Error('Ảnh gốc quá lớn (tối đa 15 MB)');
+          if (btn) { btn.disabled = true; btn.textContent = 'Đang tải…'; }
+          const data = await shrinkImage(file, maxW, maxH);
+          const r = await post('media_upload', { kind, data });
+          document.getElementById(inputId).value = r.url;
+          document.getElementById(inputId).dispatchEvent(new Event('input'));
+        } catch (e) { alert(e.message); }
+        finally { if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ph-upload-simple" aria-hidden="true"></i> Tải ảnh'; } }
+      };
+      pick.click();
+    }
+
+    // ===== Đợt 10: banner trang chủ =====
+    let BANNERS = [];
+    const ymdVN = (iso) => iso ? new Date(new Date(iso).getTime() + 7 * 3600e3).toISOString().slice(0, 10) : '';
+    async function loadBanners() {
+      const r = await api('admin?action=banner_list');
+      BANNERS = r.banners;
+      const now = new Date().toISOString();
+      const state = (b) => !b.active ? pill('Tắt', 'muted') : (b.ends_at && b.ends_at < now) ? pill('Hết hạn', 'muted') : (b.starts_at && b.starts_at > now) ? pill('Chờ hiển thị', 'info') : pill('Đang hiển thị', 'ok');
+      document.getElementById('bn-table').innerHTML = BANNERS.length ? `<table><thead><tr><th>Ảnh</th><th>Banner</th><th>Thời hạn</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
+        BANNERS.map(b => `<tr><td><img src="${esc(b.image)}" alt="" style="height: 44px; border-radius: 6px; max-width: 130px; object-fit: cover;"></td>
+          <td><b>${esc(b.title)}</b><div class="hint">Thứ tự ${b.sort}${b.link ? ' · mở ' + esc(b.link) : ''}${b.image_mobile ? ' · có ảnh điện thoại' : ''}</div></td>
+          <td class="hint">${b.starts_at ? ymdVN(b.starts_at) : '—'}<br>${b.ends_at ? '→ ' + ymdVN(b.ends_at) : ''}</td><td>${state(b)}</td>
+          <td class="row-actions"><button class="btn" onclick="editBanner('${esc(b.id)}')">Sửa</button><button class="btn danger" onclick="deleteBanner('${esc(b.id)}')">Xóa</button></td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty">Chưa có banner – trang chủ đang dùng 3 ảnh mặc định.</div>';
+    }
+    function previewBanner() {
+      const v = val('bn-image'), im = document.getElementById('bn-preview');
+      im.hidden = !v; if (v) im.src = v;
+    }
+    function resetBannerForm() {
+      ['bn-id', 'bn-title', 'bn-image', 'bn-image-m', 'bn-link', 'bn-start', 'bn-end'].forEach(id => { document.getElementById(id).value = ''; });
+      document.getElementById('bn-sort').value = '0'; document.getElementById('bn-active').value = 'true';
+      previewBanner();
+    }
+    function editBanner(id) {
+      const b = BANNERS.find(x => x.id === id);
+      const set = (k, v) => { document.getElementById(k).value = v == null ? '' : v; };
+      set('bn-id', b.id); set('bn-title', b.title); set('bn-image', b.image); set('bn-image-m', b.image_mobile); set('bn-link', b.link);
+      set('bn-sort', b.sort); set('bn-start', ymdVN(b.starts_at)); set('bn-end', ymdVN(b.ends_at)); set('bn-active', String(b.active));
+      previewBanner();
+      document.getElementById('bn-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const saveBanner = () => act(async () => {
+      await post('banner_save', { id: val('bn-id') || undefined, title: val('bn-title'), image: val('bn-image'), image_mobile: val('bn-image-m'), link: val('bn-link'),
+        sort: Number(val('bn-sort')) || 0, starts_at: val('bn-start'), ends_at: val('bn-end'), active: val('bn-active') === 'true' });
+      resetBannerForm();
+      await loadBanners();
+    });
+    const deleteBanner = (id) => act(async () => { if (!confirm('Xóa banner này?')) return; await post('banner_delete', { id }); await loadBanners(); });
+    document.addEventListener('input', (e) => { if (e.target && e.target.id === 'bn-image') previewBanner(); });
+
     let POSTS = [];
     const localDT = (iso) => iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
     async function loadPosts() {
@@ -1144,6 +1253,7 @@
         published: val('ps-published') === 'true', pinned: val('ps-pinned') === 'true', summary: val('ps-summary'), body: document.getElementById('ps-body').value });
       resetPostForm();
       await loadPosts();
+      await loadBanners();
     });
     const deletePost = (id) => act(async () => { if (!confirm('Xóa bài này? Không khôi phục được.')) return; await post('post_delete', { id }); await loadPosts(); });
 

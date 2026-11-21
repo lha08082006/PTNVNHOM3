@@ -18,6 +18,8 @@ desktop.ini
 *.log
 .vercel/
 scratch/
+# Ảnh tải lên khi chạy thử ở máy (web thật lưu ở Supabase Storage)
+images/uploads/
 
 # Ảnh/HTML sinh ra từ tools/ (chạy lại bằng npm run mockups:*)
 inlined-mockups/

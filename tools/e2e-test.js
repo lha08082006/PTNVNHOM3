@@ -200,6 +200,30 @@ const expect = (cond, msg) => { if (!cond) throw new Error(msg); };
       await p.waitForSelector('.r i[data-id]', { timeout: 8000 });
     });
 
+    // ===== Đợt 10: Quản lý sửa phim + thêm banner trong admin -> trang chủ hiện đúng =====
+    await step('Quản lý đổi tên phim, thêm banner -> trang chủ hiện tên mới và banner mới', async () => {
+      await p.bringToFront();
+      await p.goto(B + '/home.html', { waitUntil: 'networkidle2' });
+      const r = await p.evaluate(async () => {
+        const j = (u, o) => fetch(u, o).then(x => x.json());
+        const lg = await j('/api/admin?action=login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'quanly@beta.local', password: 'beta-admin' }) });
+        const H = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + lg.token };
+        const cat = await j('/api/admin?action=catalog', { headers: H });
+        const m = cat.movies.find(x => x.id === 'suzume');
+        const a = await j('/api/admin', { method: 'POST', headers: H, body: JSON.stringify({ action: 'movie_save', ...m, id: 'suzume', title: 'SUZUME BẢN CHIẾU LẠI', cast: m.cast_list, status: 'SOON', release_date: '2026-12-25' }) });
+        const b = await j('/api/admin', { method: 'POST', headers: H, body: JSON.stringify({ action: 'banner_save', title: 'Banner kiểm thử Đợt 10', image: 'images/t3.webp', link: 'phim/suzume' }) });
+        return { a: a.ok, b: b.ok, err: a.error || b.error };
+      });
+      expect(r.a && r.b, 'Lưu không được: ' + r.err);
+      await p.goto(B + '/home.html', { waitUntil: 'networkidle2' });
+      await p.waitForFunction(() => [...document.querySelectorAll('#movie-grid .movie-title-official')].some(t => t.textContent.includes('SUZUME BẢN CHIẾU LẠI')), { timeout: 8000 }).catch(async (e) => { throw new Error('thẻ phim: ' + e.message + ' – ' + await p.evaluate(() => [...document.querySelectorAll('#movie-grid .movie-title-official')].map(t => t.textContent.trim()).join(' | '))); });
+      const card = await p.evaluate(() => { const c = document.querySelector('#movie-grid .movie-card[data-key="suzume"]'); return { tab: c.dataset.tab, buy: c.querySelector('.ma-buy').textContent.trim(), meta: c.querySelector('.movie-meta-official').textContent }; });
+      expect(/soon/.test(card.tab) && /Đặt trước/.test(card.buy) && /25\/12\/2026/.test(card.meta), 'Thẻ phim chưa theo admin: ' + JSON.stringify(card));
+      await p.waitForFunction(() => [...document.querySelectorAll('.slider-item img')].some(i => i.alt === 'Banner kiểm thử Đợt 10'), { timeout: 8000 }).catch(async (e) => { throw new Error('banner: ' + e.message + ' – ' + await p.evaluate(async () => [...document.querySelectorAll('.slider-item img')].map(i => i.alt).join(' | ') + ' / API: ' + JSON.stringify(await (await fetch('/api/catalog?action=banners')).json()))); });
+      const href = await p.$eval('.slider-item a', a => a.getAttribute('href'));
+      expect(href === 'phim/suzume', 'Banner chưa có link: ' + href);
+    });
+
     expect(!errors.length, 'Lỗi JavaScript: ' + errors.join(' | '));
     ok = true;
   } catch (e) {

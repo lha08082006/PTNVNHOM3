@@ -565,6 +565,16 @@
     // Khách chỉ phải điền biểu mẫu khi hệ thống không tự hoàn được trong 24 giờ.
     const params = new URLSearchParams(window.location.search);
     const orderCode = (params.get('order') || '').toUpperCase();
+    // Đợt 10: mở trang mà không có mã đơn -> không hiện số liệu mẫu, hướng khách đi tra cứu
+    function showMissingOrder() {
+      const main = document.querySelector('main') || document.body;
+      main.innerHTML = '<section style="max-width: 520px; margin: 40px auto; padding: 28px 22px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; text-align: center;">' +
+        '<h1 style="font-size: 22px; color: #005198; margin: 0 0 8px;">Thiếu mã đơn hàng</h1>' +
+        '<p style="color: #475569; margin: 0 0 18px; line-height: 1.6;">Trang này mở từ một đơn hàng cụ thể. Nhập mã đơn (BC…) để tra cứu, hoặc xem lịch sử đặt vé trong tài khoản.</p>' +
+        '<div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;"><a class="btn btn-primary" href="order.html">Tra cứu đơn hàng</a><a class="btn btn-outline" href="account.html">Tài khoản của tôi</a></div></section>';
+    }
+    // Chạy sau khi các đoạn mã còn lại của trang đã gắn sự kiện xong (chúng tìm phần tử trong <main>)
+    if (!orderCode) document.addEventListener('DOMContentLoaded', showMissingOrder);
     const trackUrl = 'order.html?code=' + encodeURIComponent(orderCode);
     const ticketBtn = document.getElementById('btn-view-ticket');
     if (ticketBtn) ticketBtn.href = 'ticket.html?order=' + encodeURIComponent(orderCode);

@@ -17,6 +17,7 @@
   11. `migrations/2026-11-28_dot-6-du-lieu-ca-nhan-2fa-email.sql` — đồng ý điều khoản, nhận email ưu đãi, xóa tài khoản; đăng nhập 2 lớp cho nhân viên; email ưu đãi theo nhóm khách
   12. `migrations/2026-11-29_dot-7-ke-toan-cskh-quay.sql` — Kế toán chốt sổ ngày; CSKH nhận xử lý phiếu, ghi chú nội bộ; chỉ mục tăng tốc màn hình Quầy
   13. `migrations/2026-11-30_dot-9-trang-rap-xep-hang.sql` — trang Rạp (hotline, ảnh, giới thiệu, tiện ích của từng rạp), chỉ mục tính phim bán chạy
+  14. `migrations/2026-12-01_dot-10-banner-kho-anh.sql` — banner trang chủ quản lý trong admin, kho ảnh "media" để tải poster / banner / ảnh rạp lên
 
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 
@@ -36,10 +37,16 @@
 | `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2` | tùy chọn | Bật nút ZaloPay (sandbox mặc định; production đặt `ZALOPAY_ENDPOINT=https://openapi.zalopay.vn`) |
 | `STAFF_REQUIRE_2FA` | nên đặt | `1` = mọi nhân viên phải bật đăng nhập 2 lớp (Google Authenticator) trước khi làm việc. Mất điện thoại: Quản lý bấm "Tắt 2 lớp" ở tab Nhân sự |
 | `ALERT_EMAILS` | tùy chọn | Email nhận cảnh báo hệ thống (cách nhau dấu phẩy). Trống → gửi cho mọi tài khoản Quản lý. Cần `RESEND_API_KEY` để gửi thật |
+| `MEDIA_BUCKET` | tùy chọn | Tên kho ảnh Supabase Storage cho admin tải ảnh (mặc định `media`, tạo sẵn bởi migration 14) |
+| `REQUIRE_DB` | tùy chọn | Chỉ cần khi chạy ngoài Vercel: `1` = bắt buộc có Supabase (giống Vercel production) |
 | `MIN_REVIEWS_SHOW` | tùy chọn | Số lượt đánh giá tối thiểu để hiện điểm ★ trên poster (mặc định 3) |
 | `INVOICE_REQUEST_HOURS` | tùy chọn | Số giờ sau khi thanh toán khách còn được gửi yêu cầu hóa đơn (mặc định 24 – Kế toán xác nhận theo quy định) |
 | `SITE_URL` | tùy chọn | Dùng cho link "Xem đơn hàng" trong email |
 | `ALLOW_SANDBOX` | **không** đặt trên production | `1` = mở `/api/simulate-payment` (vẫn cần `x-admin-key`) cho UAT |
+
+> **Chốt an toàn (Đợt 10):** trên Vercel production mà thiếu / sai `SUPABASE_URL`, `SUPABASE_SECRET_KEY` thì web **không** chạy bộ nhớ tạm nữa:
+> đăng ký, đặt vé, thanh toán, webhook bị khóa (503), trang khách hiện dải đỏ "Đặt vé online đang tạm ngưng", admin hiện hướng dẫn sửa,
+> `/api/health` trả 503 `db: "missing"` để dịch vụ giám sát báo động. Kiểm tra nhanh: mở `<tên-miền>/api/health` phải thấy `"mode":"live"`.
 
 ## 3. Kiểm tra trước khi deploy
 

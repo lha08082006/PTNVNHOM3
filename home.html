@@ -164,6 +164,7 @@
       opacity: 1;
       visibility: visible;
     }
+    .slider-item a, .slider-item picture { display: block; width: 100%; height: 100%; }
     .slider-item img {
       width: 100%;
       height: 100%;
@@ -873,8 +874,6 @@
           <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
             <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
-            <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VNPAY-QR</span>
-            <span style="background: #a50064; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">MoMo</span>
           </div>
         </div>
 
@@ -1006,8 +1005,8 @@
   <!-- Slider Carousel Script -->
   <script>
     let currentSlideIndex = 0;
-    const slides = document.querySelectorAll('.slider-item');
-    const dots = document.querySelectorAll('.slider-dot');
+    let slides = document.querySelectorAll('.slider-item');
+    let dots = document.querySelectorAll('.slider-dot');
     let autoSlideTimer = null;
 
     function showSlide(n) {
@@ -1071,6 +1070,30 @@
     updatePauseBtn();
     showSlide(0);
     startAutoSlide();
+
+    // Đợt 10: banner do Quản lý đặt ở admin > Danh mục > Banner (ảnh máy tính + ảnh điện thoại, link khi bấm)
+    window.applyBanners = function (list) {
+      if (!Array.isArray(list) || !list.length) return;
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const wrap = document.querySelector('.slider-official-wrap');
+      const before = wrap.querySelector('.slider-btn');
+      wrap.querySelectorAll('.slider-item').forEach(n => n.remove());
+      list.forEach((b, i) => {
+        const item = document.createElement('div');
+        item.className = 'slider-item';
+        const pic = `<picture>${b.image_mobile ? `<source media="(max-width: 640px)" srcset="${esc(b.image_mobile)}">` : ''}<img src="${esc(b.image)}" alt="${esc(b.title)}" width="1702" height="621" ${i ? 'loading="lazy" decoding="async"' : 'fetchpriority="high"'}></picture>`;
+        item.innerHTML = b.link ? `<a href="${esc(b.link)}">${pic}</a>` : pic;
+        wrap.insertBefore(item, before);
+      });
+      const box = wrap.querySelector('.slider-dots');
+      box.innerHTML = list.map((b, i) => `<button type="button" class="slider-dot" onclick="setSlide(${i})" aria-label="Banner ${i + 1}: ${esc(b.title)}"></button>`).join('');
+      box.hidden = list.length < 2;
+      wrap.querySelectorAll('.slider-btn.prev, .slider-btn.next, .slider-btn.pause').forEach(x => { x.hidden = list.length < 2; });
+      slides = wrap.querySelectorAll('.slider-item');
+      dots = wrap.querySelectorAll('.slider-dot');
+      showSlide(0);
+      startAutoSlide();
+    };
 
     function switchMovieTab(tab) {
       document.querySelectorAll('.movie-tab-btn').forEach(b => b.classList.remove('active'));
@@ -1289,58 +1312,59 @@
         const { movies } = await Pay.catalog('movies');
         const byKey = Object.fromEntries(movies.map(m => [m.key, m]));
         const grid = document.getElementById('movie-grid');
-        const seen = new Set();
+        // Giữ lại từ HTML tĩnh: phim nào thuộc "Suất chiếu đặc biệt" và link trailer dự phòng
+        const special = new Set(), staticTrailer = {};
         grid.querySelectorAll('.movie-card').forEach(card => {
           const a = card.querySelector('a[href*="booking.html?movie="]');
           const key = a ? new URL(a.href).searchParams.get('movie') : null;
-          const m = key && byKey[key];
-          if (!m) { card.remove(); return; }
-          seen.add(key);
-          const special = (card.getAttribute('data-tab') || '').includes('special');
-          card.setAttribute('data-tab', (m.status === 'SOON' ? 'soon' : 'now') + (special ? ' special' : ''));
+          if (!key) return;
+          if ((card.getAttribute('data-tab') || '').includes('special')) special.add(key);
+          const tb = card.querySelector('[data-trailer]');
+          if (tb && tb.getAttribute('data-trailer')) staticTrailer[key] = tb.getAttribute('data-trailer');
         });
-        movies.filter(m => !seen.has(m.key)).forEach(m => {
-          const card = document.createElement('div');
-          card.className = 'movie-card';
-          card.setAttribute('data-tab', m.status === 'SOON' ? 'soon' : 'now');
+        // Đợt 10: mọi thông tin trên thẻ lấy từ database – Quản lý sửa tên, poster, nhãn tuổi, thể loại, trailer,
+        // trạng thái (đang chiếu / sắp chiếu) trong admin là trang chủ đổi theo
+        const AGE_CLS = (a) => /18/.test(a) ? 'badge-age-18' : /16/.test(a) ? 'badge-age-16' : /13/.test(a) ? 'badge-age-13' : 'badge-age-p';
+        const dmy = (d) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; };
+        const cardHtml = (m) => {
+          const soon = m.status === 'SOON';
           const link = 'booking.html?movie=' + encodeURIComponent(m.key);
-          card.innerHTML = `
+          const detail = 'phim/' + encodeURIComponent(m.key);
+          const trailer = m.trailer || staticTrailer[m.key] || (typeof MOVIE_TRAILERS === 'object' && MOVIE_TRAILERS[m.key]) || '';
+          const genre = m.genre || String(m.meta || '').split('·')[0].trim();
+          return `<div class="movie-card" data-key="${esc(m.key)}" data-genre="${esc(genre)}" data-tab="${soon ? 'soon' : 'now'}${special.has(m.key) ? ' special' : ''}">
             <div class="movie-poster-wrap">
-              <img loading="lazy" class="movie-poster-img" src="${esc(m.poster)}" alt="${esc(m.title)}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
-              ${m.age ? `<div class="movie-age-tag"><span class="badge">${esc(m.age)}</span></div>` : ''}
-              <div class="movie-poster-overlay"><a href="${link}" class="btn-overlay-buy"><i class=ph-ticket aria-hidden=true></i> ${m.status === 'SOON' ? 'ĐẶT TRƯỚC' : 'MUA VÉ'}</a>${m.trailer ? `<button type="button" class="btn-overlay-trailer" data-trailer="${esc(m.trailer)}"><i class=ph-play aria-hidden=true></i> XEM TRAILER</button>` : ''}</div>
+              <img loading="lazy" class="movie-poster-img" src="${esc(m.poster)}" alt="${esc(m.title)}" onerror="this.onerror=null;this.src='images/400x633-145627-230926-40.jpg'">
+              ${m.age ? `<div class="movie-age-tag"><span class="badge ${AGE_CLS(m.age)}">${esc(m.age)}</span></div>` : ''}
+              <div class="movie-poster-overlay">
+                <a href="${link}" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> ${soon ? 'ĐẶT TRƯỚC' : 'MUA VÉ'}</a>
+                ${trailer ? `<button type="button" class="btn-overlay-trailer" data-trailer="${esc(trailer)}"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>` : ''}
+              </div>
             </div>
             <div class="movie-info-official">
-              <h3 class="movie-title-official"><a href="${link}">${esc(m.title)}</a></h3>
+              <h3 class="movie-title-official"><a href="${detail}">${esc(m.title)}</a></h3>
               <div class="movie-meta-official">
-                ${m.meta ? `<span><strong>Thể loại:</strong> ${esc(m.meta.split('·')[0].trim())}</span>` : ''}
+                ${soon && m.release_date ? `<span><strong>Khởi chiếu:</strong> ${dmy(m.release_date)}</span>` : ''}
+                ${genre ? `<span><strong>Thể loại:</strong> ${esc(genre)}</span>` : ''}
                 ${m.duration_min ? `<span><strong>Thời lượng:</strong> ${m.duration_min} phút</span>` : ''}
               </div>
-            </div>`;
-          grid.appendChild(card);
-        });
-        // Tên phim + poster mở trang chi tiết; nút MUA VÉ vẫn vào thẳng trang đặt vé
+              <div class="movie-actions">
+                <a class="ma-buy" href="${link}"><i class="ph-ticket" aria-hidden="true"></i> ${soon ? 'Đặt trước' : 'Mua vé'}</a>
+                ${trailer ? `<button type="button" class="ma-trailer" aria-label="Xem trailer ${esc(m.title)}"><i class="ph-play" aria-hidden="true"></i><span>Trailer</span></button>` : ''}
+              </div>
+            </div>
+          </div>`;
+        };
+        grid.innerHTML = movies.map(cardHtml).join('');
         grid.querySelectorAll('.movie-card').forEach(card => {
-          const buy = card.querySelector('a[href*="booking.html?movie="]');
-          const key = buy ? new URL(buy.href).searchParams.get('movie') : null;
-          if (key && byKey[key]) card.dataset.genre = byKey[key].genre || '';
-          const t = card.querySelector('.movie-title-official a');
-          if (key && t) t.href = 'phim/' + encodeURIComponent(key);
-          if (key) card.dataset.key = key;
-          const info = card.querySelector('.movie-info-official');
-          if (buy && info && !info.querySelector('.movie-actions')) {
-            const tr = card.querySelector('.btn-overlay-trailer');
-            const title = (t && t.textContent.trim()) || '';
-            if (tr && !tr.getAttribute('onclick')) tr.onclick = () => openTrailerModal(key, title, tr);
-            const row = document.createElement('div');
-            row.className = 'movie-actions';
-            const soon = /ĐẶT TRƯỚC/i.test(buy.textContent);
-            row.innerHTML = `<a class="ma-buy" href="${esc(buy.getAttribute('href'))}"><i class="ph-ticket" aria-hidden="true"></i> ${soon ? 'Đặt trước' : 'Mua vé'}</a>` +
-              (tr ? `<button type="button" class="ma-trailer" aria-label="Xem trailer ${esc(title)}"><i class="ph-play" aria-hidden="true"></i><span>Trailer</span></button>` : '');
-            if (tr) row.querySelector('.ma-trailer').onclick = () => tr.click();
-            info.appendChild(row);
-          }
+          const m = byKey[card.dataset.key];
+          const tr = card.querySelector('.btn-overlay-trailer');
+          if (!tr) return;
+          tr.onclick = () => openTrailerModal(m.key, m.title, tr);
+          const small = card.querySelector('.ma-trailer');
+          if (small) small.onclick = () => tr.click();
         });
+        Pay.catalog('banners').then(r => window.applyBanners && window.applyBanners(r.banners)).catch(() => { /* giữ banner mặc định */ });
         window.__movies = movies;
         window.dispatchEvent(new Event('beta:movies'));
         // Đợt 9: điểm khán giả ★ (đủ lượt đánh giá) + thứ hạng bán chạy 7 ngày

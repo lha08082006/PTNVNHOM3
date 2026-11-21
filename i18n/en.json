@@ -1023,6 +1023,12 @@
   "Không lấy được vị trí, vui lòng chọn rạp theo thành phố.": "Couldn’t get your location; please choose a cinema by city.",
   "Các rạp chưa có tọa độ để so sánh khoảng cách.": "Cinemas don’t have coordinates yet.",
   "Hà Nội": "Hanoi",
-  "Chọn ngày xem phim (cuộn ngang)": "Choose a date (scroll sideways)"
+  "Chọn ngày xem phim (cuộn ngang)": "Choose a date (scroll sideways)",
+  "Đặt vé online đang tạm ngưng để bảo trì. Bạn vẫn xem được lịch chiếu; vui lòng mua vé tại quầy hoặc quay lại sau.": "Online booking is paused for maintenance. You can still browse showtimes; please buy at the box office or come back later.",
+  "Đặt vé online đang tạm ngưng để bảo trì. Vui lòng thử lại sau hoặc mua vé tại quầy.": "Online booking is paused for maintenance. Please try again later or buy at the box office.",
+  "Thiếu mã đơn hàng": "Missing order code",
+  "Trang này mở từ một đơn hàng cụ thể. Nhập mã đơn (BC…) để tra cứu, hoặc xem lịch sử đặt vé trong tài khoản.": "This page opens from a specific order. Enter your order code (BC…) to look it up, or see your booking history in your account.",
+  "Tra cứu đơn hàng": "Look up an order",
+  "Tài khoản của tôi": "My account"
  }
 }

@@ -626,6 +626,28 @@ alter table cinemas add column if not exists amenities text;
 -- Xếp hạng phim bán chạy 7 ngày (đếm đơn đã thanh toán theo ngày tạo)
 create index if not exists orders_created_status_idx on orders(created_at, status);
 
+-- ===================== Đợt 10: banner trang chủ, kho ảnh =====================
+-- Banner trang chủ (Quản lý đổi ở admin > Danh mục > Banner). Chưa có banner nào -> trang chủ dùng ảnh mặc định
+create table if not exists banners (
+  id           uuid primary key default gen_random_uuid(),
+  title        text not null,
+  image        text not null,
+  image_mobile text,
+  link         text,
+  sort         int not null default 0,
+  starts_at    timestamptz,
+  ends_at      timestamptz,
+  active       boolean not null default true,
+  created_at   timestamptz not null default now()
+);
+create index if not exists banners_active_idx on banners(active, sort);
+alter table banners enable row level security;
+
+-- Kho ảnh công khai "media" cho poster / banner / ảnh rạp tải lên từ admin (máy chủ ghi bằng khóa service_role)
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('media', 'media', true, 2621440, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+
 -- Tăng tốc tra cứu cho màn hình Kế toán / Quầy
 create index if not exists bank_tx_date_idx on bank_transactions(transaction_date);
 create index if not exists orders_showtime_status_idx on orders(showtime_key, status);
