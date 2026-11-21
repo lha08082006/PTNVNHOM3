@@ -1645,6 +1645,119 @@ async function test(name, fn) {
     assert.ok(Date.now() - t0 < 5000);
   });
 
+  await test('Đợt 10h: đọc Supabase quá 1.000 dòng theo trang, chia nhỏ bộ lọc "in" dài (URL không vượt giới hạn)', async () => {
+    const S = require('../lib/store');
+    // Supabase giả: tối đa 1.000 dòng / lần, danh sách "in" > 150 giá trị -> lỗi URL quá dài
+    const calls = [];
+    const data = {
+      showtimes: Array.from({ length: 2500 }, (_, i) => ({ id: 's' + String(i).padStart(5, '0'), cinema_id: i % 2 ? 'a' : 'b', starts_at: new Date(Date.UTC(2030, 0, 1) + (2500 - i) * 60000).toISOString() })),
+      seat_holds: Array.from({ length: 1800 }, (_, i) => ({ showtime_key: 's' + String(i % 450).padStart(5, '0'), seat_id: 'A' + (i % 12), status: 'SOLD' }))
+    };
+    const fake = { from(t) {
+      const st = { f: [], o: [], r: null, long: false };
+      const b = {
+        select: () => b,
+        in: (c, v) => { if (v.length > 150) st.long = true; st.f.push(r => v.includes(r[c])); return b; },
+        eq: (c, v) => { st.f.push(r => r[c] === v); return b; },
+        neq: (c, v) => { st.f.push(r => r[c] !== v); return b; },
+        lt: (c, v) => { st.f.push(r => r[c] < v); return b; }, lte: (c, v) => { st.f.push(r => r[c] <= v); return b; },
+        gt: (c, v) => { st.f.push(r => r[c] > v); return b; }, gte: (c, v) => { st.f.push(r => r[c] >= v); return b; },
+        is: (c, v) => { st.f.push(r => r[c] === v); return b; },
+        order: (c, o) => { st.o.push([c, o && o.ascending]); return b; },
+        limit: (n) => { st.r = [0, n - 1]; return b; },
+        range: (a, z) => { st.r = [a, z]; return b; },
+        then(res, rej) {
+          calls.push({ t, r: st.r, long: st.long });
+          if (st.long) return Promise.resolve({ data: null, error: { message: 'URI Too Long' } }).then(res, rej);
+          let rows = data[t].filter(r => st.f.every(fn => fn(r)));
+          rows.sort((x, y) => { for (const [c, asc] of st.o) { if (x[c] !== y[c]) return (x[c] > y[c] ? 1 : -1) * (asc ? 1 : -1); } return 0; });
+          const [a, z] = st.r || [0, Infinity];
+          return Promise.resolve({ data: rows.slice(a, Math.min(z + 1, a + 1000)), error: null }).then(res, rej);
+        }
+      };
+      return b;
+    } };
+    const old = S._useClient(fake);
+    try {
+      const all = await S.find('showtimes', {}, { order: 'starts_at', asc: true, limit: 3000 });
+      assert.strictEqual(all.length, 2500, 'đọc đủ 2.500 dòng qua 3 trang');
+      assert.strictEqual(new Set(all.map(r => r.id)).size, 2500, 'không trùng dòng giữa các trang');
+      assert.ok(all.every((r, i) => i === 0 || all[i - 1].starts_at <= r.starts_at), 'giữ thứ tự');
+      assert.strictEqual(calls.filter(c => c.t === 'showtimes').length, 3);
+      assert.strictEqual((await S.find('showtimes', { cinema_id: 'a' }, { order: 'starts_at', asc: true, limit: 1500 })).length, 1250);
+      assert.strictEqual((await S.find('showtimes', {}, { limit: 1200 })).length, 1200);
+      calls.length = 0;
+      assert.strictEqual((await S.find('showtimes', {})).length, 500, 'mặc định 500 dòng, một lần hỏi');
+      assert.strictEqual(calls.length, 1);
+      // 450 mã suất -> 5 nhóm ≤ 100, không nhóm nào quá dài; đếm đủ 1.800 ghế
+      calls.length = 0;
+      const ids = Array.from({ length: 450 }, (_, i) => 's' + String(i).padStart(5, '0'));
+      const holds = await S.find('seat_holds', { showtime_key: { in: ids } }, { order: null, limit: 20000 });
+      assert.strictEqual(holds.length, 1800);
+      assert.ok(!calls.some(c => c.long), 'không có URL quá dài');
+      assert.strictEqual(calls.length, 5);
+      assert.strictEqual((await S.one('showtimes', { id: 's00042' })).id, 's00042');
+    } finally {
+      S._useClient(old);
+    }
+  });
+
+  await test('Đợt 10h: cron tự gia hạn lịch chiếu – chép lịch tuần trước vào ngày trống, giữ giờ / phòng / giá, bỏ phim ẩn & suất ngưng', async () => {
+    const CatalogDB = require('../lib/catalog-db');
+    const Ext = require('../lib/schedule-extend');
+    const Store = require('../lib/store');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const cn = await ql.post({ action: 'cinema_save', name: 'Beta Lịch Tự Động', city: 'Hà Nội', address: 'Số 1' });
+    assert.strictEqual(cn.status, 200, JSON.stringify(cn.data));
+    const cid = cn.data.cinema.id;
+    const today = CatalogDB.vnToday();
+    const d1 = CatalogDB.addDays(today, 1);
+    // Ngày +1 … +7: 10:00 và 15:00, phòng 07, giá riêng 55.000đ
+    const mk = await ql.post({ action: 'showtime_create', movie_id: 'suzume', cinema_id: cid, date: d1, days: 7, times: '10:00, 15:00', room: 'Phòng 07', price_standard: 55000 });
+    assert.strictEqual(mk.data.created, 14, JSON.stringify(mk.data));
+    // Phim sẽ bị ẩn + một suất bị ngưng -> không được chép
+    await ql.post({ action: 'movie_save', id: 'phim-se-an', title: 'Phim Sẽ Ẩn', duration_min: 90, status: 'NOW' });
+    await ql.post({ action: 'showtime_create', movie_id: 'phim-se-an', cinema_id: cid, date: d1, times: '20:00' });
+    await ql.post({ action: 'movie_save', id: 'phim-se-an', title: 'Phim Sẽ Ẩn', duration_min: 90, status: 'HIDDEN' });
+    const d2rows = await Store.find('showtimes', { cinema_id: cid, starts_at: { gte: CatalogDB.vnIso(CatalogDB.addDays(today, 2), '00:00'), lt: CatalogDB.vnIso(CatalogDB.addDays(today, 3), '00:00') } }, { order: 'starts_at', asc: true });
+    await Store.update('showtimes', { id: d2rows[0].id }, { active: false }); // ngày +2 10:00 ngưng bán
+    const count = async (from, to) => (await Store.find('showtimes', { cinema_id: cid, starts_at: { gte: CatalogDB.vnIso(CatalogDB.addDays(today, from), '00:00'), lt: CatalogDB.vnIso(CatalogDB.addDays(today, to), '00:00') } }, { order: 'starts_at', asc: true, limit: 1000 }));
+    assert.strictEqual((await Ext.extend({ days: 0 })).enabled, false);
+    const r = await Ext.extend({ days: 14 });
+    assert.ok(r.enabled && r.created >= 11 && !r.errors.length, JSON.stringify(r));
+    // Ngày +8 … +13 chép từ +1 … +6: 6 ngày × 2 suất, trừ suất 10:00 ngày +9 (nguồn +2 đã ngưng) = 11
+    const added = await count(8, 14);
+    assert.strictEqual(added.length, 11, JSON.stringify(added.map(s => s.starts_at)));
+    assert.ok(added.every(s => s.movie_id === 'suzume' && s.room === 'Phòng 07' && Number(s.price_standard) === 55000 && s.active !== false));
+    assert.deepStrictEqual([...new Set(added.map(s => CatalogDB.vnParts(s.starts_at).time))].sort(), ['10:00', '15:00']);
+    assert.strictEqual((await count(9, 10)).length, 1, 'ngày +9 chỉ còn 15:00');
+    assert.strictEqual((await count(0, 1)).length, 0, 'hôm nay không có lịch tuần trước -> để trống');
+    // Chạy lại: không thêm gì cho rạp này
+    await Ext.extend({ days: 14 });
+    assert.strictEqual((await count(8, 14)).length, 11);
+    // Giá / phòng hiện đúng trên lịch công khai
+    const pub = (await call('catalog', { query: { action: 'showtimes', cinema: cid, date: CatalogDB.addDays(today, 8) } })).data.showtimes;
+    assert.ok(pub.length === 2 && pub.every(s => s.prices.standard === 55000 && s.room === 'Phòng 07'), JSON.stringify(pub));
+  });
+
+  await test('Đợt 10h: health?schema=1 kèm chẩn đoán thanh toán SePay – chỉ đúng/sai, không lộ khóa', async () => {
+    const saved = { w: process.env.SEPAY_WEBHOOK_KEY, a: process.env.SEPAY_API_KEY };
+    try {
+      process.env.SEPAY_WEBHOOK_KEY = 'khoa-webhook-bi-mat-123';
+      delete process.env.SEPAY_API_KEY;
+      require('../lib/pay-diag')._reset();
+      const h = await call('health', { query: { schema: '1' }, headers: { host: 'beta.test', 'x-forwarded-proto': 'https' } });
+      assert.strictEqual(h.status, 200);
+      const p = h.data.payments;
+      assert.ok(p && p.webhook_key === true && p.api_key === false && p.ok === false, JSON.stringify(p));
+      assert.ok(p.hints.some(x => /SEPAY_API_KEY/.test(x)));
+      assert.ok(!JSON.stringify(h.data).includes('khoa-webhook-bi-mat-123'), 'không lộ khóa');
+    } finally {
+      if (saved.w === undefined) delete process.env.SEPAY_WEBHOOK_KEY; else process.env.SEPAY_WEBHOOK_KEY = saved.w;
+      if (saved.a !== undefined) process.env.SEPAY_API_KEY = saved.a;
+    }
+  });
+
   await test('Đợt 10f: tự kiểm tra database – đủ mọi bảng / cột của schema.sql, báo đúng file migration còn thiếu', async () => {
     const Schema = require('../lib/schema-check');
     const Cols = require('../lib/schema-columns');

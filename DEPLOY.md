@@ -21,6 +21,8 @@
 
   > **Database mới chạy tới mục 6 (2026-11-23)?** Dán và chạy một lần file `migrations/GOP-dot-2-den-dot-10.sql` (gộp sẵn mục 7 → 14, chạy lại an toàn) thay vì chạy từng file. Cuối file in bảng **Đã có** – mọi dòng phải là `true`; sau đó mở `<tên-miền>/api/health?schema=1` phải thấy `"schema":{"ok":true`.
 
+> **Chưa có suất chiếu / rạp chưa có địa chỉ?** Chạy một lần `migrations/DU-LIEU-lich-chieu-va-dia-chi-rap.sql`: điền địa chỉ 9 rạp (rạp đã có địa chỉ giữ nguyên) và tạo lịch 14 ngày tới cho các rạp chưa có suất nào (6 phim × 3 suất / ngày, giá theo bảng giá chung). Chạy lại an toàn. Sau đó cron hằng đêm tự gia hạn (xem `AUTO_SCHEDULE_DAYS`).
+
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 
 ## 2. Biến môi trường (Vercel → Settings → Environment Variables)
@@ -41,6 +43,7 @@
 | `ALERT_EMAILS` | tùy chọn | Email nhận cảnh báo hệ thống (cách nhau dấu phẩy). Trống → gửi cho mọi tài khoản Quản lý. Cần `RESEND_API_KEY` để gửi thật |
 | `MEDIA_BUCKET` | tùy chọn | Tên kho ảnh Supabase Storage cho admin tải ảnh (mặc định `media`, tạo sẵn bởi migration 14) |
 | `REQUIRE_DB` | tùy chọn | Chỉ cần khi chạy ngoài Vercel: `1` = bắt buộc có Supabase (giống Vercel production) |
+| `AUTO_SCHEDULE_DAYS` | tùy chọn | Cron hằng đêm giữ cho mỗi rạp luôn có lịch bấy nhiêu ngày tới bằng cách chép lịch cùng thứ tuần trước vào ngày còn trống (mặc định 14, tối đa 31; `0` = tắt). Không đụng ngày đã có suất, bỏ phim đã ẩn / suất đã ngưng |
 | `MIN_REVIEWS_SHOW` | tùy chọn | Số lượt đánh giá tối thiểu để hiện điểm ★ trên poster (mặc định 3) |
 | `INVOICE_REQUEST_HOURS` | tùy chọn | Số giờ sau khi thanh toán khách còn được gửi yêu cầu hóa đơn (mặc định 24 – Kế toán xác nhận theo quy định) |
 | `SITE_URL` | tùy chọn | Dùng cho link "Xem đơn hàng" trong email |
@@ -62,6 +65,12 @@ quyền xem đơn, thanh toán sandbox, phiếu hỗ trợ, đổi mật khẩu,
 ## 4. Sau khi deploy
 
 - Đăng ký 1 tài khoản thật → đặt vé giá nhỏ → chuyển khoản VietQR → vé phải tự xuất trong vài giây.
+- **Webhook SePay** (my.sepay.vn → Tích hợp WebHooks → Thêm webhook): sự kiện *Có tiền vào*, chọn đúng tài khoản ngân hàng nhận tiền,
+  URL `<tên-miền-đang-chạy>/api/sepay-webhook`, *Là WebHooks xác thực thanh toán*: Đúng, *Kiểu chứng thực*: **API Key** với giá trị **trùng `SEPAY_WEBHOOK_KEY`**,
+  *Request Content type*: `application/json`, *Bỏ qua nếu nội dung giao dịch không có Code thanh toán*: **Không** (web tự tìm mã đơn `BC…` trong nội dung).
+  Kiểm tra: mở `<tên-miền>/api/health?schema=1` → mục `payments` phải `"ok":true`; sau một lần chuyển thử, `last_webhook` có thời điểm và `result: "MATCHED"`.
+  Không có webhook web vẫn tự hỏi API SePay (`SEPAY_API_KEY`) mỗi lần trang thanh toán cập nhật, nhưng chậm và phụ thuộc API.
+- Hoàn tiền (chuyển thừa / tiền về muộn) là **mô phỏng**: hệ thống tạo hồ sơ và tính đúng số tiền, nhưng tiền thật phải do Kế toán tự chuyển lại rồi bấm *Đã chi*.
 - Mở `admin.html` → tạo tài khoản Quản lý đầu tiên bằng `ADMIN_KEY` → vào tab **Nhân sự & nhật ký** tạo tài khoản cho Kế toán, CSKH, Quầy.
 - Kiểm tra đơn và nhật ký webhook ở tab IT / Dev.
 - Gửi thử form ở `support.html` → phiếu "Yêu cầu hỗ trợ" phải hiện trong admin.
