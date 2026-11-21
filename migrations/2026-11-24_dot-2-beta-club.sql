@@ -7,8 +7,12 @@ begin;
 -- Đơn hàng: loại đơn (vé / bắp nước) và số điểm đã dùng
 alter table orders add column if not exists kind text not null default 'TICKET';
 alter table orders add column if not exists points_used int not null default 0;
-alter table orders drop constraint if exists orders_kind_check;
-alter table orders add constraint orders_kind_check check (kind in ('TICKET','FNB'));
+-- (chỉ thêm ràng buộc khi chưa có – không xóa gì, SQL Editor không hỏi xác nhận)
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'orders_kind_check') then
+    alter table orders add constraint orders_kind_check check (kind in ('TICKET','FNB'));
+  end if;
+end $$;
 
 -- Beta Club: sổ điểm chỉ ghi thêm; "ref" duy nhất để cộng/trừ không bị trùng
 create table if not exists point_ledger (

@@ -21,8 +21,13 @@ create index if not exists banners_active_idx on banners(active, sort);
 alter table banners enable row level security;
 
 -- Kho ảnh công khai "media" cho poster / banner / ảnh rạp tải lên từ admin (máy chủ ghi bằng khóa service_role)
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('media', 'media', true, 2621440, array['image/jpeg', 'image/png', 'image/webp'])
-on conflict (id) do update set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+-- (bọc trong khối riêng: nếu dự án không cho tạo kho bằng SQL thì vẫn giữ bảng banners, tạo kho 'media' ở Storage bằng tay)
+do $$ begin
+  insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+  values ('media', 'media', true, 2621440, array['image/jpeg', 'image/png', 'image/webp'])
+  on conflict (id) do update set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+exception when others then
+  raise notice 'Không tạo được kho ảnh media bằng SQL (%). Vào Storage > New bucket: tên media, Public.', sqlerrm;
+end $$;
 
 commit;

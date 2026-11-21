@@ -19,7 +19,7 @@
   13. `migrations/2026-11-30_dot-9-trang-rap-xep-hang.sql` — trang Rạp (hotline, ảnh, giới thiệu, tiện ích của từng rạp), chỉ mục tính phim bán chạy
   14. `migrations/2026-12-01_dot-10-banner-kho-anh.sql` — banner trang chủ quản lý trong admin, kho ảnh "media" để tải poster / banner / ảnh rạp lên
 
-  > **Database mới chạy tới mục 6 (2026-11-23)?** Dán và chạy một lần file `migrations/GOP-dot-2-den-dot-10.sql` (gộp sẵn mục 7 → 14, chạy lại an toàn) thay vì chạy từng file.
+  > **Database mới chạy tới mục 6 (2026-11-23)?** Dán và chạy một lần file `migrations/GOP-dot-2-den-dot-10.sql` (gộp sẵn mục 7 → 14, chạy lại an toàn) thay vì chạy từng file. Cuối file in bảng **Đã có** – mọi dòng phải là `true`; sau đó mở `<tên-miền>/api/health?schema=1` phải thấy `"schema":{"ok":true`.
 
 > **API = 1 Serverless Function.** Gói Hobby của Vercel cho tối đa 12 function mỗi lần deploy, nên mọi `/api/<tên>` đi qua `api/[route].js` và logic nằm ở `lib/routes/<tên>.js`. Thêm API mới: tạo file trong `lib/routes/` và khai báo trong `lib/routes/index.js` — **không** tạo thêm file trong `api/`.
 

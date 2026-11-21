@@ -1,7 +1,8 @@
 -- =====================================================================
--- GỘP MIGRATION ĐỢT 2 → ĐỢT 10 (8 file, từ 2026-11-24 tới 2026-12-01) – dán và chạy MỘT LẦN trong Supabase > SQL Editor.
+-- GỘP MIGRATION ĐỢT 2 → ĐỢT 10 (8 file, từ 2026-11-24 tới 2026-12-01) – dán TOÀN BỘ và chạy trong Supabase > SQL Editor.
 -- Dùng khi database mới chạy tới 2026-11-23 (thiếu bảng đánh giá phim, phòng chiếu, banner…).
--- Mỗi phần chạy lại an toàn (create … if not exists / add column if not exists), chạy thừa phần đã có cũng không sao.
+-- Chạy lại bao nhiêu lần cũng an toàn: phần nào đã có sẽ được bỏ qua. Không có lệnh xóa dữ liệu.
+-- KẾT QUẢ: cuối file in một bảng "Đã có" – mọi dòng phải là true. Nếu Supabase báo lỗi đỏ, chụp màn hình lỗi đó.
 -- Thứ tự các phần đúng như file gốc trong thư mục migrations/:
 --   1. 2026-11-24_dot-2-beta-club.sql
 --   2. 2026-11-25_dot-3-phong-chieu-thue-rap.sql
@@ -25,8 +26,12 @@ begin;
 -- Đơn hàng: loại đơn (vé / bắp nước) và số điểm đã dùng
 alter table orders add column if not exists kind text not null default 'TICKET';
 alter table orders add column if not exists points_used int not null default 0;
-alter table orders drop constraint if exists orders_kind_check;
-alter table orders add constraint orders_kind_check check (kind in ('TICKET','FNB'));
+-- (chỉ thêm ràng buộc khi chưa có – không xóa gì, SQL Editor không hỏi xác nhận)
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'orders_kind_check') then
+    alter table orders add constraint orders_kind_check check (kind in ('TICKET','FNB'));
+  end if;
+end $$;
 
 -- Beta Club: sổ điểm chỉ ghi thêm; "ref" duy nhất để cộng/trừ không bị trùng
 create table if not exists point_ledger (
@@ -350,13 +355,53 @@ create index if not exists banners_active_idx on banners(active, sort);
 alter table banners enable row level security;
 
 -- Kho ảnh công khai "media" cho poster / banner / ảnh rạp tải lên từ admin (máy chủ ghi bằng khóa service_role)
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('media', 'media', true, 2621440, array['image/jpeg', 'image/png', 'image/webp'])
-on conflict (id) do update set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+-- (bọc trong khối riêng: nếu dự án không cho tạo kho bằng SQL thì vẫn giữ bảng banners, tạo kho 'media' ở Storage bằng tay)
+do $$ begin
+  insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+  values ('media', 'media', true, 2621440, array['image/jpeg', 'image/png', 'image/webp'])
+  on conflict (id) do update set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+exception when others then
+  raise notice 'Không tạo được kho ảnh media bằng SQL (%). Vào Storage > New bucket: tên media, Public.', sqlerrm;
+end $$;
 
 commit;
 
+
+-- ############################ Hoàn tất ############################
 -- Nhắc API của Supabase (PostgREST) nạp lại danh sách bảng / cột mới ngay
 notify pgrst, 'reload schema';
 
--- Xong. Mở <tên-miền>/api/health?schema=1 phải thấy "schema":{"ok":true…}; <tên-miền>/api/catalog?action=showtimes&days=1 phải trả danh sách suất chiếu (không còn "Hệ thống đang bận").
+-- Bảng kiểm tra: mọi dòng cột "Đã có" phải là true (dòng false nằm trên cùng)
+select x.phan as "Phần", x.bang as "Bảng", nullif(x.cot, '') as "Cột",
+  case when x.cot = '' then to_regclass('public.' || x.bang) is not null
+       else exists (select 1 from information_schema.columns c where c.table_schema = 'public' and c.table_name = x.bang and c.column_name = x.cot)
+  end as "Đã có"
+from (values
+  ('Đợt 2', 'orders', 'kind'),
+  ('Đợt 2', 'orders', 'points_used'),
+  ('Đợt 2', 'point_ledger', ''),
+  ('Đợt 2', 'movie_reviews', ''),
+  ('Đợt 3', 'rooms', ''),
+  ('Đợt 3', 'event_requests', ''),
+  ('Đợt 3', 'movie_watches', ''),
+  ('Đợt 3', 'showtimes', 'room_id'),
+  ('Đợt 4', 'payment_attempts', ''),
+  ('Đợt 4', 'invoice_requests', ''),
+  ('Đợt 5', 'favorites', ''),
+  ('Đợt 5', 'error_logs', ''),
+  ('Đợt 5', 'system_state', ''),
+  ('Đợt 6', 'customers', 'terms_version'),
+  ('Đợt 6', 'customers', 'marketing_opt_in'),
+  ('Đợt 6', 'staff', 'totp_enabled'),
+  ('Đợt 6', 'campaigns', ''),
+  ('Đợt 7', 'support_tickets', 'assigned_to'),
+  ('Đợt 7', 'day_closings', ''),
+  ('Đợt 9', 'cinemas', 'phone'),
+  ('Đợt 9', 'cinemas', 'amenities'),
+  ('Đợt 10', 'banners', '')
+) as x(phan, bang, cot)
+union all
+select 'Đợt 10', 'kho ảnh storage: media', null, exists (select 1 from storage.buckets where id = 'media')
+order by 4, 1, 2;
+
+-- Xong. Mở <tên-miền>/api/health?schema=1 phải thấy "schema":{"ok":true…}
