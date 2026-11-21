@@ -1623,6 +1623,28 @@ async function test(name, fn) {
     }
   });
 
+  await test('Đợt 10g: tạo suất hàng loạt nhiều ngày – bỏ trùng, chặn chồng giờ trong cùng phòng kể cả suất vừa xếp', async () => {
+    const CatalogDB = require('../lib/catalog-db');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const room = await ql.post({ action: 'room_save', cinema_id: 'beta-giai-phong', name: 'Phòng 09 – Lô', layout_text: 'A standard 10' });
+    assert.strictEqual(room.status, 200, JSON.stringify(room.data));
+    const d0 = CatalogDB.addDays(CatalogDB.vnToday(), 20);
+    await ql.post({ action: 'movie_save', id: 'phim-lo', title: 'Phim Lô', duration_min: 100, status: 'NOW' });
+    // 100 phút + 15 phút dọn: 09:00 chiếm tới 10:55 -> 10:00 chồng giờ; 13:00 được
+    const t0 = Date.now();
+    const r = await ql.post({ action: 'showtime_create', movie_id: 'phim-lo', cinema_id: 'beta-giai-phong', date: d0, days: 3, times: '09:00, 10:00, 13:00', room_id: room.data.room.id });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    assert.strictEqual(r.data.created, 6, JSON.stringify(r.data));
+    assert.strictEqual(r.data.skipped.filter(x => /Phòng 09 – Lô đang có suất 09:00/.test(x)).length, 3, JSON.stringify(r.data.skipped));
+    // Chạy lại: tất cả đã có
+    const again = await ql.post({ action: 'showtime_create', movie_id: 'phim-lo', cinema_id: 'beta-giai-phong', date: d0, days: 3, times: '09:00, 13:00', room_id: room.data.room.id });
+    assert.strictEqual(again.data.created, 0);
+    assert.strictEqual(again.data.skipped.filter(x => /đã có/.test(x)).length, 6, JSON.stringify(again.data.skipped));
+    const list = (await call('catalog', { query: { action: 'showtimes', movie: 'phim-lo', date: d0, days: 3 } })).data.showtimes;
+    assert.deepStrictEqual(list.map(s => s.time), ['09:00', '13:00', '09:00', '13:00', '09:00', '13:00']);
+    assert.ok(Date.now() - t0 < 5000);
+  });
+
   await test('Đợt 10f: tự kiểm tra database – đủ mọi bảng / cột của schema.sql, báo đúng file migration còn thiếu', async () => {
     const Schema = require('../lib/schema-check');
     const Cols = require('../lib/schema-columns');
