@@ -1623,16 +1623,41 @@ async function test(name, fn) {
     }
   });
 
-  await test('Đợt 10d: tự kiểm tra migration – danh sách dấu hiệu khớp file migrations/, health?schema=1 và status không lỗi', async () => {
+  await test('Đợt 10f: tự kiểm tra database – đủ mọi bảng / cột của schema.sql, báo đúng file migration còn thiếu', async () => {
     const Schema = require('../lib/schema-check');
-    const files = new Set(require('fs').readdirSync(require('path').join(__dirname, '..', 'migrations')));
-    for (const [file, probes] of Schema.MIGRATIONS) {
-      if (!file.startsWith('schema.sql')) assert.ok(files.has(file), 'không có file ' + file);
-      assert.ok(probes.length && probes.every(([t, c]) => /^[a-z_]+$/.test(t) && /^[a-z_,]+$/.test(c)));
+    const Cols = require('../lib/schema-columns');
+    // File sinh sẵn phải khớp schema.sql hiện tại (quên chạy node tools/gen-schema-columns.js là báo)
+    const fresh = require('./gen-schema-columns').build().replace(/\r\n/g, '\n');
+    const disk = require('fs').readFileSync(require('path').join(__dirname, '..', 'lib', 'schema-columns.js'), 'utf8').replace(/\r\n/g, '\n');
+    assert.strictEqual(disk, fresh, 'lib/schema-columns.js cũ – chạy: node tools/gen-schema-columns.js');
+    // Bảng nào code dùng (bộ nhớ trong) cũng có trong schema.sql và ngược lại
+    const S = require('../lib/store');
+    assert.deepStrictEqual(Object.keys(S.mem).filter(t => t !== 'complaints').sort(), Object.keys(Cols.COLUMNS).sort()); // complaints: bảng cũ, đã chuyển sang support_tickets
+    assert.ok(Cols.COLUMNS.showtimes.includes('price_standard') && Cols.COLUMNS.cinemas.includes('lng'));
+    // Giả lập web thật thiếu cả bảng banners, thiếu cột cinemas.phone / amenities và showtimes.room_id
+    const saved = { isLive: S.isLive, probe: S.probe, bucket: S.bucketExists };
+    const gone = { banners: '*', cinemas: ['phone', 'amenities'], showtimes: ['room_id'] };
+    try {
+      S.isLive = () => true;
+      S.bucketExists = async () => true;
+      S.probe = async (t, cols) => {
+        const g = gone[t];
+        if (!g) return { ok: true };
+        if (g === '*' || cols.split(',').some(c => g.includes(c))) return { ok: false, kind: 'missing', code: '42703', message: 'x' };
+        return { ok: true };
+      };
+      Schema._reset();
+      const r = await Schema.check({ fresh: true });
+      assert.strictEqual(r.ok, false);
+      const m = Object.fromEntries(r.missing.map(x => [x.file, x.items]));
+      assert.deepStrictEqual(m['2026-12-01_dot-10-banner-kho-anh.sql'], ['banners']);
+      assert.deepStrictEqual(m['2026-11-30_dot-9-trang-rap-xep-hang.sql'], ['cinemas(phone,amenities)']);
+      assert.deepStrictEqual(m['2026-11-25_dot-3-phong-chieu-thue-rap.sql'], ['showtimes(room_id)']);
+      assert.strictEqual(r.missing.length, 3);
+      assert.ok(/SQL Editor/.test(r.hint));
+    } finally {
+      S.isLive = saved.isLive; S.probe = saved.probe; S.bucketExists = saved.bucket;
     }
-    // Mọi bảng có dấu hiệu đều có trong schema.sql (database mới tạo từ schema.sql không bị báo thiếu)
-    const schemaSql = require('fs').readFileSync(require('path').join(__dirname, '..', 'schema.sql'), 'utf8');
-    for (const [, probes] of Schema.MIGRATIONS) for (const [t] of probes) assert.ok(schemaSql.includes('create table if not exists ' + t + ' ('), 'schema.sql thiếu bảng ' + t);
     Schema._reset();
     const r = await Schema.check();
     assert.strictEqual(r.ok, true); assert.deepStrictEqual(r.missing, []);
