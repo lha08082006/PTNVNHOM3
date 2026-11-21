@@ -1754,6 +1754,44 @@ async function test(name, fn) {
     assert.ok(JSON.stringify(sum.data).length * 5 < JSON.stringify(full).length, 'nhẹ hơn nhiều so với cả lịch');
   });
 
+  await test('Đợt 10i: SePay – đọc mã đơn trong nội dung ngân hàng, đường dự phòng không lọc theo số tài khoản (tài khoản ảo MSB)', async () => {
+    const G = require('../lib/gateway');
+    const S = require('../lib/store');
+    assert.strictEqual(G.extractOrderCode('-6320IBTlk2HGCE3C-BC4612345678-NGUYEN VAN A chuyen tien'), 'BC4612345678');
+    assert.strictEqual(G.extractOrderCode('bc 4612345678'), 'BC4612345678');
+    assert.strictEqual(G.extractOrderCode('CHUYENTIENBC4612345678NGUYENVANA'), 'BC4612345678');
+    assert.strictEqual(G.extractOrderCode('FT26ABC123 BC4612345678'), 'BC4612345678', 'ưu tiên mã đứng riêng');
+    assert.strictEqual(G.extractOrderCode('BC46123456789'), null, '11 chữ số không phải mã đơn');
+    assert.strictEqual(G.extractOrderCode('chuyen tien ve'), null);
+    const saved = { live: S.isLive, fetch: global.fetch, key: process.env.SEPAY_API_KEY, acc: process.env.SEPAY_ACCOUNT_NUMBER };
+    const urls = [];
+    try {
+      S.isLive = () => true;
+      process.env.SEPAY_API_KEY = 'khoa-api-thu';
+      process.env.SEPAY_ACCOUNT_NUMBER = '96886693088500';
+      global.fetch = async (u) => { urls.push(String(u)); return { ok: true, status: 200, json: async () => ({ transactions: [
+        { id: 9100001, account_number: '4208082006', sub_account: '96886693088500', amount_in: '90000.00', transaction_content: '-6320IBTlk2HGCE3C-BC4699990001-NGUYEN VAN A', reference_number: 'FT26-THU-1', transaction_date: '2026-11-21 20:00:00', bank_brand_name: 'MSB' },
+        { id: 9100002, account_number: '4208082006', amount_in: '50000.00', transaction_content: 'BC4699990002 khac don', reference_number: 'FT26-THU-2', transaction_date: '2026-11-21 20:01:00' }] }) }; };
+      const g = await G.queryStatus({ code: 'BC4699990001' });
+      assert.strictEqual(g.status, 'SUCCESS'); assert.strictEqual(g.amount, 90000);
+      assert.ok(urls.length && !/account_number=/.test(urls[0]), 'không lọc theo số tài khoản: ' + urls[0]);
+      const tx = await S.one('bank_transactions', { reference_code: 'FT26-THU-1' });
+      assert.strictEqual(tx.result, 'PULLED'); assert.strictEqual(tx.account_number, '96886693088500');
+      // Gọi lại không ghi trùng
+      assert.strictEqual((await G.queryStatus({ code: 'BC4699990001' })).amount, 90000);
+      // Chẩn đoán: chỉ đếm, thấy tài khoản ảo
+      const D = require('../lib/pay-diag'); D._reset();
+      const p = await D.check({ headers: { host: 'beta.test' } });
+      assert.strictEqual(p.sepay_api.recent, 2); assert.strictEqual(p.sepay_api.recent_with_order_code, 2); assert.strictEqual(p.sepay_api.account_seen, true);
+      assert.ok(!JSON.stringify(p).includes('NGUYEN') && !JSON.stringify(p).includes('khoa-api-thu'));
+      D._reset();
+    } finally {
+      S.isLive = saved.live; global.fetch = saved.fetch;
+      if (saved.key === undefined) delete process.env.SEPAY_API_KEY; else process.env.SEPAY_API_KEY = saved.key;
+      if (saved.acc === undefined) delete process.env.SEPAY_ACCOUNT_NUMBER; else process.env.SEPAY_ACCOUNT_NUMBER = saved.acc;
+    }
+  });
+
   await test('Đợt 10h: health?schema=1 kèm chẩn đoán thanh toán SePay – chỉ đúng/sai, không lộ khóa', async () => {
     const saved = { w: process.env.SEPAY_WEBHOOK_KEY, a: process.env.SEPAY_API_KEY };
     try {
