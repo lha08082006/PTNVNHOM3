@@ -149,9 +149,20 @@ const expect = (cond, msg) => { if (!cond) throw new Error(msg); };
       await a.waitForFunction(() => !document.getElementById('who').hidden && document.getElementById('tabs').style.display === 'flex', { timeout: 10000 });
       await a.$eval('#tabs button[data-tab="quay"]', el => el.click());
       await a.waitForSelector('#ck-input', { visible: true, timeout: 5000 });
+      // Quầy đang chọn rạp khác: báo "VÉ CỦA RẠP KHÁC", vé chưa bị đánh dấu đã soát
+      await a.waitForFunction(() => document.querySelectorAll('#qc-cinema option').length > 1, { timeout: 5000 });
+      const other = await a.$eval('#qc-cinema', s => [...s.options].map(o => o.value).find(v => v !== 'beta-thanh-xuan'));
+      await a.select('#qc-cinema', other);
       await a.type('#ck-input', st.qr);
       await a.keyboard.press('Enter');
-      await a.waitForFunction(() => /HỢP LỆ|KHÔNG HỢP LỆ/.test(document.getElementById('ck-result').innerText), { timeout: 10000 });
+      await a.waitForFunction(() => /RẠP KHÁC/.test(document.getElementById('ck-result').innerText), { timeout: 10000 });
+      if (SHOTS) await a.screenshot({ path: path.join(SHOTS, 'e2e-quay-rap-khac.png') });
+      // Chọn đúng rạp rồi quét lại: hợp lệ
+      await a.select('#qc-cinema', 'beta-thanh-xuan');
+      await a.type('#ck-input', st.qr);
+      await a.keyboard.press('Enter');
+      await a.waitForFunction(() => /HỢP LỆ – MỜI VÀO|KHÔNG HỢP LỆ/.test(document.getElementById('ck-result').innerText), { timeout: 10000 });
+      if (SHOTS) await a.screenshot({ path: path.join(SHOTS, 'e2e-quay-hop-le.png') });
       const first = await a.$eval('#ck-result', el => el.innerText);
       expect(/HỢP LỆ – MỜI VÀO/.test(first), 'Lần 1: ' + first.slice(0, 120));
       expect(/1 × Combo Solo|Ghế/.test(first), 'Thiếu thông tin ghế');

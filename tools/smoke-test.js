@@ -54,10 +54,13 @@ async function test(name, fn) {
   await test('Danh mục: lịch chiếu thật từ database', async () => {
     const mv = await call('catalog', { query: { action: 'movies' } });
     assert.ok(mv.data.movies.length >= 10);
-    const r = await call('catalog', { query: { action: 'showtimes', days: 3 } });
+    const r = await call('catalog', { query: { action: 'showtimes', days: 7 } });
     assert.ok(r.data.showtimes.length > 0);
-    // Chọn suất còn xa giờ chiếu nhất để không bị "đã bắt đầu"
-    ST = r.data.showtimes[r.data.showtimes.length - 1];
+    // Chọn suất còn xa giờ chiếu nhất (để không bị "đã bắt đầu") VÀ có giá ngày thường chuẩn 45k / 50k / 100k,
+    // để kết quả không đổi theo ngày chạy kiểm thử (cuối tuần, "Thứ Ba vui vẻ", suất sớm / khuya có giá khác)
+    const std = r.data.showtimes.filter(s => s.prices.standard === 45000 && s.prices.vip === 50000 && s.prices.sweetbox === 100000);
+    assert.ok(std.length > 0, 'cần ít nhất một suất giá ngày thường trong 7 ngày tới');
+    ST = std[std.length - 1];
     assert.strictEqual(ST.seats_free, ST.seats_total);
     const one = await call('catalog', { query: { action: 'showtime', id: ST.id } });
     assert.strictEqual(one.data.showtime.id, ST.id);
@@ -483,6 +486,77 @@ async function test(name, fn) {
     assert.ok(d.data.upcoming.some(x => x.sold > 0));
   });
 
+  await test('Đợt 11c: Tổng quan – tiền hoàn chưa từng là doanh thu không bị trừ, tỷ lệ hoàn tính trên tổng tiền nhận, có kỳ trước', async () => {
+    const kt = asStaff(await staffLogin('ketoan@beta.local'));
+    const d = (await kt.get('dashboard')).data;
+    const k = d.kpi;
+    // Mọi hồ sơ hoàn trong bộ thử là chuyển thừa / trễ / mất ghế… -> không làm giảm doanh thu thuần
+    assert.ok(k.refunded > 0, 'bộ thử phải có tiền đã hoàn');
+    assert.strictEqual(k.reversal, 0);
+    assert.strictEqual(k.net, k.revenue);
+    assert.ok(k.owed >= k.refunded, 'tiền phải hoàn trong kỳ gồm cả hồ sơ chưa hoàn xong');
+    assert.strictEqual(k.received, k.revenue + k.owed);
+    assert.strictEqual(k.refund_rate, Math.round(k.owed / (k.revenue + k.owed) * 1000) / 10);
+    assert.ok(k.refund_rate < 100);
+    assert.ok(typeof d.upcoming_total === 'number' && d.upcoming_total >= d.upcoming.length);
+    assert.ok(d.occupancy_from && d.occupancy_to && d.occupancy_from <= d.occupancy_to);
+    assert.ok(d.kpi_prev && typeof d.kpi_prev.revenue === 'number' && typeof d.kpi_prev.tickets === 'number');
+    // Lấp đầy giữ 1 chữ số thập phân (không làm tròn 0,4% thành 0%)
+    assert.ok(Number.isFinite(k.occupancy_3d) && Math.round(k.occupancy_3d * 10) === k.occupancy_3d * 10);
+  });
+
+  await test('Đợt 11c: soát vé – vé của rạp khác bị chặn và KHÔNG bị đốt; xác nhận vẫn cho vào; kết quả có phòng chiếu', async () => {
+    const CatalogDB = require('../lib/catalog-db');
+    const ql = asStaff(await staffLogin('quanly@beta.local'));
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    const soon = CatalogDB.vnParts(new Date(Date.now() + 80 * 60000).toISOString());
+    const mk = await ql.post({ action: 'showtime_create', movie_id: 'suzume', cinema_id: 'beta-my-dinh', date: soon.date, times: soon.time, room: 'Phòng 09' });
+    assert.strictEqual(mk.data.created, 1, JSON.stringify(mk.data));
+    const st = (await call('catalog', { query: { action: 'showtimes', cinema: 'beta-my-dinh', movie: 'suzume', date: soon.date } })).data.showtimes.find(s => s.time === soon.time);
+    const o = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: st.id, seats: ['C5'] } });
+    assert.strictEqual(o.status, 200, JSON.stringify(o.data));
+    await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: o.data.code } });
+    const bar = (await call('order-status', { query: { code: o.data.code }, token: tokB })).data.ticket_barcode;
+    // Quầy đang chọn Beta Thanh Xuân -> chặn, chưa ghi nhận soát
+    const wrong = await quay.post({ action: 'checkin', qr: bar, cinema_id: 'beta-thanh-xuan' });
+    assert.strictEqual(wrong.status, 409);
+    assert.strictEqual(wrong.data.wrong_cinema, true);
+    assert.ok(/RẠP KHÁC/.test(wrong.data.error) && /Mỹ Đình/.test(wrong.data.error), wrong.data.error);
+    assert.strictEqual(wrong.data.summary.room, 'Phòng 09');
+    // Đúng rạp -> vào được (chứng tỏ lần chặn trên không đốt vé), có phòng chiếu
+    const ok = await quay.post({ action: 'checkin', qr: bar, cinema_id: 'beta-my-dinh' });
+    assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
+    assert.strictEqual(ok.data.summary.room, 'Phòng 09');
+    assert.strictEqual(ok.data.summary.cinema_id, 'beta-my-dinh');
+    // Lần 2 vẫn báo đã soát
+    const twice = await quay.post({ action: 'checkin', qr: bar, cinema_id: 'beta-my-dinh' });
+    assert.strictEqual(twice.status, 409); assert.strictEqual(twice.data.already, true);
+    // Vé rạp khác + nhân viên xác nhận "vẫn cho vào"
+    const o2 = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: st.id, seats: ['C6'] } });
+    await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: o2.data.code } });
+    const bar2 = (await call('order-status', { query: { code: o2.data.code }, token: tokB })).data.ticket_barcode;
+    const forced = await quay.post({ action: 'checkin', qr: bar2, cinema_id: 'beta-thanh-xuan', force: true });
+    assert.strictEqual(forced.status, 200, JSON.stringify(forced.data));
+    assert.strictEqual(forced.data.forced, true);
+    const o4 = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: st.id, seats: ['C8'] } });
+    await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: o4.data.code } });
+    const bar4 = (await call('order-status', { query: { code: o4.data.code }, token: tokB })).data.ticket_barcode;
+    const same = await quay.post({ action: 'checkin', qr: bar4, cinema_id: 'beta-my-dinh', force: true });
+    assert.strictEqual(same.status, 200, JSON.stringify(same.data));
+    assert.strictEqual(same.data.forced, false, 'đúng rạp thì không phải ngoại lệ dù có cờ force');
+    // Quầy xem đơn: chỉ dữ liệu tối thiểu, SĐT che trên máy chủ
+    const qv = await call('admin', { token: quay.token, query: { action: 'order', code: o4.data.code } });
+    assert.strictEqual(qv.status, 200, JSON.stringify(qv.data));
+    assert.ok(!qv.data.context.order.email && /•••/.test(qv.data.context.order.phone || '•••'), JSON.stringify(qv.data.context.order));
+    assert.deepStrictEqual([qv.data.refunds, qv.data.tickets, qv.data.logs, qv.data.transactions, qv.data.notifications].map(x => x.length), [0, 0, 0, 0, 0]);
+    assert.ok(qv.data.view.status && 'checked_in_at' in qv.data.view);
+    // Không gửi rạp (máy quét cũ / API cũ) -> vẫn như trước
+    const o3 = await call('create-order', { method: 'POST', token: tokB, body: { showtime_id: st.id, seats: ['C7'] } });
+    await call('simulate-payment', { method: 'POST', body: { scenario: 'OK', order_code: o3.data.code } });
+    const bar3 = (await call('order-status', { query: { code: o3.data.code }, token: tokB })).data.ticket_barcode;
+    assert.strictEqual((await quay.post({ action: 'checkin', qr: bar3 })).status, 200);
+  });
+
   await test('Quên mật khẩu bằng mã OTP + khóa khi đăng nhập sai nhiều lần', async () => {
     for (let i = 0; i < 5; i++) await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'b@test.vn', password: 'sai-' + i } });
     const locked = await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'b@test.vn', password: 'matkhau123' } });
@@ -836,6 +910,32 @@ async function test(name, fn) {
     assert.strictEqual((await quay.post({ action: 'checkin', qr: v.ticket_qr })).status, 409);
     // Bắp nước không được để lại đánh giá phim
     assert.strictEqual((await call('member', { method: 'POST', token: tokE, query: { action: 'review' }, body: { order_code: r.data.code, rating: 4 } })).status, 400);
+  });
+
+  await test('Đợt 11d: phiếu bắp nước – soát được trên database thật (không so khóa "FNB:" với cột uuid), so rạp theo mã rạp', async () => {
+    const Store11 = require('../lib/store');
+    const cins = (await call('catalog', { query: { action: 'cinemas' } })).data.cinemas;
+    const r = await call('create-order', { method: 'POST', token: tokE, body: { kind: 'FNB', cinema_id: cins[0].id, combos: { solo: 1 } } });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.data));
+    await payOK(r.data.code);
+    const v = (await call('order-status', { token: tokE, query: { code: r.data.code } })).data;
+    const quay = asStaff(await staffLogin('quay@beta.local'));
+    // Giả lập Postgres: so cột uuid showtimes.id với chuỗi không phải uuid -> lỗi 22P02 (bộ nhớ thử không tự báo lỗi này)
+    const realFind = Store11.find;
+    Store11.find = async function (table, filter, opts) {
+      if (table === 'showtimes' && filter && typeof filter.id === 'string' && !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(filter.id)) throw new Error('invalid input syntax for type uuid: "' + filter.id + '"');
+      return realFind.call(Store11, table, filter, opts);
+    };
+    try {
+      const code = v.ticket_barcode || v.ticket_qr;
+      const wrong = await quay.post({ action: 'checkin', qr: code, cinema_id: cins[1].id });
+      assert.strictEqual(wrong.status, 409, JSON.stringify(wrong.data));
+      assert.strictEqual(wrong.data.wrong_cinema, true);
+      const ok = await quay.post({ action: 'checkin', qr: code, cinema_id: cins[0].id });
+      assert.strictEqual(ok.status, 200, JSON.stringify(ok.data));
+      assert.strictEqual(ok.data.summary.kind, 'FNB');
+      assert.strictEqual(ok.data.summary.cinema_id, cins[0].id);
+    } finally { Store11.find = realFind; }
   });
 
   await test('Đợt 2: thư nhắc suất chiếu hôm nay & mời đánh giá – mỗi loại gửi 1 lần', async () => {
@@ -1345,6 +1445,8 @@ async function test(name, fn) {
     assert.strictEqual(csv.body.charCodeAt(0), 0xfeff);
     assert.ok(csv.body.includes('NGUYEN VAN DUC') && csv.body.includes('HOAN TIEN REF-K7A DON ' + o.code), csv.body.slice(0, 300));
     assert.ok(!csv.body.includes('REF-K7C'));
+    const all = await call('admin', { query: { action: 'payout_csv' }, headers: { authorization: 'Bearer ' + kt.token } });
+    assert.ok(all.body.includes('REF-K7A') && !all.body.includes('REF-K7C'), 'Bảng kê "tất cả" không được gồm hồ sơ do chính Kế toán này gửi (nguyên tắc 2 người)');
     assert.strictEqual((await cs.post({ action: 'accounting_paid_batch', items: [{ refund_code: 'REF-K7A', refund_ref: 'FT1' }] })).status, 403);
     const r = await kt.post({ action: 'accounting_paid_batch', items: [{ refund_code: 'REF-K7A', refund_ref: 'FT7001' }, { refund_code: 'REF-K7B' }, { refund_code: 'REF-K7C', refund_ref: 'FT7003' }] });
     assert.strictEqual(r.status, 200);

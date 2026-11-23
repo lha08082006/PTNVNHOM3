@@ -117,7 +117,7 @@ Vercel bật `cleanUrls`: `/home.html` phục vụ tại `/home`.
 | `auth.html`, `login.html`, `register.html` | Đăng nhập / đăng ký / quên mật khẩu (OTP) |
 | `gia-ve.html`, `tin-tuc.html`, `policy.html`, `thue-rap.html` | Bảng giá; tin tức & ưu đãi; chính sách; thuê rạp / vé nhóm / Private Show |
 | `invoice.html` | Hóa đơn bán hàng điện tử |
-| `admin.html` | **Trang nội bộ** (mục 8): tab Tổng quan, CSKH, Kế toán, Danh mục, Quầy, IT / Dev, Nhân sự & nhật ký |
+| `admin.html` | **Trang nội bộ** (mục 8): menu trái theo nhóm – Tổng quan, Quầy soát vé, Chăm sóc khách hàng, Kế toán, Danh mục (6 mục con), IT / Vận hành, Nhân sự & nhật ký; mỗi vai trò mở thẳng tab của mình |
 | `offline.html`, `404.html`, `showcase.html` | Vé đã lưu khi mất mạng; trang lỗi; bộ prototype giao diện |
 
 ---
@@ -184,6 +184,7 @@ Logic nằm ở `lib/flow.js`. Mọi hàm **idempotent**: webhook trùng, nhiề
 - Mã vạch Code 128: `BC<10 số mã đơn><8 số chữ ký HMAC>` (khóa từ `AUTH_SECRET`). Sửa 1 chữ số → "vé có thể bị làm giả".
 - QR cũ `BETA1.<mã đơn>.<chữ ký 16 ký tự>` vẫn được nhận (vé đã lưu trước đây).
 - Quầy (admin → Quầy): camera đọc `code_128` + `qr_code` (Chrome Android / macOS), máy quét USB gõ thẳng vào ô, hoặc gõ mã đơn (ghi là nhập tay). Mỗi vé soát **một lần**; chỉ mở soát **từ 2 giờ trước đến 3 giờ sau** giờ chiếu. Phiếu bắp nước dùng trong 30 ngày.
+- Quầy chọn **rạp làm việc**: vé của rạp khác bị chặn ("VÉ CỦA RẠP KHÁC") **trước khi** ghi nhận nên vé không bị "đốt"; nhân viên có thể bấm "Vẫn cho vào" (ghi vào nhật ký thao tác). Kết quả hiện 5 trạng thái màu + âm báo + rung: hợp lệ / đã soát / rạp khác / chưa tới giờ / không hợp lệ. Camera không gửi lại cùng mã trong 20 giây, cùng một mã đang kiểm tra thì không gửi trùng; "Chế độ quầy" ẩn menu, toàn màn hình, giữ màn hình sáng.
 
 ### 7.5 Sandbox (diễn tình huống không cần tiền thật)
 `/api/simulate-payment` – chỉ chạy ở bộ nhớ trong (`DB_MODE=mock`) hoặc khi `ALLOW_SANDBOX=1`. Bảng nút nằm cuối `gateway.html` ("Chế độ kiểm thử – Sandbox dành cho Hội đồng chấm điểm") và `underpay.html`.
@@ -339,6 +340,7 @@ $env:DB_MODE="mock"; $env:PORT="3000"; npm start      # mở http://localhost:30
 | Đợt 8 + 9 | Giao diện điện thoại (menu ☰), tìm phim / rạp không dấu, mua vé nhanh 4 bước, trang Rạp, xếp hạng bán chạy, điểm ★ |
 | Đợt 10 | Chốt an toàn database, banner & tải ảnh trong admin, thẻ phim theo admin, sửa lỗi giao diện; nối Supabase thật, file migration gộp, tự kiểm tra database, chuyển hàm về Singapore, tạo suất hàng loạt nhanh, đọc Supabase quá 1.000 dòng, lịch mẫu + cron tự gia hạn, chẩn đoán SePay, đường dự phòng SePay không lọc tài khoản |
 | Đợt 11 (đầu) | Vé dùng **mã vạch Code 128** thay QR; dải chọn ngày đặt vé gọn 7 ngày |
+| Đợt 11 (admin) | Làm lại giao diện `admin.html` sau khi khảo sát các trang quản trị cùng loại: menu trái theo nhóm (điện thoại: menu trượt), đường dẫn chia sẻ được `admin.html#ketoan`, `#danhmuc/lich-chieu`; hộp thoại + thông báo trong trang thay `alert/confirm/prompt`; ngăn kéo chi tiết có "Quay lại". Quầy: 5 trạng thái, chặn vé rạp khác, chế độ quầy. Tổng quan: ô "việc cần xử lý", chọn nhanh kỳ, so với kỳ trước, doanh thu thuần chỉ trừ tiền hoàn do hủy / sự cố. Kế toán: nhắc nguyên tắc 2 người, giữ mã GD đang gõ, gom ngày không phát sinh. Danh mục chia 6 mục con + thanh "Đang sửa". IT: đèn trạng thái từ `/api/health`. Nhân sự: cột bảo mật 2 lớp, lọc nhật ký |
 
 ---
 
