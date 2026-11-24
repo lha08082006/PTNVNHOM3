@@ -2019,6 +2019,24 @@ async function test(name, fn) {
     assert.strictEqual(st.status, 200); assert.strictEqual(st.data.schema_missing, undefined);
   });
 
+  await test('Mã suất chiếu sai định dạng (không phải UUID) -> 404/400, không hỏi database (Supabase báo lỗi uuid = 500)', async () => {
+    const S = require('../lib/store');
+    const CDB = require('../lib/catalog-db');
+    const saved = S.one;
+    const asked = [];
+    S.one = async (table, filter) => { if (table === 'showtimes') asked.push(filter.id); return saved.call(S, table, filter); };
+    try {
+      for (const bad of ['khong-co', "' OR 1=1--", '123', 'c2b3a6a6-d518-4b06-b834']) assert.strictEqual(await CDB.getShowtime(bad), null);
+      assert.deepStrictEqual(asked, []);
+      const r = await call('catalog', { query: { action: 'showtime', id: 'khong-co' } });
+      assert.strictEqual(r.status, 404);
+      const sts = (await call('catalog', { query: { action: 'showtimes', days: '2' } })).data.showtimes;
+      const ok = await call('catalog', { query: { action: 'showtime', id: sts[0].id } });
+      assert.strictEqual(ok.status, 200, 'mã suất đúng vẫn tra được');
+      assert.deepStrictEqual(asked, [sts[0].id]);
+    } finally { S.one = saved; }
+  });
+
   for (const [ok, name] of results) console.log(ok, name);
   const failed = results.filter(r => r[0] === '✗').length;
   console.log(failed ? `\n${failed} kiểm thử LỖI` : `\nTất cả ${results.length} kiểm thử đều đạt`);

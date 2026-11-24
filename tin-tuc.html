@@ -22,6 +22,9 @@
     .tt-top img { height: 40px; display: block; }
     .tt-top a { color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; }
     .tt-wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px 60px; }
+    /* Giữ chỗ cho phần tải sau (CLS): chân trang không bị đẩy khi danh sách / bài viết hiện ra */
+    .tt-wrap { min-height: 100vh; }
+    #tt-tabs:empty { min-height: 40px; }
     .tt-wrap h1 { font-family: Montserrat, sans-serif; font-size: 28px; color: #005198; margin: 0 0 6px; }
     .tt-lead { color: #475569; margin: 0 0 18px; font-size: 15px; line-height: 1.6; }
     .tt-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
@@ -39,7 +42,7 @@
     .tt-badge.EVENT { background: #f5f3ff; color: #5b21b6; }
     .tt-meta { font-size: 12.5px; color: #64748b; }
     .tt-detail { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; }
-    .tt-detail img { width: 100%; max-height: 420px; object-fit: cover; display: block; background: #e2e8f0; }
+    .tt-detail img { width: 100%; max-height: 420px; aspect-ratio: 1702 / 621; height: auto; object-fit: cover; display: block; background: #e2e8f0; } /* aspect-ratio: giữ chỗ ảnh đầu bài trước khi ảnh tải xong */
     .tt-detail .b { padding: 22px 24px 26px; }
     .tt-detail h1 { margin: 8px 0 6px; }
     .tt-detail .body p { font-size: 15.5px; line-height: 1.75; color: #1e293b; margin: 0 0 12px; }

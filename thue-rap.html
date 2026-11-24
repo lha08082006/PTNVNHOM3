@@ -23,6 +23,8 @@
     .tr-wrap { max-width: 1040px; margin: 0 auto; padding: 26px 16px 60px; }
     h1 { font-family: Montserrat, sans-serif; font-size: 26px; color: #005198; margin: 0 0 6px; }
     .lead { color: #475569; margin: 0 0 20px; font-size: 15px; line-height: 1.6; }
+    /* Điện thoại: phông Be Vietnam Pro tải xong làm đoạn này dài thêm 1 dòng -> giữ sẵn 5 dòng (tránh xô lệch – CLS) */
+    @media (max-width: 440px) { .lead { min-height: 120px; } }
     .kinds { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 22px; }
     .kind { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; }
     .kind b { color: #005198; font-size: 15px; display: block; margin-bottom: 4px; }
@@ -102,7 +104,7 @@
   <main class="tr-wrap" id="main">
     <h1>Thuê rạp, vé nhóm & Private Show</h1>
     <p class="lead">Tổ chức buổi chiếu riêng cho gia đình, lớp học, công ty; đặt vé nhóm giá tốt; hội nghị, ra mắt sản phẩm trong phòng chiếu. Gửi yêu cầu bên dưới – CSKH gọi lại và gửi báo giá trong <b>1 ngày làm việc</b>.</p>
-    <div class="kinds" id="kinds"></div>
+    <div class="kinds" id="kinds"><div class="kind"><b>Private Show – thuê nguyên phòng chiếu</b><p>Cả phòng chiếu cho riêng bạn: sinh nhật, cầu hôn, họp lớp, xem phim cùng công ty.</p></div><div class="kind"><b>Vé nhóm (từ 20 người)</b><p>Từ 20 người trở lên, giá ưu đãi theo số lượng, ngồi cùng khu vực.</p></div><div class="kind"><b>Hội nghị, sự kiện, ra mắt phim</b><p>Hội nghị, ra mắt phim / sản phẩm, đào tạo với màn hình lớn và âm thanh rạp.</p></div><div class="kind"><b>Quảng cáo tại rạp</b><p>Quảng cáo trước suất chiếu, standee, sampling tại sảnh rạp.</p></div></div>
 
     <div class="grid">
       <form class="box" id="ev-form" novalidate>

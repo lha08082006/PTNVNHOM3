@@ -107,7 +107,7 @@ async function loadShowtimes() {
       list.innerHTML = '<p style="padding: 40px 0; text-align: center; color: #64748b;">Rạp chưa có suất chiếu nào trong ngày này. Vui lòng chọn ngày khác.</p>';
       return;
     }
-    list.innerHTML = keys.map(k => {
+    list.innerHTML = keys.map((k, i) => {
       const sts = byMovie[k];
       const m = sts[0].movie;
       const byFormat = {};
@@ -115,7 +115,7 @@ async function loadShowtimes() {
       return `<div class="sch-movie-row">
             <a class="sch-poster-box" href="phim/${encodeURIComponent(k)}">
               ${m.age ? `<span class="age-badge-corner">${esc(m.age)}</span>` : ''}
-              <img loading="lazy" decoding="async" src="${esc(m.poster)}" alt="${esc(m.title)}" data-fallback="images/400x633-145627-230926-40.jpg">
+              <img ${i < 2 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" src="${esc(m.poster)}" alt="${esc(m.title)}" data-fallback="images/400x633-145627-230926-40.jpg">
             </a>
             <div class="sch-movie-details">
               <h2 class="sch-movie-title">${esc(m.shortTitle || m.title)}</h2>

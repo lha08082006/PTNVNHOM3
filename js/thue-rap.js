@@ -8,12 +8,15 @@
     EVENT: 'Hội nghị, ra mắt phim / sản phẩm, đào tạo với màn hình lớn và âm thanh rạp.',
     ADS: 'Quảng cáo trước suất chiếu, standee, sampling tại sảnh rạp.'
   };
+  // thue-rap.html đã viết sẵn 4 thẻ loại (nhãn như lib/events.js) để khung không nhảy khi API trả về (CLS);
+  // vẽ lại theo máy chủ – nguồn chính – cùng cấu trúc nên không đổi chiều cao
+  const drawKinds = (kinds) => { $('kinds').innerHTML = Object.entries(kinds).map(([id, label]) => `<div class="kind"><b>${esc(label)}</b><p>${esc(DESC[id] || '')}</p></div>`).join(''); };
   const params = new URLSearchParams(location.search);
   // Ngày sớm nhất: hôm nay (giờ VN)
   $('ev-date').min = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
   try {
     const [k, cn, mv] = await Promise.all([Pay.call('events?action=kinds'), Pay.catalog('cinemas'), Pay.catalog('movies')]);
-    $('kinds').innerHTML = Object.entries(k.kinds).map(([id, label]) => `<div class="kind"><b>${esc(label)}</b><p>${esc(DESC[id] || '')}</p></div>`).join('');
+    drawKinds(k.kinds);
     $('ev-kind').innerHTML = Object.entries(k.kinds).map(([id, label]) => `<option value="${id}" ${params.get('kind') === id ? 'selected' : ''}>${esc(label)}</option>`).join('');
     $('ev-cinema').innerHTML += (cn.cinemas || []).map((c) => `<option value="${esc(c.id)}">${esc(c.name + (c.city ? ' (' + c.city + ')' : ''))}</option>`).join('');
     $('ev-movie').innerHTML += (mv.movies || []).filter((m) => m.status !== 'HIDDEN').map((m) => `<option value="${esc(m.key)}">${esc(m.title)}</option>`).join('');

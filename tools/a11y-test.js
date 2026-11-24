@@ -35,6 +35,7 @@ async function startServer() {
   let bad = 0;
   try {
     const p = await browser.newPage();
+    await p.setBypassCSP(true); // axe-core nạp bằng addScriptTag = script inline; CSP đã bỏ 'unsafe-inline' (208dbec) nên phải bỏ qua CSP khi kiểm thử
     await p.setViewport({ width: 1280, height: 900 });
     await p.setRequestInterception(true);
     p.on('request', r => EXTERNAL.test(r.url()) ? r.abort() : r.continue());

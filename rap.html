@@ -18,6 +18,11 @@
   <style>
     body { background: #f8fafc; color: #0f172a; margin: 0; font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
     .rap-wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; box-sizing: border-box; }
+    /* Giữ chỗ cho phần tải sau để bố cục không nhảy (CLS): chân trang không bị đẩy, dòng còn trống vẫn cao đủ một dòng */
+    .rap-wrap { min-height: 100vh; }
+    #rap-cities:empty, #rd-days:empty { min-height: 44px; }
+    #rd-name:empty::before, .rap-line > span:empty::before { content: '\00a0'; }
+    #rd-shows:has(> .rd-loading) { min-height: 240px; }
     .rap-wrap h1 { font-family: Montserrat, sans-serif; font-size: 28px; font-weight: 900; color: #005198; margin: 0 0 6px; }
     .rap-sub { color: #475569; margin: 0 0 16px; font-size: 15px; }
     .rap-tools { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 8px; }
@@ -192,7 +197,7 @@
           <section class="rd-card" aria-labelledby="rd-shows-title">
             <h2 id="rd-shows-title">Suất chiếu</h2>
             <div class="chip-row rd-days" id="rd-days" role="group" aria-label="Chọn ngày"></div>
-            <div id="rd-shows" aria-live="polite"><p class="muted">Đang tải suất chiếu…</p></div>
+            <div id="rd-shows" aria-live="polite"><p class="muted rd-loading">Đang tải suất chiếu…</p></div>
           </section>
         </div>
         <aside>

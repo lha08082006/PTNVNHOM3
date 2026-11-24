@@ -25,6 +25,9 @@
     .gv-wrap h1 { font-family: Montserrat, sans-serif; font-size: 28px; color: #005198; margin: 0 0 6px; }
     .gv-lead { color: #475569; margin: 0 0 24px; font-size: 15px; line-height: 1.6; }
     .gv-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 26px; }
+    /* Giữ chỗ trước khi JS vẽ thẻ giá / bảng giá (tránh đẩy các mục bên dưới – CLS) */
+    .gv-cards:empty { min-height: 171px; }
+    .gv-loading { height: 250px; vertical-align: top; }
     .gv-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; }
     .gv-card .t { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 10px; }
     .gv-card .sw { width: 22px; height: 20px; border-radius: 6px 6px 3px 3px; display: inline-block; }
@@ -33,7 +36,7 @@
     .gv-sec { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px 24px; margin-bottom: 18px; }
     .gv-sec h2 { font-family: Montserrat, sans-serif; font-size: 19px; margin: 0 0 6px; }
     .gv-sec .sub { color: #64748b; font-size: 13.5px; margin: 0 0 14px; }
-    .gv-table-wrap { overflow-x: auto; }
+    .gv-table-wrap { overflow-x: auto; position: relative; } /* relative: chữ ẩn .sr-only (absolute) trong bảng phải nằm trong khung cuộn, không thì cả trang tràn ngang trên điện thoại */
     .gv-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
     .gv-table th, .gv-table td { border-bottom: 1px solid #e2e8f0; padding: 11px 10px; text-align: left; }
     .gv-table th { background: #f1f5f9; font-size: 12.5px; text-transform: uppercase; letter-spacing: .3px; color: #475569; }
@@ -48,6 +51,8 @@
     .m { color: #64748b; }
     @media (max-width: 760px) {
       .gv-cards { grid-template-columns: minmax(0, 1fr); }
+      .gv-cards:empty { min-height: 502px; }
+      .gv-loading { height: 340px; }
       .gv-wrap h1 { font-size: 23px; }
       .gv-sec { padding: 18px 16px; }
     }
@@ -125,7 +130,7 @@
       <div class="gv-table-wrap">
         <table class="gv-table">
           <thead><tr><th>Áp dụng</th><th>Ngày</th><th>Khung giờ</th><th>Ghế thường</th><th>Ghế VIP</th><th>Ghế đôi</th></tr></thead>
-          <tbody id="gv-rules"><tr><td colspan="6" class="m">Đang tải bảng giá…</td></tr></tbody>
+          <tbody id="gv-rules"><tr><td colspan="6" class="m gv-loading">Đang tải bảng giá…</td></tr></tbody>
         </table>
       </div>
       <p class="sub" id="gv-holidays" style="margin-top: 8px;"></p>

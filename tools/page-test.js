@@ -158,7 +158,9 @@ async function startServer() {
           }, need));
           if (errs.length) errs.slice(0, 6).forEach((e, i) => fails.push(`${label} ${file}: lỗi JS – ${e}${i === 5 && errs.length > 6 ? ` (+${errs.length - 6} lỗi khác)` : ''}`));
           if (label === 'mobile') {
-            const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+            // So với clientWidth (khung nhìn cố định theo meta viewport), KHÔNG dùng innerWidth: giả lập điện thoại tự thu nhỏ
+            // trang cho vừa nội dung nên innerWidth giãn theo phần tràn và che mất lỗi (vd. .sr-only absolute thoát khung cuộn)
+            const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
             if (over > 2) fails.push(`${label} ${file}: tràn ngang ${over}px`);
             // Đợt 8: trang có đầu trang chuẩn -> gọn 1 hàng (≤ 72px), có nút ☰, menu ngang ẩn
             const hdr = await page.evaluate(() => {

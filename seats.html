@@ -297,6 +297,13 @@
       .seat-summary-bar #checkout-meta-detail, .seat-summary-bar .seat-hold-hint { display: none; }
       .seat-summary-bar #btn-next-checkout { width: 100%; min-height: 42px !important; justify-content: center; }
     }
+    /* Giữ chỗ khi sơ đồ ghế đang tải (tránh xô lệch – CLS): cao xấp xỉ sơ đồ chuẩn 8 hàng; hai ô "Chọn giúp tôi"
+       rộng sẵn bằng lúc đã có lựa chọn để hàng nút không đổi số dòng */
+    #seat-rows:has(> p.m) { min-height: 232px; justify-content: center; }
+    @media (min-width: 700px) { #seat-rows:has(> p.m) { min-height: 248px; } }
+    @media (min-width: 1100px) { #seat-rows:has(> p.m) { min-height: 280px; } }
+    #ap-count { min-width: 77px; }
+    #ap-type { min-width: 118px; }
   </style>
   <script src="js/actions.js"></script>
 </head>
