@@ -4,13 +4,15 @@
 //   - /api/*: KHÔNG lưu (đơn, thanh toán luôn lấy trực tiếp; vé offline do pay-client.js lưu ở localStorage)
 // Vercel bật cleanUrls (/ticket.html -> /ticket) nên trang được lưu theo khóa đã chuẩn hóa: bỏ ".html", "/" = "/home".
 // Đổi VERSION khi đổi danh sách PRECACHE để xóa bộ nhớ đệm cũ.
-const VERSION = 'beta-v6'; // Sau báo cáo kiểm thử: ảnh combo / logo nhẹ hơn; thư viện QR nạp kèm SRI (crossorigin)
+const VERSION = 'beta-v7'; // CSP bỏ 'unsafe-inline': mã từng trang chuyển ra js/<trang>.js (lưu sẵn cho trang dùng offline)
 const PAGES = ['/home.html', '/account.html', '/ticket.html', '/order.html', '/offline.html'];
 const ASSETS = [
   '/css/prototype-theme.css', '/css/icons.css',
   '/catalog.js', '/pay-client.js', '/auth-client.js', '/site-chrome.js', '/quick-dock.js', '/lang.js', '/i18n/en.json',
   '/images/logo-white-official.png', '/images/logo-official.png', '/images/pwa-192.png', '/images/icon-ticket.png',
-  '/barcode.js'
+  '/barcode.js',
+  // Mã của các trang trong PAGES (không có thì mất mạng mở trang ra cũng không chạy)
+  '/js/actions.js', '/js/home.js', '/js/home-catalog.js', '/js/account.js', '/js/ticket.js', '/js/order.js', '/js/offline.js'
 ];
 
 const pageKey = (pathname) => {
@@ -55,6 +57,22 @@ self.addEventListener('fetch', (e) => {
       } catch (err) {
         const c = await caches.open(VERSION);
         return (await c.match(key)) || (await c.match('/offline')) || new Response('Mất kết nối mạng', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+      }
+    })());
+    return;
+  }
+
+  // js/<trang>.js đi đôi với HTML của trang (trước là <script> viết thẳng trong trang) -> lấy mạng trước như trang,
+  // để HTML mới không chạy với mã cũ đã lưu; mất mạng mới dùng bản đã lưu
+  if (same && url.pathname.startsWith('/js/')) {
+    e.respondWith((async () => {
+      const c = await caches.open(VERSION);
+      try {
+        const res = await fetch(req);
+        if (res.ok) c.put(req, res.clone());
+        return res;
+      } catch (err) {
+        return (await c.match(req)) || new Response('', { status: 504 });
       }
     })());
     return;

@@ -317,6 +317,7 @@
       transform: translateY(-1px);
     }
   </style>
+  <script src="/js/actions.js"></script>
 </head>
 <body>
   <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
@@ -350,7 +351,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -555,7 +556,7 @@
 
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
-    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" data-on-click="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
       <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
       <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
@@ -565,7 +566,7 @@
       <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="dock-close-pill" data-on-click="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -575,7 +576,7 @@
   <!-- ========================================================================= -->
   <!-- MODAL TRAILER YOUTUBE POPUP CHUẨN BETA CINEMAS -->
   <!-- ========================================================================= -->
-  <div class="trailer-modal-backdrop" id="trailer-modal" onclick="handleBackdropClick(event)">
+  <div class="trailer-modal-backdrop" id="trailer-modal" data-on-click="handleBackdropClick(event)">
     <div class="trailer-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="trailer-modal-movie-name">
       
       <!-- Modal Header -->
@@ -585,7 +586,7 @@
           <span class="trailer-hd-badge">FULL HD 1080p</span>
           <h3 class="trailer-modal-title" id="trailer-modal-movie-name">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</h3>
         </div>
-        <button type="button" class="trailer-modal-close" onclick="closeTrailerModal()" aria-label="Đóng trailer">
+        <button type="button" class="trailer-modal-close" data-on-click="closeTrailerModal()" aria-label="Đóng trailer">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -608,7 +609,7 @@
           </iframe>
 
           <!-- Khi mở trực tiếp qua file://: Giao diện Thumbnail Player 1-Click thông minh không bao giờ bị Lỗi 153 -->
-          <div id="trailer-file-fallback" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; cursor: pointer; overflow: hidden; z-index: 10;" onclick="openExternalYouTube()">
+          <div id="trailer-file-fallback" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; cursor: pointer; overflow: hidden; z-index: 10;" data-on-click="openExternalYouTube()">
             <img id="trailer-fallback-thumb" alt="Thumbnail" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.72; filter: brightness(0.85); transition: transform 0.4s ease;">
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.92) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px;">
               <div style="width: 76px; height: 52px; background: #ff0000; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.55); margin-bottom: 14px; transition: transform 0.25s ease;">
@@ -657,116 +658,7 @@
     </div>
   </div>
 
-  <script>
-    const MOVIE_TRAILERS = {
-      'linh-gioi-dai-chien': 'https://www.youtube.com/watch?v=mJ2pu6FazEA',
-      'dia-dao': 'https://www.youtube.com/watch?v=mJ2pu6FazEA',
-      'quy-an-tang-4': 'https://www.youtube.com/watch?v=7eRbgbj_AfM',
-      'trai-buon-nguoi': 'https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s',
-      'blue-lock': 'https://www.youtube.com/watch?v=8VMMDfAYi34',
-      'an-mang-karaoke': 'https://www.youtube.com/watch?v=aV4qtcKmkQo',
-      'ut-lan-2': 'https://www.youtube.com/watch?v=TpwGd81RSKk',
-      'co-dau-hao-mon': 'https://www.youtube.com/watch?v=TpwGd81RSKk',
-      'suzume': 'https://www.youtube.com/watch?v=EWLo2IF_NPU',
-      'ca-voi-nuot-chung': 'https://www.youtube.com/watch?v=ZyGPPlhPI8M',
-      'me-min': 'https://www.youtube.com/watch?v=mTylSVV6zSo'
-    };
-
-    function extractYouTubeVideoId(input) {
-      if (!input) return '';
-      input = input.trim();
-      if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
-      const match = input.match(/(?:youtu\.be\/|(?:[a-zA-Z0-9-]+\.)?youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-      return match ? match[1] : '';
-    }
-
-    
-    let currentActiveWatchUrl = '';
-
-    function openExternalYouTube() {
-      if (currentActiveWatchUrl) {
-        window.open(currentActiveWatchUrl, '_blank');
-      }
-    }
-
-
-    function openTrailerModal(movieKey, movieTitle) {
-      const trailerUrl = MOVIE_TRAILERS[movieKey] || 'https://www.youtube.com/watch?v=mJ2pu6FazEA';
-      const videoId = extractYouTubeVideoId(trailerUrl);
-
-      const modal = document.getElementById('trailer-modal');
-      const titleElem = document.getElementById('trailer-modal-movie-name');
-      const iframe = document.getElementById('trailer-iframe');
-      const ytbLink = document.getElementById('trailer-modal-ytb-link');
-
-      const watchUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : trailerUrl;
-      const originParam = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
-        ? `&origin=${encodeURIComponent(window.location.origin)}`
-        : '';
-      const embedUrl = videoId 
-        ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&vq=hd1080&hd=1${originParam}`
-        : trailerUrl;
-
-      if (titleElem) titleElem.textContent = movieTitle || 'Trailer Phim';
-      if (ytbLink) ytbLink.href = watchUrl;
-      currentActiveWatchUrl = watchUrl;
-
-      const fallback = document.getElementById('trailer-file-fallback');
-      const fallbackThumb = document.getElementById('trailer-fallback-thumb');
-      const fallbackTitle = document.getElementById('trailer-fallback-title');
-      const warn = document.getElementById('trailer-file-protocol-warning');
-
-      if (window.location.protocol === 'file:') {
-        if (iframe) {
-          iframe.style.display = 'none';
-          iframe.src = '';
-        }
-        if (fallback) {
-          fallback.style.display = 'block';
-          if (fallbackThumb && videoId) {
-            fallbackThumb.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-          }
-          if (fallbackTitle) {
-            fallbackTitle.textContent = movieTitle || 'Trailer Phim';
-          }
-        }
-        if (warn) warn.style.display = 'block';
-      } else {
-        if (fallback) fallback.style.display = 'none';
-        if (iframe) {
-          iframe.style.display = 'block';
-          iframe.src = embedUrl;
-        }
-        if (warn) warn.style.display = 'none';
-      }
-
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeTrailerModal() {
-      const modal = document.getElementById('trailer-modal');
-      const iframe = document.getElementById('trailer-iframe');
-      if (modal) modal.classList.remove('open');
-      if (iframe) iframe.src = '';
-      document.body.style.overflow = '';
-    }
-
-    function handleBackdropClick(e) {
-      if (e.target && e.target.id === 'trailer-modal') {
-        closeTrailerModal();
-      }
-    }
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        const modal = document.getElementById('trailer-modal');
-        if (modal && modal.classList.contains('open')) {
-          closeTrailerModal();
-        }
-      }
-    });
-  </script>
+  <script src="js/movie-trailer.js"></script>
   <style>
     .md-filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
     .md-label { font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px; }
@@ -786,290 +678,8 @@
   </style>
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
-  <script>
-    // Chi tiết phim: phim, rạp, suất chiếu lấy từ /api/catalog. Bấm suất -> seats.html?showtime=<id>
-    (async () => {
-      const $ = (id) => document.getElementById(id);
-      const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-      const params = new URLSearchParams(location.search);
-      // Đường dẫn đẹp /phim/<mã-phim> (Đợt 3) hoặc kiểu cũ movie-detail.html?movie=<mã>
-      let key = params.get('movie') || (location.pathname.match(/^\/phim\/([a-z0-9-]+)\/?$/) || [])[1] || '';
-      let week = [];
-
-      // SEO (Đợt 3): đường dẫn chuẩn, mô tả, ảnh chia sẻ, dữ liệu có cấu trúc schema.org (Movie + lịch chiếu)
-      const setMeta = (sel, attr, val) => {
-        let el = document.head.querySelector(sel);
-        if (!el) { el = document.createElement(sel.startsWith('link') ? 'link' : 'meta'); const mm = /\[(\w+)="([^"]+)"\]/.exec(sel); el.setAttribute(mm[1], mm[2]); document.head.appendChild(el); }
-        el.setAttribute(attr, val);
-      };
-      function seo(m) {
-        const url = location.origin + '/phim/' + encodeURIComponent(m.key);
-        if (location.protocol.startsWith('http') && !/^\/phim\//.test(location.pathname)) {
-          try { history.replaceState(null, '', '/phim/' + encodeURIComponent(m.key) + location.hash); } catch (e) { /* bỏ qua */ }
-        }
-        const desc = (m.synopsis || m.meta || ('Lịch chiếu và đặt vé phim ' + m.title + ' tại Beta Cinemas.')).replace(/\s+/g, ' ').slice(0, 160);
-        const img = m.poster ? new URL(m.poster, location.origin + '/').href : location.origin + '/images/logo-official.png';
-        setMeta('link[rel="canonical"]', 'href', url);
-        setMeta('meta[name="description"]', 'content', desc);
-        setMeta('meta[property="og:title"]', 'content', m.title + ' - Beta Cinemas');
-        setMeta('meta[property="og:description"]', 'content', desc);
-        setMeta('meta[property="og:image"]', 'content', img);
-        setMeta('meta[property="og:url"]', 'content', url);
-        const ld = {
-          '@context': 'https://schema.org', '@type': 'Movie', name: m.title, url, image: img, description: desc,
-          ...(m.duration_min ? { duration: 'PT' + m.duration_min + 'M' } : {}),
-          ...(m.genre ? { genre: String(m.genre).split(/,\s*/) } : {}),
-          ...(m.director ? { director: { '@type': 'Person', name: m.director } } : {}),
-          ...(m.cast ? { actor: String(m.cast).split(/,\s*/).slice(0, 6).map((n) => ({ '@type': 'Person', name: n })) } : {}),
-          ...(m.release_date ? { datePublished: m.release_date } : {}),
-          ...(m.age ? { contentRating: m.age } : {})
-        };
-        let s = document.getElementById('ld-movie');
-        if (!s) { s = document.createElement('script'); s.type = 'application/ld+json'; s.id = 'ld-movie'; document.head.appendChild(s); }
-        s.textContent = JSON.stringify(ld);
-      }
-      // Lịch chiếu dạng ScreeningEvent (Google có thể hiện giờ chiếu trong kết quả tìm kiếm)
-      function seoShowtimes(m, list) {
-        const ev = list.slice(0, 20).map((st) => ({
-          '@context': 'https://schema.org', '@type': 'ScreeningEvent', name: m.title, startDate: st.starts_at,
-          location: { '@type': 'MovieTheater', name: st.cinema }, workPresented: { '@type': 'Movie', name: m.title },
-          videoFormat: st.format || '2D', inLanguage: 'vi',
-          offers: { '@type': 'Offer', price: (st.prices && st.prices.standard) || 0, priceCurrency: 'VND', availability: st.seats_free > 0 ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut', url: location.origin + '/seats.html?showtime=' + st.id }
-        }));
-        let s = document.getElementById('ld-shows');
-        if (!s) { s = document.createElement('script'); s.type = 'application/ld+json'; s.id = 'ld-shows'; document.head.appendChild(s); }
-        s.textContent = JSON.stringify(ev);
-      }
-      // Có <base href="/">: liên kết "#mục" phải cuộn trong trang, không nhảy về trang chủ
-      document.addEventListener('click', (e) => {
-        const a = e.target.closest && e.target.closest('a[href^="#"]');
-        if (!a || a.getAttribute('href').length < 2) return;
-        const t = document.querySelector(a.getAttribute('href'));
-        if (!t) return;
-        e.preventDefault();
-        t.scrollIntoView({ behavior: 'smooth' });
-        if (t.tabIndex < 0) t.setAttribute('tabindex', '-1');
-        t.focus({ preventScroll: true });
-      });
-
-      const renderMovie = (m) => {
-        document.title = (m.shortTitle || m.title) + ' - Lịch chiếu & đặt vé | Beta Cinemas';
-        $('md-title').textContent = m.title;
-        $('md-sub').textContent = m.format || '';
-        $('md-poster').src = m.poster || 'images/logo.png';
-        $('md-poster').alt = 'Poster phim ' + (m.shortTitle || m.title);
-        if (m.age) { $('md-age').hidden = false; $('md-age').textContent = m.age; }
-        if (m.badge) { $('md-format').hidden = false; $('md-format').textContent = m.badge; }
-        if (m.status === 'SOON') $('md-soon').hidden = false;
-        document.dispatchEvent(new CustomEvent('md:movie', { detail: m }));
-        seo(m);
-        // Thông tin phim đầy đủ: thời lượng, khởi chiếu, ngôn ngữ, thể loại, đạo diễn, diễn viên, phân loại tuổi
-        const fmtDate = (d) => d ? d.split('-').reverse().join('/') : '';
-        const pills = [m.duration_min ? ['timer', m.duration_min + ' phút'] : null, m.release_date ? ['calendar', 'Khởi chiếu ' + fmtDate(m.release_date)] : null, m.language ? ['globe', m.language] : null].filter(Boolean);
-        $('md-pills').innerHTML = pills.map(([ic, x]) => '<div class="stat-pill"><i class="ph-' + ic + '" aria-hidden="true"></i> ' + esc(x) + '</div>').join('');
-        const rows = [['Thể loại', m.genre], ['Đạo diễn', m.director], ['Diễn viên', m.cast], ['Phân loại', m.age ? m.age + (m.age_note ? ' – ' + m.age_note : '') : '']].filter(([, v]) => v);
-        $('md-meta').innerHTML = (m.synopsis ? '<span style="display:block;margin-bottom:10px;">' + esc(m.synopsis) + '</span>' : '') +
-          rows.map(([k, v]) => '<span style="display:block;"><b>' + k + ':</b> ' + esc(v) + '</span>').join('');
-        const meta = document.querySelector('meta[name="description"]');
-        if (meta) meta.content = 'Xem lịch chiếu và đặt vé ' + (m.shortTitle || m.title) + ' tại Beta Cinemas. ' + (m.meta || '');
-        Pay.catalog('posts', { movie: m.key, type: 'PROMO', limit: 3 }).then(r => {
-          if (!r.posts.length) return;
-          const box = document.createElement('div');
-          box.style.cssText = 'margin-top: 14px; display: flex; flex-direction: column; gap: 6px;';
-          box.innerHTML = '<b style="font-size: 13px; letter-spacing: .3px;"><i class="ph-tag" aria-hidden="true"></i> ƯU ĐÃI ĐANG ÁP DỤNG</b>' + r.posts.map(p =>
-            '<a href="tin-tuc.html?id=' + encodeURIComponent(p.id) + '" style="color: #fde68a; font-weight: 700; font-size: 14px;">' + esc(p.title) + ' →</a>').join('');
-          $('md-meta').after(box);
-        }).catch(() => {});
-        const trailer = m.trailer || (typeof MOVIE_TRAILERS !== 'undefined' && MOVIE_TRAILERS[m.key]);
-        if (trailer) {
-          if (typeof MOVIE_TRAILERS !== 'undefined') MOVIE_TRAILERS[m.key] = trailer;
-          $('md-trailer-btn').hidden = false;
-          $('md-trailer-btn').onclick = () => openTrailerModal(m.key, m.title);
-        }
-      };
-
-      const renderSlots = () => {
-        const cinema = $('md-cinema').value, date = $('md-date').value;
-        const list = week.filter((s) => s.cinema_id === cinema && s.date === date);
-        const cName = ($('md-cinema').selectedOptions[0] || {}).textContent || '';
-        $('md-slots-title').innerHTML = '<i class=ph-map-pin aria-hidden=true></i> ' + esc(cName.toUpperCase());
-        const min = list.reduce((a, s) => Math.min(a, (s.prices && s.prices.standard) || Infinity), Infinity);
-        $('md-price-from').textContent = isFinite(min) ? 'Vé chỉ từ ' + Pay.vnd(min) : '';
-        if (!list.length) { $('md-slots').innerHTML = '<p class="m">Rạp chưa có suất chiếu phim này trong ngày đã chọn. Hãy chọn ngày hoặc rạp khác.</p>'; return; }
-        const byFormat = {};
-        list.forEach((s) => (byFormat[s.format || ''] = byFormat[s.format || ''] || []).push(s));
-        $('md-slots').innerHTML = Object.keys(byFormat).map((f) =>
-          (f ? '<div class="md-group-title">' + esc(f) + '</div>' : '') +
-          byFormat[f].map((s) => {
-            const full = s.seats_free === 0;
-            return '<a class="md-slot' + (full ? ' full' : '') + '" href="seats.html?showtime=' + encodeURIComponent(s.id) + '"' + (full ? ' aria-disabled="true" tabindex="-1"' : '') + '>' +
-              '<b>' + esc(s.time) + (s.late ? ' <i class=ph-moon aria-hidden=true></i>' : '') + '</b>' + (s.end_time ? '<small>~ ' + esc(s.end_time) + ' kết thúc</small>' : '') +
-              '<small>' + esc(s.room || '') + ' • ' + (full ? 'Hết ghế' : 'Còn ' + s.seats_free + ' ghế') + '</small></a>';
-          }).join('')).join('') +
-          '<p class="m" style="flex-basis: 100%; font-size: 12.5px; margin: 4px 0 0;">Giờ kết thúc là dự kiến; suất chiếu có thể bắt đầu muộn 10–15 phút do quảng cáo và giới thiệu phim.</p>';
-      };
-
-      const fillDates = () => {
-        const cinema = $('md-cinema').value;
-        const dates = [];
-        week.forEach((s) => { if (s.cinema_id === cinema && !dates.some((d) => d.date === s.date)) dates.push({ date: s.date, label: s.date_label }); });
-        dates.sort((a, b) => a.date.localeCompare(b.date));
-        $('md-date').innerHTML = dates.length ? dates.map((d) => '<option value="' + esc(d.date) + '">' + esc(d.label) + '</option>').join('') : '<option value="">Chưa có lịch chiếu</option>';
-        renderSlots();
-      };
-
-      try {
-        const [mv, cn] = await Promise.all([Pay.catalog('movies'), Pay.catalog('cinemas')]);
-        const movies = mv.movies || [];
-        const m = movies.find((x) => x.key === key) || (!key && movies[0]);
-        if (!m) {
-          $('md-title').textContent = 'Không tìm thấy phim';
-          $('md-slots').innerHTML = '<p class="m">Phim không tồn tại hoặc đã ngừng chiếu. <a href="schedule.html">Xem lịch chiếu các phim khác</a>.</p>';
-          return;
-        }
-        key = m.key;
-        renderMovie(m);
-        const wk = await Pay.catalog('showtimes', { movie: key, days: 30 });
-        week = wk.showtimes || [];
-        seoShowtimes(m, week);
-        const has = new Set(week.map((s) => s.cinema_id));
-        const cinemas = (cn.cinemas || []).filter((c) => has.has(c.id));
-        if (!cinemas.length) {
-          $('md-cinema').innerHTML = '<option>Chưa có rạp chiếu</option>';
-          $('md-date').innerHTML = '<option>—</option>';
-          $('md-slots').innerHTML = '<p class="m">' + (m.status === 'SOON' ? 'Phim sắp khởi chiếu, lịch chiếu sẽ được cập nhật sớm.' : 'Phim chưa có suất chiếu trong 30 ngày tới.') + '</p><div id="md-watch" style="width: 100%;"></div>';
-          document.dispatchEvent(new CustomEvent('md:noshow', { detail: m }));
-          return;
-        }
-        $('md-cinema').innerHTML = cinemas.map((c) => '<option value="' + esc(c.id) + '">' + esc(c.name + (c.city ? ' (' + c.city + ')' : '')) + '</option>').join('');
-        $('md-cinema').onchange = fillDates;
-        $('md-date').onchange = renderSlots;
-        fillDates();
-      } catch (e) {
-        if ($('md-title').textContent === 'Đang tải phim…') $('md-title').textContent = 'Không tải được thông tin phim';
-        $('md-slots').innerHTML = '<p class="m">Không kết nối được máy chủ. <button type="button" class="btn btn-outline btn-sm" onclick="location.reload()">Thử lại</button></p>';
-      }
-    })();
-  </script>
-  <script>
-    // Phim yêu thích (Đợt 5): nút cạnh "Đặt vé" – cần đăng nhập
-    document.addEventListener('md:movie', async (ev) => {
-      const m = ev.detail;
-      const anchor = document.getElementById('md-trailer-btn') || document.getElementById('md-book-btn');
-      if (!anchor || document.getElementById('md-fav')) return;
-      const b = document.createElement('button');
-      b.type = 'button'; b.id = 'md-fav'; b.className = 'btn btn-outline btn-lg';
-      b.style.cssText = 'color: white; border-color: rgba(255,255,255,0.4);';
-      anchor.after(b);
-      let token = null;
-      try { token = localStorage.getItem('BETA_AUTH_TOKEN'); } catch (e) {}
-      const paint = (on) => { b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '♥ Đã yêu thích' : '♡ Yêu thích'; };
-      let on = false;
-      if (token) { try { on = (await Pay.call('member?action=favorites')).favorites.some(f => f.key === m.key); } catch (e) {} }
-      paint(on);
-      b.onclick = async () => {
-        if (!token) { location.href = BetaAuth.loginUrl(); return; }
-        try { on = (await Pay.post('member?action=favorite', { movie: m.key, on: !on })).favorites.some(f => f.key === m.key); paint(on); } catch (e) { alert(e.message); }
-      };
-    });
-
-    // "Nhắc tôi khi mở bán": phim chưa có suất -> khách đăng ký nhận email khi có lịch chiếu (Đợt 3)
-    document.addEventListener('md:noshow', async (ev) => {
-      const m = ev.detail;
-      const box = document.getElementById('md-watch');
-      let token = null;
-      try { token = localStorage.getItem('BETA_AUTH_TOKEN'); } catch (e) {}
-      const paint = (on) => {
-        box.innerHTML = '<button type="button" class="btn ' + (on ? 'btn-outline' : 'btn-primary') + '" id="md-watch-btn" aria-pressed="' + on + '">' + (on ? '✓ Sẽ báo bạn qua email khi mở bán · Tắt nhắc' : 'Nhắc tôi khi mở bán vé') + '</button>';
-        document.getElementById('md-watch-btn').onclick = async () => {
-          if (!token) { location.href = BetaAuth.loginUrl(); return; }
-          try { paint((await Pay.post('member?action=watch', { movie: m.key, on: !on })).watching); } catch (e) { alert(e.message); }
-        };
-      };
-      if (!token) return paint(false);
-      try { paint((await Pay.call('member?action=watch&movie=' + encodeURIComponent(m.key))).watching); } catch (e) { paint(false); }
-    });
-
-    // Đợt 9: "Có thể bạn cũng thích" – phim trùng thể loại, ưu tiên đang chiếu và bán chạy
-    document.addEventListener('md:movie', async (ev) => {
-      const m = ev.detail;
-      const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-      const gs = (x) => String(x.genre || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-      const mine = new Set(gs(m));
-      try {
-        const { movies } = await Pay.catalog('movies');
-        let stats = {};
-        try { stats = (await Pay.catalog('movie_stats')).stats || {}; } catch (e) { /* không có xếp hạng */ }
-        const rank = (x) => (stats[x.key] && stats[x.key].rank) || 99;
-        const pool = movies.filter(x => x.key !== m.key && x.status !== 'HIDDEN')
-          .map(x => ({ x, s: gs(x).filter(g => mine.has(g)).length }))
-          .sort((a, b) => b.s - a.s || (a.x.status === 'SOON') - (b.x.status === 'SOON') || rank(a.x) - rank(b.x));
-        const pick = pool.slice(0, 4).map(o => o.x);
-        if (!pick.length) return;
-        document.getElementById('rel-title').textContent = pool[0].s > 0 ? 'Phim cùng thể loại' : 'Phim đang chiếu khác';
-        document.getElementById('rel-grid').innerHTML = pick.map(x => {
-          const s = stats[x.key];
-          return `<article class="rel-card">
-            <a class="pw" href="phim/${encodeURIComponent(x.key)}" tabindex="-1" aria-hidden="true"><img src="${esc(x.poster)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">${s && s.avg != null ? `<span class="movie-rating"><i class="ph-star" aria-hidden="true"></i>${s.avg.toFixed(1)}</span>` : ''}</a>
-            <div class="bd"><b><a href="phim/${encodeURIComponent(x.key)}">${esc(x.title)}</a></b>
-              <small>${esc([x.genre, x.duration_min ? x.duration_min + ' phút' : '', x.age].filter(Boolean).join(' · '))}</small>
-              <div class="movie-actions"><a class="ma-buy" href="booking.html?movie=${encodeURIComponent(x.key)}"><i class="ph-ticket" aria-hidden="true"></i> ${x.status === 'SOON' ? 'Đặt trước' : 'Mua vé'}</a></div>
-            </div></article>`;
-        }).join('');
-        document.getElementById('related').hidden = false;
-      } catch (e) { /* không hiện mục gợi ý */ }
-    });
-
-    // Đánh giá phim: danh sách công khai + form cho khách đã soát vé (mỗi đơn vé một đánh giá)
-    document.addEventListener('md:movie', async (ev) => {
-      const m = ev.detail;
-      const $ = (id) => document.getElementById(id);
-      const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-      const stars = (n) => '<span aria-hidden="true" style="color:#f59e0b; letter-spacing: 1px;">' + '★'.repeat(Math.round(n)) + '<span style="color:#cbd5e1">' + '★'.repeat(5 - Math.round(n)) + '</span></span>';
-      async function loadList() {
-        try {
-          const r = await Pay.call('member?action=reviews&movie=' + encodeURIComponent(m.key));
-          $('rv-avg').innerHTML = r.count ? stars(r.avg) + ' <b style="color: var(--beta-navy); font-size: 16px;">' + r.avg + '/5</b> · ' + r.count + ' đánh giá' : '';
-          $('rv-list').innerHTML = r.count ? r.reviews.map((x) => '<div style="border-top: 1px solid #f1f5f9; padding: 12px 0;">'
-            + '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13.5px;">' + stars(x.rating) + '<span class="sr-only">' + x.rating + ' sao</span> <b>' + esc(x.name) + '</b>'
-            + '<span style="font-size: 11.5px; font-weight: 700; color: #15803d; background: #f0fdf4; border-radius: 99px; padding: 1px 8px;">Đã xem tại rạp</span>'
-            + '<span style="color: #94a3b8; font-size: 12px;">' + new Date(x.created_at).toLocaleDateString('vi-VN') + '</span></div>'
-            + (x.content ? '<p style="margin: 6px 0 0; font-size: 14px; color: #1e293b; line-height: 1.6;">' + esc(x.content).replace(/\n/g, '<br>') + '</p>' : '') + '</div>').join('')
-            : '<p class="m" style="font-size: 14px;">Chưa có đánh giá. Khán giả đã xem phim tại rạp sẽ chấm điểm ở đây.</p>';
-        } catch (e) { $('rv-list').innerHTML = '<p class="m">Không tải được đánh giá.</p>'; }
-      }
-      async function loadForm() {
-        let token = null;
-        try { token = localStorage.getItem('BETA_AUTH_TOKEN'); } catch (e) {}
-        if (!token) { $('rv-form').innerHTML = '<p class="m" style="font-size: 13.5px; margin: 0 0 10px;">Đã xem phim tại Beta? <a href="' + esc(BetaAuth.loginUrl()) + '">Đăng nhập</a> để đánh giá.</p>'; return; }
-        try {
-          const r = await Pay.call('member?action=can_review&movie=' + encodeURIComponent(m.key));
-          if (!r.orders.length) { $('rv-form').innerHTML = ''; return; }
-          const o = r.orders[0];
-          $('rv-form').innerHTML = '<form id="rv-f" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 12px;">'
-            + '<div style="font-size: 13.5px; margin-bottom: 8px;">Bạn đã xem phim này (' + esc(o.show_time + ' ' + o.show_date + ' · ' + o.cinema) + '). Chấm điểm:</div>'
-            + '<fieldset style="border: 0; padding: 0; margin: 0 0 8px; display: flex; gap: 4px;" aria-label="Số sao"><legend class="sr-only">Số sao</legend>'
-            + [1, 2, 3, 4, 5].map((n) => '<label style="cursor: pointer; font-size: 26px; color: #cbd5e1;" data-n="' + n + '"><input type="radio" name="rating" value="' + n + '" required style="position: absolute; opacity: 0; width: 1px; height: 1px;"><span aria-hidden="true">★</span><span class="sr-only">' + n + ' sao</span></label>').join('')
-            + '</fieldset><textarea name="content" maxlength="1000" rows="3" class="form-input" style="width: 100%; height: auto; padding: 10px;" placeholder="Cảm nhận của bạn (không bắt buộc, không tiết lộ nội dung phim)"></textarea>'
-            + '<p id="rv-msg" role="status" style="font-size: 13px; margin: 6px 0;"></p><button class="btn btn-primary btn-sm" type="submit">Gửi đánh giá</button></form>';
-          const f = $('rv-f');
-          const paint = (v) => f.querySelectorAll('label[data-n]').forEach((l) => { l.style.color = Number(l.dataset.n) <= v ? '#f59e0b' : '#cbd5e1'; });
-          f.querySelectorAll('input[name=rating]').forEach((i) => i.addEventListener('change', () => paint(Number(i.value))));
-          f.onsubmit = async (e) => {
-            e.preventDefault();
-            const rating = Number((f.querySelector('input[name=rating]:checked') || {}).value);
-            try {
-              await Pay.post('member?action=review', { order_code: o.order_code, rating, content: f.content.value });
-              $('rv-form').innerHTML = '<p style="color: #15803d; font-weight: 700; font-size: 14px;">Cảm ơn bạn đã đánh giá!</p>';
-              loadList();
-            } catch (err) { $('rv-msg').textContent = err.message; $('rv-msg').style.color = '#b91c1c'; }
-          };
-        } catch (e) { $('rv-form').innerHTML = ''; }
-      }
-      loadList();
-      loadForm();
-    });
-  </script>
+  <script src="js/movie-detail.js"></script>
+  <script src="js/movie-fav.js"></script>
   <script src="site-chrome.js" defer></script>
 </body>
 </html>

@@ -129,7 +129,7 @@
       document.querySelectorAll('.top-auth-links').forEach(el => {
         el.innerHTML = u
           ? `<span style="color: #005198;">Xin chào, <a href="account.html" style="color: inherit;"><strong>${esc(u.full_name)}</strong></a></span>
-             <span>|</span><a href="javascript:void(0)" data-auth-logout>Đăng xuất</a>
+             <span>|</span><a href="#" data-auth-logout>Đăng xuất</a>
              <span>|</span><a href="betabot.html">Hỗ trợ CSKH</a>`
           : `<a href="auth.html#login">Đăng nhập</a><span>|</span><a href="auth.html#register">Đăng ký</a>
              <span>|</span><a href="betabot.html">Hỗ trợ CSKH</a>`;

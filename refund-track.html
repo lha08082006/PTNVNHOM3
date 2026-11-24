@@ -176,6 +176,7 @@
       }
     }
   </style>
+  <script src="js/actions.js"></script>
 </head>
 <body>
   <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
@@ -209,7 +210,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -504,7 +505,7 @@
 
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
-    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" data-on-click="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
       <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
       <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
@@ -514,7 +515,7 @@
       <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="dock-close-pill" data-on-click="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -522,22 +523,7 @@
 
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
-  <script>
-    // Tiến trình hoàn tiền nay hiển thị ở trang Theo dõi đơn hàng (order.html), thanh 4 mốc theo dữ liệu thật.
-    // Trang này chỉ chuyển hướng để các liên kết cũ vẫn dùng được; mã demo không có trên máy chủ thì giữ giao diện mẫu.
-    (async () => {
-      const p = new URLSearchParams(location.search);
-      const order = (p.get('order') || '').toUpperCase();
-      const code = p.get('code') || '';
-      try {
-        const o = code ? await Pay.getRefunds({ code }) : order ? await Pay.getRefunds({ order_code: order }) : null;
-        if (o && o.code) return location.replace('order.html?code=' + encodeURIComponent(o.code));
-      } catch (e) {}
-      // Không có đơn thật: chỉ giữ giao diện mẫu khi đang thiết kế (localhost / ?dev=1)
-      const dev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || p.has('dev');
-      if (!dev) location.replace(order ? 'order.html?code=' + encodeURIComponent(order) : 'account.html');
-    })();
-  </script>
+  <script src="js/refund-track.js"></script>
   <script src="site-chrome.js" defer></script>
 </body>
 </html>

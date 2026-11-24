@@ -157,6 +157,7 @@
       .preview-iframe { height: 500px; }
     }
   </style>
+  <script src="js/actions.js"></script>
 </head>
 <body>
   <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
@@ -190,7 +191,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -487,14 +488,14 @@
           <span style="font-size: 12px; color: #64748b;">— Bạn có thể duyệt trực tiếp màn hình bên dưới:</span>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" onclick="setPreviewUrl('home.html')">Trang Chủ</button>
-          <button class="btn btn-outline btn-sm" style="color: white; border-color: #c53030; color: #ffaa80;" onclick="setPreviewUrl('booking.html')"><i class="ph-ticket" aria-hidden="true"></i> Đặt Suất/Vé (Mới)</button>
-          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" onclick="setPreviewUrl('seats.html')">Chọn Ghế</button>
-          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" onclick="setPreviewUrl('checkout.html')">Thanh Toán</button>
-          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" onclick="setPreviewUrl('ticket.html')">Vé E-Ticket</button>
-          <button class="btn btn-outline btn-sm" style="color: white; border-color: #c53030; color: #ffaa80;" onclick="setPreviewUrl('betabot.html')"><i class="ph-robot" aria-hidden="true"></i> BetaBot AI</button>
-          <button class="btn btn-outline btn-sm" style="color: white; border-color: #ef4444; color: #fca5a5;" onclick="setPreviewUrl('ticket-cancelled.html')"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</button>
-          <button class="btn btn-outline btn-sm" style="color: white; border-color: #0369a1; color: #93c5fd;" onclick="setPreviewUrl('refund-track.html')"><i class="ph-trend-up" aria-hidden="true"></i> Theo Dõi Hoàn Tiền</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" data-on-click="setPreviewUrl('home.html')">Trang Chủ</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #c53030; color: #ffaa80;" data-on-click="setPreviewUrl('booking.html')"><i class="ph-ticket" aria-hidden="true"></i> Đặt Suất/Vé (Mới)</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" data-on-click="setPreviewUrl('seats.html')">Chọn Ghế</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" data-on-click="setPreviewUrl('checkout.html')">Thanh Toán</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #475569;" data-on-click="setPreviewUrl('ticket.html')">Vé E-Ticket</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #c53030; color: #ffaa80;" data-on-click="setPreviewUrl('betabot.html')"><i class="ph-robot" aria-hidden="true"></i> BetaBot AI</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #ef4444; color: #fca5a5;" data-on-click="setPreviewUrl('ticket-cancelled.html')"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</button>
+          <button class="btn btn-outline btn-sm" style="color: white; border-color: #0369a1; color: #93c5fd;" data-on-click="setPreviewUrl('refund-track.html')"><i class="ph-trend-up" aria-hidden="true"></i> Theo Dõi Hoàn Tiền</button>
         </div>
       </div>
       <iframe src="home.html" id="preview-frame" class="preview-iframe"></iframe>
@@ -582,7 +583,7 @@
 
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
-    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" data-on-click="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
       <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
       <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
@@ -592,17 +593,13 @@
       <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="dock-close-pill" data-on-click="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
-  <script>
-    function setPreviewUrl(url) {
-      document.getElementById('preview-frame').src = url;
-    }
-  </script>
+  <script src="js/showcase.js"></script>
   <script src="site-chrome.js" defer></script>
 </body>
 </html>

@@ -1,13 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <script>
-    // Trang mẫu thiết kế: trạng thái đơn thật (đã hủy / đã hoàn tiền) hiển thị ở order.html
-    (function () {
-      var c = new URLSearchParams(location.search).get("order");
-      location.replace(c ? "order.html?code=" + encodeURIComponent(c) : "account.html");
-    })();
-  </script>
+  <script src="js/redirect-to-order.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="lang.js"></script>
@@ -211,6 +205,7 @@
       }
     }
   </style>
+  <script src="js/actions.js"></script>
 </head>
 <body>
   <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
@@ -244,7 +239,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -312,7 +307,7 @@
             <div style="display: flex; gap: 18px; align-items: flex-start;">
               <img id="cancel-movie-poster" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp" 
                    alt="Trại Buôn Người" 
-                   onerror="this.src='images/400x633-145627-230926-40.jpg'"
+                   data-fallback="images/400x633-145627-230926-40.jpg"
                    style="width: 86px; aspect-ratio: 2/3; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0;">
               
               <div style="flex: 1;">
@@ -589,7 +584,7 @@
 
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
-    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" data-on-click="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
       <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
       <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
@@ -600,60 +595,14 @@
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
       <a href="ticket-refunded.html" class="dock-item" data-page="ticket-refunded"><i class="ph-confetti" aria-hidden="true"></i> Đã Hoàn</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="dock-close-pill" data-on-click="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
 
-  <script>
-    (function initCancelledPage() {
-      const params = new URLSearchParams(window.location.search);
-      const order = params.get('order') || '';
-      // Trang mẫu: chỉ hiện khi mở kèm mã đơn; không tự bịa đơn / mã hoàn tiền mẫu
-      if (!order) {
-        const main = document.getElementById('main-content');
-        if (main) main.innerHTML = '<div class="container" style="padding: 60px 20px; text-align: center;"><h1 style="font-size: 22px; margin-bottom: 12px;">Không có thông tin đơn</h1><p style="color: #475569; margin-bottom: 16px;">Xem đơn đã hủy và tiền hoàn trong Tài khoản → Lịch sử đơn hàng.</p><a class="btn btn-primary" href="account.html">Mở Tài khoản</a></div>';
-        return;
-      }
-      const movieKey = params.get('movie') || 'quy-an-tang-4';
-      const total = Number(params.get('total') || 90000);
-      const cinema = params.get('cinema') || 'Beta Thanh Xuân (Hà Nội)';
-      const seats = params.get('seats') || 'D5, D6';
-      const date = params.get('date') || 'Hôm nay';
-      const time = params.get('time') || '18:30';
-      const refundCode = params.get('refund_code') || ('REF-' + order.slice(-6));
-
-      const movieTitle = (movieKey === 'quy-an-tang-4') ? 'Quỷ Ăn Tạng 4' : 'Trại Buôn Người: Vùng Cấm Biên Giới';
-      const poster = (movieKey === 'quy-an-tang-4') 
-        ? 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp' 
-        : 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.webp';
-
-      const totalFmt = total.toLocaleString('vi-VN') + ' đ';
-
-      const ordEl = document.getElementById('cancel-order-code');
-      if (ordEl) ordEl.textContent = order;
-      const tEl = document.getElementById('cancel-movie-title');
-      if (tEl) tEl.textContent = movieTitle;
-      const pEl = document.getElementById('cancel-movie-poster');
-      if (pEl) pEl.src = poster;
-      const cEl = document.getElementById('cancel-cinema');
-      if (cEl) cEl.textContent = cinema;
-      const stEl = document.getElementById('cancel-showtime');
-      if (stEl) stEl.textContent = `${time} • ${date}`;
-      const sEl = document.getElementById('cancel-seats');
-      if (sEl) sEl.textContent = seats;
-      const totEl = document.getElementById('cancel-total');
-      if (totEl) totEl.textContent = totalFmt;
-      const refEl = document.getElementById('cancel-refund-amount');
-      if (refEl) refEl.textContent = `+${totalFmt} (VietQR)`;
-      const noteEl = document.getElementById('cancel-note-seats');
-      if (noteEl) noteEl.textContent = seats;
-      const rcEl = document.getElementById('cancel-ref-code');
-      if (rcEl) rcEl.textContent = refundCode;
-    })();
-  </script>
+  <script src="js/ticket-cancelled.js"></script>
   <script src="site-chrome.js" defer></script>
 </body>
 </html>

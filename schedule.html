@@ -380,6 +380,7 @@
       .sch-slots-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
     }
   </style>
+  <script src="js/actions.js"></script>
 </head>
 <body>
   <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
@@ -413,7 +414,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select aria-label="Chọn rạp" class="cinema-select-official" id="schedule-cinema-select" onchange="changeCinema(this.value)">
+        <select aria-label="Chọn rạp" class="cinema-select-official" id="schedule-cinema-select" data-on-change="changeCinema(this.value)">
           <option>Đang tải rạp...</option>
         </select>
         <span aria-hidden="true" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #005198; font-size: 11px;">▼</span>
@@ -438,10 +439,10 @@
   <section class="sch-date-bar-official">
     <div class="container">
       <div class="dbar-wrap">
-        <button type="button" class="dbar-nav prev" aria-label="Xem các ngày trước" onclick="scrollDates(-1)"><i class="ph-caret-left" aria-hidden="true"></i></button>
+        <button type="button" class="dbar-nav prev" aria-label="Xem các ngày trước" data-on-click="scrollDates(-1)"><i class="ph-caret-left" aria-hidden="true"></i></button>
         <div class="date-row-official" id="official-date-bar" tabindex="0" role="group" aria-label="Chọn ngày xem phim (cuộn ngang)">
         </div>
-        <button type="button" class="dbar-nav next" aria-label="Xem các ngày sau" onclick="scrollDates(1)"><i class="ph-caret-right" aria-hidden="true"></i></button>
+        <button type="button" class="dbar-nav next" aria-label="Xem các ngày sau" data-on-click="scrollDates(1)"><i class="ph-caret-right" aria-hidden="true"></i></button>
       </div>
     </div>
   </section>
@@ -458,8 +459,8 @@
 
     <!-- Đặt vé nhanh: rạp yêu thích, rạp gần nhất, lọc định dạng -->
     <div id="sch-tools" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0 14px;">
-      <button type="button" id="btn-fav" class="btn btn-outline btn-sm" onclick="toggleFavorite()" aria-pressed="false">☆ Lưu rạp yêu thích</button>
-      <button type="button" id="btn-near" class="btn btn-outline btn-sm" onclick="findNearest()"><i class="ph-map-pin" aria-hidden="true"></i> Rạp gần tôi</button>
+      <button type="button" id="btn-fav" class="btn btn-outline btn-sm" data-on-click="toggleFavorite()" aria-pressed="false">☆ Lưu rạp yêu thích</button>
+      <button type="button" id="btn-near" class="btn btn-outline btn-sm" data-on-click="findNearest()"><i class="ph-map-pin" aria-hidden="true"></i> Rạp gần tôi</button>
       <span id="near-msg" class="m" style="font-size: 12.5px;" aria-live="polite"></span>
       <span id="fmt-chips" role="group" aria-label="Lọc theo định dạng" style="display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto;"></span>
     </div>
@@ -546,7 +547,7 @@
 
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
-    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" data-on-click="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
       <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
       <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
@@ -556,7 +557,7 @@
       <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="dock-close-pill" data-on-click="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -565,169 +566,7 @@
   <!-- Script chọn ngày & rạp tương tác & đồng bộ hóa suất chiếu -->
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
-  <script>
-    // Lịch chiếu thật từ database: chọn rạp + ngày -> danh sách phim và suất (kèm ghế trống)
-    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-    const params = new URLSearchParams(location.search);
-    let currentCinema = params.get('cinema') || (() => { try { return localStorage.getItem('BETA_CINEMA') || ''; } catch (e) { return ''; } })();
-    let currentDate = '';
-    let today = '';
-    const DAYS = 14;          // lịch mở bán 14 ngày (cron tự gia hạn mỗi ngày) – dải ngày khớp dữ liệu thật
-    let CINEMAS = [];
-    let fmtFilter = '';        // lọc định dạng (2D, 3D, phụ đề, lồng tiếng…)
-    const store = { get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-    const favs = () => store.get('BETA_FAV_CINEMAS') || [];
-
-    // Rạp yêu thích lên đầu danh sách, có dấu ★
-    function renderCinemaSelect() {
-      const sel = document.getElementById('schedule-cinema-select');
-      const f = favs();
-      const sorted = [...CINEMAS].sort((a, b) => (f.includes(b.id) - f.includes(a.id)));
-      sel.innerHTML = sorted.map(x => `<option value="${esc(x.id)}" ${x.id === currentCinema ? 'selected' : ''}>${f.includes(x.id) ? '★ ' : ''}${esc(x.name)}${x.city ? ' (' + esc(x.city) + ')' : ''}</option>`).join('');
-      const on = f.includes(currentCinema);
-      const b = document.getElementById('btn-fav');
-      b.textContent = on ? '★ Rạp yêu thích' : '☆ Lưu rạp yêu thích';
-      b.setAttribute('aria-pressed', String(on));
-    }
-    function toggleFavorite() {
-      const f = favs();
-      store.set('BETA_FAV_CINEMAS', f.includes(currentCinema) ? f.filter(x => x !== currentCinema) : [currentCinema, ...f].slice(0, 5));
-      renderCinemaSelect();
-    }
-    // Gợi ý rạp gần nhất theo vị trí (chỉ dùng trên máy, không gửi vị trí lên máy chủ)
-    function findNearest() {
-      const msg = document.getElementById('near-msg');
-      if (!navigator.geolocation) { msg.textContent = 'Trình duyệt không hỗ trợ định vị.'; return; }
-      msg.textContent = 'Đang lấy vị trí…';
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const { latitude: la, longitude: lo } = pos.coords;
-        const km = (c) => { const R = 6371, r = Math.PI / 180, dLa = (c.lat - la) * r, dLo = (c.lng - lo) * r; const a = Math.sin(dLa / 2) ** 2 + Math.cos(la * r) * Math.cos(c.lat * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(a)); };
-        const near = CINEMAS.filter(c => c.lat != null && c.lng != null).map(c => ({ c, d: km(c) })).sort((a, b) => a.d - b.d);
-        if (!near.length) { msg.textContent = 'Chưa có tọa độ rạp để so sánh.'; return; }
-        msg.textContent = 'Gần nhất: ' + near[0].c.name + ' (~' + near[0].d.toFixed(1) + ' km)';
-        changeCinema(near[0].c.id);
-        renderCinemaSelect();
-      }, (e) => { msg.textContent = e.code === 1 ? 'Bạn chưa cho phép truy cập vị trí.' : 'Không lấy được vị trí, vui lòng chọn rạp thủ công.'; }, { timeout: 10000, maximumAge: 600000 });
-    }
-    function setFormat(f) { fmtFilter = f; loadShowtimes(); }
-
-    function addDays(date, n) {
-      const [y, m, d] = date.split('-').map(Number);
-      const t = new Date(Date.UTC(y, m - 1, d + n));
-      return t.toISOString().slice(0, 10);
-    }
-
-    function renderDateBar() {
-      const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-      const bar = document.getElementById('official-date-bar');
-      bar.innerHTML = '';
-      for (let i = 0; i < DAYS; i++) {
-        const date = addDays(today, i);
-        const [, m, d] = date.split('-');
-        const dow = DOW[new Date(date + 'T00:00:00Z').getUTCDay()];
-        const item = document.createElement('div');
-        item.className = 'date-item-official' + (date === currentDate ? ' active' : '');
-        item.onclick = () => { currentDate = date; renderDateBar(); loadShowtimes(); };
-        item.innerHTML = `<span class="d-number">${d}</span><span class="d-sub">/${m} - ${i === 0 ? 'Hôm nay' : dow}</span>`;
-        bar.appendChild(item);
-      }
-      const act = bar.querySelector('.active');
-      if (act) bar.scrollLeft = Math.max(0, act.offsetLeft - bar.offsetLeft - 60);
-      updateDateNav();
-    }
-    function updateDateNav() {
-      const bar = document.getElementById('official-date-bar');
-      const max = bar.scrollWidth - bar.clientWidth;
-      document.querySelector('.dbar-nav.prev').classList.toggle('show', bar.scrollLeft > 4);
-      document.querySelector('.dbar-nav.next').classList.toggle('show', bar.scrollLeft < max - 4);
-    }
-    function scrollDates(dir) {
-      const bar = document.getElementById('official-date-bar');
-      bar.scrollBy({ left: dir * Math.max(200, bar.clientWidth * 0.7), behavior: 'smooth' });
-    }
-    document.getElementById('official-date-bar').addEventListener('scroll', () => updateDateNav(), { passive: true });
-    window.addEventListener('resize', () => updateDateNav());
-
-    function changeCinema(id) {
-      currentCinema = id;
-      if (window.BetaRememberCinema) window.BetaRememberCinema(id);
-      const u = new URL(location.href);
-      u.searchParams.set('cinema', id);
-      history.replaceState(null, '', u);
-      if (CINEMAS.length) renderCinemaSelect();
-      loadShowtimes();
-    }
-
-    async function loadShowtimes() {
-      const list = document.getElementById('sch-list');
-      list.innerHTML = '<p style="padding: 30px 0; text-align: center; color: #64748b;">Đang tải lịch chiếu...</p>';
-      try {
-        const r = await Pay.catalog('showtimes', { cinema: currentCinema, date: currentDate });
-        const formats = [...new Set(r.showtimes.map(s => s.format))].sort();
-        if (fmtFilter && !formats.includes(fmtFilter)) fmtFilter = '';
-        document.getElementById('fmt-chips').innerHTML = formats.length > 1 ? ['', ...formats].map(f =>
-          `<button type="button" class="btn btn-sm ${fmtFilter === f ? 'btn-primary' : 'btn-outline'}" aria-pressed="${fmtFilter === f}" onclick="setFormat('${esc(f)}')">${f ? esc(f) : 'Tất cả định dạng'}</button>`).join('') : '';
-        const byMovie = {};
-        r.showtimes.filter(st => !fmtFilter || st.format === fmtFilter).forEach(st => { (byMovie[st.movie_key] = byMovie[st.movie_key] || []).push(st); });
-        const keys = Object.keys(byMovie);
-        if (!keys.length) {
-          list.innerHTML = '<p style="padding: 40px 0; text-align: center; color: #64748b;">Rạp chưa có suất chiếu nào trong ngày này. Vui lòng chọn ngày khác.</p>';
-          return;
-        }
-        list.innerHTML = keys.map(k => {
-          const sts = byMovie[k];
-          const m = sts[0].movie;
-          const byFormat = {};
-          sts.forEach(st => { (byFormat[st.format] = byFormat[st.format] || []).push(st); });
-          return `<div class="sch-movie-row">
-            <a class="sch-poster-box" href="phim/${encodeURIComponent(k)}">
-              ${m.age ? `<span class="age-badge-corner">${esc(m.age)}</span>` : ''}
-              <img loading="lazy" decoding="async" src="${esc(m.poster)}" alt="${esc(m.title)}" onerror="this.src='images/400x633-145627-230926-40.jpg'">
-            </a>
-            <div class="sch-movie-details">
-              <h2 class="sch-movie-title">${esc(m.shortTitle || m.title)}</h2>
-              <div class="sch-movie-meta-tags">
-                ${m.meta ? `<span><span style="color: #03599d;"><i class=ph-tag aria-hidden=true></i></span> ${esc(m.meta.split('·')[0].trim())}</span>` : ''}
-                ${m.duration_min ? `<span><span style="color: #03599d;"><i class=ph-timer aria-hidden=true></i></span> ${m.duration_min} phút</span>` : ''}
-              </div>
-              ${Object.entries(byFormat).map(([fmt, list]) => `
-                <div class="sch-format-title">${esc(fmt)}${(() => { const p = list.map(s => s.prices && s.prices.standard).filter(Boolean); return p.length ? `<span class="from">· vé từ ${Pay.vnd(Math.min(...p))}</span>` : ''; })()}</div>
-                <div class="sch-slots-grid">
-                  ${list.map(st => st.seats_free > 0 ? `
-                    <a href="seats.html?showtime=${encodeURIComponent(st.id)}" class="sch-slot-card${st.late ? ' late' : ''}" title="${esc(st.time + (st.end_time ? ' – kết thúc khoảng ' + st.end_time : '') + ' · ' + st.room + ' · vé từ ' + Pay.vnd(st.prices.standard))}">
-                      <span class="sch-slot-time">${st.time}</span>
-                      ${st.late ? `<span class="sch-slot-date">${esc(st.date_label.split(' ')[1])}</span>` : ''}
-                      ${st.end_time ? `<span class="sch-slot-end">→ ${st.end_time}</span>` : ''}
-                      <span class="sch-slot-seats${st.seats_free <= 10 ? ' low' : ''}">${st.seats_free <= 10 ? 'Sắp hết · ' + st.seats_free : 'Còn ' + st.seats_free + ' ghế'}</span>
-                    </a>` : `
-                    <span class="sch-slot-card" style="opacity: .5; cursor: not-allowed;">
-                      <span class="sch-slot-time">${st.time}</span>
-                      <span class="sch-slot-seats">Hết vé</span>
-                    </span>`).join('')}
-                </div>`).join('')}
-            </div>
-          </div>`;
-        }).join('');
-      } catch (e) {
-        list.innerHTML = `<p style="padding: 40px 0; text-align: center; color: #dc2626;">Không tải được lịch chiếu (${esc(e.message)}). Vui lòng thử lại.</p>`;
-      }
-    }
-
-    (async function init() {
-      try {
-        const [c, first] = await Promise.all([Pay.catalog('cinemas'), Pay.catalog('showtimes', { days: 1 })]);
-        today = first.today;
-        currentDate = /^\d{4}-\d{2}-\d{2}$/.test(params.get('date') || '') ? params.get('date') : today;
-        CINEMAS = c.cinemas;
-        if (!CINEMAS.some(x => x.id === currentCinema)) currentCinema = (favs().find(id => CINEMAS.some(x => x.id === id))) || (CINEMAS[0] ? CINEMAS[0].id : '');
-        renderCinemaSelect();
-        renderDateBar();
-        await loadShowtimes();
-      } catch (e) {
-        document.getElementById('sch-list').innerHTML = `<p style="padding: 40px 0; text-align: center; color: #dc2626;">Không tải được dữ liệu rạp (${esc(e.message)}).</p>`;
-      }
-    })();
-  </script>
+  <script src="js/schedule.js"></script>
 
   <script src="site-chrome.js" defer></script>
 </body>

@@ -470,6 +470,7 @@
       text-decoration: none;
     }
   </style>
+  <script src="js/actions.js"></script>
 </head>
 <body>
   <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
@@ -503,7 +504,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -542,14 +543,14 @@
     </div>
 
     <!-- Nút điều hướng -->
-    <button type="button" class="slider-btn prev" onclick="changeSlide(-1)" aria-label="Banner trước"><span aria-hidden="true"><i class="ph-caret-left" aria-hidden="true"></i></span></button>
-    <button type="button" class="slider-btn next" onclick="changeSlide(1)" aria-label="Banner tiếp theo"><span aria-hidden="true"><i class="ph-caret-right" aria-hidden="true"></i></span></button>
+    <button type="button" class="slider-btn prev" data-on-click="changeSlide(-1)" aria-label="Banner trước"><span aria-hidden="true"><i class="ph-caret-left" aria-hidden="true"></i></span></button>
+    <button type="button" class="slider-btn next" data-on-click="changeSlide(1)" aria-label="Banner tiếp theo"><span aria-hidden="true"><i class="ph-caret-right" aria-hidden="true"></i></span></button>
     <!-- Nút tạm dừng + chấm điều hướng gom một cụm ở giữa cạnh dưới -->
     <div class="slider-controls">
-      <button type="button" class="slider-btn pause" id="slider-pause" onclick="toggleAutoSlide()" aria-label="Tạm dừng tự chuyển banner"><span aria-hidden="true"><i class="ph-pause" aria-hidden="true"></i></span></button>
+      <button type="button" class="slider-btn pause" id="slider-pause" data-on-click="toggleAutoSlide()" aria-label="Tạm dừng tự chuyển banner"><span aria-hidden="true"><i class="ph-pause" aria-hidden="true"></i></span></button>
       <div class="slider-dots">
-        <button type="button" class="slider-dot active" onclick="setSlide(0)" aria-label="Banner 1" aria-current="true"></button>
-        <button type="button" class="slider-dot" onclick="setSlide(1)" aria-label="Banner 2"></button>
+        <button type="button" class="slider-dot active" data-on-click="setSlide(0)" aria-label="Banner 1" aria-current="true"></button>
+        <button type="button" class="slider-dot" data-on-click="setSlide(1)" aria-label="Banner 2"></button>
       </div>
     </div>
   </section>
@@ -570,9 +571,9 @@
     
     <!-- Tab Phim chuẩn Beta -->
     <div class="movie-tabs-official">
-      <button class="movie-tab-btn active" id="tab-now" onclick="switchMovieTab('now')">PHIM ĐANG CHIẾU</button>
-      <button class="movie-tab-btn" id="tab-soon" onclick="switchMovieTab('soon')">PHIM SẮP CHIẾU</button>
-      <button class="movie-tab-btn" id="tab-special" onclick="switchMovieTab('special')">SUẤT CHIẾU ĐẶC BIỆT</button>
+      <button class="movie-tab-btn active" id="tab-now" data-on-click="switchMovieTab('now')">PHIM ĐANG CHIẾU</button>
+      <button class="movie-tab-btn" id="tab-soon" data-on-click="switchMovieTab('soon')">PHIM SẮP CHIẾU</button>
+      <button class="movie-tab-btn" id="tab-special" data-on-click="switchMovieTab('special')">SUẤT CHIẾU ĐẶC BIỆT</button>
     </div>
 
     <!-- Grid Phim -->
@@ -585,12 +586,12 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/400x633-145627-230926-40.jpg" alt="Linh Giới Đại Chiến">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
+            <img loading="lazy" src="images/c-18.png" alt="C18" data-fallback="badge" data-fallback-class="badge badge-age-18" data-fallback-text="C18">
           </div>
           <!-- Hover Overlay chuẩn web chính thức Beta Cinemas -->
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=linh-gioi-dai-chien" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('linh-gioi-dai-chien', 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ', this)" data-trailer="https://www.youtube.com/watch?v=mJ2pu6FazEA"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('linh-gioi-dai-chien', 'LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ', this)" data-trailer="https://www.youtube.com/watch?v=mJ2pu6FazEA"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -607,11 +608,11 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp" alt="Quỷ Ăn Tạng 4">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
+            <img loading="lazy" src="images/c-18.png" alt="C18" data-fallback="badge" data-fallback-class="badge badge-age-18" data-fallback-text="C18">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=quy-an-tang-4" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('quy-an-tang-4', 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI', this)" data-trailer="https://www.youtube.com/watch?v=7eRbgbj_AfM"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('quy-an-tang-4', 'QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI', this)" data-trailer="https://www.youtube.com/watch?v=7eRbgbj_AfM"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -628,11 +629,11 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_15_official-poster-trai-buon-nguoi-final-142318-150926-62.webp" alt="Trại Buôn Người">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
+            <img loading="lazy" src="images/c-16.png" alt="C16" data-fallback="badge" data-fallback-class="badge badge-age-16" data-fallback-text="C16">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=trai-buon-nguoi" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('trai-buon-nguoi', 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI', this)" data-trailer="https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('trai-buon-nguoi', 'TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI', this)" data-trailer="https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -649,11 +650,11 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_28_091026-blue-lock-170502-280926-25.webp" alt="Blue Lock">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
+            <img loading="lazy" src="images/p.png" alt="P" data-fallback="badge" data-fallback-class="badge badge-age-p" data-fallback-text="P">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=blue-lock" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('blue-lock', 'BLUE LOCK: THE MOVIE - EPISODE NAGI', this)" data-trailer="https://www.youtube.com/watch?v=8VMMDfAYi34"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('blue-lock', 'BLUE LOCK: THE MOVIE - EPISODE NAGI', this)" data-trailer="https://www.youtube.com/watch?v=8VMMDfAYi34"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -671,11 +672,11 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/an-mang-karaoke-kc-30-10-2026-kt-chuan-114723-300926-76.webp" alt="Án Mạng Karaoke">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
+            <img loading="lazy" src="images/c-16.png" alt="C16" data-fallback="badge" data-fallback-class="badge badge-age-16" data-fallback-text="C16">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=an-mang-karaoke" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('an-mang-karaoke', 'ÁN MẠNG KARAOKE', this)" data-trailer="https://www.youtube.com/watch?v=aV4qtcKmkQo"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('an-mang-karaoke', 'ÁN MẠNG KARAOKE', this)" data-trailer="https://www.youtube.com/watch?v=aV4qtcKmkQo"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -692,11 +693,11 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/ul2-main-dam-hoi-digital-094550-140926-42.webp" alt="Út Lan 2">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/c-16.png" alt="C16" onerror="this.outerHTML='<span class=\'badge badge-age-16\'>C16</span>'">
+            <img loading="lazy" src="images/c-16.png" alt="C16" data-fallback="badge" data-fallback-class="badge badge-age-16" data-fallback-text="C16">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=ut-lan-2" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('ut-lan-2', 'ÚT LAN 2', this)" data-trailer="https://www.youtube.com/watch?v=TpwGd81RSKk"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('ut-lan-2', 'ÚT LAN 2', this)" data-trailer="https://www.youtube.com/watch?v=TpwGd81RSKk"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -713,11 +714,11 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/poster-khoa-chat-cua-nao-suzum-1-092028-280926-82.webp" alt="Khóa Chặt Cửa Nào Suzume">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
+            <img loading="lazy" src="images/p.png" alt="P" data-fallback="badge" data-fallback-class="badge badge-age-p" data-fallback-text="P">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=suzume" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('suzume', 'KHÓA CHẶT CỬA NÀO SUZUME', this)" data-trailer="https://www.youtube.com/watch?v=EWLo2IF_NPU"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('suzume', 'KHÓA CHẶT CỬA NÀO SUZUME', this)" data-trailer="https://www.youtube.com/watch?v=EWLo2IF_NPU"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -734,11 +735,11 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_09_21_ca-voi-nuot-chung-091717-210926-56.webp" alt="Cá Voi Nuốt Chửng">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/c-13.png" alt="C13" onerror="this.outerHTML='<span class=\'badge badge-age-13\'>C13</span>'">
+            <img loading="lazy" src="images/c-13.png" alt="C13" data-fallback="badge" data-fallback-class="badge badge-age-13" data-fallback-text="C13">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=ca-voi-nuot-chung" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> MUA VÉ</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('ca-voi-nuot-chung', 'CÁ VOI NUỐT CHỬNG', this)" data-trailer="https://www.youtube.com/watch?v=ZyGPPlhPI8M"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('ca-voi-nuot-chung', 'CÁ VOI NUỐT CHỬNG', this)" data-trailer="https://www.youtube.com/watch?v=ZyGPPlhPI8M"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -755,11 +756,11 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/me-min-teaser-poster-dkkc-23102026-132757-170926-76.webp" alt="Mẹ Mìn">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/c-18.png" alt="C18" onerror="this.outerHTML='<span class=\'badge badge-age-18\'>C18</span>'">
+            <img loading="lazy" src="images/c-18.png" alt="C18" data-fallback="badge" data-fallback-class="badge badge-age-18" data-fallback-text="C18">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=me-min" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> ĐẶT TRƯỚC</a>
-            <button type="button" class="btn-overlay-trailer" onclick="openTrailerModal('me-min', 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI', this)" data-trailer="https://www.youtube.com/watch?v=mTylSVV6zSo"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
+            <button type="button" class="btn-overlay-trailer" data-on-click="openTrailerModal('me-min', 'MẸ MÌN: LỜI NGUYỀN HUYẾT NGẢI', this)" data-trailer="https://www.youtube.com/watch?v=mTylSVV6zSo"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>
           </div>
         </div>
         <div class="movie-info-official">
@@ -776,7 +777,7 @@
         <div class="movie-poster-wrap">
           <img loading="lazy" class="movie-poster-img" src="images/media_images_2026_10_05_161026-shaun-the-sheep-152403-051026-14.webp" alt="Shaun The Sheep">
           <div class="movie-age-tag">
-            <img loading="lazy" src="images/p.png" alt="P" onerror="this.outerHTML='<span class=\'badge badge-age-p\'>P</span>'">
+            <img loading="lazy" src="images/p.png" alt="P" data-fallback="badge" data-fallback-class="badge badge-age-p" data-fallback-text="P">
           </div>
           <div class="movie-poster-overlay">
             <a href="booking.html?movie=shaun-the-sheep" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> ĐẶT TRƯỚC</a>
@@ -895,7 +896,7 @@
   <!-- ========================================================================= -->
   <!-- MODAL XEM TRAILER YOUTUBE TRÊN MÀN HÌNH CHÍNH -->
   <!-- ========================================================================= -->
-  <div id="trailer-modal" class="trailer-modal-backdrop" onclick="handleTrailerBackdropClick(event)">
+  <div id="trailer-modal" class="trailer-modal-backdrop" data-on-click="handleTrailerBackdropClick(event)">
     <div class="trailer-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="trailer-modal-title">
       <!-- Modal Header -->
       <div class="trailer-modal-header">
@@ -904,7 +905,7 @@
           <span class="trailer-hd-badge">FULL HD 1080p</span>
           <h3 id="trailer-modal-title" class="trailer-modal-title">Đang tải trailer...</h3>
         </div>
-        <button type="button" class="trailer-modal-close" onclick="closeTrailerModal()" aria-label="Đóng trailer" title="Đóng trailer (Esc)">
+        <button type="button" class="trailer-modal-close" data-on-click="closeTrailerModal()" aria-label="Đóng trailer" title="Đóng trailer (Esc)">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -927,7 +928,7 @@
           </iframe>
 
           <!-- Khi mở trực tiếp qua file://: Giao diện Thumbnail Player 1-Click thông minh không bao giờ bị Lỗi 153 -->
-          <div id="trailer-file-fallback" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; cursor: pointer; overflow: hidden; z-index: 10;" onclick="openExternalYouTube()">
+          <div id="trailer-file-fallback" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; cursor: pointer; overflow: hidden; z-index: 10;" data-on-click="openExternalYouTube()">
             <img loading="lazy" id="trailer-fallback-thumb" alt="Thumbnail" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.72; filter: brightness(0.85); transition: transform 0.4s ease;">
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.92) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px;">
               <div style="width: 76px; height: 52px; background: #ff0000; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.55); margin-bottom: 14px; transition: transform 0.25s ease;">
@@ -978,14 +979,14 @@
 
   <!-- Floating BetaBot Chat Launcher Button -->
   <a href="betabot.html" class="betabot-fab" aria-label="Chat với BetaBot – hỗ trợ 24/7">
-    <img src="images/betabot-avatar.webp" alt="" width="40" height="40" onerror="this.onerror=null; this.src='images/logo-official.png'">
+    <img src="images/betabot-avatar.webp" alt="" width="40" height="40" data-fallback="images/logo-official.png">
     <span class="betabot-fab-label">Hỏi BetaBot 24/7</span>
   </a>
 
   <!-- PROTOTYPE SWITCHER DOCK (TIỆN ÍCH CHUYỂN NHANH TẤT CẢ GIAO DIỆN) -->
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
-    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" data-on-click="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
       <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
       <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
@@ -995,478 +996,18 @@
       <a href="verify.html" class="dock-item" data-page="verify"><i class="ph-hourglass-medium" aria-hidden="true"></i> Xác Minh GD</a>
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="dock-close-pill" data-on-click="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
   <script src="quick-dock.js"></script>
 
   <!-- Slider Carousel Script -->
-  <script>
-    let currentSlideIndex = 0;
-    let slides = document.querySelectorAll('.slider-item');
-    let dots = document.querySelectorAll('.slider-dot');
-    let autoSlideTimer = null;
-
-    function showSlide(n) {
-      if (n >= slides.length) currentSlideIndex = 0;
-      else if (n < 0) currentSlideIndex = slides.length - 1;
-      else currentSlideIndex = n;
-
-      slides.forEach(s => s.classList.remove('active'));
-      dots.forEach(d => d.classList.remove('active'));
-
-      slides[currentSlideIndex].classList.add('active');
-      dots[currentSlideIndex].classList.add('active');
-      slides.forEach((s, i) => s.setAttribute('aria-hidden', i === currentSlideIndex ? 'false' : 'true'));
-      dots.forEach((d, i) => { if (i === currentSlideIndex) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
-    }
-
-    function changeSlide(step) {
-      clearInterval(autoSlideTimer);
-      showSlide(currentSlideIndex + step);
-      startAutoSlide();
-    }
-
-    function setSlide(n) {
-      clearInterval(autoSlideTimer);
-      showSlide(n);
-      startAutoSlide();
-    }
-
-    // Tự chuyển banner: có nút dừng, dừng khi hover/focus, tắt nếu người dùng bật "giảm chuyển động" (WCAG 2.2.2)
-    const sliderWrap = document.querySelector('.slider-official-wrap');
-    const pauseBtn = document.getElementById('slider-pause');
-    let autoSlidePaused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let sliderHovered = false;
-
-    function startAutoSlide() {
-      clearInterval(autoSlideTimer);
-      if (autoSlidePaused || sliderHovered) return;
-      autoSlideTimer = setInterval(() => {
-        showSlide(currentSlideIndex + 1);
-      }, 4000);
-    }
-
-    function updatePauseBtn() {
-      pauseBtn.setAttribute('aria-label', autoSlidePaused ? 'Tiếp tục tự chuyển banner' : 'Tạm dừng tự chuyển banner');
-      pauseBtn.firstElementChild.innerHTML = autoSlidePaused ? '<i class=ph-play aria-hidden=true></i>' : '<i class=ph-pause aria-hidden=true></i>';
-    }
-
-    function toggleAutoSlide() {
-      autoSlidePaused = !autoSlidePaused;
-      updatePauseBtn();
-      if (autoSlidePaused) clearInterval(autoSlideTimer); else startAutoSlide();
-    }
-
-    const holdSlider = () => { sliderHovered = true; clearInterval(autoSlideTimer); };
-    const releaseSlider = () => { sliderHovered = false; startAutoSlide(); };
-    sliderWrap.addEventListener('mouseenter', holdSlider);
-    sliderWrap.addEventListener('mouseleave', releaseSlider);
-    sliderWrap.addEventListener('focusin', holdSlider);
-    sliderWrap.addEventListener('focusout', e => { if (!sliderWrap.contains(e.relatedTarget)) releaseSlider(); });
-
-    updatePauseBtn();
-    showSlide(0);
-    startAutoSlide();
-
-    // Đợt 10: banner do Quản lý đặt ở admin > Danh mục > Banner (ảnh máy tính + ảnh điện thoại, link khi bấm)
-    window.applyBanners = function (list) {
-      if (!Array.isArray(list) || !list.length) return;
-      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-      const wrap = document.querySelector('.slider-official-wrap');
-      const before = wrap.querySelector('.slider-btn');
-      wrap.querySelectorAll('.slider-item').forEach(n => n.remove());
-      list.forEach((b, i) => {
-        const item = document.createElement('div');
-        item.className = 'slider-item';
-        const pic = `<picture>${b.image_mobile ? `<source media="(max-width: 640px)" srcset="${esc(b.image_mobile)}">` : ''}<img src="${esc(b.image)}" alt="${esc(b.title)}" width="1702" height="621" ${i ? 'loading="lazy" decoding="async"' : 'fetchpriority="high"'}></picture>`;
-        item.innerHTML = b.link ? `<a href="${esc(b.link)}">${pic}</a>` : pic;
-        wrap.insertBefore(item, before);
-      });
-      const box = wrap.querySelector('.slider-dots');
-      box.innerHTML = list.map((b, i) => `<button type="button" class="slider-dot" onclick="setSlide(${i})" aria-label="Banner ${i + 1}: ${esc(b.title)}"></button>`).join('');
-      box.hidden = list.length < 2;
-      wrap.querySelectorAll('.slider-btn.prev, .slider-btn.next, .slider-btn.pause').forEach(x => { x.hidden = list.length < 2; });
-      slides = wrap.querySelectorAll('.slider-item');
-      dots = wrap.querySelectorAll('.slider-dot');
-      showSlide(0);
-      startAutoSlide();
-    };
-
-    function switchMovieTab(tab) {
-      document.querySelectorAll('.movie-tab-btn').forEach(b => b.classList.remove('active'));
-      const activeBtn = document.getElementById('tab-' + tab);
-      if (activeBtn) activeBtn.classList.add('active');
-
-      const cards = document.querySelectorAll('#movie-grid .movie-card');
-      cards.forEach(card => {
-        const cardTab = card.getAttribute('data-tab') || 'now';
-        const tabList = cardTab.split(' ');
-        const g = window.__genre || '';
-        const genreOk = !g || (card.dataset.genre || '').toLowerCase().split(',').map(x => x.trim()).includes(g.toLowerCase());
-        if ((tabList.includes(tab) || tabList.includes('all')) && genreOk) {
-          card.style.display = '';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-      const grid = document.getElementById('movie-grid');
-      if (grid && grid.classList.contains('syncing')) return; // đang tải danh sách thật
-      const shown = [...cards].filter(c => c.style.display !== 'none').length;
-      let empty = document.getElementById('movie-empty');
-      if (!empty && grid) { empty = document.createElement('div'); empty.id = 'movie-empty'; empty.className = 'movie-empty'; empty.setAttribute('role', 'status'); grid.after(empty); }
-      if (!empty) return;
-      empty.hidden = shown > 0;
-      if (!shown) {
-        const msg = window.__genre ? 'Chưa có phim thể loại này ở mục đang xem.' : tab === 'soon' ? 'Chưa có phim sắp chiếu – quay lại sau nhé' : tab === 'special' ? 'Chưa có suất chiếu đặc biệt nào.' : 'Chưa có phim nào.';
-        empty.innerHTML = '<p>' + msg + '</p>' + (tab !== 'now' ? '<button type="button" class="btn btn-primary" onclick="switchMovieTab(\'now\')">Xem phim đang chiếu</button>' : '');
-      }
-    }
-  
-    // ====================================================================================
-    // 🎬 CẤU HÌNH LINK YOUTUBE TRAILER CÁC PHIM (BẠN TỰ THAY LINK CỦA BẠN TẠI ĐÂY)
-    // ====================================================================================
-    // Bạn có thể dán link trực tiếp vào đây hoặc vào thuộc tính data-trailer trong thẻ <button>
-    // Hỗ trợ tất cả dạng link:
-    //   - https://www.youtube.com/watch?v=...
-    //   - https://youtu.be/...
-    //   - https://www.youtube.com/embed/...
-    //   - hoặc chỉ cần mã ID video YouTube (ví dụ: 'yY13kvdVpvg')
-    // ====================================================================================
-    const MOVIE_TRAILERS = {
-      // 1. Phim: LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ
-      'linh-gioi-dai-chien': 'https://www.youtube.com/watch?v=mJ2pu6FazEA',
-      'dia-dao': 'https://www.youtube.com/watch?v=mJ2pu6FazEA', // alias dự phòng
-
-      // 2. Phim: QUỶ ĂN TẠNG 4: LỜI NGUYỀN TRỞ LẠI
-      'quy-an-tang-4': 'https://www.youtube.com/watch?v=7eRbgbj_AfM',
-
-      // 3. Phim: TRẠI BUÔN NGƯỜI: VÙNG CẤM BIÊN GIỚI
-      'trai-buon-nguoi': 'https://www.youtube.com/watch?v=TUzx32ejTlY&t=2s',
-
-      // 4. Phim: BLUE LOCK: THE MOVIE - EPISODE NAGI
-      'blue-lock': 'https://www.youtube.com/watch?v=8VMMDfAYi34',
-
-      // 5. Phim: ÁN MẠNG KARAOKE
-      'an-mang-karaoke': 'https://www.youtube.com/watch?v=aV4qtcKmkQo',
-
-      // 6. Phim: ÚT LAN 2 (CÔ DÂU HÀO MÔN)
-      'ut-lan-2': 'https://www.youtube.com/watch?v=TpwGd81RSKk',
-      'co-dau-hao-mon': 'https://www.youtube.com/watch?v=TpwGd81RSKk', // alias dự phòng
-
-      // 7. Phim: KHÓA CHẶT CỬA NÀO SUZUME
-      'suzume': 'https://www.youtube.com/watch?v=EWLo2IF_NPU',
-
-      // 8. Phim: CÁ VOI NUỐT CHỬNG
-      'ca-voi-nuot-chung': 'https://www.youtube.com/watch?v=ZyGPPlhPI8M',
-
-      // 9. Phim: MẸ MÌN
-      'me-min': 'https://www.youtube.com/watch?v=mTylSVV6zSo',
-
-      // 10. Phim: SHAUN THE SHEEP – chưa có trailer chính thức (Quản lý nhập ở admin > Danh mục > Phim nếu có)
-    };
-
-    /**
-     * Tự động trích xuất YouTube Video ID từ link bất kỳ
-     */
-    function extractYouTubeVideoId(input) {
-      if (!input) return '';
-      input = input.trim();
-      // Nếu là mã Video ID 11 ký tự
-      if (/^[a-zA-Z0-9_-]{11}$/.test(input)) {
-        return input;
-      }
-      // Trích xuất ID từ mọi dạng link YouTube thông dụng
-      const match = input.match(/(?:youtu\.be\/|(?:[a-zA-Z0-9-]+\.)?youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-      return match ? match[1] : '';
-    }
-
-    /**
-     * Mở popup phát Trailer YouTube
-     * @param {string} movieId Mã định danh phim (key trong MOVIE_TRAILERS)
-     * @param {string} movieTitle Tên phim hiển thị trên tiêu đề modal
-     * @param {HTMLElement} [triggerEl] Nút bấm kích hoạt (để đọc data-trailer nếu có)
-     */
-    
-    let currentActiveWatchUrl = '';
-
-    function openExternalYouTube() {
-      if (currentActiveWatchUrl) {
-        window.open(currentActiveWatchUrl, '_blank');
-      }
-    }
-
-
-    function openTrailerModal(movieId, movieTitle, triggerEl) {
-      const modal = document.getElementById('trailer-modal');
-      const iframe = document.getElementById('trailer-iframe');
-      const titleEl = document.getElementById('trailer-modal-title');
-      const ytbLinkEl = document.getElementById('trailer-modal-ytb-link');
-
-      // 1. Lấy link YouTube: ưu tiên thuộc tính data-trailer của nút, sau đó đến MOVIE_TRAILERS
-      let rawUrl = '';
-      if (triggerEl && triggerEl.getAttribute('data-trailer')) {
-        rawUrl = triggerEl.getAttribute('data-trailer').trim();
-      }
-      if (!rawUrl && MOVIE_TRAILERS[movieId]) {
-        rawUrl = MOVIE_TRAILERS[movieId].trim();
-      }
-      if (!rawUrl) return; // phim chưa có trailer: không mở khung xem
-
-      // 2. Trích xuất ID và cấu hình Embed URL
-      const videoId = extractYouTubeVideoId(rawUrl);
-      // Cấu hình URL nhúng chuẩn YouTube với origin và playsinline
-      let embedUrl = rawUrl;
-      if (videoId) {
-        const originParam = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
-          ? `&origin=${encodeURIComponent(window.location.origin)}`
-          : '';
-        embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&vq=hd1080&hd=1${originParam}`;
-      }
-      const watchUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : rawUrl;
-
-      // 3. Gán dữ liệu vào modal
-      if (titleEl) titleEl.textContent = movieTitle || 'Trailer phim';
-      if (ytbLinkEl) ytbLinkEl.href = watchUrl;
-      currentActiveWatchUrl = watchUrl;
-
-      const fallback = document.getElementById('trailer-file-fallback');
-      const fallbackThumb = document.getElementById('trailer-fallback-thumb');
-      const fallbackTitle = document.getElementById('trailer-fallback-title');
-      const warn = document.getElementById('trailer-file-protocol-warning');
-
-      if (window.location.protocol === 'file:') {
-        // Giao thức file://: YouTube chặn nhúng gây lỗi 153 -> Hiển thị thumbnail preview 1-click thông minh
-        if (iframe) {
-          iframe.style.display = 'none';
-          iframe.src = '';
-        }
-        if (fallback) {
-          fallback.style.display = 'block';
-          if (fallbackThumb && videoId) {
-            fallbackThumb.src = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
-          }
-          if (fallbackTitle) {
-            fallbackTitle.textContent = movieTitle || 'Trailer Phim';
-          }
-        }
-        if (warn) warn.style.display = 'block';
-      } else {
-        // Giao thức http:// hoặc https:// (Localhost / Vercel): Phát trực tiếp qua iframe
-        if (fallback) fallback.style.display = 'none';
-        if (iframe) {
-          iframe.style.display = 'block';
-          iframe.src = embedUrl;
-        }
-        if (warn) warn.style.display = 'none';
-      }
-
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    /**
-     * Đóng popup trailer và NGẮT TIẾNG / NGỪNG PHÁT video ngay lập tức
-     */
-    function closeTrailerModal() {
-      const modal = document.getElementById('trailer-modal');
-      const iframe = document.getElementById('trailer-iframe');
-
-      if (modal) {
-        modal.classList.remove('open');
-      }
-      // Quan trọng: xóa src của iframe để lập tức ngắt tiếng và dừng phát
-      if (iframe) {
-        iframe.src = '';
-      }
-      // Khôi phục thanh cuộn cho trang web
-      document.body.style.overflow = '';
-    }
-
-    /**
-     * Bấm ra vùng backdrop bên ngoài để đóng modal
-     */
-    function handleTrailerBackdropClick(event) {
-      if (event.target.id === 'trailer-modal') {
-        closeTrailerModal();
-      }
-    }
-
-    // Đóng trailer khi người dùng nhấn phím ESC
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape' || event.key === 'Esc') {
-        const modal = document.getElementById('trailer-modal');
-        if (modal && modal.classList.contains('open')) {
-          closeTrailerModal();
-        }
-      }
-    });
-
-  </script>
+  <script src="js/home.js"></script>
 
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
-  <script>
-    // Đồng bộ lưới phim với danh mục trong database: ẩn phim đã ẩn/không còn, thêm phim mới, gắn đúng tab
-    (async function syncMovieGrid() {
-      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-      try {
-        const { movies } = await Pay.catalog('movies');
-        const byKey = Object.fromEntries(movies.map(m => [m.key, m]));
-        const grid = document.getElementById('movie-grid');
-        // Giữ lại từ HTML tĩnh: phim nào thuộc "Suất chiếu đặc biệt" và link trailer dự phòng
-        const special = new Set(), staticTrailer = {};
-        grid.querySelectorAll('.movie-card').forEach(card => {
-          const a = card.querySelector('a[href*="booking.html?movie="]');
-          const key = a ? new URL(a.href).searchParams.get('movie') : null;
-          if (!key) return;
-          if ((card.getAttribute('data-tab') || '').includes('special')) special.add(key);
-          const tb = card.querySelector('[data-trailer]');
-          if (tb && tb.getAttribute('data-trailer')) staticTrailer[key] = tb.getAttribute('data-trailer');
-        });
-        // Đợt 10: mọi thông tin trên thẻ lấy từ database – Quản lý sửa tên, poster, nhãn tuổi, thể loại, trailer,
-        // trạng thái (đang chiếu / sắp chiếu) trong admin là trang chủ đổi theo
-        const AGE_CLS = (a) => /18/.test(a) ? 'badge-age-18' : /16/.test(a) ? 'badge-age-16' : /13/.test(a) ? 'badge-age-13' : 'badge-age-p';
-        const dmy = (d) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; };
-        const cardHtml = (m) => {
-          const soon = m.status === 'SOON';
-          const link = 'booking.html?movie=' + encodeURIComponent(m.key);
-          const detail = 'phim/' + encodeURIComponent(m.key);
-          const trailer = m.trailer || staticTrailer[m.key] || (typeof MOVIE_TRAILERS === 'object' && MOVIE_TRAILERS[m.key]) || '';
-          const genre = m.genre || String(m.meta || '').split('·')[0].trim();
-          return `<div class="movie-card" data-key="${esc(m.key)}" data-genre="${esc(genre)}" data-tab="${soon ? 'soon' : 'now'}${special.has(m.key) ? ' special' : ''}">
-            <div class="movie-poster-wrap">
-              <img loading="lazy" class="movie-poster-img" src="${esc(m.poster)}" alt="${esc(m.title)}" onerror="this.onerror=null;this.src='images/400x633-145627-230926-40.jpg'">
-              ${m.age ? `<div class="movie-age-tag"><span class="badge ${AGE_CLS(m.age)}">${esc(m.age)}</span></div>` : ''}
-              <div class="movie-poster-overlay">
-                <a href="${link}" class="btn-overlay-buy"><i class="ph-ticket" aria-hidden="true"></i> ${soon ? 'ĐẶT TRƯỚC' : 'MUA VÉ'}</a>
-                ${trailer ? `<button type="button" class="btn-overlay-trailer" data-trailer="${esc(trailer)}"><i class="ph-play" aria-hidden="true"></i> XEM TRAILER</button>` : ''}
-              </div>
-            </div>
-            <div class="movie-info-official">
-              <h3 class="movie-title-official"><a href="${detail}">${esc(m.title)}</a></h3>
-              <div class="movie-meta-official">
-                ${soon && m.release_date ? `<span><strong>Khởi chiếu:</strong> ${dmy(m.release_date)}</span>` : ''}
-                ${genre ? `<span><strong>Thể loại:</strong> ${esc(genre)}</span>` : ''}
-                ${m.duration_min ? `<span><strong>Thời lượng:</strong> ${m.duration_min} phút</span>` : ''}
-              </div>
-              <div class="movie-actions">
-                <a class="ma-buy" href="${link}"><i class="ph-ticket" aria-hidden="true"></i> ${soon ? 'Đặt trước' : 'Mua vé'}</a>
-                ${trailer ? `<button type="button" class="ma-trailer" aria-label="Xem trailer ${esc(m.title)}"><i class="ph-play" aria-hidden="true"></i><span>Trailer</span></button>` : ''}
-              </div>
-            </div>
-          </div>`;
-        };
-        grid.innerHTML = movies.map(cardHtml).join('');
-        grid.querySelectorAll('.movie-card').forEach(card => {
-          const m = byKey[card.dataset.key];
-          const tr = card.querySelector('.btn-overlay-trailer');
-          if (!tr) return;
-          tr.onclick = () => openTrailerModal(m.key, m.title, tr);
-          const small = card.querySelector('.ma-trailer');
-          if (small) small.onclick = () => tr.click();
-        });
-        Pay.catalog('banners').then(r => window.applyBanners && window.applyBanners(r.banners)).catch(() => { /* giữ banner mặc định */ });
-        window.__movies = movies;
-        window.dispatchEvent(new Event('beta:movies'));
-        // Đợt 9: điểm khán giả ★ (đủ lượt đánh giá) + thứ hạng bán chạy 7 ngày
-        Pay.catalog('movie_stats').then(({ stats }) => {
-          grid.querySelectorAll('.movie-card').forEach(card => {
-            const s = stats && stats[card.dataset.key];
-            const wrap = card.querySelector('.movie-poster-wrap');
-            if (!s || !wrap) return;
-            if (s.avg != null && !wrap.querySelector('.movie-rating')) wrap.insertAdjacentHTML('beforeend', `<span class="movie-rating" aria-label="Khán giả chấm ${s.avg} trên 5 sao, ${s.count} lượt"><i class="ph-star" aria-hidden="true"></i>${s.avg.toFixed(1)}<small>(${s.count})</small></span>`);
-            if (s.rank && s.rank <= 3 && !wrap.querySelector('.movie-rank')) wrap.insertAdjacentHTML('beforeend', `<span class="movie-rank" title="Top ${s.rank} bán chạy 7 ngày qua" aria-label="Top ${s.rank} bán chạy tuần này">${s.rank}</span>`);
-          });
-        }).catch(() => { /* không có điểm: thẻ phim vẫn đủ thông tin */ });
-        // Khối TIN MỚI & ƯU ĐÃI: 3 bài đang hiển thị (ghim lên đầu) – Quản lý đăng trong admin
-        try {
-          const pr = await Pay.catalog('posts', { limit: 3 });
-          const box = document.querySelector('#promos .grid-3');
-          if (box) box.innerHTML = pr.posts.length ? pr.posts.map(p => `
-            <a class="card" href="tin-tuc.html?id=${encodeURIComponent(p.id)}" style="border-radius: 12px; text-decoration: none; color: inherit; display: block;">
-              <img loading="lazy" src="${esc(p.image || 'images/logo-official.png')}" alt="" style="width: 100%; height: 210px; object-fit: cover;" onerror="this.src='images/logo-official.png'">
-              <div style="padding: 18px;">
-                <h3 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #005198; margin: 0 0 6px; text-transform: uppercase;">${esc(p.title)}</h3>
-                <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">${esc(p.summary)}</p>
-              </div>
-            </a>`).join('') : '<p class="m" style="grid-column: 1 / -1; text-align: center;">Hiện chưa có ưu đãi nào.</p>';
-        } catch (e) { /* giữ thông báo đang tải */ }
-
-        // Nút lọc thể loại: gom từ thể loại của các phim đang có
-        const genres = [...new Set(movies.flatMap(m => String(m.genre || '').split(',').map(x => x.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b, 'vi'));
-        const chips = document.getElementById('genre-chips');
-        const drawChips = () => {
-          chips.innerHTML = ['', ...genres].map(g => `<button type="button" class="chip" aria-pressed="${(window.__genre || '') === g}" data-genre="${esc(g)}">${g ? esc(g) : 'Tất cả'}</button>`).join('');
-          chips.querySelectorAll('button').forEach(b => b.onclick = () => {
-            window.__genre = b.dataset.genre;
-            drawChips();
-            const act = document.querySelector('.movie-tab-btn.active');
-            switchMovieTab(act ? act.id.replace('tab-', '') : 'now');
-          });
-        };
-        if (genres.length > 1) drawChips();
-        const active = document.querySelector('.movie-tab-btn.active');
-        if (typeof switchMovieTab === 'function') switchMovieTab(active ? active.id.replace('tab-', '') : 'now');
-      } catch (e) {
-        console.warn('Không đồng bộ được danh sách phim:', e.message);
-      } finally {
-        document.getElementById('movie-grid').classList.remove('syncing');
-      }
-    })();
-    // Đợt 9: Mua vé nhanh – chọn lần lượt phim, rạp, ngày, suất rồi vào thẳng trang chọn ghế
-    (function quickBuy() {
-      const $ = (id) => document.getElementById(id);
-      const mSel = $('qb-movie'), cSel = $('qb-cinema'), dSel = $('qb-date'), tSel = $('qb-time'), go = $('qb-go');
-      if (!mSel) return;
-      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-      const opt = (v, t, dis) => `<option value="${esc(v)}"${dis ? ' disabled' : ''}>${esc(t)}</option>`;
-      const reset = (sel, text) => { sel.innerHTML = opt('', text); sel.disabled = true; };
-      let sts = [], today = '';
-      const fill = (movies) => {
-        const now = movies.filter(m => m.status !== 'SOON');
-        mSel.innerHTML = opt('', now.length ? 'Chọn phim' : 'Chưa có phim đang chiếu') + now.map(m => opt(m.key, m.title)).join('');
-      };
-      if (window.__movies) fill(window.__movies); else window.addEventListener('beta:movies', () => fill(window.__movies), { once: true });
-      mSel.onchange = async () => {
-        reset(dSel, 'Chọn rạp trước'); reset(tSel, 'Chọn ngày trước'); go.disabled = true;
-        if (!mSel.value) { reset(cSel, 'Chọn phim trước'); return; }
-        reset(cSel, 'Đang tải suất chiếu…');
-        try {
-          const r = await Pay.catalog('showtimes', { movie: mSel.value, days: 7 });
-          sts = r.showtimes || []; today = r.today || '';
-        } catch (e) { reset(cSel, 'Không tải được suất chiếu'); return; }
-        const cins = [...new Map(sts.map(s => [s.cinema_id, s.cinema])).entries()];
-        if (!cins.length) { reset(cSel, 'Phim chưa có suất chiếu'); return; }
-        cSel.innerHTML = opt('', 'Chọn rạp') + cins.map(([id, n]) => opt(id, n)).join('');
-        cSel.disabled = false;
-        let saved = null; try { saved = localStorage.getItem('BETA_CINEMA'); } catch (e) { /* bỏ qua */ }
-        if (cins.some(([id]) => id === saved)) { cSel.value = saved; cSel.onchange(); }
-      };
-      cSel.onchange = () => {
-        reset(tSel, 'Chọn ngày trước'); go.disabled = true;
-        const days = [...new Map(sts.filter(s => s.cinema_id === cSel.value).map(s => [s.date, s.date_label])).entries()];
-        if (!cSel.value || !days.length) { reset(dSel, 'Chọn rạp trước'); return; }
-        dSel.innerHTML = days.map(([d, l]) => opt(d, (d === today ? 'Hôm nay · ' : '') + l)).join('');
-        dSel.disabled = false;
-        dSel.onchange();
-      };
-      dSel.onchange = () => {
-        const list = sts.filter(s => s.cinema_id === cSel.value && s.date === dSel.value);
-        tSel.innerHTML = opt('', 'Chọn suất') + list.map(s => opt(s.id, s.time + ' · ' + s.format + (s.seats_free ? ' · còn ' + s.seats_free + ' ghế' : ' · hết vé'), !s.seats_free)).join('');
-        tSel.disabled = false; go.disabled = true;
-      };
-      tSel.onchange = () => { go.disabled = !tSel.value; };
-      go.onclick = () => {
-        if (!tSel.value) return;
-        if (window.BetaRememberCinema) window.BetaRememberCinema(cSel.value);
-        location.href = 'seats.html?showtime=' + encodeURIComponent(tSel.value);
-      };
-    })();
-    // Mạng chậm / lỗi: không giữ ẩn quá 4 giây
-    setTimeout(() => { const g = document.getElementById('movie-grid'); if (g) g.classList.remove('syncing'); }, 4000);
-  </script>
+  <script src="js/home-catalog.js"></script>
   <script src="site-chrome.js" defer></script>
 </body>
 

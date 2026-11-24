@@ -58,7 +58,6 @@
       sel.innerHTML = list.map(function (c) {
         return '<option value="' + esc(c.id) + '"' + (c.id === current ? ' selected' : '') + '>' + esc(label(c)) + '</option>';
       }).join('');
-      sel.removeAttribute('onchange');
       sel.onchange = function () {
         store(false, KEY, sel.value);
         location.href = 'schedule.html?cinema=' + encodeURIComponent(sel.value);
@@ -214,7 +213,7 @@
   }
   function movieItem(m) {
     var genre = m.genre || String(m.meta || '').split('·')[0];
-    return '<a class="ss-item" href="/phim/' + encodeURIComponent(m.key) + '"><img src="' + esc(m.poster) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+    return '<a class="ss-item" href="/phim/' + encodeURIComponent(m.key) + '"><img src="' + esc(m.poster) + '" alt="" loading="lazy" data-fallback="hide">' +
       '<span><b>' + esc(m.title) + '</b><small>' + esc([genre, m.duration_min ? m.duration_min + ' phút' : '', m.age].filter(Boolean).join(' · ')) + '</small></span>' +
       (m.status === 'SOON' ? '<span class="ss-tag">Sắp chiếu</span>' : '') + '</a>';
   }
@@ -379,6 +378,10 @@
     ensureIcons();
     headerTools();
     if (!/\/admin(\.html)?$/.test(location.pathname)) { demoNotice(); maintenance(); partners(); }
+    // Ô chọn rạp ở đầu trang: chọn là sang lịch chiếu; apply() gắn thêm mã rạp khi tải được danh sách rạp
+    document.querySelectorAll('select.cinema-select-official:not([id])').forEach(function (sel) {
+      if (!sel.onchange) sel.onchange = function () { location.href = 'schedule.html'; };
+    });
     loadCinemas().then(apply).catch(function () { /* giữ nội dung tĩnh khi mất mạng */ });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);

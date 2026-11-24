@@ -241,6 +241,7 @@
       text-align: center;
     }
   </style>
+  <script src="js/actions.js"></script>
 </head>
 
 <body>
@@ -273,7 +274,7 @@
 
       <!-- Chọn Cụm Rạp -->
       <div style="position: relative; flex-shrink: 0;">
-        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -377,11 +378,11 @@
         Kích hoạt thử các kịch bản để xem trang xác minh tự động chuyển hướng:
       </p>
       <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-        <button type="button" onclick="triggerSim('OK')" class="btn btn-primary btn-sm" style="background: #047857; border: none; font-weight: 800;"><i class="ph-lightning" aria-hidden="true"></i> Webhook về: chuyển đủ</button>
-        <button type="button" onclick="triggerSim('NETWORK_LAG')" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-broadcast" aria-hidden="true"></i> Webhook thất lạc</button>
-        <button type="button" onclick="triggerSim('SLOW_BANK')" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-hourglass-medium" aria-hidden="true"></i> Ngân hàng chậm 12 phút</button>
-        <button type="button" onclick="triggerSim('SHIFT', { minutes: 1 })" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-fast-forward" aria-hidden="true"></i> Tua nhanh 1 phút</button>
-        <button type="button" onclick="triggerSim('SHIFT', { minutes: 3 })" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-fast-forward" aria-hidden="true"></i> Tua nhanh 3 phút</button>
+        <button type="button" data-on-click="triggerSim('OK')" class="btn btn-primary btn-sm" style="background: #047857; border: none; font-weight: 800;"><i class="ph-lightning" aria-hidden="true"></i> Webhook về: chuyển đủ</button>
+        <button type="button" data-on-click="triggerSim('NETWORK_LAG')" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-broadcast" aria-hidden="true"></i> Webhook thất lạc</button>
+        <button type="button" data-on-click="triggerSim('SLOW_BANK')" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-hourglass-medium" aria-hidden="true"></i> Ngân hàng chậm 12 phút</button>
+        <button type="button" data-on-click="triggerSim('SHIFT', { minutes: 1 })" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-fast-forward" aria-hidden="true"></i> Tua nhanh 1 phút</button>
+        <button type="button" data-on-click="triggerSim('SHIFT', { minutes: 3 })" class="btn btn-outline btn-sm" style="font-weight: 800;"><i class="ph-fast-forward" aria-hidden="true"></i> Tua nhanh 3 phút</button>
       </div>
       <div id="sandbox-result" style="margin-top: 10px; font-size: 12px; color: #475569; text-align: center;">
 
@@ -399,7 +400,7 @@
 
     <!-- FLOATING QUICK SWITCHER (Nút góc thu gọn / mở rộng giống Chatbot) -->
   <div id="quick-dock-widget" class="quick-dock-widget">
-    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" onclick="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
+    <button type="button" id="btn-toggle-quick-dock" class="quick-dock-fab" data-on-click="toggleQuickDock()" title="Mở thanh chuyển đổi giao diện">
       <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
       <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
       <span class="fab-badge">3</span>
@@ -410,7 +411,7 @@
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
       <a href="ticket-refunded.html" class="dock-item" data-page="ticket-refunded"><i class="ph-confetti" aria-hidden="true"></i> Đã Hoàn</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="dock-close-pill" data-on-click="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -418,87 +419,7 @@
 
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
-  <script>
-    // Màn hình xác minh giao dịch: chỉ HIỂN THỊ tiến trình Tầng 1 do máy chủ thực hiện.
-    // Không tự đẩy khách sang form hoàn tiền – RefundForm chỉ mở khi hệ thống không tự hoàn được (sau 24 giờ).
-    const params = new URLSearchParams(window.location.search);
-    const order = (params.get('order') || '').toUpperCase();
-    let state = null;
-    let secondsLeft = 0;
-    let lastUpdate = Date.now();
-    let redirected = false;
-
-    const fmt = (sec) => String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
-    document.getElementById('btn-verify-back-qr').href = 'gateway.html?order=' + encodeURIComponent(order);
-    document.getElementById('btn-verify-bot').href = 'betabot.html?order=' + encodeURIComponent(order);
-    document.getElementById('btn-track-order').href = 'order.html?code=' + encodeURIComponent(order);
-    document.querySelectorAll('a[href="betabot.html"]').forEach(a => { a.href = 'betabot.html?order=' + encodeURIComponent(order); });
-
-    // Lịch Tầng 1 (giây tính từ lúc tạo đơn) – khớp lib/flow.js
-    const STEPS = [
-      { at: 0, end: 120, label: 'Chờ ngân hàng báo kết quả qua Webhook (tối đa 2 phút)' },
-      { at: 120, end: 180, label: 'Short Polling: tra cứu nhanh 15 giây/lần (4 lần)' },
-      { at: 180, end: 525, label: 'Final Check: kiểm tra định kỳ 3 phút/lần' },
-      { at: 600, end: 600, label: 'Tra cứu chốt khi hết 10 phút giữ ghế' }
-    ];
-
-    function renderSteps(o) {
-      const t = o.seconds_since_created + Math.round((Date.now() - lastUpdate) / 1000);
-      document.getElementById('tier1-steps').innerHTML = STEPS.map(s => {
-        const done = t >= s.end && !(s.at === 600 && o.status === 'PENDING');
-        const active = !done && t >= s.at;
-        const icon = done ? '<i class=ph-check-circle aria-hidden=true></i>' : active ? '<i class=ph-arrows-clockwise aria-hidden=true></i>' : '<i class=ph-circle aria-hidden=true></i>';
-        return `<li style="list-style: none; margin-left: -18px; color: ${active ? '#005198' : done ? '#16a34a' : '#94a3b8'}; font-weight: ${active ? 700 : 500};">${icon} ${s.label}</li>`;
-      }).join('');
-      document.getElementById('tier1-now').textContent = o.status_sublabel || '';
-      document.getElementById('tier1-leave').style.display = t >= 180 ? 'block' : 'none';
-    }
-
-    function render(o) {
-      if (redirected) return;
-      state = o;
-      lastUpdate = Date.now();
-      secondsLeft = o.seconds_left;
-      document.getElementById('verify-order-code').textContent = o.code;
-      document.getElementById('verify-content').textContent = o.code;
-      document.getElementById('verify-amount').textContent = Pay.vnd(o.status === 'PENDING' ? o.remaining_amount : o.total);
-      document.getElementById('verify-countdown').textContent = o.status === 'PENDING' ? fmt(secondsLeft) : 'Đã nhả ghế';
-      document.querySelector('.verify-card h1').textContent = o.status_label;
-      document.getElementById('sec-counter').textContent = '0';
-      renderSteps(o);
-
-      const next = o.status === 'PENDING' && o.paid_amount === 0 ? null : Pay.routeFor(o);
-      if (next) {
-        redirected = true;
-        setTimeout(() => { location.href = next; }, 1200);
-      }
-    }
-
-    setInterval(() => {
-      if (!state || redirected) return;
-      const ago = Math.round((Date.now() - lastUpdate) / 1000);
-      document.getElementById('sec-counter').textContent = ago;
-      if (state.status === 'PENDING') {
-        document.getElementById('verify-countdown').textContent = fmt(Math.max(0, secondsLeft - ago));
-        renderSteps(state);
-      }
-    }, 1000);
-
-    async function triggerSim(sc, extra = {}) {
-      const out = document.getElementById('sandbox-result');
-      try {
-        const r = await Pay.simulate(sc, order, null, extra);
-        out.textContent = '✓ ' + r.description;
-        if (r.order) render(r.order);
-      } catch (e) {
-        out.textContent = '✗ ' + e.message;
-      }
-    }
-    window.triggerSim = triggerSim;
-
-    if (order) Pay.watch(order, render, 3000);
-    else document.querySelector('.verify-card h1').textContent = 'Thiếu mã đơn hàng';
-  </script>
+  <script src="js/verify.js"></script>
   <script src="site-chrome.js" defer></script>
 </body>
 

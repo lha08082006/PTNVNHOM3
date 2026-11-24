@@ -1,13 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <script>
-    // Trang mẫu thiết kế: trạng thái đơn thật (đã hủy / đã hoàn tiền) hiển thị ở order.html
-    (function () {
-      var c = new URLSearchParams(location.search).get("order");
-      location.replace(c ? "order.html?code=" + encodeURIComponent(c) : "account.html");
-    })();
-  </script>
+  <script src="js/redirect-to-order.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="lang.js"></script>
@@ -172,6 +166,7 @@
       }
     }
   </style>
+  <script src="js/actions.js"></script>
 </head>
 <body>
   <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
@@ -205,7 +200,7 @@
 
       <!-- Chọn Cụm Rạp (Dropdown chuẩn phong cách Beta) -->
       <div style="position: relative; flex-shrink: 0;">
-        <select aria-label="Chọn rạp" class="cinema-select-official" onchange="window.location.href='schedule.html'">
+        <select aria-label="Chọn rạp" class="cinema-select-official">
           <option selected>Beta Thanh Xuân (Hà Nội)</option>
           <option>Beta Trần Quang Khải</option>
           <option>Beta Giải Phóng (Hà Nội)</option>
@@ -272,7 +267,7 @@
                    src="images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp" 
                    alt="Poster phim" 
                    style="flex: none; width: 76px; height: 112px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12);"
-                   onerror="this.src='images/400x633-145627-230926-40.jpg';">
+                   data-fallback="images/400x633-145627-230926-40.jpg">
               <div style="flex: 1;">
                 <h2 style="font-size: 21px; font-weight: 800; color: #0f172a; margin: 0 0 6px; line-height: 1.3;" id="movie-title">
                   Quỷ Ăn Tạng 4 
@@ -489,7 +484,7 @@
 
   <!-- NÚT NỔI FAB & THANH CÔNG CỤ NHANH DOCK -->
   <div class="quick-dock-wrapper" id="quick-dock-container">
-    <button type="button" class="fab-dock-btn" id="btn-toggle-quick-dock" onclick="toggleQuickDock()" title="Mở menu chuyển nhanh">
+    <button type="button" class="fab-dock-btn" id="btn-toggle-quick-dock" data-on-click="toggleQuickDock()" title="Mở menu chuyển nhanh">
       <span class="fab-icon-open"><i class="ph-lightning" aria-hidden="true"></i></span>
       <span class="fab-icon-close" style="display: none;"><i class="ph-x" aria-hidden="true"></i></span>
     </button>
@@ -498,7 +493,7 @@
       <a href="ticket-cancelled.html" class="dock-item" data-page="ticket-cancelled"><i class="ph-x-circle" aria-hidden="true"></i> Đơn Hủy</a>
       <a href="refund.html" class="dock-item" data-page="refund"><i class="ph-money-wavy" aria-hidden="true"></i> Hoàn Tiền</a>
       <a href="ticket-refunded.html" class="dock-item active" data-page="ticket-refunded"><i class="ph-confetti" aria-hidden="true"></i> Đơn Đã Hoàn</a>
-      <button type="button" class="dock-close-pill" onclick="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="dock-close-pill" data-on-click="toggleQuickDock()" title="Thu gọn"><i class="ph-x" aria-hidden="true"></i></button>
     </nav>
   </div>
   <script src="auth-client.js"></script>
@@ -507,133 +502,7 @@
   <!-- Script Tự Động Đồng Bộ Dữ Liệu Khớp 100% -->
   <script src="catalog.js"></script>
   <script src="pay-client.js"></script>
-  <script>
-    // 1. Phân tích tham số từ URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderCode = urlParams.get('order') || localStorage.getItem('last_active_order') || 'BC2610279854';
-    
-    // 2. Tra cứu dữ liệu từ localStorage
-    let refundDet = null;
-    try {
-      const stored = localStorage.getItem('refund_detail_' + orderCode);
-      if (stored) refundDet = JSON.parse(stored);
-    } catch (e) {}
-
-    // Tra cứu từ pay-client nếu có
-    const localOrd = (window.Pay && Pay.getLocalOrder) ? Pay.getLocalOrder(orderCode) : null;
-
-    // Trích xuất các trường dữ liệu
-    const movieKey = (refundDet && refundDet.movie) || urlParams.get('movie') || (localOrd && localOrd.movie_key) || 'quy-an-tang-4';
-    const cinema = (refundDet && refundDet.cinema) || urlParams.get('cinema') || (localOrd && localOrd.cinema) || 'Beta Thanh Xuân (Hà Nội)';
-    const seats = (refundDet && refundDet.seats) || urlParams.get('seats') || (localOrd && (Array.isArray(localOrd.seats) ? localOrd.seats.join(', ') : localOrd.seats)) || 'D5, D6';
-    const rawCombos = (refundDet && refundDet.combos) || urlParams.get('combos') || '';
-    const date = (refundDet && refundDet.date) || urlParams.get('date') || 'Hôm nay';
-    const time = (refundDet && refundDet.time) || urlParams.get('time') || '18:30';
-    const total = Number((refundDet && refundDet.total) || urlParams.get('total') || (localOrd && localOrd.total) || 179000);
-    const bank = (refundDet && refundDet.bank) || urlParams.get('bank') || 'MB Bank (Ngân hàng Quân Đội)';
-    const acc = (refundDet && refundDet.acc) || urlParams.get('acc') || '';
-    const owner = (refundDet && refundDet.owner) || urlParams.get('owner') || '';
-    const refundCode = (refundDet && refundDet.refund_code) || urlParams.get('refund_code') || ('REF-' + orderCode.slice(-6));
-
-    // Dữ liệu mặc định chuẩn cho đơn Trại Buôn Người nếu mở BC2610208819
-    const isTraiBuonNguoi = (orderCode === 'BC2610208819') || (movieKey === 'trai-buon-nguoi');
-
-    // Xử lý tên phim và poster
-    const movieObj = (window.Pay && Pay.getMovie) ? Pay.getMovie(movieKey) : null;
-    let movieTitle = isTraiBuonNguoi ? 'Trại Buôn Người: Vùng Cấm Biên Giới' : ((movieObj && (movieObj.shortTitle || movieObj.title)) || 'Quỷ Ăn Tạng 4');
-    let poster = isTraiBuonNguoi ? 'images/official-poster-trai-buon-nguoi-final-142318-150926-62.webp' : ((movieObj && movieObj.poster) || 'images/media_images_2026_09_28_091026-quy-an-tang-4-132603-280926-92.webp');
-    let movieAge = isTraiBuonNguoi ? 'T18' : 'C18';
-    let movieGenre = isTraiBuonNguoi ? 'Tâm Lý, Tội Phạm · 118 phút · 2D phụ đề' : 'Kinh Dị, Giật Gân · 110 phút · 2D phụ đề';
-    let actualCinema = isTraiBuonNguoi ? 'Beta Thanh Xuân (HN) · Phòng 02' : (`${cinema} · Phòng 01`);
-    let actualShowtime = isTraiBuonNguoi ? '20/10/2026 · 21:00' : (`${date} · ${time}`);
-    let actualSeats = isTraiBuonNguoi ? 'G09, G10' : seats;
-    let actualCombos = isTraiBuonNguoi ? 'Combo Solo (1 Bắp Ngọt + 1 Coca) × 1' : combosText;
-    let actualTotal = isTraiBuonNguoi ? '180.000 đ' : formattedTotal;
-    let actualRefundCode = isTraiBuonNguoi ? 'REF-2610-889' : refundCode;
-    let actualTransCode = isTraiBuonNguoi ? 'FT26102088198842' : transCode;
-    let actualRefundTime = isTraiBuonNguoi ? '20/10/2026 17:45' : fullRefundTime;
-
-    // Mask số tài khoản: ví dụ 0987654321 -> ****4321
-    const cleanBank = bank.split('(')[0].trim();
-    const last4Acc = acc.length >= 4 ? acc.slice(-4) : acc;
-    const maskedAccText = `${cleanBank} ****${last4Acc}`;
-
-    // Format tiền VND
-    const formattedTotal = (window.Pay && Pay.vnd) ? Pay.vnd(total) : total.toLocaleString('vi-VN') + ' đ';
-
-    // Xử lý chuỗi combo
-    let combosText = 'Không kèm bắp nước';
-    if (rawCombos) {
-      if (typeof rawCombos === 'string' && rawCombos.startsWith('{')) {
-        try {
-          const parsed = JSON.parse(rawCombos);
-          const parts = [];
-          for (let k in parsed) {
-            parts.push(`Combo (${k}) × ${parsed[k]}`);
-          }
-          if (parts.length > 0) combosText = parts.join(', ');
-        } catch (e) {
-          combosText = rawCombos;
-        }
-      } else {
-        combosText = rawCombos;
-      }
-    } else {
-      combosText = 'Combo 1 (1 Bắp Ngọt + 1 Coca) × 1';
-    }
-
-    // Thời gian hoàn tiền (mặc định lấy thời điểm hiện tại hoặc lùi vài phút)
-    const now = new Date();
-    const pad = (n) => n.toString().padStart(2, '0');
-    const timeFormatted = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const dateFormatted = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
-    const fullRefundTime = `${dateFormatted} ${timeFormatted}`;
-
-    // Tạo mã giao dịch ngân hàng
-    const transCode = 'FT' + orderCode.slice(-8) + Math.floor(1000 + Math.random() * 9000);
-
-    // Gán dữ liệu vào HTML
-    document.getElementById('order-code-display').textContent = orderCode;
-    document.getElementById('movie-title').innerHTML = `${movieTitle} <span id="movie-age-badge" style="background: #d14400; color: white; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 4px;">${movieAge}</span>`;
-    document.getElementById('movie-meta').textContent = movieGenre;
-    document.getElementById('movie-poster').src = poster;
-    document.getElementById('cinema-room').textContent = actualCinema;
-    document.getElementById('showtime-date').textContent = actualShowtime;
-    document.getElementById('seats-display').textContent = actualSeats;
-    document.getElementById('combos-display').textContent = actualCombos;
-    document.getElementById('total-display').textContent = actualTotal;
-
-    document.getElementById('refund-code-display').textContent = actualRefundCode;
-    document.getElementById('refund-amount-display').textContent = actualTotal;
-    document.getElementById('refund-bank-acc').textContent = maskedAccText;
-    document.getElementById('refund-trans-code').textContent = actualTransCode;
-    document.getElementById('refund-time-display').textContent = actualRefundTime;
-    document.getElementById('top-user-name').textContent = owner;
-
-    // Cập nhật mốc thời gian lịch sử đơn
-    const t0 = new Date(now.getTime() - 15 * 60000);
-    const t1 = new Date(now.getTime() - 10 * 60000);
-    const t2 = new Date(now.getTime() - 5 * 60000);
-    const formatStepTime = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())} · Hoàn tất`;
-
-    if (isTraiBuonNguoi) {
-      document.getElementById('time-step-1').textContent = '20/10/2026 17:30 · Hoàn tất';
-      document.getElementById('time-step-2').textContent = '20/10/2026 17:35 · Hoàn tất';
-      document.getElementById('time-step-3').textContent = '20/10/2026 17:40 · Hoàn tất';
-      document.getElementById('time-step-4').textContent = '20/10/2026 17:45 · Hoàn tất';
-    } else {
-      document.getElementById('time-step-1').textContent = formatStepTime(t0);
-      document.getElementById('time-step-2').textContent = formatStepTime(t1);
-      document.getElementById('time-step-3').textContent = formatStepTime(t2);
-      document.getElementById('time-step-4').textContent = `${fullRefundTime} · Hoàn tất`;
-    }
-
-    // Cập nhật link xem hóa đơn điện tử
-    const invoiceLink = document.getElementById('link-view-invoice');
-    if (invoiceLink) {
-      invoiceLink.href = 'invoice.html?order=' + encodeURIComponent(orderCode);
-    }
-  </script>
+  <script src="js/ticket-refunded.js"></script>
   <script src="site-chrome.js" defer></script>
 </body>
 </html>

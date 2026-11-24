@@ -38,8 +38,8 @@ Hiện trạng (21/11/2026): web thật đã nối Supabase, đủ 34 bảng, c�
 - **Tầng dữ liệu `lib/store.js`:** chọn **một lần** lúc khởi động giữa Supabase và bộ nhớ trong (`DB_MODE=mock`). Không bao giờ âm thầm chuyển qua lại.
   - Chốt an toàn: trên Vercel production (hoặc `REQUIRE_DB=1`) mà thiếu / sai cấu hình Supabase thì **không** chạy bộ nhớ tạm. Đặt vé, đăng ký, webhook bị khóa (503), trang khách hiện dải đỏ bảo trì, `/api/health` trả 503.
   - `Store.find` tự đọc theo trang khi cần hơn 1.000 dòng (giới hạn của Supabase) và tự chia nhỏ bộ lọc `in` dài (giữ URL ngắn).
-- **Vercel (`vercel.json`):** `regions: ["sin1"]`, `cleanUrls` (bỏ `.html` trên đường dẫn), rewrite `/` → `/home`, `/phim/:slug` → `/api/movie-page`, `/sitemap.xml` và `/robots.txt` → `/api/sitemap`; cron `/api/cron` lúc `0 1 * * *` UTC (08:00 giờ VN); header bảo mật (CSP, HSTS, X-Frame-Options…).
-- **PWA:** `sw.js` (phiên bản `beta-v5`) lưu trang và tài nguyên để xem vé khi mất mạng; `manifest.webmanifest`.
+- **Vercel (`vercel.json`):** `regions: ["sin1"]`, `cleanUrls` (bỏ `.html` trên đường dẫn), rewrite `/` → `/home`, `/phim/:slug` → `/api/movie-page`, `/sitemap.xml` và `/robots.txt` → `/api/sitemap`; cron `/api/cron` lúc `0 1 * * *` UTC (08:00 giờ VN); header bảo mật (CSP, HSTS, X-Frame-Options…). CSP `script-src` **không có `'unsafe-inline'`**: HTML không được chứa `<script>` viết thẳng hay thuộc tính `onclick=`/`onchange=`/`onerror=`… (xem mục 16). Bản sao CSP cho máy chạy ở `server.js`.
+- **PWA:** `sw.js` (phiên bản `beta-v7`) lưu trang và tài nguyên để xem vé khi mất mạng; `js/<trang>.js` lấy mạng trước (đi đôi với HTML), mã của các trang dùng offline được lưu sẵn; `manifest.webmanifest`.
 - **Song ngữ:** `lang.js` + từ điển `i18n/en.json` (khóa là câu tiếng Việt), bật bằng nút EN/VI hoặc `?lang=en`.
 - **Mã vạch vé:** `barcode.js` tự sinh Code 128 (SVG / canvas), không cần thư viện ngoài.
 
@@ -84,6 +84,8 @@ catalog.js             danh mục dùng chung trình duyệt + máy chủ: giá 
 pay-client.js          gọi API từ trình duyệt, lưu vé offline
 auth-client.js         phiên đăng nhập khách ở trình duyệt
 site-chrome.js         đầu / chân trang dùng chung, menu ☰, tìm kiếm, banner cài app, dải bảo trì
+js/<trang>.js          mã riêng của từng trang (vd. js/admin.js cho admin.html) – CSP không cho script viết thẳng trong HTML
+js/actions.js          trình nghe chung: data-on-click="ham('x')" thay onclick, data-fallback thay onerror của ảnh
 schema.sql             cấu trúc đầy đủ (database mới chạy file này)
 migrations/            14 migration theo ngày + file gộp + file dữ liệu mẫu (mục 10)
 tools/                 kiểm thử, sinh dữ liệu, tối ưu ảnh, sao lưu (mục 12)
@@ -379,4 +381,5 @@ $env:DB_MODE="mock"; $env:PORT="3000"; npm start      # mở http://localhost:30
 - Trên web thật chỉ dùng GET để kiểm tra; **không** tạo đơn, không đăng nhập bằng mật khẩu thay người dùng.
 - Không bao giờ đưa khóa bí mật vào mã nguồn, commit hay tài liệu.
 - Commit message tiếng Việt, mô tả lý do; kết thúc bằng dòng `Co-Authored-By` theo quy ước của trợ lý.
+- **Không viết script / sự kiện thẳng trong HTML** (CSP chặn): mã trang để ở `js/<trang>.js` (script thường, đúng thứ tự như cũ); nút gọi hàm bằng `data-on-click="tenHam('a', this)"` (cả `data-on-change` / `-input` / `-submit` / `-keydown`), ảnh lỗi dùng `data-fallback="images/x.png"` (hoặc `hide` / `none` / `badge`). Giá trị `data-on-*` chỉ là lời gọi hàm (không gán biến, không `if`) – cần phức tạp hơn thì viết một hàm có tên. Hàm khai báo bằng `const`/`let` phải gán thêm lên `window`. `npm run test:pages` quét mã nguồn và báo mọi vi phạm.
 - Mỗi tính năng có kiểm thử trong `tools/smoke-test.js` (và e2e khi đụng luồng giao diện); chạy `npm test` trước khi đẩy.
