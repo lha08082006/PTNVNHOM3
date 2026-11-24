@@ -46,7 +46,7 @@
 | `AUTO_SCHEDULE_DAYS` | tùy chọn | Cron hằng đêm giữ cho mỗi rạp luôn có lịch bấy nhiêu ngày tới bằng cách chép lịch cùng thứ tuần trước vào ngày còn trống (mặc định 14, tối đa 31; `0` = tắt). Không đụng ngày đã có suất, bỏ phim đã ẩn / suất đã ngưng |
 | `MIN_REVIEWS_SHOW` | tùy chọn | Số lượt đánh giá tối thiểu để hiện điểm ★ trên poster (mặc định 3) |
 | `INVOICE_REQUEST_HOURS` | tùy chọn | Số giờ sau khi thanh toán khách còn được gửi yêu cầu hóa đơn (mặc định 24 – Kế toán xác nhận theo quy định) |
-| `SITE_URL` | tùy chọn | Dùng cho link "Xem đơn hàng" trong email |
+| `SITE_URL` | chỉ khi chạy ngoài Vercel | Link "Xem đơn hàng" trong email, IPN cổng thanh toán. Trên Vercel web tự dùng tên miền production (`VERCEL_PROJECT_PRODUCTION_URL`), biến này được bỏ qua |
 | `ALLOW_SANDBOX` | **không** đặt trên production | `1` = mở `/api/simulate-payment` (vẫn cần `x-admin-key`) cho UAT |
 
 > **Chốt an toàn (Đợt 10):** trên Vercel production mà thiếu / sai `SUPABASE_URL`, `SUPABASE_SECRET_KEY` thì web **không** chạy bộ nhớ tạm nữa:
@@ -82,7 +82,7 @@ Phải tự làm trên các dịch vụ bên ngoài, code không làm thay đư�
 - [ ] **Thu hồi khóa SePay cũ** (đã lộ trong lịch sử git), tạo khóa mới, đặt vào `SEPAY_API_KEY` / `SEPAY_WEBHOOK_KEY`.
 - [ ] `AUTH_SECRET` ngẫu nhiên ≥ 32 ký tự; `ADMIN_KEY` mạnh, xóa đi sau khi đã tạo tài khoản Quản lý đầu tiên.
 - [ ] **Không** đặt `ALLOW_SANDBOX`, **không** đặt `DB_MODE` trên production.
-- [ ] Đặt `SITE_URL` (vd `https://beta.example.vn`): dùng cho link trong email, `sitemap.xml` và `robots.txt`.
+- [ ] Trên Vercel không cần `SITE_URL` (link trong email tự theo tên miền production). Chạy ở nơi khác thì đặt `SITE_URL` (vd `https://beta.example.vn`).
 - [ ] Xác minh tên miền gửi mail trên Resend, đặt `RESEND_API_KEY`, `MAIL_FROM`; thử "Quên mật khẩu" phải nhận được mã OTP.
 - [ ] Chạy đủ các migration (mục 1), vào admin.html → Danh mục: kiểm tra phim, rạp, giá; tạo suất chiếu 7 ngày tới.
 - [ ] **UAT bằng tiền thật, số tiền nhỏ** (mỗi ca một đơn):

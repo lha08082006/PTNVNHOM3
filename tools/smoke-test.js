@@ -658,7 +658,10 @@ async function test(name, fn) {
   await test('Đợt 1: vé HSSV / trẻ em – máy chủ tính đúng, lưu loại vé & giá từng ghế, quầy được nhắc', async () => {
     const login = async (l, p) => (await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: l, password: p } })).data.token;
     const tok = await login('a@test.vn', 'matkhaumoi1');
-    const st = (await call('catalog', { query: { action: 'showtimes', days: 3 } })).data.showtimes.slice(-3)[0];
+    const sts = (await call('catalog', { query: { action: 'showtimes', days: 3 } })).data.showtimes;
+    const kidOk = (s) => !['T13', 'T16', 'T18'].includes(String((s.movie || {}).age || '').toUpperCase());
+    const st = sts.filter(kidOk).slice(-3)[0];
+    const st18 = sts.filter(s => !kidOk(s)).slice(-3)[0];
     const P = st.prices;
     // 2 ghế thường + 1 ghế đôi; 1 HSSV + 1 trẻ em
     const body = { showtime_id: st.id, seats: ['D7', 'D8', 'H7-H8'], ticket_types: { STUDENT: 1, CHILD: 1 } };
@@ -667,6 +670,12 @@ async function test(name, fn) {
     assert.strictEqual(wrong.status, 409); // trình duyệt tự tính sai -> bị chặn
     const tooMany = await call('create-order', { method: 'POST', token: tok, body: { ...body, ticket_types: { CHILD: 3 } } });
     assert.strictEqual(tooMany.status, 400); // vượt số ghế thường/VIP
+    // Phim từ T13 trở lên: không bán vé Trẻ em, vé HSSV vẫn được
+    const kid = await call('create-order', { method: 'POST', token: tok, body: { showtime_id: st18.id, seats: ['D7'], ticket_types: { CHILD: 1 } } });
+    assert.strictEqual(kid.status, 400, JSON.stringify(kid.data));
+    assert.ok(/không bán vé Trẻ em/.test(kid.data.error), kid.data.error);
+    assert.ok(!require('../lib/catalog-db').typesForMovie({ ADULT: {}, CHILD: {}, STUDENT: {} }, st18.movie).CHILD);
+    assert.ok(require('../lib/catalog-db').typesForMovie({ ADULT: {}, CHILD: {}, STUDENT: {} }, st18.movie).STUDENT);
     const r = await call('create-order', { method: 'POST', token: tok, body: { ...body, total: expect } });
     assert.strictEqual(r.status, 200, JSON.stringify(r.data));
     assert.strictEqual(r.data.total, expect);
@@ -1084,6 +1093,13 @@ async function test(name, fn) {
     assert.strictEqual(r.status, 200, JSON.stringify(r.data));
     return r.data;
   };
+
+  await test('Link trong email / IPN: trên Vercel lấy tên miền production, ngoài Vercel dùng SITE_URL', async () => {
+    const { envSiteUrl } = require('../lib/site-url');
+    assert.strictEqual(envSiteUrl({ SITE_URL: 'https://cu.vercel.app/', VERCEL_PROJECT_PRODUCTION_URL: 'moi.vercel.app' }), 'https://moi.vercel.app');
+    assert.strictEqual(envSiteUrl({ SITE_URL: 'https://beta.example.vn/' }), 'https://beta.example.vn');
+    assert.strictEqual(envSiteUrl({}), '');
+  });
 
   await test('Đợt 4: cổng chỉ bật khi có khóa; VNPay – ký đúng, IPN xuất vé, IPN trùng / sai chữ ký bị chặn', async () => {
     assert.deepStrictEqual((await call('pay', { query: { action: 'methods' } })).data.methods.map(m => m.id), ['VIETQR']);

@@ -278,7 +278,7 @@ Chỉ ghi tên. Giá trị nằm trên Vercel, **không bao giờ** đưa vào m
 | `SEPAY_ACCOUNT_NUMBER` | nên đặt | Tài khoản nhận tiền (MSB, tài khoản ảo); chẩn đoán dùng để đối chiếu với giao dịch thật |
 | `SEPAY_BANK_CODE` | tùy chọn | Tên ngân hàng, chỉ hiện trong chẩn đoán |
 | `CRON_SECRET` | ✔ | Bảo vệ `/api/cron` |
-| `SITE_URL` | nên đặt | Link trong email, sitemap, canonical. **Hiện đang sai** (trỏ địa chỉ cũ) |
+| `SITE_URL` | không cần trên Vercel | Trên Vercel link trong email / IPN tự theo tên miền production (`lib/site-url.js`); chỉ dùng khi chạy ngoài Vercel |
 | `ADMIN_KEY` | một lần | Tạo Quản lý đầu tiên; đã dùng xong, có thể xóa |
 | `RESEND_API_KEY`, `MAIL_FROM` | tùy chọn | Gửi email thật |
 | `STAFF_REQUIRE_2FA`, `ALERT_EMAILS` | tùy chọn | Bắt buộc 2 lớp cho nhân viên; email nhận cảnh báo |
@@ -349,7 +349,6 @@ $env:DB_MODE="mock"; $env:PORT="3000"; npm start      # mở http://localhost:30
 **Đã chạy trên web thật:** đặt vé, thanh toán SePay tiền thật (webhook `MATCHED`), vé mã vạch, quầy soát, lịch 14 ngày 9 rạp (2.151 suất), địa chỉ rạp, tài khoản Quản lý. 33 trang × 2 cỡ màn hình không lỗi.
 
 **Việc dọn dẹp nhỏ (chưa làm):**
-- Đổi `SITE_URL` thành `https://ptnvnhom3betacinemas.vercel.app` rồi Redeploy.
 - Xóa / ngắt project Vercel cũ `ptnvnhom3.vercel.app`.
 - Đổi khóa Supabase secret (đã từng lộ trong chat) và cập nhật Vercel.
 - Xóa `ADMIN_KEY` (không gấp).

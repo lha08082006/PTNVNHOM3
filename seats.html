@@ -603,6 +603,7 @@
     // Cập nhật thanh tóm tắt & tính tổng tiền
     // ---------- Loại vé ----------
     let TYPES = BetaCatalog.TICKET_TYPES;
+    let CHILD_OFF = false; // phim từ T13 trở lên: không bán vé Trẻ em
     const typeCounts = Pay.typesFromUrl();
     const eligibleCount = () => selectedSeats.filter(s => s.type !== 'sweetbox').length;
     const specialCount = () => Object.values(typeCounts).reduce((a, b) => a + b, 0);
@@ -632,7 +633,7 @@
             <button type="button" class="o" style="min-width: 34px; min-height: 34px; padding: 0;" aria-label="Thêm vé ${esc(t.label)}" onclick="changeType('${code}', 1)" ${canAdd ? '' : 'disabled'}>+</button>
           </div>`}
         </div>`;
-      }).join('');
+      }).join('') + (CHILD_OFF ? `<div class="m" style="font-size: 12px; line-height: 1.4;">Phim ${esc(SHOWTIME.movie.age)}: không bán vé Trẻ em (dưới 13 tuổi).</div>` : '');
       const rules = (SHOWTIME && SHOWTIME.prices && SHOWTIME.prices.rules) || [];
       document.getElementById('tt-price-note').textContent = rules.length ? 'Giá suất này: ' + rules.join(' · ') + (SHOWTIME.prices.holiday ? ' (' + SHOWTIME.prices.holiday + ')' : '') : '';
     }
@@ -760,6 +761,8 @@
       if (SHOWTIME.layout) LAYOUT = SHOWTIME.layout;
       const pr = await Pay.pricing();
       if (pr && pr.ticket_types) TYPES = pr.ticket_types;
+      CHILD_OFF = !!TYPES.CHILD && ['T13', 'T16', 'T18'].includes(String((SHOWTIME.movie && SHOWTIME.movie.age) || '').toUpperCase());
+      if (CHILD_OFF) { TYPES = { ...TYPES }; delete TYPES.CHILD; delete typeCounts.CHILD; }
       ['standard', 'vip', 'sweetbox'].forEach(t => { const el = document.getElementById('lg-' + t); if (el) el.textContent = Pay.vnd(PRICES[t]).replace(' ', ''); });
       renderGrid();
       setupAutoPick();

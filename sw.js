@@ -4,7 +4,7 @@
 //   - /api/*: KHÔNG lưu (đơn, thanh toán luôn lấy trực tiếp; vé offline do pay-client.js lưu ở localStorage)
 // Vercel bật cleanUrls (/ticket.html -> /ticket) nên trang được lưu theo khóa đã chuẩn hóa: bỏ ".html", "/" = "/home".
 // Đổi VERSION khi đổi danh sách PRECACHE để xóa bộ nhớ đệm cũ.
-const VERSION = 'beta-v5'; // Đợt 11: vé dùng mã vạch (barcode.js) thay thư viện QR; dải chọn ngày gọn
+const VERSION = 'beta-v6'; // Sau báo cáo kiểm thử: ảnh combo / logo nhẹ hơn; thư viện QR nạp kèm SRI (crossorigin)
 const PAGES = ['/home.html', '/account.html', '/ticket.html', '/order.html', '/offline.html'];
 const ASSETS = [
   '/css/prototype-theme.css', '/css/icons.css',
@@ -65,7 +65,9 @@ self.addEventListener('fetch', (e) => {
   if (!/\.(css|js|json|png|jpe?g|webp|svg|gif|woff2?)$/i.test(url.pathname)) return;
   e.respondWith((async () => {
     const c = await caches.open(VERSION);
-    const hit = await c.match(req);
+    let hit = await c.match(req);
+    // Thư viện ngoài nay nạp kèm crossorigin + integrity: bản "opaque" cũ (nạp không CORS) không dùng được nữa -> lấy mạng
+    if (hit && hit.type === 'opaque' && req.mode !== 'no-cors') hit = null;
     const net = fetch(req).then((res) => { if (res.ok) c.put(req, res.clone()); return res; }).catch(() => null);
     return hit || (await net) || new Response('', { status: 504 });
   })());
