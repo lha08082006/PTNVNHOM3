@@ -1094,6 +1094,47 @@ async function test(name, fn) {
     return r.data;
   };
 
+  await test('Turnstile: chưa có khóa thì bỏ qua; có khóa thì Hỗ trợ / Thuê rạp / Đăng ký / Quên mật khẩu cần mã hợp lệ, đúng form', async () => {
+    const TS = require('../lib/turnstile');
+    assert.strictEqual((await call('catalog', { query: { action: 'turnstile' } })).data.site_key, null);
+    const realFetch = global.fetch, realWarn = console.warn;
+    Object.assign(process.env, { TURNSTILE_SITE_KEY: 'site-test', TURNSTILE_SECRET_KEY: 'secret-test' });
+    global.fetch = async (url, opts) => {
+      if (String(url) !== TS.VERIFY_URL) return realFetch(url, opts);
+      const p = new URLSearchParams(String(opts.body));
+      assert.strictEqual(p.get('secret'), 'secret-test');
+      const tok = p.get('response');
+      return { json: async () => (tok.startsWith('ok-') ? { success: true, action: tok.slice(3) } : { success: false, 'error-codes': ['invalid-input-response'] }) };
+    };
+    const H = (t) => ({ 'x-turnstile-token': t });
+    try {
+      assert.strictEqual((await call('catalog', { query: { action: 'turnstile' } })).data.site_key, 'site-test');
+      const sup = { category: 'SERVICE', phone: '0912345678', description: 'Máy lạnh phòng 3 quá lạnh, mong rạp điều chỉnh giúp.' };
+      const s0 = await call('support', { method: 'POST', body: sup });
+      assert.strictEqual(s0.status, 400);
+      assert.ok(/không phải robot/.test(s0.data.error), s0.data.error);
+      assert.strictEqual((await call('support', { method: 'POST', body: sup, headers: H('sai') })).status, 400);
+      const sx = await call('support', { method: 'POST', body: sup, headers: H('ok-register') });
+      assert.strictEqual(sx.status, 400);
+      assert.ok(/không khớp/.test(sx.data.error), sx.data.error); // mã của form Đăng ký không dùng cho form Hỗ trợ
+      const s1 = await call('support', { method: 'POST', body: sup, headers: H('ok-support') });
+      assert.strictEqual(s1.status, 200, JSON.stringify(s1.data));
+      assert.strictEqual((await call('events', { method: 'POST', body: {} })).status, 400);
+      assert.strictEqual((await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Robot' } })).status, 400);
+      assert.strictEqual((await call('auth', { method: 'POST', query: { action: 'forgot' }, body: { email: 'turnstile@test.vn' } })).status, 400);
+      const f1 = await call('auth', { method: 'POST', query: { action: 'forgot' }, body: { email: 'turnstile@test.vn' }, headers: H('ok-forgot') });
+      assert.strictEqual(f1.status, 200, JSON.stringify(f1.data));
+      // Cloudflare không trả lời: cho qua (vẫn còn giới hạn tần suất) để khách không bị kẹt
+      console.warn = () => {};
+      global.fetch = async (url, opts) => { if (String(url) === TS.VERIFY_URL) throw new Error('ECONNRESET'); return realFetch(url, opts); };
+      const s2 = await call('support', { method: 'POST', body: sup, headers: H('bat-ky') });
+      assert.strictEqual(s2.status, 200, JSON.stringify(s2.data));
+    } finally {
+      global.fetch = realFetch; console.warn = realWarn;
+      delete process.env.TURNSTILE_SITE_KEY; delete process.env.TURNSTILE_SECRET_KEY;
+    }
+  });
+
   await test('Link trong email / IPN: trên Vercel lấy tên miền production, ngoài Vercel dùng SITE_URL', async () => {
     const { envSiteUrl } = require('../lib/site-url');
     assert.strictEqual(envSiteUrl({ SITE_URL: 'https://cu.vercel.app/', VERCEL_PROJECT_PRODUCTION_URL: 'moi.vercel.app' }), 'https://moi.vercel.app');

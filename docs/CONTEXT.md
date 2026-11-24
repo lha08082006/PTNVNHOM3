@@ -278,6 +278,7 @@ Chỉ ghi tên. Giá trị nằm trên Vercel, **không bao giờ** đưa vào m
 | `SEPAY_ACCOUNT_NUMBER` | nên đặt | Tài khoản nhận tiền (MSB, tài khoản ảo); chẩn đoán dùng để đối chiếu với giao dịch thật |
 | `SEPAY_BANK_CODE` | tùy chọn | Tên ngân hàng, chỉ hiện trong chẩn đoán |
 | `CRON_SECRET` | ✔ | Bảo vệ `/api/cron` |
+| `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | tùy chọn | Ô "Tôi không phải robot" (Cloudflare Turnstile) cho form Hỗ trợ / Thuê rạp / Đăng ký / Quên mật khẩu; trống = tắt |
 | `SITE_URL` | không cần trên Vercel | Trên Vercel link trong email / IPN tự theo tên miền production (`lib/site-url.js`); chỉ dùng khi chạy ngoài Vercel |
 | `ADMIN_KEY` | một lần | Tạo Quản lý đầu tiên; đã dùng xong, có thể xóa |
 | `RESEND_API_KEY`, `MAIL_FROM` | tùy chọn | Gửi email thật |

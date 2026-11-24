@@ -143,7 +143,19 @@
     }
   };
 
+  // Ô "Tôi không phải robot" (Cloudflare Turnstile) cho Đăng ký / Quên mật khẩu / Hỗ trợ / Thuê rạp:
+  // turnstile.js tự hỏi máy chủ đã bật chưa (chưa có khóa thì không làm gì)
+  function loadTurnstile() {
+    if (window.BetaTurnstile || !document.querySelector('#sp-submit, #ev-submit, #btn-register, #btn-send-code')) return;
+    const s = document.createElement('script');
+    s.src = 'turnstile.js';
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+
   window.BetaAuth = BetaAuth;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', BetaAuth.render);
   else BetaAuth.render();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadTurnstile);
+  else loadTurnstile();
 })();

@@ -1240,6 +1240,9 @@
     "Phim dành cho khán giả từ đủ 13 tuổi trở lên.": "For viewers aged 13 and over.",
     "Phim dành cho khán giả từ đủ 16 tuổi trở lên.": "For viewers aged 16 and over.",
     "Phim dành cho khán giả từ đủ 18 tuổi trở lên.": "For viewers aged 18 and over.",
-    "Yêu Cầu Hoàn Tiền / Báo Lỗi Thanh Toán - Beta Cinemas": "Refund Request / Payment Problem Report - Beta Cinemas"
+    "Yêu Cầu Hoàn Tiền / Báo Lỗi Thanh Toán - Beta Cinemas": "Refund Request / Payment Problem Report - Beta Cinemas",
+    "Vui lòng hoàn tất ô xác minh \"Tôi không phải robot\" rồi gửi lại.": "Please complete the \"I am not a robot\" check, then submit again.",
+    "Xác minh \"Tôi không phải robot\" không hợp lệ hoặc đã hết hạn. Vui lòng xác minh lại rồi gửi.": "The \"I am not a robot\" check is invalid or has expired. Please verify again, then submit.",
+    "Xác minh \"Tôi không phải robot\" không khớp với biểu mẫu này. Vui lòng tải lại trang.": "The \"I am not a robot\" check does not match this form. Please reload the page."
   }
 }
