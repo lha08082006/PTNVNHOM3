@@ -43,7 +43,7 @@
     .topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 12px; min-height: var(--topbar-h); padding: 8px 22px; background: var(--surface); border-bottom: 1px solid var(--line); }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; color: var(--text); text-decoration: none; white-space: nowrap; }
     .brand .mark, .nav-brand .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--brand); color: #fff; display: grid; place-items: center; flex: 0 0 auto; }
-    .brand small { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+    .brand small { display: block; font-size: var(--fs-xs); font-weight: 600; color: var(--muted); letter-spacing: .02em; }
     .page-title { margin: 0; font-size: 17px; font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .topbar .spacer { flex: 1; }
     .nav-toggle { display: none; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; width: 40px; height: 40px; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto; }
@@ -60,7 +60,7 @@
     .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 13px; flex: 0 0 auto; }
     .who-text { display: grid; text-align: left; line-height: 1.2; min-width: 0; }
     .who-text b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .who-text .role { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+    .who-text .role { font-size: var(--fs-xs); color: var(--muted); font-weight: 600; }
     .user-menu { position: absolute; right: 0; top: calc(100% + 6px); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-lg); padding: 6px; min-width: 210px; z-index: 60; display: grid; }
     .user-menu button { text-align: left; border: 0; background: transparent; font: inherit; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text); display: flex; gap: 10px; align-items: center; }
     .user-menu button:hover, .user-menu button:focus-visible { background: var(--surface-2); }
@@ -69,9 +69,9 @@
     /* ---------- Điều hướng trái ---------- */
     nav.tabs { flex-direction: column; gap: 2px; background: var(--nav-bg); color: var(--nav-text); padding: 14px 10px 20px; overflow-y: auto; }
     .nav-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 800; font-size: 15px; padding: 4px 8px 14px; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 8px; }
-    .nav-brand small { display: block; color: var(--nav-muted); font-size: 11.5px; font-weight: 600; }
+    .nav-brand small { display: block; color: var(--nav-muted); font-size: var(--fs-xs); font-weight: 600; }
     .nav-group { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
-    .nav-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--nav-muted); padding: 6px 12px 4px; }
+    .nav-label { font-size: var(--fs-xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--nav-muted); padding: 6px 12px 4px; }
     nav.tabs button { display: flex; align-items: center; gap: 10px; width: 100%; background: transparent; border: 0; color: var(--nav-text); padding: 10px 12px; border-radius: 9px; font: inherit; font-weight: 600; cursor: pointer; text-align: left; min-height: 40px; }
     nav.tabs button i { flex: 0 0 auto; opacity: .9; }
     nav.tabs button:hover { background: var(--nav-hover); color: #fff; }
@@ -97,7 +97,7 @@
       .topbar { padding: 8px 12px; gap: 8px; }
       .who-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
       .user-btn { padding: 3px; }
-      .env { font-size: 11px; padding: 3px 8px; }
+      .env { padding: 3px 8px; }
     }
 
     /* ---------- Nội dung ---------- */
@@ -113,7 +113,7 @@
 
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { font-size: 11.5px; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); font-weight: 700; background: var(--surface-2); }
+    th { font-size: var(--fs-xs); letter-spacing: .03em; text-transform: uppercase; color: var(--muted); font-weight: 700; background: var(--surface-2); }
     tbody tr:last-child td { border-bottom: 0; }
     tr.flag td { background: #fef2f2; }
     tr.clickable { cursor: pointer; } tr.clickable:hover td, tr.clickable:focus-visible td { background: var(--surface-2); }
@@ -121,6 +121,7 @@
     tr.returned td { background: #fef2f2; }
     td.row-actions, th.row-actions { display: table-cell; }
     td.row-actions > * { margin: 2px 4px 2px 0; }
+    td .btn { white-space: nowrap; } /* nút trong bảng không rớt chữ xuống 2 dòng ("Ngừng / bán") */
     .table-wrap { overflow-x: auto; }
 
     .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
@@ -179,7 +180,7 @@
     .todo a, .todo button { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); color: var(--text); text-decoration: none; font: inherit; text-align: left; cursor: pointer; box-shadow: var(--shadow); }
     .todo .n { font-size: 22px; font-weight: 800; min-width: 34px; text-align: center; font-variant-numeric: tabular-nums; }
     .todo .t { font-weight: 700; font-size: 13px; line-height: 1.3; }
-    .todo .t small { display: block; font-weight: 500; color: var(--muted); }
+    .todo .t small { display: block; font-size: var(--fs-xs); font-weight: 500; color: var(--muted); }
     .todo .hot { border-color: #fcd34d; background: #fffbeb; }
     .todo .hot .n { color: var(--warn-text); }
     .todo .zero { box-shadow: none; }
@@ -190,13 +191,14 @@
     .chart-cols .col { flex: 1; height: 100%; display: flex; align-items: flex-end; position: relative; cursor: default; }
     .chart-cols .col i { display: block; width: 100%; background: var(--series); border-radius: 4px 4px 0 0; min-height: 0; }
     .chart-cols .col:hover i, .chart-cols .col:focus-visible i { filter: brightness(.85); }
-    .chart-cols .col .val { position: absolute; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: var(--text-2); white-space: nowrap; pointer-events: none; }
+    .chart-cols .col .val { position: absolute; left: 50%; transform: translateX(-50%); font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); white-space: nowrap; pointer-events: none; }
     .chart-cols .col .tip { display: none; position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 12px; padding: 6px 8px; border-radius: 6px; white-space: nowrap; z-index: 2; pointer-events: none; }
     .chart-cols .col:hover .tip, .chart-cols .col:focus-visible .tip { display: block; }
-    .chart-cols .gridline { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--grid); font-size: 11px; color: var(--muted); pointer-events: none; }
+    .chart-cols .gridline { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--grid); font-size: var(--fs-xs); color: var(--muted); pointer-events: none; }
     .chart-cols .gridline span { position: absolute; left: 0; top: -16px; background: var(--surface); padding-right: 4px; }
-    .chart-x { display: flex; gap: 3px; font-size: 11.5px; color: var(--muted); margin-top: 4px; }
-    .chart-x span { flex: 1; text-align: center; overflow: hidden; white-space: nowrap; }
+    .chart-x { display: flex; gap: 3px; font-size: var(--fs-xs); color: var(--muted); margin-top: 4px; }
+    /* Nhãn ngày được tràn sang cột bên cạnh (đã thưa nhãn theo bề rộng trong loadDashboard) thay vì bị cắt "11/1" */
+    .chart-x span { flex: 1; min-width: 0; text-align: center; overflow: visible; white-space: nowrap; }
     .hbar { display: grid; grid-template-columns: minmax(110px, 36%) 1fr auto; gap: 8px; align-items: center; font-size: 13px; padding: 4px 0; }
     .hbar .track { height: 12px; background: var(--surface-sunk); border-radius: 0 4px 4px 0; }
     .hbar .track i { display: block; height: 100%; background: var(--series); border-radius: 0 4px 4px 0; min-width: 2px; }
@@ -268,7 +270,7 @@
     #login { max-width: 420px; margin: 56px auto; padding: 22px 24px; }
     #login h2 { font-size: 18px; }
     #login .field-row { display: grid; gap: 4px; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: var(--text-2); }
-    #login input { width: 100%; }
+    #login input:not([type="checkbox"]) { width: 100%; } /* không kéo giãn ô "Hiện mật khẩu" */
     .show-pass { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin: -4px 0 12px; cursor: pointer; }
     #login-err.info { color: var(--info-text); font-weight: 600; }
     #login-err { color: var(--danger-text); margin-top: 10px; font-weight: 600; }
@@ -591,7 +593,7 @@
             </form>
           </div>
           <div>
-            <h3 style="font-size: 13px; color: #005198; margin: 0 0 8px;">LOẠI VÉ THEO ĐỐI TƯỢNG <small style="color: var(--muted); font-weight: 500;">giảm thẳng vào giá ghế, không áp dụng ghế đôi</small></h3>
+            <h3 style="font-size: 13px; color: #005198; margin: 0 0 8px;">LOẠI VÉ THEO ĐỐI TƯỢNG <small style="color: var(--muted); font-weight: 500; font-size: var(--fs-xs);">giảm thẳng vào giá ghế, không áp dụng ghế đôi</small></h3>
             <div id="tt-table"></div>
             <h3 style="font-size: 13px; color: #005198; margin: 16px 0 8px;">NGÀY LỄ</h3>
             <form class="toolbar" data-on-submit="event.preventDefault(); saveHoliday()">

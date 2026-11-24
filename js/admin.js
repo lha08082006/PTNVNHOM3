@@ -562,7 +562,9 @@ async function loadDashboard() {
   // Biểu đồ cột: nhãn số trên cột (≤ 16 ngày), 2 đường mốc, tổng / trung bình ở tiêu đề
   const max = Math.max(...d.days.map(x => x.revenue), 1);
   const total = d.days.reduce((s, x) => s + x.revenue, 0);
-  const every = Math.ceil(nDays / 14);
+  // Mỗi nhãn "dd/mm" cần ~40px: màn hình hẹp (điện thoại) thì thưa nhãn ra cho khỏi chồng / bị cắt
+  const plotW = document.getElementById('db-days').clientWidth || 640;
+  const every = Math.max(Math.ceil(nDays / 14), Math.ceil(nDays * 40 / plotW));
   const showVal = nDays <= 16;
   document.getElementById('db-days-sum').textContent = `tổng ${vnd(total)} · trung bình ${vnd(Math.round(total / Math.max(nDays, 1)))}/ngày`;
   document.getElementById('db-days').innerHTML = `
@@ -572,7 +574,7 @@ async function loadDashboard() {
           <div class="col"><i style="height: ${h.toFixed(1)}%"></i>${showVal && x.revenue ? `<span class="val" style="bottom: calc(${h.toFixed(1)}% + 2px);">${shortVnd(x.revenue)}</span>` : ''}
             <span class="tip">${x.date.split('-').reverse().join('/')}<br><b>${vnd(x.revenue)}</b> · ${x.orders} đơn · ${x.tickets} vé</span></div>`; }).join('')}
         </div>
-        <div class="chart-x" aria-hidden="true">${d.days.map((x, i) => `<span>${i % every === 0 ? x.date.slice(8) + '/' + x.date.slice(5, 7) : ''}</span>`).join('')}</div>
+        <div class="chart-x" aria-hidden="true">${d.days.map((x, i) => `<span>${(nDays - 1 - i) % every === 0 ? x.date.slice(8) + '/' + x.date.slice(5, 7) : ''}</span>`).join('')}</div>
         ${total ? '' : '<div class="hint" style="margin-top: 8px;">Chưa có đơn nào được xuất vé trong kỳ này.</div>'}
         <details class="table-view"><summary>Xem dạng bảng</summary>
           <table><thead><tr><th>Ngày</th><th>Doanh thu</th><th>Đơn</th><th>Vé</th></tr></thead><tbody>${
@@ -585,7 +587,7 @@ async function loadDashboard() {
   const m = d.mix;
   document.getElementById('db-mix').innerHTML = tbl(['Hạng mục', 'Số tiền'], [
     ['Vé', vnd(m.ticket)], ['Bắp nước kèm vé', vnd(m.fnb_with_ticket)], ['Bắp nước mua riêng', vnd(m.fnb_only)],
-    ['Giảm do voucher', '−' + vnd(m.discount)], ['Trả bằng điểm Beta Club', '−' + vnd(m.points)]], '');
+    ['Giảm do voucher', (m.discount ? '−' : '') + vnd(m.discount)], ['Trả bằng điểm Beta Club', (m.points ? '−' : '') + vnd(m.points)]], '');
   document.getElementById('db-occ').innerHTML = tbl(['Phim', 'Suất', 'Ghế bán', 'Lấp đầy'], d.occupancy_by_movie.map(x => [esc(x.title), x.shows, x.sold + '/' + x.total, pctTxt(x.rate)]), 'Chưa có suất nào đã chiếu trong kỳ.');
   document.getElementById('db-vouchers').innerHTML = tbl(['Mã', 'Lượt', 'Tổng giảm', 'Doanh thu kèm mã'], d.vouchers.map(x => [`<span class="mono">${esc(x.code)}</span>`, x.uses, vnd(x.discount), vnd(x.revenue)]), 'Chưa có đơn dùng voucher.');
   document.getElementById('db-refunds').innerHTML = tbl(['Lý do', 'Hồ sơ', 'Số tiền'], d.refunds_by_reason.map(x => [esc(x.label), x.count, vnd(x.amount)]), 'Không có khoản hoàn tiền nào trong kỳ.');
@@ -1271,10 +1273,15 @@ async function loadShowtimeList() {
   if (!val('cp-from')) { document.getElementById('cp-from').value = val('sl-date'); document.getElementById('cp-to').value = CAT.today ? new Date(new Date(val('sl-date') + 'T00:00:00Z').getTime() + 7 * 864e5).toISOString().slice(0, 10) : ''; }
   const now = Date.now();
   document.getElementById('sl-table').innerHTML = r.showtimes.length ? `<table><thead><tr><th>Giờ</th><th>Phim</th><th>Định dạng / phòng</th><th>Giá (thường / VIP / đôi)</th><th>Ghế đã bán/giữ</th><th>Trạng thái</th><th></th></tr></thead><tbody>${
-    r.showtimes.map(x => { const past = new Date(x.starts_at).getTime() <= now; const sold = x.seats_total - x.seats_free; return `<tr class="${x.active ? '' : 'inactive'}">
+    r.showtimes.map(x => {
+      const past = new Date(x.starts_at).getTime() <= now; const sold = x.seats_total - x.seats_free;
+      // Suất đã bắt đầu nhưng chưa hết phim: "Đang chiếu" (giống tab Quầy), không ghi "Đã chiếu"
+      const endAt = x.end_time ? new Date(x.date + 'T' + x.end_time + ':00+07:00').getTime() + (x.end_time < x.time ? 864e5 : 0) : 0;
+      const running = past && now < endAt;
+      return `<tr class="${x.active ? '' : 'inactive'}">
           <td><b>${x.time}</b></td><td>${esc(x.movie.title)}</td><td>${esc(x.format)}<div class="hint">${esc(x.room)}</div></td>
           <td>${vnd(x.prices.standard)} / ${vnd(x.prices.vip)} / ${vnd(x.prices.sweetbox)}</td><td>${sold} / ${x.seats_total}</td>
-          <td>${past ? pill('Đã chiếu', 'muted') : x.active ? pill('Đang bán', 'ok') : pill('Ngừng bán', 'danger')}</td>
+          <td>${past ? (running ? pill('Đang chiếu', 'info') : pill('Đã chiếu', 'muted')) : x.active ? pill('Đang bán', 'ok') : pill('Ngừng bán', 'danger')}</td>
           <td>${past ? '' : `<button class="btn ${x.active ? 'danger' : 'ok'}" data-on-click="toggleShowtime('${x.id}', ${!x.active})">${x.active ? 'Ngừng bán' : 'Mở bán lại'}</button>`}</td></tr>`; }).join('')
   }</tbody></table>` : '<div class="empty">Rạp chưa có suất chiếu nào trong ngày này.</div>';
 }
@@ -1651,8 +1658,11 @@ const closeTicket = () => act(async () => {
 }, 'Đã đóng phiếu');
 async function searchCustomers() {
   const box = document.getElementById('cu-results');
+  const q = val('cu-q').trim();
+  // Máy chủ cần ≥ 3 ký tự: báo ngay, không gửi yêu cầu (tránh lỗi 400 khi bấm Tìm với ô trống)
+  if (q.length < 3) { box.innerHTML = '<div class="empty">Nhập ít nhất 3 ký tự: mã đơn, email, số điện thoại hoặc tên khách.</div>'; document.getElementById('cu-q').focus(); return; }
   try {
-    const r = await api('admin?action=customer_search&q=' + encodeURIComponent(val('cu-q')));
+    const r = await api('admin?action=customer_search&q=' + encodeURIComponent(q));
     box.innerHTML = r.customers.length ? `<table><thead><tr><th>Khách hàng</th><th>Email</th><th>SĐT</th><th>Thành viên từ</th><th></th></tr></thead><tbody>${
       r.customers.map(c => `<tr class="clickable ${c.deleted ? 'inactive' : ''}" data-on-click="openCustomer('${esc(c.id)}')"><td><b>${esc(c.full_name)}</b>${c.deleted ? ' ' + pill('Đã xóa tài khoản', 'muted') : ''}</td><td>${esc(c.email)}</td><td class="mono">${esc(c.phone || '')}</td><td>${t(c.created_at)}</td><td><button class="btn primary">Xem</button></td></tr>`).join('')}</tbody></table>`
       : '<div class="empty">Không tìm thấy khách hàng phù hợp.</div>';
@@ -2089,7 +2099,7 @@ function renderIt() {
     ['Job Tầng 2 / gửi lại Refund', m(c.JOB_MS) + '/lần'], ['Cửa sổ ScanList', m(c.SCAN_WINDOW_MS)], ['Hạn tự hoàn', m(c.REFUND_DEADLINE_MS)],
     ['Cấp vé bù khi còn', '≥ ' + m(c.MIN_BEFORE_SHOW_MS) + ' trước giờ chiếu'], ['Cảnh báo khi API lỗi liên tiếp', c.ALERT_CONSECUTIVE_ERRORS + ' lần']
   ].map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join('');
-  document.getElementById('orders').innerHTML = `<table><thead><tr><th>Mã đơn</th><th>Trạng thái</th><th>Ghế</th><th>Giá trị</th><th>Đã nhận</th><th>Tạo lúc</th></tr></thead><tbody>${
+  document.getElementById('orders').innerHTML = !overview.orders.length ? '<div class="empty">Chưa có đơn hàng nào.</div>' : `<table><thead><tr><th>Mã đơn</th><th>Trạng thái</th><th>Ghế</th><th>Giá trị</th><th>Đã nhận</th><th>Tạo lúc</th></tr></thead><tbody>${
     overview.orders.map(o => `<tr class="clickable" tabindex="0" aria-label="Mở đơn ${esc(o.code)}" data-on-click="openOrder('${esc(o.code)}')" data-on-keydown="openOrderKey(event, '${esc(o.code)}')"><td class="mono">${esc(o.code)}</td><td>${pill(o.label, STATUS_TONE[o.status])}</td><td>${esc((o.seats || []).join(', '))}</td><td>${vnd(o.total)}</td><td>${vnd(o.paid_amount)}</td><td>${t(o.created_at)}</td></tr>`).join('')
   }</tbody></table>`;
   document.getElementById('logs').innerHTML = logTable(overview.logs);
