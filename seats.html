@@ -292,7 +292,9 @@
       .seat-summary-bar { padding: 10px 12px !important; gap: 8px !important; bottom: 8px !important; }
       .seat-summary-bar > div { width: 100%; }
       .seat-summary-bar p { font-size: 13px !important; margin: 0 !important; }
-      .seat-summary-bar #checkout-movie-title { font-size: 13.5px !important; }
+      /* Tên phim một dòng (cắt "…"): thanh tổng tiền giữ nguyên chiều cao khi tên thật thay chữ mẫu (tránh xô lệch – CLS) */
+      .seat-summary-bar #checkout-movie-title { font-size: 13.5px !important; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .seat-summary-bar .sum-sep { display: none; }
       .seat-summary-bar #checkout-total-price { font-size: 15px !important; }
       .seat-summary-bar #checkout-meta-detail, .seat-summary-bar .seat-hold-hint { display: none; }
       .seat-summary-bar #btn-next-checkout { width: 100%; min-height: 42px !important; justify-content: center; }
@@ -421,7 +423,7 @@
     <div class="c seat-summary-bar" style="position: sticky; bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; z-index: 1000; box-shadow: 0 10px 30px rgba(0, 81, 152, 0.12); border: 1.5px solid #cbd5e1; background: #ffffff;">
       <div>
         <p style="font-size: 15px; margin-bottom: 2px;">
-          <b id="checkout-movie-title" style="color: var(--text-light); font-size: 16px;">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</b> · Ghế: <span id="checkout-selected-seats" aria-live="polite" style="color: var(--a); font-weight: 800;">D5, D6</span> · Tạm tính: <strong id="checkout-total-price" style="color: var(--status-warning); font-size: 18px;">90,000đ</strong>
+          <b id="checkout-movie-title" style="color: var(--text-light); font-size: 16px;">LINH GIỚI ĐẠI CHIẾN: THẦN SƯ CHUNG QUỲ</b><span class="sum-sep"> · </span>Ghế: <span id="checkout-selected-seats" aria-live="polite" style="color: var(--a); font-weight: 800;">D5, D6</span> · Tạm tính: <strong id="checkout-total-price" style="color: var(--status-warning); font-size: 18px;">90,000đ</strong>
         </p>
         <p class="m" id="checkout-meta-detail" style="font-size: 12.5px;">
           Vui lòng chọn ghế trên sơ đồ khán phòng
