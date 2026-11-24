@@ -5,13 +5,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="lang.js"></script>
-  <title>Chọn Suất & Vé Xem Phim - Alpha / Beta Cinemas</title>
+  <title>Chọn Suất & Vé Xem Phim - Beta Cinemas</title>
   <meta name="description" content="Chọn rạp, ngày và suất chiếu để đặt vé xem phim tại Beta Cinemas.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Beta Cinemas">
   <meta property="og:title" content="Chọn Suất & Vé Xem Phim - Alpha / Beta Cinemas">
   <meta property="og:description" content="Chọn rạp, ngày và suất chiếu để đặt vé xem phim tại Beta Cinemas.">
-  <meta property="og:image" content="images/logo-official.png">
+  <meta property="og:image" content="https://ptnvnhom3betacinemas.vercel.app/images/logo-official.png">
   <link rel="icon" href="images/icon-ticket.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +28,7 @@
       --card-dark: #ffffff;
       --border-dark: #e2e8f0;
       --text-light: #0f172a;
-      --text-muted: #64748b;
+      --text-muted: #475569;
       --status-live: #047857;
       --status-warning: #b45309;
     }
@@ -79,6 +79,9 @@
       transition: opacity 0.2s, transform 0.15s;
     }
 
+    /* Chưa chọn suất: nút ở trạng thái chờ, chữ vẫn đủ tương phản (trước đây làm mờ 50% chỉ còn 2,2:1) */
+    .b.b-wait, .b.b-wait:hover { background: #e2e8f0 !important; color: #334155 !important; box-shadow: none; cursor: not-allowed; pointer-events: none; }
+    #step-seats[aria-disabled="true"] { cursor: default; }
     .b:hover {
       opacity: 0.92;
       transform: translateY(-1px);
@@ -284,12 +287,13 @@
 </head>
 
 <body>
+  <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
+        <span><i class="ph-chat-circle-dots" aria-hidden="true"></i> Hỗ trợ: <a href="support.html" style="color: #005198; font-weight: 700;">Trung tâm hỗ trợ</a> <span class="hotline-hours">(BetaBot 24/7)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -333,9 +337,10 @@
     </div>
   </header>
 
-  <div class="booking-main-container"
+  <div class="booking-main-container" role="main" id="main-content"
     style="max-width: 1360px; margin: 0 auto; padding: 32px 48px; display: flex; flex-direction: column; gap: 24px;">
 
+    <h1 class="sr-only">Chọn suất chiếu</h1>
     <!-- Các bước đặt vé Stepper -->
     <ol aria-label="Các bước đặt vé"
       style="display: flex; gap: 24px; flex-wrap: wrap; list-style: none; padding: 0; margin: 0;">
@@ -343,14 +348,14 @@
         <b>1</b> Chọn suất &amp; vé
       </li>
       <li class="st">
-        <a href="seats.html" style="display: flex; align-items: center; gap: 8px;">
+        <a id="step-seats" aria-disabled="true" style="display: flex; align-items: center; gap: 8px;">
           <b>2</b> Chọn ghế
         </a>
       </li>
       <li class="st">
-        <a href="checkout.html" style="display: flex; align-items: center; gap: 8px;">
+        <span style="display: flex; align-items: center; gap: 8px;">
           <b>3</b> Thanh toán
-        </a>
+        </span>
       </li>
     </ol>
 
@@ -534,15 +539,21 @@
         document.getElementById('summary-format').textContent = selected.format;
         document.getElementById('summary-available-count').textContent = selected.seats_free;
         btn.href = 'seats.html?showtime=' + encodeURIComponent(selected.id);
-        btn.style.opacity = '';
-        btn.style.pointerEvents = '';
+        btn.removeAttribute('aria-disabled');
+        btn.classList.remove('b-wait');
+        btn.textContent = 'Chọn ghế →';
+        const step = document.getElementById('step-seats');
+        if (step) { step.href = btn.href; step.removeAttribute('aria-disabled'); }
       } else {
         document.getElementById('summary-showtime').textContent = 'Chưa chọn suất';
         document.getElementById('summary-format').textContent = '—';
         document.getElementById('summary-available-count').textContent = '—';
         btn.removeAttribute('href');
-        btn.style.opacity = '.5';
-        btn.style.pointerEvents = 'none';
+        btn.setAttribute('aria-disabled', 'true');
+        btn.classList.add('b-wait');
+        btn.textContent = 'Chọn suất chiếu trước';
+        const step = document.getElementById('step-seats');
+        if (step) { step.removeAttribute('href'); step.setAttribute('aria-disabled', 'true'); }
       }
     }
 
@@ -590,14 +601,14 @@
         if (!m) { location.replace('home.html'); return; }
         renderMovie(m);
         WEEK = week.showtimes || [];
-        // Chỉ liệt kê các rạp có chiếu phim này trong 7 ngày tới
+        // Chỉ liệt kê các rạp có chiếu phim này trong khoảng lịch đã mở bán
         const showing = new Set(week.showtimes.map(x => x.cinema_id));
         // Rạp yêu thích (đã lưu ở trang Lịch chiếu) lên đầu danh sách
         let fav = []; try { fav = JSON.parse(localStorage.getItem('BETA_FAV_CINEMAS') || '[]'); } catch (e) {}
         CINEMAS = cn.cinemas.filter(c => showing.has(c.id)).sort((a, b) => fav.includes(b.id) - fav.includes(a.id));
         if (!params.get('cinema') && CINEMAS[0] && fav.includes(CINEMAS[0].id)) cinemaId = CINEMAS[0].id;
         if (!CINEMAS.length) {
-          document.getElementById('showtime-groups').innerHTML = '<p class="m">Phim chưa có lịch chiếu trong 7 ngày tới.</p>';
+          document.getElementById('showtime-groups').innerHTML = '<p class="m">Phim chưa có lịch chiếu sắp tới. Lịch được mở bán dần, bạn quay lại sau nhé.</p>';
           updateSummary();
           return;
         }

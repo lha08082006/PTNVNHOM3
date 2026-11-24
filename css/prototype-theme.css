@@ -187,7 +187,7 @@ textarea {
   border-bottom: 1px solid #e2e8f0 !important;
   padding: 6px 0;
   font-size: 13px;
-  color: #64748b !important;
+  color: #475569 !important;
   line-height: 1.5;
 }
 
@@ -543,6 +543,9 @@ textarea {
 
 /* Selector Rạp chuẩn Beta */
 .cinema-select-official {
+  text-overflow: ellipsis;   /* tên rạp dài trên điện thoại: cắt bằng "…", không chạm mũi tên */
+  white-space: nowrap;
+  overflow: hidden;
   appearance: none;
   -webkit-appearance: none;
   border: 1.5px solid #cbd5e1;
@@ -976,7 +979,7 @@ textarea {
 
 .movie-meta-official {
   font-size: 12.5px;
-  color: #64748b;
+  color: #475569;
   line-height: 1.5;
 }
 
@@ -1517,11 +1520,11 @@ body.drawer-open .site-drawer-backdrop { opacity: 1; visibility: visible; }
 .site-search.open { display: flex; }
 .ss-box { width: min(640px, 100%); background: #fff; border-radius: 16px; box-shadow: 0 24px 60px rgba(0, 0, 0, .3); overflow: hidden; font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
 .ss-in { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid #e2e8f0; }
-.ss-in i { font-size: 20px; color: #64748b; }
+.ss-in i { font-size: 20px; color: #475569; }
 .ss-in input { flex: 1; border: 0; outline: none; font: 600 16px/1.4 'Be Vietnam Pro', sans-serif; color: #0f172a; min-width: 0; background: transparent; }
 .ss-in button { border: 0; background: #f1f5f9; border-radius: 8px; padding: 6px 10px; font: 700 12px/1.2 'Be Vietnam Pro', sans-serif; color: #475569; cursor: pointer; min-height: 32px; }
 .ss-list { max-height: min(60vh, 480px); overflow-y: auto; padding: 6px 0; }
-.ss-group { font: 800 11px/1 'Montserrat', sans-serif; letter-spacing: .5px; text-transform: uppercase; color: #64748b; padding: 12px 16px 6px; }
+.ss-group { font: 800 11px/1 'Montserrat', sans-serif; letter-spacing: .5px; text-transform: uppercase; color: #475569; padding: 12px 16px 6px; }
 .ss-item { display: flex; align-items: center; gap: 12px; padding: 8px 16px; text-decoration: none; color: #0f172a; }
 .ss-item:hover, .ss-item.on { background: #f0f7ff; }
 .ss-item img { width: 40px; height: 60px; object-fit: cover; border-radius: 6px; background: #e2e8f0; flex-shrink: 0; }
@@ -1591,7 +1594,7 @@ body.has-dock .betabot-fab { bottom: 84px; }
 .quick-buy label { display: block; font: 800 11px/1 'Montserrat', sans-serif; color: #475569; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 6px; }
 .quick-buy label b { display: inline-flex; width: 18px; height: 18px; border-radius: 50%; background: #005198; color: #fff; align-items: center; justify-content: center; font-size: 10px; margin-right: 6px; }
 .quick-buy select { width: 100%; height: 44px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #f8fafc; padding: 0 10px; font: 600 14px 'Be Vietnam Pro', sans-serif; color: #0f172a; }
-.quick-buy select:disabled { color: #64748b; background: #f1f5f9; }
+.quick-buy select:disabled { color: #475569; background: #f1f5f9; }
 .quick-buy .qb-go { height: 44px; padding: 0 22px; border: 0; border-radius: 10px; background: #c94200; color: #fff; font: 800 14px 'Montserrat', sans-serif; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
 .quick-buy .qb-go:disabled { background: #94a3b8; cursor: not-allowed; }
 @media (max-width: 900px) {
@@ -1605,7 +1608,7 @@ body.has-dock .betabot-fab { bottom: 84px; }
   border: 1.5px solid #cbd5e1; border-radius: 10px; background: #fff; color: #0f172a;
   font: 500 15px/1.4 'Be Vietnam Pro', system-ui, sans-serif;
 }
-.form-input::placeholder { color: #64748b; }
+.form-input::placeholder { color: #475569; }
 .form-input:focus { border-color: #005198; box-shadow: 0 0 0 3px rgba(0, 81, 152, .12); outline: none; }
 textarea.form-input { min-height: 110px; resize: vertical; }
 @media (max-width: 640px) { .form-input { font-size: 16px; } } /* iPhone không tự phóng to khi chạm ô nhập */
@@ -1633,3 +1636,6 @@ textarea.form-input { min-height: 110px; resize: vertical; }
   .movie-tab-btn { font-size: 14px !important; white-space: nowrap; padding: 10px 8px 12px !important; flex: 0 0 auto; }
   .movie-actions .ma-trailer span { display: none; }
 }
+
+/* Nhãn "Sắp có" của phương thức thanh toán chưa mở: luôn trên một dòng */
+.badge-soon, .soon-badge { white-space: nowrap; }

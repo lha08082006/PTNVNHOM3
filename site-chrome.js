@@ -128,7 +128,7 @@
       '<li><a href="support.html"><i class="ph-chat-circle-dots" aria-hidden="true"></i>Hỗ trợ CSKH</a></li>' +
       '<li><a href="betabot.html"><i class="ph-robot" aria-hidden="true"></i>Hỏi BetaBot 24/7</a></li>' +
       '</ul></nav></div>' +
-      '<div class="sd-foot"><a href="tel:1900636807"><i class="ph-phone" aria-hidden="true"></i> 1900 636 807</a>' +
+      '<div class="sd-foot"><a href="support.html"><i class="ph-chat-circle-dots" aria-hidden="true"></i> Trung tâm hỗ trợ</a>' +
       '<button type="button" data-sd="lang" data-no-i18n aria-label="' + (lang === 'en' ? 'Chuyển sang tiếng Việt' : 'Switch to English') + '">' + (lang === 'en' ? 'Tiếng Việt' : 'English') + '</button></div>';
     document.body.appendChild(backdrop);
     document.body.appendChild(drawer);
@@ -360,10 +360,25 @@
     }).catch(function () { /* giữ VietQR */ });
   }
 
+  // Dải "bản demo" (trang nào chưa có sẵn trong HTML thì chèn) + thanh hỗ trợ trên cùng thành một vùng có tên (nằm ngoài <header>)
+  function demoNotice() {
+    if (!document.getElementById('demo-bar')) {
+      var bar = document.createElement('div');
+      bar.id = 'demo-bar';
+      bar.setAttribute('role', 'region');
+      bar.setAttribute('aria-label', 'Thông báo bản demo');
+      bar.style.cssText = 'background:#7c2d12;color:#fff;padding:7px 14px;text-align:center;font:600 13px/1.45 "Be Vietnam Pro",system-ui,sans-serif';
+      bar.textContent = "Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.";
+      document.body.insertBefore(bar, document.body.firstChild);
+    }
+    var tb = document.querySelector('.top-header-official');
+    if (tb && !tb.closest('header') && !tb.getAttribute('role')) { tb.setAttribute('role', 'region'); tb.setAttribute('aria-label', 'Thông tin hỗ trợ'); }
+  }
+
   function run() {
     ensureIcons();
     headerTools();
-    if (!/\/admin(\.html)?$/.test(location.pathname)) { maintenance(); partners(); }
+    if (!/\/admin(\.html)?$/.test(location.pathname)) { demoNotice(); maintenance(); partners(); }
     loadCinemas().then(apply).catch(function () { /* giữ nội dung tĩnh khi mất mạng */ });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);

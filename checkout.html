@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="lang.js"></script>
-  <title>Thanh Toán Đặt Vé - Alpha / Beta Cinemas</title>
+  <title>Thanh Toán Đặt Vé - Beta Cinemas</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="images/icon-ticket.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -160,6 +160,19 @@
       margin-top: 3px;
     }
 
+    /* Nhãn "Sắp có" của phương thức chưa mở: luôn nằm trọn trên một dòng (không tách "Sắp" / "có" ở 1366px) */
+    .soon-badge {
+      display: inline-block;
+      white-space: nowrap;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-left: 6px;
+    }
+
     .ln {
       display: flex;
       justify-content: space-between;
@@ -214,12 +227,13 @@
   </style>
 </head>
 <body>
+  <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
 
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
+        <span><i class="ph-chat-circle-dots" aria-hidden="true"></i> Hỗ trợ: <a href="support.html" style="color: #005198; font-weight: 700;">Trung tâm hỗ trợ</a> <span class="hotline-hours">(BetaBot 24/7)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         
@@ -348,7 +362,7 @@
               <input type="radio" name="payment_method" disabled>
               <span>
                 <b>MoMo</b> 
-                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+                <span class="soon-badge">Sắp có</span>
               </span>
             </label>
 
@@ -356,7 +370,7 @@
               <input type="radio" name="payment_method" disabled>
               <span>
                 <b>ZaloPay</b> 
-                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+                <span class="soon-badge">Sắp có</span>
               </span>
             </label>
 
@@ -364,7 +378,7 @@
               <input type="radio" name="payment_method" disabled>
               <span>
                 <b>VNPay</b> 
-                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+                <span class="soon-badge">Sắp có</span>
               </span>
             </label>
 
@@ -372,7 +386,7 @@
               <input type="radio" name="payment_method" disabled>
               <span>
                 <b>Thẻ ATM (NAPAS)</b> 
-                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+                <span class="soon-badge">Sắp có</span>
               </span>
             </label>
 
@@ -380,7 +394,7 @@
               <input type="radio" name="payment_method" disabled>
               <span>
                 <b>Thẻ Visa / Master</b> 
-                <span style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; color: #64748b; margin-left: 6px;">Sắp có</span>
+                <span class="soon-badge">Sắp có</span>
               </span>
             </label>
           </div>

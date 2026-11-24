@@ -32,8 +32,8 @@ function toggleQuickDock() {
 }
 window.toggleQuickDock = toggleQuickDock;
 
-// Thanh chuyển giao diện chỉ dành cho môi trường phát triển (localhost hoặc ?dev=1)
-const BETA_DEV_MODE = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || new URLSearchParams(location.search).get('dev') === '1';
+// Thanh chuyển giao diện chỉ dành cho máy phát triển (localhost) – không bật được trên web thật bằng ?dev=1
+const BETA_DEV_MODE = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 
 (function initQuickDock() {
   if (!BETA_DEV_MODE) {
@@ -44,7 +44,7 @@ const BETA_DEV_MODE = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostnam
   function setupLinks() {
     // 1. Thu thập tham số đơn hàng từ URL hoặc localStorage
     const curParams = new URLSearchParams(window.location.search);
-    const order = curParams.get('order') || localStorage.getItem('last_active_order') || 'BC1317376612';
+    const order = curParams.get('order') || localStorage.getItem('last_active_order') || '';
     const total = curParams.get('total') || '90000';
     const movie = curParams.get('movie') || 'quy-an-tang-4';
     const cinema = curParams.get('cinema') || 'Beta Thanh Xuân (Hà Nội)';

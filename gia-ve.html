@@ -8,7 +8,7 @@
   <meta name="description" content="Bảng giá vé xem phim Beta Cinemas: ghế thường, ghế VIP, ghế đôi Sweetbox theo từng rạp, giá combo bắp nước và cách áp dụng mã giảm giá.">
   <meta property="og:title" content="Giá vé & Combo - Beta Cinemas">
   <meta property="og:description" content="Giá ghế thường, VIP, Sweetbox theo rạp và giá combo bắp nước tại Beta Cinemas.">
-  <meta property="og:image" content="images/logo-official.png">
+  <meta property="og:image" content="https://ptnvnhom3betacinemas.vercel.app/images/logo-official.png">
   <link rel="icon" href="images/icon-ticket.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,11 +54,12 @@
   </style>
 </head>
 <body>
+  <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
+        <span><i class="ph-chat-circle-dots" aria-hidden="true"></i> Hỗ trợ: <a href="support.html" style="color: #005198; font-weight: 700;">Trung tâm hỗ trợ</a> <span class="hotline-hours">(BetaBot 24/7)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -129,9 +130,9 @@
       <p class="sub" id="gv-holidays" style="margin-top: 8px;"></p>
     </section>
 
-    <section class="gv-sec">
+    <section class="gv-sec" id="gv-types-sec">
       <h2>Vé ưu đãi theo đối tượng</h2>
-      <p class="sub">Chọn ở bước chọn ghế. Giảm thẳng vào giá ghế thường và VIP (không áp dụng ghế đôi Sweetbox). Nhân viên sẽ kiểm tra giấy tờ khi soát vé.</p>
+      <p class="sub" id="gv-types-sub">Chọn ở bước chọn ghế. Giảm thẳng vào giá ghế thường và VIP (không áp dụng ghế đôi Sweetbox). Nhân viên sẽ kiểm tra giấy tờ khi soát vé.</p>
       <div class="gv-combos" id="gv-types"></div>
     </section>
 
@@ -140,7 +141,7 @@
       <p class="sub">Khoảng giá lấy từ các suất chiếu đang mở bán của từng rạp.</p>
       <div class="gv-table-wrap">
         <table class="gv-table">
-          <thead><tr><th>Rạp</th><th>Ghế thường</th><th>Ghế VIP</th><th>Ghế đôi</th><th>Số suất</th><th></th></tr></thead>
+          <thead><tr><th>Rạp</th><th>Ghế thường</th><th>Ghế VIP</th><th>Ghế đôi</th><th>Số suất</th><th><span class="sr-only">Lịch chiếu</span></th></tr></thead>
           <tbody id="gv-cinemas"><tr><td colspan="6" class="m">Đang tải giá theo rạp…</td></tr></tbody>
         </table>
       </div>
@@ -181,10 +182,10 @@
             </a>
           </div>
           <p style="font-size: 13px; color: #e0f2fe; line-height: 1.8; margin-bottom: 16px;">
-            <strong>CÔNG TY CỔ PHẦN BETA MEDIA</strong><br>
-            Tầng 3, số 59 phố Xuân Diệu, Phường Quảng An, Quận Tây Hồ, Thành phố Hà Nội.<br>
-            Mã số doanh nghiệp: 0106633482 do Sở KH&ĐT TP. Hà Nội cấp.<br>
-            Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
+            <strong>ĐỒ ÁN MÔN HỌC – NHÓM 3</strong><br>
+            Website mô phỏng quy trình đặt vé và đối soát thanh toán, phục vụ học tập.<br>
+            Không phải website chính thức của Beta Cinemas; tên và logo thuộc về chủ sở hữu.<br>
+            Hỗ trợ: <a href="support.html" style="color: inherit; text-decoration: underline;">Trung tâm hỗ trợ</a> hoặc BetaBot
           </p>
           <div>
             <img loading="lazy" decoding="async" src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
@@ -193,7 +194,7 @@
 
         <!-- Cột 2: Cụm Rạp Beta -->
         <div>
-          <h4 class="footer-official-title">CỤM RẠP BETA CINEMAS</h4>
+          <h2 class="footer-official-title">CỤM RẠP BETA CINEMAS</h2>
           <ul class="footer-official-links">
             <li><a href="schedule.html">Beta Thanh Xuân (Hà Nội)</a></li>
             <li><a href="schedule.html">Beta Giải Phóng (Hà Nội)</a></li>
@@ -207,7 +208,7 @@
 
         <!-- Cột 3: Quy Định & Điều Khoản -->
         <div>
-          <h4 class="footer-official-title">CHÍNH SÁCH & QUY ĐỊNH</h4>
+          <h2 class="footer-official-title">CHÍNH SÁCH & QUY ĐỊNH</h2>
           <ul class="footer-official-links">
             <li><a href="policy.html#dieu-khoan">Điều khoản sử dụng</a></li>
             <li><a href="policy.html#bao-mat">Chính sách bảo mật thông tin</a></li>
@@ -221,7 +222,7 @@
 
         <!-- Cột 4: Kết Nối & Thanh Toán -->
         <div>
-          <h4 class="footer-official-title">KẾT NỐI VỚI CHÚNG TÔI</h4>
+          <h2 class="footer-official-title">KẾT NỐI VỚI CHÚNG TÔI</h2>
           <p style="font-size: 13px; color: #e0f2fe; margin-bottom: 14px;">Theo dõi Fanpage Beta Cinemas để nhận ưu đãi vé 0đ sớm nhất:</p>
           <div style="display: flex; gap: 10px; margin-bottom: 20px;">
             <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Facebook</span>
@@ -229,7 +230,7 @@
             <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Youtube</span>
           </div>
 
-          <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
+          <h2 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h2>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
             <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
           </div>
@@ -238,7 +239,7 @@
       </div>
 
       <div class="footer-official-bottom">
-        <div>© 2026 Beta Cinemas. Bản quyền thuộc về Công ty Cổ phần Beta Media.</div>
+        <div>© 2026 Đồ án môn học – Nhóm 3 · Bản demo, không phải website chính thức của Beta Cinemas.</div>
         <div>
           <a href="support.html" style="color: #ffd166; font-weight: 600;">Trung tâm trợ giúp 24/7</a>
         </div>
@@ -278,7 +279,10 @@
           <td class="num">${cell(r.price_standard)}</td><td class="num">${cell(r.price_vip)}</td><td class="num">${cell(r.price_sweetbox)}</td></tr>`).join('')
           || '<tr><td colspan="6" class="m">Đang áp dụng giá niêm yết ở trên cho mọi suất.</td></tr>';
         $('gv-holidays').textContent = (pr.holidays || []).length ? 'Ngày lễ sắp tới: ' + pr.holidays.map(h => h.date.split('-').reverse().join('/') + ' (' + h.name + ')').join(', ') : '';
-        $('gv-types').innerHTML = Object.entries(pr.ticket_types || {}).filter(([k]) => k !== 'ADULT').map(([, t]) =>
+        const specialTypes = Object.entries(pr.ticket_types || {}).filter(([k]) => k !== 'ADULT' && k !== 'COUPLE');
+        // Máy chủ chưa bật loại vé ưu đãi nào: nói rõ, không để mục trống gây hiểu nhầm là đang có ưu đãi
+        if (!specialTypes.length) { $('gv-types-sub').textContent = 'Hiện chưa áp dụng vé ưu đãi theo đối tượng (HSSV, trẻ em, người cao tuổi). Mọi vé tính theo giá niêm yết ở trên.'; }
+        $('gv-types').innerHTML = specialTypes.map(([, t]) =>
           `<div class="gv-combo"><b>${esc(t.label)}</b><span>Giảm ${vnd(t.off)}</span>${t.note ? `<small class="m" style="display:block;font-size:12px;line-height:1.4;margin-top:4px;">${esc(t.note)}</small>` : ''}</div>`).join('');
       } catch (e) {
         $('gv-rules').innerHTML = '<tr><td colspan="6" class="m">Không tải được bảng giá. <button type="button" class="btn btn-outline btn-sm" onclick="location.reload()">Thử lại</button></td></tr>';

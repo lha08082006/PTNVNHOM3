@@ -1,12 +1,31 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": ["sin1"],
+  "regions": [
+    "sin1"
+  ],
   "cleanUrls": true,
   "trailingSlash": false,
   "crons": [
     {
       "path": "/api/cron",
       "schedule": "0 1 * * *"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/lib/:path*",
+      "destination": "/khong-tim-thay",
+      "permanent": false
+    },
+    {
+      "source": "/specs/:path*",
+      "destination": "/khong-tim-thay",
+      "permanent": false
+    },
+    {
+      "source": "/:file(.*\\.md)",
+      "destination": "/khong-tim-thay",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -103,6 +122,10 @@
         {
           "key": "Strict-Transport-Security",
           "value": "max-age=63072000; includeSubDomains"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
         }
       ]
     }

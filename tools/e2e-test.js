@@ -69,11 +69,11 @@ const expect = (cond, msg) => { if (!cond) throw new Error(msg); };
     await step('Khách đăng ký tài khoản trên trang (đồng ý điều khoản)', async () => {
       await p.goto(B + '/auth.html#register', { waitUntil: 'networkidle2' });
       await p.evaluate(() => typeof switchToView === 'function' && switchToView('register'));
-      await p.type('#reg-name', 'Khach E2E');
+      await p.type('#reg-name', 'Khach Thu Nghiem');
       await p.type('#reg-phone', '0907' + String(Date.now()).slice(-6));
       await p.type('#reg-email', 'e2e' + Date.now() + '@x.vn');
-      await p.type('#reg-password', 'matkhau123');
-      await p.type('#reg-password2', 'matkhau123');
+      await p.type('#reg-password', 'Matkhau2026');
+      await p.type('#reg-password2', 'Matkhau2026');
       await p.click('#reg-terms');
       await Promise.all([p.waitForNavigation({ waitUntil: 'networkidle2' }), p.click('#btn-register')]);
       expect(/account\.html/.test(p.url()), 'Không vào được trang tài khoản sau khi đăng ký: ' + p.url());

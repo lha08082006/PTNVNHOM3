@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="lang.js"></script>
-  <title>Cổng Thanh Toán VietQR - Beta Cinemas (Thiết Kế Mới 2026)</title>
+  <title>Cổng Thanh Toán VietQR - Beta Cinemas</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="images/icon-ticket.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,6 +41,7 @@
       text-align: center;
       position: relative;
     }
+    .demo-pay-note { margin: 0 auto 14px; max-width: 420px; padding: 8px 12px; border-radius: 8px; background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; font-size: 13px; font-weight: 700; line-height: 1.45; }
     .qr-box-main {
       padding: 30px 24px;
       text-align: center;
@@ -131,6 +132,7 @@
   </style>
 </head>
 <body>
+  <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
 
   <!-- Top Announcement Bar -->
   <div class="top-notice-bar" style="background: #003768; border-bottom: 1px solid rgba(255,255,255,0.1);">
@@ -165,6 +167,7 @@
 
       <!-- QR Code Box -->
       <div class="qr-box-main">
+        <p class="demo-pay-note" role="note">Đây là website demo của đồ án môn học. Chỉ chuyển khoản nếu bạn thuộc nhóm thực hiện và đang kiểm thử.</p>
         <!-- Chỉ hiện mã QR khi đã có số tiền thật của đơn từ máy chủ (không bao giờ hiện mã mẫu) -->
         <div class="qr-frame" style="position: relative;">
           <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Mã QR VietQR của đơn hàng" style="visibility: hidden;">
@@ -345,6 +348,11 @@
     if (!isDevHost && params.get('sandbox') !== '1') {
       const sb = document.getElementById('sandbox-details');
       if (sb) sb.remove();
+    } else if (!isDevHost) {
+      // ?sandbox=1 trên web thật: chỉ giữ bảng khi máy chủ thật sự bật Sandbox (mặc định tắt – các nút sẽ báo 403)
+      fetch((window.Pay && Pay.getApiBase ? Pay.getApiBase() : '/api/') + 'health', { cache: 'no-store' })
+        .then(r => r.json()).then(h => { if (!h || h.sandbox !== true) { const sb = document.getElementById('sandbox-details'); if (sb) sb.remove(); } })
+        .catch(() => { const sb = document.getElementById('sandbox-details'); if (sb) sb.remove(); });
     }
     if (params.get('sandbox') === '1' || params.get('test') === '1') {
       const sbEl = document.getElementById('sandbox-details');
@@ -415,7 +423,7 @@
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
         document.getElementById('btn-report-icon').innerHTML = '<i class=ph-megaphone aria-hidden=true></i>';
         document.getElementById('btn-report-text').innerHTML = 'Báo Cáo Lỗi: Tôi đã chuyển tiền nhưng chưa có vé';
-        alert('Chưa gửi được báo cáo: ' + e.message + '. Vui lòng thử lại hoặc gọi 1900 636 807.');
+        alert('Chưa gửi được báo cáo: ' + e.message + '. Vui lòng thử lại hoặc gửi yêu cầu ở Trung tâm hỗ trợ.');
       }
     }
     window.handleReportError = handleReportError;

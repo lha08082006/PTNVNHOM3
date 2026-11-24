@@ -19,7 +19,59 @@
 
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
+  // Gốc của site = thư mục chứa auth-client.js: "/" trên Vercel và server Node; Live Server / file:// có thể là thư mục con
+  const SITE_ROOT = (function () {
+    try { return new URL('.', document.currentScript.src).pathname; } catch (e) { return '/'; }
+  })();
+  // Trang đang xem tính từ gốc site, giữ cả thư mục con và tham số: "checkout?showtime=…", "phim/suzume"
+  // (Vercel bật cleanUrls nên đường dẫn thường không có ".html")
+  function currentPage() {
+    const p = location.pathname;
+    const rel = (p.indexOf(SITE_ROOT) === 0 ? p.slice(SITE_ROOT.length) : p).replace(/^\/+|\/+$/g, '');
+    return rel ? rel + location.search : '';
+  }
+
+  // Luật kiểm tra dữ liệu khách nhập – GIỐNG HỆT máy chủ (lib/auth.js: checkName, checkMobile, checkBirthday, checkPassword)
+  // để báo lỗi ngay trên form (auth.html, account.html); máy chủ vẫn kiểm tra lại. Mỗi hàm trả '' nếu hợp lệ, ngược lại trả câu báo lỗi.
+  // Biểu thức \p{L} tạo bằng new RegExp: trình duyệt quá cũ không hiểu thì bỏ qua bước đó (không làm hỏng cả file), máy chủ vẫn chặn.
+  const uRe = (src) => { try { return new RegExp(src, 'u'); } catch (e) { return null; } };
+  const NAME_RE = uRe("^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s'.-]{1,59}$");
+  const LETTER_RE = uRe('\\p{L}');
+  const WEAK_PASSWORDS = ['12345678', '123456789', '1234567890', '11111111', '00000000', '87654321', 'password', 'password1', 'password123',
+    'matkhau', 'matkhau1', 'matkhau123', 'abc12345', 'qwerty123', '12341234', 'iloveyou'];
+  const MSG = {
+    name: 'Họ tên chỉ gồm chữ cái (có dấu) và khoảng trắng, từ 2 đến 60 ký tự',
+    phone: 'Số điện thoại di động không hợp lệ (VD: 0987654321)',
+    birthday: 'Ngày sinh không hợp lệ',
+    password: 'Mật khẩu cần ít nhất 8 ký tự, có cả chữ và số, không dùng mật khẩu quá phổ biến',
+    samePassword: 'Mật khẩu mới phải khác mật khẩu hiện tại'
+  };
+  const check = {
+    MIN_BIRTHDAY: '1920-01-01',
+    today: () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10), // hôm nay theo giờ Việt Nam, như máy chủ
+    normName: (s) => String(s || '').trim().replace(/\s+/g, ' '),
+    normPhone: (s) => String(s || '').replace(/[\s.-]/g, ''),
+    name: (s) => (!NAME_RE || NAME_RE.test(check.normName(s)) ? '' : MSG.name),
+    phone: (s) => (/^0(3|5|7|8|9)\d{8}$/.test(check.normPhone(s)) ? '' : MSG.phone),
+    // Ngày sinh không bắt buộc. el = ô <input type="date">: gõ dở / sai ngày thì value rỗng nhưng vẫn phải báo lỗi
+    birthday(s, el) {
+      if (el && el.validity && el.validity.badInput) return MSG.birthday;
+      if (s == null || s === '') return '';
+      s = String(s);
+      const real = /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s + 'T00:00:00Z')) && new Date(s + 'T00:00:00Z').toISOString().slice(0, 10) === s;
+      return real && s >= check.MIN_BIRTHDAY && s <= check.today() ? '' : MSG.birthday;
+    },
+    password(p) {
+      p = String(p || '');
+      const ok = p.length >= 8 && (!LETTER_RE || LETTER_RE.test(p)) && /\d/.test(p) && WEAK_PASSWORDS.indexOf(p.toLowerCase()) < 0;
+      return ok ? '' : MSG.password;
+    },
+    // Đổi mật khẩu: mật khẩu mới phải khác mật khẩu hiện tại và đúng luật mật khẩu
+    newPassword: (cur, nw) => (String(nw || '') === String(cur || '') ? MSG.samePassword : check.password(nw))
+  };
+
   const BetaAuth = {
+    check,
     token: () => store.get(TOKEN_KEY),
     cachedUser() { try { return JSON.parse(store.get(USER_KEY) || 'null'); } catch (e) { return null; } },
     isLoggedIn: () => !!store.get(TOKEN_KEY),
@@ -62,8 +114,8 @@
       else BetaAuth.render();
     },
 
-    // Trang cần đăng nhập: chuyển sang auth.html, đăng nhập xong quay lại đúng trang này
-    loginUrl(next = location.pathname.split('/').pop() + location.search) {
+    // Trang cần đăng nhập: chuyển sang auth.html, đăng nhập xong quay lại đúng trang này (kể cả /phim/<mã-phim>)
+    loginUrl(next = currentPage()) {
       return 'auth.html?next=' + encodeURIComponent(next || 'account.html') + '#login';
     },
     async requireLogin() {

@@ -7,7 +7,7 @@
   <title>Thuê rạp, vé nhóm & Private Show - Beta Cinemas</title>
   <meta name="description" content="Thuê nguyên phòng chiếu (Private Show), đặt vé nhóm từ 20 người, tổ chức hội nghị – sự kiện, quảng cáo tại các rạp Beta Cinemas. Gửi yêu cầu, nhận báo giá trong 1 ngày làm việc.">
   <meta property="og:title" content="Thuê rạp & Private Show - Beta Cinemas">
-  <meta property="og:image" content="images/logo-official.png">
+  <meta property="og:image" content="https://ptnvnhom3betacinemas.vercel.app/images/logo-official.png">
   <link rel="icon" href="images/icon-ticket.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,12 +39,13 @@
   </style>
 </head>
 <body>
+  <div id="demo-bar" role="region" aria-label="Thông báo bản demo" style="background: #7c2d12; color: #fff; padding: 7px 14px; text-align: center; font: 600 13px/1.45 'Be Vietnam Pro', system-ui, sans-serif;">Bản demo đồ án môn học (Nhóm 3) – không phải website chính thức của Beta Cinemas. Vui lòng không chuyển tiền thật nếu bạn không thuộc nhóm thực hiện.</div>
   <a href="#main" class="skip-link" style="position:absolute;left:-9999px;top:0" onfocus="this.style.left='8px'" onblur="this.style.left='-9999px'">Bỏ qua tới nội dung chính</a>
   <!-- Top Bar chính thức Beta Cinemas -->
   <div class="top-header-official">
     <div class="container top-header-inner">
       <div>
-        <span><i class="ph-phone" aria-hidden="true"></i> Hotline CSKH: <strong style="color: #005198;">1900 636 807</strong> <span class="hotline-hours">(08:00 - 22:00)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
+        <span><i class="ph-chat-circle-dots" aria-hidden="true"></i> Hỗ trợ: <a href="support.html" style="color: #005198; font-weight: 700;">Trung tâm hỗ trợ</a> <span class="hotline-hours">(BetaBot 24/7)</span></span> <button type="button" id="lang-toggle" class="lang-toggle" data-no-i18n aria-label="Switch to English">EN</button>
       </div>
       <div class="top-auth-links">
         <a href="auth.html#login">Đăng nhập</a>
@@ -109,7 +110,7 @@
           <label class="f">Loại yêu cầu<select id="ev-kind" required></select></label>
           <label class="f">Rạp mong muốn<select id="ev-cinema"><option value="">Chưa chọn – CSKH tư vấn</option></select></label>
           <label class="f">Ngày tổ chức<input type="date" id="ev-date"></label>
-          <label class="f">Giờ bắt đầu<input type="time" id="ev-time"></label>
+          <label class="f">Giờ bắt đầu (08:00 – 23:00)<input type="time" id="ev-time" min="08:00" max="23:00"></label>
           <label class="f">Số khách dự kiến<input type="number" id="ev-guests" min="1" max="2000" required></label>
           <label class="f">Phim muốn chiếu (nếu có)<select id="ev-movie"><option value="">Chưa chọn</option></select></label>
           <label class="f">Họ tên người liên hệ<input id="ev-name" autocomplete="name" required data-user="full_name"></label>
@@ -117,7 +118,8 @@
           <label class="f">Email (nhận báo giá)<input type="email" id="ev-email" autocomplete="email" data-user="email"></label>
           <label class="f">Công ty / trường (nếu có)<input id="ev-company" autocomplete="organization"></label>
         </div>
-        <label class="f" style="margin-top: 14px;">Yêu cầu thêm<textarea id="ev-note" rows="3" maxlength="1000" placeholder="Trang trí sinh nhật, bắp nước cho cả đoàn, xuất hóa đơn công ty…"></textarea></label>
+        <label class="f" style="margin-top: 14px;">Yêu cầu thêm<textarea id="ev-note" rows="3" maxlength="1000" aria-describedby="ev-note-count" placeholder="Trang trí sinh nhật, bắp nước cho cả đoàn, xuất hóa đơn công ty…"></textarea></label>
+        <small class="m" id="ev-note-count" style="display: block; text-align: right; font-size: 12px; color: #475569;">0/1000 ký tự</small>
         <p class="msg" id="ev-msg" role="status"></p>
         <button class="btn btn-primary" type="submit" id="ev-submit" style="margin-top: 10px;">Gửi yêu cầu</button>
       </form>
@@ -130,7 +132,7 @@
           <button class="btn btn-outline" type="submit">Xem trạng thái</button>
         </form>
         <div id="lk-out" class="msg" aria-live="polite"></div>
-        <p style="font-size: 13px; color: #64748b; margin: 16px 0 0;">Cần gấp? Gọi hotline <b>1900 636 807</b> (08:00–22:00).</p>
+        <p style="font-size: 13px; color: #64748b; margin: 16px 0 0;">Cần gấp? Nhắn <a href="betabot.html">BetaBot</a> hoặc gửi yêu cầu ở <a href="support.html">Trung tâm hỗ trợ</a>.</p>
       </div>
     </div>
   </main>
@@ -150,10 +152,10 @@
             </a>
           </div>
           <p style="font-size: 13px; color: #e0f2fe; line-height: 1.8; margin-bottom: 16px;">
-            <strong>CÔNG TY CỔ PHẦN BETA MEDIA</strong><br>
-            Tầng 3, số 59 phố Xuân Diệu, Phường Quảng An, Quận Tây Hồ, Thành phố Hà Nội.<br>
-            Mã số doanh nghiệp: 0106633482 do Sở KH&ĐT TP. Hà Nội cấp.<br>
-            Hotline: <strong>1900 636 807</strong> (08:00 - 22:00)
+            <strong>ĐỒ ÁN MÔN HỌC – NHÓM 3</strong><br>
+            Website mô phỏng quy trình đặt vé và đối soát thanh toán, phục vụ học tập.<br>
+            Không phải website chính thức của Beta Cinemas; tên và logo thuộc về chủ sở hữu.<br>
+            Hỗ trợ: <a href="support.html" style="color: inherit; text-decoration: underline;">Trung tâm hỗ trợ</a> hoặc BetaBot
           </p>
           <div>
             <img loading="lazy" decoding="async" src="images/dathongbao.png" alt="Đã Thông Báo Bộ Công Thương" style="height: 38px;">
@@ -162,7 +164,7 @@
 
         <!-- Cột 2: Cụm Rạp Beta -->
         <div>
-          <h4 class="footer-official-title">CỤM RẠP BETA CINEMAS</h4>
+          <h2 class="footer-official-title">CỤM RẠP BETA CINEMAS</h2>
           <ul class="footer-official-links">
             <li><a href="schedule.html">Beta Thanh Xuân (Hà Nội)</a></li>
             <li><a href="schedule.html">Beta Giải Phóng (Hà Nội)</a></li>
@@ -176,7 +178,7 @@
 
         <!-- Cột 3: Quy Định & Điều Khoản -->
         <div>
-          <h4 class="footer-official-title">CHÍNH SÁCH & QUY ĐỊNH</h4>
+          <h2 class="footer-official-title">CHÍNH SÁCH & QUY ĐỊNH</h2>
           <ul class="footer-official-links">
             <li><a href="policy.html#dieu-khoan">Điều khoản sử dụng</a></li>
             <li><a href="policy.html#bao-mat">Chính sách bảo mật thông tin</a></li>
@@ -190,7 +192,7 @@
 
         <!-- Cột 4: Kết Nối & Thanh Toán -->
         <div>
-          <h4 class="footer-official-title">KẾT NỐI VỚI CHÚNG TÔI</h4>
+          <h2 class="footer-official-title">KẾT NỐI VỚI CHÚNG TÔI</h2>
           <p style="font-size: 13px; color: #e0f2fe; margin-bottom: 14px;">Theo dõi Fanpage Beta Cinemas để nhận ưu đãi vé 0đ sớm nhất:</p>
           <div style="display: flex; gap: 10px; margin-bottom: 20px;">
             <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Facebook</span>
@@ -198,7 +200,7 @@
             <span style="background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">Youtube</span>
           </div>
 
-          <h4 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h4>
+          <h2 class="footer-official-title" style="margin-top: 10px;">ĐỐI TÁC THANH TOÁN</h2>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
             <span style="background: white; color: #005198; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800;">VietQR / SePay</span>
           </div>
@@ -207,7 +209,7 @@
       </div>
 
       <div class="footer-official-bottom">
-        <div>© 2026 Beta Cinemas. Bản quyền thuộc về Công ty Cổ phần Beta Media.</div>
+        <div>© 2026 Đồ án môn học – Nhóm 3 · Bản demo, không phải website chính thức của Beta Cinemas.</div>
         <div>
           <a href="support.html" style="color: #ffd166; font-weight: 600;">Trung tâm trợ giúp 24/7</a>
         </div>
@@ -238,9 +240,19 @@
         $('ev-movie').innerHTML += (mv.movies || []).filter((m) => m.status !== 'HIDDEN').map((m) => `<option value="${esc(m.key)}">${esc(m.title)}</option>`).join('');
       } catch (e) { $('ev-msg').textContent = 'Không tải được dữ liệu. Vui lòng tải lại trang.'; }
 
+      // Giới hạn giống máy chủ: đặt trước tối đa 12 tháng, giờ 08:00 – 23:00, ghi chú tối đa 1.000 ký tự
+      (function () {
+        const vnToday = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+        const max = new Date(vnToday + 'T00:00:00Z'); max.setUTCMonth(max.getUTCMonth() + 12);
+        $('ev-date').min = vnToday; $('ev-date').max = max.toISOString().slice(0, 10);
+        const cnt = () => { $('ev-note-count').textContent = $('ev-note').value.length + '/1000 ký tự'; };
+        $('ev-note').addEventListener('input', cnt); cnt();
+      })();
       $('ev-form').onsubmit = async (e) => {
         e.preventDefault();
         const msg = $('ev-msg');
+        // Form đặt novalidate để tự hiện lỗi đẹp hơn – vẫn dùng kiểm tra có sẵn của trình duyệt trước khi gọi máy chủ
+        if (!$('ev-form').reportValidity()) return;
         $('ev-submit').disabled = true;
         try {
           const r = await Pay.post('events', {

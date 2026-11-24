@@ -9,3 +9,6 @@ server.js
 .env*
 .claude/
 showcase.html
+specs/
+DEPLOY.md
+scratch/

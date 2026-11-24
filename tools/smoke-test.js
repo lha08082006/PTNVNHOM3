@@ -33,16 +33,16 @@ async function test(name, fn) {
   let tokA, tokB, code, ST;
 
   await test('Đăng ký + đăng nhập', async () => {
-    const r = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach A', email: 'a@test.vn', phone: '0901000001', password: 'matkhau123' } });
+    const r = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach A', email: 'a@test.vn', phone: '0901000001', password: 'Matkhau2026' } });
     assert.strictEqual(r.status, 200, JSON.stringify(r.data));
     tokA = r.data.token;
-    const dup = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach Trung', email: 'A@test.vn', phone: '0901000009', password: 'matkhau123' } });
+    const dup = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach Trung', email: 'A@test.vn', phone: '0901000009', password: 'Matkhau2026' } });
     assert.strictEqual(dup.status, 409);
     const bad = await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'a@test.vn', password: 'sai' } });
     assert.strictEqual(bad.status, 401);
-    const ok = await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: '0901000001', password: 'matkhau123' } });
+    const ok = await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: '0901000001', password: 'Matkhau2026' } });
     assert.strictEqual(ok.status, 200);
-    const b = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach B', email: 'b@test.vn', phone: '0901000002', password: 'matkhau123' } });
+    const b = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach B', email: 'b@test.vn', phone: '0901000002', password: 'Matkhau2026' } });
     tokB = b.data.token;
   });
 
@@ -148,7 +148,7 @@ async function test(name, fn) {
   });
 
   await test('Đổi mật khẩu làm phiên cũ hết hạn', async () => {
-    const r = await call('auth', { method: 'POST', query: { action: 'password' }, token: tokA, body: { current_password: 'matkhau123', new_password: 'matkhaumoi1' } });
+    const r = await call('auth', { method: 'POST', query: { action: 'password' }, token: tokA, body: { current_password: 'Matkhau2026', new_password: 'matkhaumoi1' } });
     assert.strictEqual(r.status, 200);
     const old = await call('auth', { query: { action: 'me' }, token: tokA });
     assert.strictEqual(old.status, 401);
@@ -309,9 +309,9 @@ async function test(name, fn) {
 
     // Quản lý tạo nhân viên mới, khóa tài khoản thì phiên của người đó hết hiệu lực
     const ql = asStaff(await staffLogin('quanly@beta.local'));
-    const created = await ql.post({ action: 'staff_create', full_name: 'NV Tam Thoi', email: 'tam@beta.local', role: 'CS', password: 'matkhau123' });
+    const created = await ql.post({ action: 'staff_create', full_name: 'NV Tam Thoi', email: 'tam@beta.local', role: 'CS', password: 'Matkhau2026' });
     assert.strictEqual(created.status, 200, JSON.stringify(created.data));
-    const r = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'tam@beta.local', password: 'matkhau123' } });
+    const r = await call('admin', { method: 'POST', query: { action: 'login' }, body: { email: 'tam@beta.local', password: 'Matkhau2026' } });
     const tam = asStaff(r.data.token);
     assert.strictEqual((await tam.get('me')).status, 200);
     await ql.post({ action: 'staff_update', id: created.data.staff.id, active: false });
@@ -449,7 +449,7 @@ async function test(name, fn) {
     await expectOne(ql, { action: 'movie_save', title: 'Phim Nhật Ký', status: 'SOON' });
     await expectOne(ql, { action: 'cinema_save', id: 'beta-thanh-xuan', name: 'Beta Thanh Xuân' });
     await expectOne(ql, { action: 'voucher_save', code: 'NHATKY', discount: 5000, max_uses: 1 });
-    await expectOne(ql, { action: 'staff_create', full_name: 'NV Nhat Ky', email: 'nhatky@beta.local', role: 'COUNTER', password: 'matkhau123' });
+    await expectOne(ql, { action: 'staff_create', full_name: 'NV Nhat Ky', email: 'nhatky@beta.local', role: 'COUNTER', password: 'Matkhau2026' });
     await expectOne(ql, { action: 'run_job' });
     await expectOne(cs, { action: 'send_to_accounting', refund_codes: ['REF-T2'] });
 
@@ -559,7 +559,7 @@ async function test(name, fn) {
 
   await test('Quên mật khẩu bằng mã OTP + khóa khi đăng nhập sai nhiều lần', async () => {
     for (let i = 0; i < 5; i++) await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'b@test.vn', password: 'sai-' + i } });
-    const locked = await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'b@test.vn', password: 'matkhau123' } });
+    const locked = await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'b@test.vn', password: 'Matkhau2026' } });
     assert.strictEqual(locked.status, 429); // đúng mật khẩu nhưng đang bị khóa
     const unknown = await call('auth', { method: 'POST', query: { action: 'forgot' }, body: { email: 'khongco@test.vn' } });
     assert.strictEqual(unknown.status, 200);
@@ -715,7 +715,7 @@ async function test(name, fn) {
   });
 
   // Khách mới cho các kiểm thử hợp nhất (token cũ có thể đã hết hạn do đổi / quên mật khẩu)
-  const newCustomer = async (n) => (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach ' + n, email: n + '@hopnhat.vn', phone: '09020000' + String(n.length).padStart(2, '0') + n.charCodeAt(0) % 10, password: 'matkhau123' } })).data.token;
+  const newCustomer = async (n) => (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach ' + n, email: n + '@hopnhat.vn', phone: '0937' + String(n.length).padStart(3, '0') + String(n.charCodeAt(0)).padStart(3, '0'), password: 'Matkhau2026' } })).data.token;
   const tokC = await newCustomer('c'), tokD = await newCustomer('dd');
 
   await test('Hợp nhất GitHub: voucher có điều kiện (đơn tối thiểu, kèm combo, theo thứ, giảm %)', async () => {
@@ -852,7 +852,7 @@ async function test(name, fn) {
     assert.strictEqual(Catalog.tierOf(9e9).id, 'VVIP');
     // Sinh nhật trong tháng này -> cộng quà đúng 1 lần / năm
     const vnMonth = new Date(Date.now() + 7 * 3600e3).toISOString().slice(5, 7);
-    const t = (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Sinh Nhat', email: 'sn@hopnhat.vn', phone: '0909111222', password: 'matkhau123', birthday: '2000-' + vnMonth + '-15' } })).data.token;
+    const t = (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Sinh Nhat', email: 'sn@hopnhat.vn', phone: '0909111222', password: 'Matkhau2026', birthday: '2000-' + vnMonth + '-15' } })).data.token;
     await Points.daily();
     await Points.daily();
     const p = (await call('member', { token: t, query: { action: 'points' } })).data;
@@ -1290,9 +1290,9 @@ async function test(name, fn) {
   await test('Đợt 6: đăng ký phải đồng ý điều khoản; tải dữ liệu; xóa tài khoản ẩn danh đơn hàng; hủy nhận email', async () => {
     const Store = require('../lib/store');
     const Auth = require('../lib/auth');
-    const no = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khong Dong Y', email: 'kdy@x.vn', phone: '0904000001', password: 'matkhau123', accept_terms: false } });
+    const no = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khong Dong Y', email: 'kdy@x.vn', phone: '0904000001', password: 'Matkhau2026', accept_terms: false } });
     assert.strictEqual(no.status, 400);
-    const r = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Nguyen Xoa Thu', email: 'xoa@x.vn', phone: '0904000002', password: 'matkhau123', marketing_opt_in: true } });
+    const r = await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Nguyen Xoa Thu', email: 'xoa@x.vn', phone: '0904000002', password: 'Matkhau2026', marketing_opt_in: true } });
     assert.strictEqual(r.data.user.marketing_opt_in, true);
     assert.ok(r.data.user.terms_accepted_at && r.data.user.terms_version);
     const tok = r.data.token;
@@ -1306,19 +1306,19 @@ async function test(name, fn) {
     assert.ok(!('password_hash' in data.profile));
     assert.strictEqual(data.orders.length, 2);
     // Còn đơn chờ thanh toán -> chưa cho xóa; sai mật khẩu / thiếu XOA -> chặn
-    assert.strictEqual((await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'matkhau123', confirm: 'XOA' } })).status, 409);
+    assert.strictEqual((await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'Matkhau2026', confirm: 'XOA' } })).status, 409);
     await call('order-action', { method: 'POST', token: tok, query: { action: 'cancel', code: pending.code } });
     assert.strictEqual((await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'sai', confirm: 'XOA' } })).status, 400);
-    assert.strictEqual((await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'matkhau123', confirm: 'xoa nhe' } })).status, 400);
-    const del = await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'matkhau123', confirm: 'XOA' } });
+    assert.strictEqual((await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'Matkhau2026', confirm: 'xoa nhe' } })).status, 400);
+    const del = await call('auth', { method: 'POST', token: tok, query: { action: 'delete' }, body: { password: 'Matkhau2026', confirm: 'XOA' } });
     assert.strictEqual(del.status, 200, JSON.stringify(del.data));
     assert.strictEqual((await call('auth', { token: tok, query: { action: 'me' } })).status, 401); // phiên cũ hết hiệu lực
-    assert.strictEqual((await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'xoa@x.vn', password: 'matkhau123' } })).status, 401);
+    assert.strictEqual((await call('auth', { method: 'POST', query: { action: 'login' }, body: { login: 'xoa@x.vn', password: 'Matkhau2026' } })).status, 401);
     const o = await Store.one('orders', { code: paid.code });
     assert.strictEqual(o.status, 'CONFIRMED'); // đơn vẫn còn (chứng từ kế toán) nhưng không còn thông tin cá nhân
     assert.ok(!o.email && !o.phone && !o.customer_name);
     // Đăng ký lại bằng email cũ được (email đã được giải phóng)
-    assert.strictEqual((await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Nguyen Xoa Thu', email: 'xoa@x.vn', phone: '0904000002', password: 'matkhau123' } })).status, 200);
+    assert.strictEqual((await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Nguyen Xoa Thu', email: 'xoa@x.vn', phone: '0904000002', password: 'Matkhau2026' } })).status, 200);
     // Link hủy nhận email: đúng chữ ký mới được
     const c2 = await Store.one('customers', { email: 'xoa@x.vn' });
     await Store.update('customers', { id: c2.id }, { marketing_opt_in: true });
@@ -1391,7 +1391,7 @@ async function test(name, fn) {
   await test('Đợt 6: email ưu đãi chỉ tới khách đồng ý nhận, gửi theo đợt, bỏ qua người vừa hủy', async () => {
     const Store = require('../lib/store');
     const ql = asStaff(await staffLogin('quanly@beta.local'));
-    const mk = async (n, opt) => (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach Mkt ' + n, email: 'mkt' + n + '@x.vn', phone: '090500000' + n, password: 'matkhau123', marketing_opt_in: opt } })).data.user;
+    const mk = async (n, opt) => (await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Khach Mkt ' + 'ABCDEFGHIJ'[n], email: 'mkt' + n + '@x.vn', phone: '090500000' + n, password: 'Matkhau2026', marketing_opt_in: opt } })).data.user;
     const users = [];
     for (let i = 1; i <= 9; i++) users.push(await mk(i, i <= 6)); // 6 người đồng ý, 3 người không
     const pv = await ql.post({ action: 'campaign_preview', segment: 'ALL' });
@@ -1416,7 +1416,7 @@ async function test(name, fn) {
   await test('Đợt 6: 20 khách cùng giành 1 ghế cùng lúc -> đúng 1 người giữ được', async () => {
     const seat = (await freeSeats(ST2, 1))[0];
     const toks = [];
-    for (let i = 0; i < 20; i++) toks.push((await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Tranh Ghe ' + i, email: 'tranh' + i + '@x.vn', phone: '09060000' + String(i).padStart(2, '0'), password: 'matkhau123' } })).data.token);
+    for (let i = 0; i < 20; i++) toks.push((await call('auth', { method: 'POST', query: { action: 'register' }, body: { full_name: 'Tranh Ghe ' + String.fromCharCode(65 + i), email: 'tranh' + i + '@x.vn', phone: '09060000' + String(i).padStart(2, '0'), password: 'Matkhau2026' } })).data.token);
     const rs = await Promise.all(toks.map(t => call('create-order', { method: 'POST', token: t, body: { showtime_id: ST2.id, seats: [seat] } })));
     assert.strictEqual(rs.filter(r => r.status === 200).length, 1, rs.map(r => r.status).join(','));
     assert.ok(rs.filter(r => r.status !== 200).every(r => r.status === 409));

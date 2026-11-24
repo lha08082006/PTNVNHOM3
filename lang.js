@@ -22,9 +22,11 @@
     for (var i = 0; i < patterns.length; i++) {
       var m = s.match(patterns[i][0]);
       if (!m) continue;
-      return patterns[i][1]
+      var r = patterns[i][1]
         .replace(/\{(\d)\}/g, function (_, k) { var g = m[k] || ''; return Object.prototype.hasOwnProperty.call(dict, g) ? dict[g] : (segments(g) || g); })
         .replace(/\$(\d)/g, function (_, k) { return m[k] || ''; });
+      if (r === s) continue; // mẫu không đổi được chữ nào (vd. dữ liệu có dấu phẩy) – coi như không khớp
+      return r;
     }
     return null;
   }
@@ -49,6 +51,8 @@
   var ATTRS = ['placeholder', 'aria-label', 'title', 'alt'];
   var busy = false;
   function skipEl(el) { return !el || SKIP.test(el.tagName) || (el.closest && el.closest('[data-no-i18n],[contenteditable="true"]')); }
+  // Ô nhập nhiều dòng: không dịch chữ khách gõ bên trong, nhưng vẫn dịch placeholder / aria-label / title
+  function attrsOnly(el) { return el && el.tagName === 'TEXTAREA' && !(el.closest && el.closest('[data-no-i18n],[contenteditable="true"]')); }
   function doNode(node) {
     if (node.nodeType === 3) {
       if (skipEl(node.parentElement)) return;
@@ -56,23 +60,24 @@
       if (t != null && t !== node.nodeValue) node.nodeValue = t;
       return;
     }
-    if (node.nodeType !== 1 || skipEl(node)) return;
+    if (node.nodeType !== 1) return;
+    if (skipEl(node)) { if (attrsOnly(node)) doAttrs(node); return; }
     for (var i = 0; i < ATTRS.length; i++) {
       var v = node.getAttribute(ATTRS[i]);
       if (v) { var tv = translate(v); if (tv != null && tv !== v) node.setAttribute(ATTRS[i], tv); }
     }
     if (node.tagName === 'INPUT' && /^(button|submit)$/i.test(node.type) && node.value) { var tb = translate(node.value); if (tb != null) node.value = tb; }
-    if (node.tagName === 'OPTION') { var to = translate(node.textContent); if (to != null) node.textContent = to; return; }
+    if (node.tagName === 'OPTION') { var to = translate(node.textContent); if (to != null && to !== node.textContent) node.textContent = to; return; }
     var w = document.createTreeWalker(node, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, null);
     var cur = w.nextNode();
-    while (cur) { if (cur !== node) { if (cur.nodeType === 1) { if (skipEl(cur)) { cur = nextSkip(w, cur); continue; } doAttrs(cur); } else doNode(cur); } cur = w.nextNode(); }
+    while (cur) { if (cur !== node) { if (cur.nodeType === 1) { if (skipEl(cur)) { if (attrsOnly(cur)) doAttrs(cur); cur = nextSkip(w, cur); continue; } doAttrs(cur); } else doNode(cur); } cur = w.nextNode(); }
   }
   function doAttrs(el) {
     for (var i = 0; i < ATTRS.length; i++) { var v = el.getAttribute(ATTRS[i]); if (v) { var t = translate(v); if (t != null && t !== v) el.setAttribute(ATTRS[i], t); } }
     if (el.tagName === 'INPUT' && /^(button|submit)$/i.test(el.type) && el.value) { var tb = translate(el.value); if (tb != null) el.value = tb; }
   }
   function nextSkip(w, el) { var n = w.nextSibling(); while (!n && w.parentNode()) n = w.nextSibling(); return n; }
-  function run(root) { busy = true; try { doNode(root); var tt = translate(document.title); if (tt) document.title = tt; } finally { busy = false; } }
+  function run(root) { busy = true; try { doNode(root); var tt = translate(document.title); if (tt && tt !== document.title) document.title = tt; } finally { busy = false; } }
 
   // Nút có sẵn trong HTML (#lang-toggle, đặt ở thanh trên cùng – không làm xô lệch bố cục);
   // trang nào chưa có thì tạo thêm vào thanh điều hướng.
@@ -135,7 +140,7 @@
             else if (m.type === 'attributes') doAttrs(m.target);
             else for (var k = 0; k < m.addedNodes.length; k++) doNode(m.addedNodes[k]);
           }
-          var tt = translate(document.title); if (tt) document.title = tt;
+          var tt = translate(document.title); if (tt && tt !== document.title) document.title = tt;
         } finally { busy = false; }
       }).observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
     });

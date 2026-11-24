@@ -185,14 +185,9 @@
   // Voucher: kind AMOUNT (giảm số tiền) | PERCENT (giảm %, có trần max_discount) | PER_SEAT (giảm mỗi ghế)
   // Điều kiện: min_total (đơn tối thiểu, tính trước giảm), need_combo (phải mua kèm bắp nước),
   // weekdays (chỉ suất chiếu vào các thứ này, 0 = Chủ nhật). Máy chủ lấy bản trong database.
-  const VOUCHERS = {
-    BETAVIP:   { discount: 20000, label: 'Giảm 20.000 đ cho thành viên' },
-    ALPHA:     { discount: 20000, label: 'Giảm 20.000 đ' },
-    CINEMA:    { discount: 20000, label: 'Giảm 20.000 đ' },
-    COMBO30:   { discount: 30000, label: 'Giảm 30.000 đ khi mua kèm bắp nước', need_combo: true },
-    T3VUIVE:   { kind: 'PERCENT', percent: 15, max_discount: 40000, weekdays: [2], label: 'Suất chiếu thứ Ba giảm 15% (tối đa 40.000 đ)' },
-    NEWMEMBER: { discount: 50000, min_total: 150000, per_customer: 1, label: 'Thành viên mới giảm 50.000 đ cho đơn từ 150.000 đ' }
-  };
+  // Danh sách mã voucher KHÔNG để ở đây (file này trình duyệt tải về, ai cũng đọc được): máy chủ đọc trong database,
+  // dữ liệu chạy thử nằm ở lib/catalog-db.js (SEED_VOUCHERS).
+  const VOUCHERS = {};
   const DOW_NAME = ['Chủ nhật', 'thứ Hai', 'thứ Ba', 'thứ Tư', 'thứ Năm', 'thứ Sáu', 'thứ Bảy'];
   const vndText = (n) => Number(n || 0).toLocaleString('vi-VN') + ' đ';
 
